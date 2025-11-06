@@ -2,6 +2,7 @@
 
 import React, { useEffect } from "react"
 import Glide from "@glidejs/glide"
+import Image from "next/image"
 
 
 const HeroSlider = () => {
@@ -41,35 +42,24 @@ const HeroSlider = () => {
         <div className="overflow-hidden" data-glide-el="track">
           <ul className="whitespace-no-wrap flex-no-wrap [backface-visibility: hidden] [transform-style: preserve-3d] [touch-action: pan-Y] [will-change: transform] relative flex w-full overflow-hidden p-0">
             <li>
-              <img
-                src="https://Tailwindmix.b-cdn.net/image-01.jpg"
+              <Image
+                src="/images/slider1.png"
+                alt="slider1"
+                width={500}
+                height={300}
                 className="w-full max-w-full max-h-full m-auto"
               />
             </li>
             <li>
-              <img
-                src="https://Tailwindmix.b-cdn.net/image-02.jpg"
+              <Image
+                src="/images/slider2.png"
+                alt="slider2"
+                 width={500}
+                height={300}
                 className="w-full max-w-full max-h-full m-auto"
               />
             </li>
-            <li>
-              <img
-                src="https://Tailwindmix.b-cdn.net/image-03.jpg"
-                className="w-full max-w-full max-h-full m-auto"
-              />
-            </li>
-            <li>
-              <img
-                src="https://Tailwindmix.b-cdn.net/image-04.jpg"
-                className="w-full max-w-full max-h-full m-auto"
-              />
-            </li>
-            <li>
-              <img
-                src="https://Tailwindmix.b-cdn.net/image-05.jpg"
-                className="w-full max-w-full max-h-full m-auto"
-              />
-            </li>
+            
           </ul>
         </div>
         {/*    <!-- Controls --> */}
