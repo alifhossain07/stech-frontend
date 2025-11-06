@@ -8,33 +8,35 @@ const HeroSlider = () => {
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    const slider = new Glide(".glide-01", {
-      type: "slider",
-      focusAt: "center",
-      perView: 1,
-      autoplay: 3000,
-      animationDuration: 700,
-      gap: 0,
-      classes: {
-        swipeable: "glide__swipeable",
-        dragging: "glide__dragging",
-        direction: { ltr: "glide__ltr", rtl: "glide__rtl" },
-        type: { slider: "glide__slider", carousel: "glide__carousel" },
-        slide: { active: "glide__slide--active", clone: "glide__slide--clone" },
-        arrow: { disabled: "glide__arrow--disabled" },
-        nav: { active: "[&>*]:bg-wuiSlate-700" },
-      },
-    });
+  const slider = new Glide(".glide-01", {
+    type: "slider",
+    focusAt: "center",
+    perView: 1,
+    autoplay: 3000,
+    animationDuration: 700,
+    gap: 0,
+    classes: {
+      swipeable: "glide__swipeable",
+      dragging: "glide__dragging",
+      direction: { ltr: "glide__ltr", rtl: "glide__rtl" },
+      type: { slider: "glide__slider", carousel: "glide__carousel" },
+      slide: { active: "glide__slide--active", clone: "glide__slide--clone" },
+      arrow: { disabled: "glide__arrow--disabled" },
+      nav: { active: "[&>*]:bg-wuiSlate-700" },
+    },
+  });
 
-    // Slight delay to prevent image flash before Glide mounts
-    setTimeout(() => {
-      slider.mount();
-      setIsLoaded(true);
-    }, 100);
+  const timeout = setTimeout(() => {
+    slider.mount();
+    setIsLoaded(true);
+  }, 100);
 
-    return () => slider.destroy();
-  }, []);
-
+  // ✅ Cleanup returns nothing
+  return () => {
+    clearTimeout(timeout);
+    slider.destroy();
+  };
+}, []);
   return (
     <div className="w-11/12 md:w-10/12 mx-auto md:pt-10 pt-5 pb-24">
       {/* Parent Container */}
