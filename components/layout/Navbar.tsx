@@ -100,7 +100,7 @@ const Navbar = () => {
          <div className="relative inline-block">
   <button
     onClick={() => setOpen(!open)}
-    className="border border-gray-400 px-5 lg:px-6 py-2 h-[46px] flex items-center gap-2 rounded-md text-sm lg:text-base bg-white"
+    className="border hover:text-gray-600 duration-300 border-gray-400 px-5 lg:px-6 py-2 h-[46px] flex items-center gap-2 rounded-md text-sm lg:text-base bg-white"
   >
     <span className="underline">English</span>
     <FiChevronDown className="text-black text-2xl" />
@@ -121,7 +121,7 @@ const Navbar = () => {
     </button>
   </div>
 </div>
-          <button className=" border border-gray-400 px-5 lg:px-6 py-2 h-[46px] rounded-md flex items-center gap-3 text-sm">
+          <button className=" border hover:text-gray-600 duration-300 border-gray-400 px-5 lg:px-6 py-2 h-[46px] rounded-md flex items-center gap-3 text-sm">
             <div className="flex items-center gap-2">
               <FiShoppingCart className="text-3xl" />
               <div className="text-left">
@@ -131,7 +131,7 @@ const Navbar = () => {
             </div>
           </button>
 
-          <button className="border border-gray-400 px-5 lg:px-6 py-2 h-[46px] rounded-md flex items-center gap-1 text-sm lg:text-base">
+          <button className="border hover:text-gray-600 duration-300 border-gray-400 px-5 lg:px-6 py-2 h-[46px] rounded-md flex items-center gap-1 text-sm lg:text-base">
             <div className="flex items-center gap-2">
               <FiUser className="text-3xl" />
               <div className="text-left">
@@ -147,35 +147,35 @@ const Navbar = () => {
       <div className="bg-orange-500">
         <div className="w-10/12 hidden mx-auto md:flex justify-between items-center h-14">
           {/* Nav Links (Desktop) */}
-          <ul className="hidden md:flex gap-6 lg:gap-4 text-white font-semibold text-sm ">
-            <li className="flex items-center gap-1">
+          <ul className="hidden cursor-pointer  md:flex gap-6 lg:gap-4 text-white font-semibold  text-sm ">
+            <li className="flex hover:text-gray-300 duration-300  items-center gap-1">
               Fast Charger <FiChevronDown className="text-white text-sm" />
             </li>
-            <li className="flex items-center gap-1">
+            <li className="flex hover:text-gray-300 duration-300 items-center gap-1">
               Fast Cable <FiChevronDown className="text-white text-sm" />
             </li>
-            <li className="flex items-center gap-1">
+            <li className="flex hover:text-gray-300 duration-300  items-center gap-1">
               Neckband <FiChevronDown className="text-white text-sm" />
             </li>
-            <li className="flex items-center gap-1">
+            <li className="flex hover:text-gray-300 duration-300 items-center gap-1">
               TWS <FiChevronDown className="text-white text-sm" />
             </li>
-            <li className="flex items-center gap-1">
+            <li className="flex hover:text-gray-300 duration-300 items-center gap-1">
               Power Bank <FiChevronDown className="text-white text-sm" />
             </li>
             <li className="flex items-center gap-1">
               Ear Phone <FiChevronDown className="text-white text-sm" />
             </li>
-            <li className="flex items-center gap-1">
+            <li className="flex hover:text-gray-300 duration-300 items-center gap-1">
               About Us <FiChevronDown className="text-white text-sm" />
             </li>
-            <li className="flex items-center gap-1">
+            <li className="flex hover:text-gray-300 duration-300 items-center gap-1">
               Our Blog <FiChevronDown className="text-white text-sm" />
             </li>
-            <li className="flex items-center gap-1">
+            <li className="flex hover:text-gray-300 duration-300 items-center gap-1">
               Contact Us <FiChevronDown className="text-white text-sm" />
             </li>
-            <li className="flex items-center gap-1">
+            <li className="flex hover:text-gray-300 duration-300 items-center gap-1">
               Authentication <FiChevronDown className="text-white text-sm" />
             </li>
           </ul>
