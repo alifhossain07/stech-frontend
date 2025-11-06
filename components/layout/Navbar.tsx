@@ -101,7 +101,7 @@ const Navbar = () => {
           <div className="relative inline-block">
             <button
               onClick={() => setOpen(!open)}
-              className="border hover:text-gray-600 duration-300 border-gray-400 px-5 lg:px-6 py-2 h-[46px] flex items-center gap-2 rounded-md text-sm lg:text-base bg-white"
+              className="border hover:text-gray-600 duration-300 border-gray-400 px-5 lg:px-3 py-2 h-[46px] flex items-center gap-2 rounded-md text-sm lg:text-base bg-white"
             >
               <span className="underline">English</span>
               <FiChevronDown className="text-black text-2xl" />
@@ -128,7 +128,7 @@ const Navbar = () => {
               </button>
             </div>
           </div>
-          <button className=" border hover:text-gray-600 duration-300 border-gray-400 px-5 lg:px-6 py-2 h-[46px] rounded-md flex items-center gap-3 text-sm">
+          <button className=" border hover:text-gray-600 duration-300 border-gray-400 px-5 lg:px-4 py-2 h-[46px] rounded-md flex items-center gap-3 text-sm">
             <div className="flex items-center gap-2">
               <FiShoppingCart className="text-3xl" />
               <div className="text-left">
@@ -138,7 +138,7 @@ const Navbar = () => {
             </div>
           </button>
 
-          <button className="border hover:text-gray-600 duration-300 border-gray-400 px-5 lg:px-6 py-2 h-[46px] rounded-md flex items-center gap-1 text-sm lg:text-base">
+          <button className="border hover:text-gray-600 duration-300 border-gray-400 px-5 lg:px-4 py-2 h-[46px] rounded-md flex items-center gap-1 text-sm lg:text-base">
             <div className="flex items-center gap-2">
               <FiUser className="text-3xl" />
               <div className="text-left">
