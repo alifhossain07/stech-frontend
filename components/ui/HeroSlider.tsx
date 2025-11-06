@@ -26,7 +26,7 @@ const HeroSlider = () => {
       },
     });
 
-    // Delay mount to avoid double-image flash
+    // Slight delay to prevent image flash before Glide mounts
     setTimeout(() => {
       slider.mount();
       setIsLoaded(true);
@@ -36,18 +36,25 @@ const HeroSlider = () => {
   }, []);
 
   return (
-    <div className="w-10/12 mx-auto pt-10 pb-24">
-     
-      {/* Parent Flex Container */}
-      <div className="flex h-[500px]  gap-5   overflow-hidden rounded-xl">
+    <div className="w-11/12 md:w-10/12 mx-auto md:pt-10 pt-5 pb-24">
+      {/* Parent Container */}
+      <div
+        className="
+          flex flex-col lg:flex-row 
+          lg:h-[500px] gap-5 
+          overflow-hidden rounded-xl
+        "
+      >
         {/* LEFT: Slider */}
-        <div className=" w-2/3 relative overflow-hidden">
-          <div className={`relative w-full glide-01 transition-opacity duration-500 ${isLoaded ? "opacity-100" : "opacity-0"}`}>
+        <div className="w-full lg:w-2/3 relative overflow-hidden">
+          <div
+            className={`relative w-full glide-01 transition-opacity duration-500 ${
+              isLoaded ? "opacity-100" : "opacity-0"
+            }`}
+          >
             {/* Slides */}
             <div className="overflow-hidden" data-glide-el="track">
-              <ul
-                className="whitespace-no-wrap flex [backface-visibility:hidden] [transform-style:preserve-3d] [touch-action:pan-Y] [will-change:transform] relative w-full overflow-hidden p-0 m-0"
-              >
+              <ul className="flex whitespace-no-wrap [backface-visibility:hidden] [transform-style:preserve-3d] [touch-action:pan-Y] [will-change:transform] relative w-full overflow-hidden p-0 m-0">
                 <li className="flex-shrink-0 w-full">
                   <Image
                     src="/images/slider1.png"
@@ -119,22 +126,29 @@ const HeroSlider = () => {
           </div>
         </div>
 
-        {/* RIGHT: Two stacked images */}
-        <div className="flex flex-col gap-4  w-1/3">
-          <div className=" h-1/2 relative">
+        {/* RIGHT: Two stacked images (desktop) / Side-by-side (mobile) */}
+        <div
+          className="
+            flex 
+            flex-row lg:flex-col 
+            gap-4 
+            w-full lg:w-1/3
+          "
+        >
+          <div className="relative w-1/2 lg:w-full h-[110px] lg:h-1/2">
             <Image
               src="/images/herohover.png"
               alt="right image 1"
               fill
-              className="object-cover"
+              className="object-cover hover:scale-105 transition-transform duration-300"
             />
           </div>
-          <div className=" h-1/2 relative">
+          <div className="relative w-1/2 lg:w-full h-[110px] lg:h-1/2">
             <Image
               src="/images/herohover.png"
               alt="right image 2"
               fill
-              className="object-cover"
+              className="object-cover hover:scale-105 transition-transform duration-300"
             />
           </div>
         </div>
