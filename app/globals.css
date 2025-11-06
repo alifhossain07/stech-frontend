@@ -7,3 +7,35 @@
 html, body {
   font-family: var(--font-poppins), sans-serif;
 }
+
+html,
+body {
+  overflow-x: hidden;
+}
+@keyframes slideIn {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.animate-slideIn {
+  animation: slideIn 0.3s ease-out forwards;
+}
+
+@keyframes pulseScaleColor {
+  0%, 100% {
+    transform: scale(1);
+    color: white;
+  }
+  50% {
+    transform: scale(1.2);
+    color: black;
+  }
+}
+
+.animate-pulseScaleColor {
+  animation: pulseScaleColor 1.5s infinite ease-in-out;
+}
