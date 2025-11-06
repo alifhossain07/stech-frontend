@@ -1,16 +1,7 @@
 import Image from "next/image";
 import React from "react";
-import {
-  FaFacebookF,
-  FaInstagram,
-  FaYoutube,
-  FaTiktok,
-  FaCcVisa,
-  FaCcMastercard,
-  FaCcAmex,
-  FaCcPaypal,
-} from "react-icons/fa";
-
+import { BsTwitterX } from "react-icons/bs";
+import { FaFacebookF, FaInstagram, FaYoutube,} from "react-icons/fa";
 
 const Footer = () => {
   return (
@@ -20,60 +11,88 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-12 gap-10">
           {/* LEFT SECTION (4/12) */}
           <div className="md:col-span-4">
-              <Image
-                        src="/images/sannailogo.png"
-                        alt="Like Telecom Logo"
-                        width={140}
-                        height={140}
-                        className="object-contain  w-28 sm:w-32 md:w-36 lg:w-40 h-auto"
-                      />
-            <p className="text-gray-400 mt-5 text-sm leading-relaxed mb-4">
-             Sannai is dedicated to delivering innovative solutions 
-with a focus on quality, creativity, and customer -
-satisfaction. We believe in building experiences -
-that inspire growth and trust.
+            <Image
+              src="/images/sannailogo.png"
+              alt="Like Telecom Logo"
+              width={140}
+              height={140}
+              className="object-contain  w-28 sm:w-32 md:w-36 lg:w-40 h-auto"
+            />
+            <p className="text-gray-400 w-9/12 text-justify mt-5 text-sm leading-relaxed mb-4">
+              Sannai is dedicated to delivering innovative solutions with a
+              focus on quality, creativity, and customer - satisfaction. We
+              believe in building experiences - that inspire growth and trust.
             </p>
+            <div className="relative w-full md:w-96">
+              <input
+                type="email"
+                placeholder="Enter your email"
+                className="w-full bg-white border border-gray-300 rounded-lg py-3 pl-4 pr-24 focus:outline-none focus:ring-2 focus:ring-orange-400 transition"
+              />
+              <button className="absolute top-1/2 right-2 -translate-y-1/2 bg-gradient-to-b from-[#FFD522] to-[#FF6B01] text-white font-medium px-4 py-2 rounded-lg hover:opacity-90 transition">
+                Subscribe
+              </button>
+            </div>
+
+            {/* Store Buttons */}
+            <div className="flex items-center space-x-3">
+  <Image
+    src="/images/appstore.png"
+    alt="App Store"
+    width={120}
+    height={40}
+    className=" mt-4 h-10"
+  />
+
+  <Image
+    src="/images/googleplay.png"
+    alt="Play Store"
+    width={120}
+    height={40}
+    className=" mt-4 h-10"
+  />
+
+  <Image
+    src="/images/galaxystore.png"
+    alt="Huawei App Gallery"
+    width={120}
+    height={40}
+    className="  mt-4 h-10"
+  />
+</div>
 
             {/* Social Icons */}
-            <div className="flex items-center gap-3 mb-4">
+            <div className="flex items-center gap-3 mt-4 mb-4">
+                <h1>Follow Us: </h1>
+                <a
+                href="#"
+                className="bg-white hover:bg-gray-700 p-2 rounded-full transition"
+              >
+                <FaFacebookF className="text-black text-sm" />
+              </a>
+              
               <a
                 href="#"
-                className="bg-gray-800 hover:bg-gray-700 p-2 rounded-full transition"
+                className="bg-white hover:bg-gray-700 p-2 rounded-full transition"
               >
-                <FaTiktok className="text-white text-sm" />
+                <FaInstagram className="text-black text-sm" />
               </a>
               <a
                 href="#"
-                className="bg-gray-800 hover:bg-gray-700 p-2 rounded-full transition"
+                className="bg-white hover:bg-gray-700 p-2 rounded-full transition"
               >
-                <FaInstagram className="text-white text-sm" />
+                <FaYoutube className="text-black text-sm" />
               </a>
               <a
                 href="#"
-                className="bg-gray-800 hover:bg-gray-700 p-2 rounded-full transition"
+                className="bg-white hover:bg-gray-700 p-2 rounded-full transition"
               >
-                <FaYoutube className="text-white text-sm" />
+                <BsTwitterX  className="text-black text-sm" />
               </a>
-              <a
-                href="#"
-                className="bg-gray-800 hover:bg-gray-700 p-2 rounded-full transition"
-              >
-                <FaFacebookF className="text-white text-sm" />
-              </a>
+              
             </div>
 
             {/* Payment Icons */}
-            <div className="flex gap-4 items-center">
-<p className="text-sm font-medium mb-2">Pay With</p>
-            <div className="flex items-center gap-4 text-3xl ">
-              <FaCcVisa className="text-blue-400 transition" />
-              <FaCcMastercard className="text-red-500 transition" />
-              <FaCcAmex className="text-blue-300 transition" />
-              <FaCcPaypal className="text-blue-500 transition" />
-           
-            </div>
-            </div>
-            
           </div>
 
           {/* RIGHT SECTION (8/12) */}
@@ -142,7 +161,7 @@ that inspire growth and trust.
 
       {/* Bottom Copyright */}
       <div className="text-center text-gray-500 text-sm mt-6">
-        Copyright © 2025 Alif Hossain. All rights reserved.
+        Copyright © 2025 Techdyno BD LTD. All rights reserved.
       </div>
     </footer>
   );
