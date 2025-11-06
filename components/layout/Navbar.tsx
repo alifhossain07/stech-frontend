@@ -56,7 +56,21 @@ const Navbar = () => {
         </div>
 
         {/* Search Bar */}
-        <div className="relative w-full md:w-4/12">
+        {/* <div className="relative w-full md:w-4/12">
+          <input
+            type="text"
+            placeholder="Search your Favourite Accessories."
+            className="w-full bg-black border border-black rounded-full py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <button className="absolute top-1/2 right-2 transform -translate-y-1/2 bg-orange-500 text-white p-2 rounded-full">
+            <FiSearch />
+          </button>
+        </div> */}
+
+        {/* Desktop Action Buttons */}
+       <div className="hidden md:flex items-center    gap-3 lg:gap-4">
+        <div>
+ <div className="relative w-full md:w-96 mr-6"> 
           <input
             type="text"
             placeholder="Search your Favourite Accessories."
@@ -66,81 +80,102 @@ const Navbar = () => {
             <FiSearch />
           </button>
         </div>
-
-        {/* Desktop Action Buttons */}
-        <div className="hidden md:flex  gap-3 lg:gap-4">
-          <button className="flex items-center gap-1 bg-orange-500 text-white px-5 lg:px-8 py-2 rounded-xl text-sm lg:text-base">
-            <FiGift /> Offers
-          </button>
-          <div className="relative inline-block">
-            <button
-              onClick={() => setOpen(!open)}
-              className="bg-gray-200 px-5 py-2 flex items-center gap-2 underline rounded-xl text-sm lg:text-base"
-            >
-              English <FiChevronDown className="text-black text-lg" />
-            </button>
-
-            {open && (
-              <div className="absolute mt-2 bg-white border border-gray-300 rounded-xl shadow-md w-32">
-                <button className="block w-full text-left px-4 py-2 hover:bg-gray-100">
-                  English
-                </button>
-                <button className="block w-full text-left px-4 py-2 hover:bg-gray-100">
-                  Bangla
-                </button>
-              </div>
-            )}
-          </div>
-
-          <button className="bg-gray-200 px-5 lg:px-6 py-2 rounded-xl flex items-center gap-3 text-sm">
-            <div className="flex items-center gap-2">
-              <div>
-                <FiShoppingCart className="text-3xl" />
-              </div>
-              <div className="text-left">
-                <h1 className="text-base">Cart</h1>
-                <p className="text-xs">01 Items</p>
-              </div>
-            </div>
-          </button>
-          <button className="bg-gray-200 px-5 lg:px-6 py-2 rounded-xl flex items-center gap-1 text-sm lg:text-base">
-            <FiUser /> Login & Others
-          </button>
         </div>
+       
+  <button
+  className="flex items-center gap-1 text-white px-5 mr-5 lg:px-4 py-2 rounded-xl text-sm lg:text-base"
+  style={{
+    background: "linear-gradient(to bottom, #FFD522, #FF6B01)",
+  }}
+>
+  <FiGift className="text-xl mr-1 animate-pulseScaleColor" /> Offers
+</button>
+
+
+  {/* Language Dropdown */}
+  <div className="relative">
+    <button
+      onClick={() => setOpen(!open)}
+      className=" border border-gray-400 px-5 lg:px-6 py-2 h-[46px] flex items-center gap-2 rounded-md text-sm lg:text-base"
+    >
+      <span className="underline">English</span>
+      <FiChevronDown className="text-black text-2xl" />
+    </button>
+
+    {open && (
+      <div className="absolute left-0 top-full mt-2 bg-white border border-gray-300 rounded-md shadow-md w-32 z-50">
+        <button className="block w-full text-left px-4 py-2 hover:bg-gray-100">
+          English
+        </button>
+        <button className="block w-full text-left px-4 py-2 hover:bg-gray-100">
+          Bangla
+        </button>
+      </div>
+    )}
+  </div>
+
+  <button className=" border border-gray-400 px-5 lg:px-6 py-2 h-[46px] rounded-md flex items-center gap-3 text-sm">
+    <div className="flex items-center gap-2">
+      <FiShoppingCart className="text-3xl" />
+      <div className="text-left">
+        <h1 className="text-base">Cart</h1>
+        <p className="text-xs">01 Items</p>
+      </div>
+    </div>
+  </button>
+
+  <button className="border border-gray-400 px-5 lg:px-6 py-2 h-[46px] rounded-md flex items-center gap-1 text-sm lg:text-base">
+    <div className="flex items-center gap-2">
+      <FiUser className="text-3xl" />
+      <div className="text-left">
+        <h1 className="text-base">Profile</h1>
+        <p className="text-xs">Amanullah</p>
+      </div>
+    </div>
+  </button>
+</div>
+
       </div>
 
       {/* Navigation Bar */}
       <div className="bg-orange-500">
         <div className="w-10/12 hidden mx-auto md:flex justify-between items-center h-14">
           {/* Nav Links (Desktop) */}
-          <ul className="hidden md:flex gap-6 lg:gap-10 text-white font-semibold text-sm lg:text-base">
+          <ul className="hidden md:flex gap-6 lg:gap-4 text-white font-semibold text-sm ">
             <li className="flex items-center gap-1">
-              iPhone <FiChevronDown className="text-white text-sm" />
+             Fast Charger <FiChevronDown className="text-white text-sm" />
             </li>
             <li className="flex items-center gap-1">
-              Samsung <FiChevronDown className="text-white text-sm" />
+              Fast Cable <FiChevronDown className="text-white text-sm" />
             </li>
             <li className="flex items-center gap-1">
-              Redmi <FiChevronDown className="text-white text-sm" />
+              Neckband <FiChevronDown className="text-white text-sm" />
             </li>
             <li className="flex items-center gap-1">
-              Poco <FiChevronDown className="text-white text-sm" />
+              TWS <FiChevronDown className="text-white text-sm" />
             </li>
             <li className="flex items-center gap-1">
-              Walton <FiChevronDown className="text-white text-sm" />
+             Power Bank <FiChevronDown className="text-white text-sm" />
             </li>
             <li className="flex items-center gap-1">
-              Xiaomi <FiChevronDown className="text-white text-sm" />
+              Ear Phone <FiChevronDown className="text-white text-sm" />
             </li>
             <li className="flex items-center gap-1">
-              Huawei <FiChevronDown className="text-white text-sm" />
+             About Us <FiChevronDown className="text-white text-sm" />
+            </li>
+            <li className="flex items-center gap-1">
+             Our Blog <FiChevronDown className="text-white text-sm" />
+            </li>
+            <li className="flex items-center gap-1">
+             Contact Us <FiChevronDown className="text-white text-sm" />
+            </li>
+            <li className="flex items-center gap-1">
+             Authentication <FiChevronDown className="text-white text-sm" />
             </li>
           </ul>
 
           {/* Right Button */}
-          <div className="bg-black hidden md:flex items-center px-4 py-3 text-white h-full text-sm lg:text-base font-medium">
-            Used Device
-          </div>
+         
         </div>
 
         {/* MOBILE: Offers, Cart, Login */}
@@ -201,9 +236,7 @@ const Navbar = () => {
               </div>
             </div>
 
-            <button className="bg-black py-2 rounded-md text-white mt-6">
-              Used Device
-            </button>
+           
           </div>
         </>
       )}
