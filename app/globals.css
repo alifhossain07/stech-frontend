@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* @tailwindcss disable unknownAtRules */
+/* stylelint-disable unknownAtRules */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
