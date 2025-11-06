@@ -1,0 +1,10 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* @tailwindcss disable unknownAtRules */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Use Poppins globally */
+html, body {
+  font-family: var(--font-poppins), sans-serif;
+}
