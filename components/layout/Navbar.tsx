@@ -21,23 +21,24 @@ const Navbar = () => {
       {/* Top Bar */}
       <div className="py-3 shadow-md border-b border-gray-100 bg-black text-white">
         <div className="w-10/12 mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-sm text-white md:font-semibold text-center sm:text-left">
-  {/* Left - Contact */}
-  <div className="flex items-center justify-center sm:justify-start gap-2">
-    <span>Contact Us 24/7:</span>
-    <a href="tel:+--854789956" className="underline hover:text-yellow-300">
-      +--854789956
-    </a>
-  </div>
+          {/* Left - Contact */}
+          <div className="flex items-center justify-center sm:justify-start gap-2">
+            <span>Contact Us 24/7:</span>
+            <a
+              href="tel:+--854789956"
+              className="underline hover:text-yellow-300"
+            >
+              +--854789956
+            </a>
+          </div>
 
-  {/* Right - Store Location */}
-  <div className="flex items-center justify-center sm:justify-end gap-2">
-    <FaMapMarkerAlt className="text-lg" />
-    <span className="sm:inline">Store Locations</span>
-  </div>
-</div>
-
+          {/* Right - Store Location */}
+          <div className="flex items-center justify-center sm:justify-end gap-2">
+            <FaMapMarkerAlt className="text-lg" />
+            <span className="sm:inline">Store Locations</span>
+          </div>
         </div>
-     
+      </div>
 
       {/* Middle Section */}
       <div className="w-10/12 mx-auto py-8 flex flex-col md:flex-row items-center justify-between  gap-4 md:gap-0">
@@ -97,30 +98,36 @@ const Navbar = () => {
           </button>
 
           {/* Language Dropdown */}
-         <div className="relative inline-block">
-  <button
-    onClick={() => setOpen(!open)}
-    className="border hover:text-gray-600 duration-300 border-gray-400 px-5 lg:px-6 py-2 h-[46px] flex items-center gap-2 rounded-md text-sm lg:text-base bg-white"
-  >
-    <span className="underline">English</span>
-    <FiChevronDown className="text-black text-2xl" />
-  </button>
+          <div className="relative inline-block">
+            <button
+              onClick={() => setOpen(!open)}
+              className="border hover:text-gray-600 duration-300 border-gray-400 px-5 lg:px-6 py-2 h-[46px] flex items-center gap-2 rounded-md text-sm lg:text-base bg-white"
+            >
+              <span className="underline">English</span>
+              <FiChevronDown className="text-black text-2xl" />
+            </button>
 
-  {/* Dropdown */}
-  <div
-    className={`absolute left-0 top-full mt-2 bg-white border border-gray-300 rounded-md shadow-md w-32 z-50 transform transition-all duration-200 ease-out ${
-      open ? "opacity-100 visible translate-y-0" : "opacity-0 invisible -translate-y-2"
-    }`}
-    style={{ position: "absolute", overflow: "hidden", willChange: "transform" }}
-  >
-    <button className="block w-full text-left px-4 py-2 hover:bg-gray-100">
-      English
-    </button>
-    <button className="block w-full text-left px-4 py-2 hover:bg-gray-100">
-      Bangla
-    </button>
-  </div>
-</div>
+            {/* Dropdown */}
+            <div
+              className={`absolute left-0 top-full mt-2 bg-white border border-gray-300 rounded-md shadow-md w-32 z-50 transform transition-all duration-200 ease-out ${
+                open
+                  ? "opacity-100 visible translate-y-0"
+                  : "opacity-0 invisible -translate-y-2"
+              }`}
+              style={{
+                position: "absolute",
+                overflow: "hidden",
+                willChange: "transform",
+              }}
+            >
+              <button className="block w-full text-left px-4 py-2 hover:bg-gray-100">
+                English
+              </button>
+              <button className="block w-full text-left px-4 py-2 hover:bg-gray-100">
+                Bangla
+              </button>
+            </div>
+          </div>
           <button className=" border hover:text-gray-600 duration-300 border-gray-400 px-5 lg:px-6 py-2 h-[46px] rounded-md flex items-center gap-3 text-sm">
             <div className="flex items-center gap-2">
               <FiShoppingCart className="text-3xl" />
@@ -235,26 +242,26 @@ const Navbar = () => {
               </button>
 
               <ul className="space-y-3">
-              {[
-                "Fast Charger",
-                "Fast Cable",
-                "Neckband",
-                "TWS",
-                "Power Bank",
-                "Ear Phone",
-                "About Us",
-                "Our Blog",
-                "Contact Us",
-                "Authentication",
-              ].map((item, i) => (
-                <li
-                  key={i}
-                  className="py-2 border-b border-white/20 text-sm hover:text-yellow-200 transition"
-                >
-                  {item}
-                </li>
-              ))}
-            </ul>
+                {[
+                  "Fast Charger",
+                  "Fast Cable",
+                  "Neckband",
+                  "TWS",
+                  "Power Bank",
+                  "Ear Phone",
+                  "About Us",
+                  "Our Blog",
+                  "Contact Us",
+                  "Authentication",
+                ].map((item, i) => (
+                  <li
+                    key={i}
+                    className="py-2 border-b border-white/20 text-sm hover:text-yellow-200 transition"
+                  >
+                    {item}
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
         </>
