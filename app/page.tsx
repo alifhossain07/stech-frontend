@@ -1,3 +1,4 @@
+import NewArrival from "@/components/Pages/Home/NewArrival";
 import PopularCategories from "@/components/Pages/Home/PopularCategories";
 import HeroSlider from "@/components/ui/HeroSlider";
 
@@ -7,6 +8,7 @@ export default function Home() {
     <div >
       <HeroSlider /> 
       <PopularCategories />
+      <NewArrival/>
 
   
     </div>
