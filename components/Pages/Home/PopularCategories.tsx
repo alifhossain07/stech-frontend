@@ -32,7 +32,7 @@ const PopularCategories = () => {
   ];
 
   return (
-    <div className="w-10/12 mx-auto">
+    <div className="w-11/12 mx-auto">
         <div className=' space-y-3 text-center'>
         <h1 className='md:text-4xl text-2xl font-semibold' >Explore Popular Categories</h1>
         <p className='md:text-sm text-xs'>Find your preferred item in the highlighted product selection.</p>

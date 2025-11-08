@@ -1,6 +1,8 @@
 import Image from "next/image";
 
 export default function ProductCard({ product }) {
+
+    
   return (
     <div className="relative w-full max-w-[320px] rounded-lg shadow-md border border-gray-200 p-4">
       {/* Image Wrapper */}
@@ -59,7 +61,7 @@ export default function ProductCard({ product }) {
           <Image src="/images/buy.png" alt="Buy" width={12} height={12} />
           Buy Now
         </button>
-        <button className="w-1/2 text-sm rounded-md py-2 text-black border border-black">
+        <button className="w-1/2  text-sm rounded-md py-2 text-black border hover:bg-black hover:text-white border-black duration-300">
           + Add to Cart
         </button>
       </div>

@@ -8,71 +8,72 @@ const HeroSlider = () => {
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-  const slider = new Glide(".glide-01", {
-    type: "slider",
-    focusAt: "center",
-    perView: 1,
-    autoplay: 3000,
-    animationDuration: 700,
-    gap: 0,
-    classes: {
-      swipeable: "glide__swipeable",
-      dragging: "glide__dragging",
-      direction: { ltr: "glide__ltr", rtl: "glide__rtl" },
-      type: { slider: "glide__slider", carousel: "glide__carousel" },
-      slide: { active: "glide__slide--active", clone: "glide__slide--clone" },
-      arrow: { disabled: "glide__arrow--disabled" },
-      nav: { active: "[&>*]:bg-wuiSlate-700" },
-    },
-  });
+    const slider = new Glide(".glide-01", {
+      type: "slider",
+      focusAt: "center",
+      perView: 1,
+      autoplay: 3000,
+      animationDuration: 700,
+      gap: 0,
+      classes: {
+        swipeable: "glide__swipeable",
+        dragging: "glide__dragging",
+        direction: { ltr: "glide__ltr", rtl: "glide__rtl" },
+        type: { slider: "glide__slider", carousel: "glide__carousel" },
+        slide: { active: "glide__slide--active", clone: "glide__slide--clone" },
+        arrow: { disabled: "glide__arrow--disabled" },
+        nav: { active: "[&>*]:bg-wuiSlate-700" },
+      },
+    });
 
-  const timeout = setTimeout(() => {
-    slider.mount();
-    setIsLoaded(true);
-  }, 100);
+    const timeout = setTimeout(() => {
+      slider.mount();
+      setIsLoaded(true);
+    }, 100);
 
-  // ✅ Cleanup returns nothing
-  return () => {
-    clearTimeout(timeout);
-    slider.destroy();
-  };
-}, []);
+    return () => {
+      clearTimeout(timeout);
+      slider.destroy();
+    };
+  }, []);
+
   return (
-    <div className="w-11/12 md:w-10/12 mx-auto md:pt-10 pt-5 pb-24">
+    <div className="w-11/12 md:w-11/12 mx-auto md:pt-10 pt-5 pb-24">
       {/* Parent Container */}
       <div
         className="
           flex flex-col lg:flex-row 
-          lg:h-[500px] gap-5 
+          gap-5 
           overflow-hidden rounded-xl
+          md:h-[590px]
         "
       >
         {/* LEFT: Slider */}
-        <div className="w-full lg:w-2/3 relative overflow-hidden">
+        <div className="w-full lg:w-2/3 h-full relative overflow-hidden">
           <div
-            className={`relative w-full glide-01 transition-opacity duration-500 ${
+            className={`relative w-full h-full glide-01 transition-opacity duration-500 ${
               isLoaded ? "opacity-100" : "opacity-0"
             }`}
           >
             {/* Slides */}
-            <div className="overflow-hidden" data-glide-el="track">
-              <ul className="flex whitespace-no-wrap [backface-visibility:hidden] [transform-style:preserve-3d] [touch-action:pan-Y] [will-change:transform] relative w-full overflow-hidden p-0 m-0">
-                <li className="flex-shrink-0 w-full">
+            <div className="overflow-hidden h-full" data-glide-el="track">
+              <ul className="flex relative w-full h-full overflow-hidden p-0 m-0">
+                <li className="flex-shrink-0 w-full h-full">
                   <Image
                     src="/images/slider1.png"
                     alt="slider1"
                     width={800}
-                    height={500}
+                    height={700}
                     priority
                     className="w-full h-full object-cover"
                   />
                 </li>
-                <li className="flex-shrink-0 w-full">
+                <li className="flex-shrink-0 w-full h-full">
                   <Image
                     src="/images/slider2.png"
                     alt="slider2"
                     width={800}
-                    height={500}
+                    height={700}
                     className="w-full h-full object-cover"
                   />
                 </li>
@@ -81,7 +82,7 @@ const HeroSlider = () => {
 
             {/* Controls */}
             <div
-              className="absolute left-0 flex items-center justify-between w-full h-0 px-4 top-1/2"
+              className="absolute left-0 flex items-center justify-between w-full h-0 px-4 top-1/2 z-10"
               data-glide-el="controls"
             >
               <button
@@ -128,29 +129,22 @@ const HeroSlider = () => {
           </div>
         </div>
 
-        {/* RIGHT: Two stacked images (desktop) / Side-by-side (mobile) */}
-        <div
-          className="
-            flex 
-            flex-row lg:flex-col 
-            gap-4 
-            w-full lg:w-1/3
-          "
-        >
-          <div className="relative w-1/2 lg:w-full h-[110px] lg:h-1/2">
+        {/* RIGHT: Two stacked images */}
+        <div className="flex flex-row lg:flex-col gap-4 w-full lg:w-1/3 h-full">
+          <div className="relative w-1/2 lg:w-full h-[200px] md:h-[350px] lg:h-1/2">
             <Image
               src="/images/herohover.png"
               alt="right image 1"
               fill
-              className="object-cover hover:scale-105 transition-transform duration-300"
+              className="object-cover hover:scale-105 transition-transform duration-300 rounded-xl"
             />
           </div>
-          <div className="relative w-1/2 lg:w-full h-[110px] lg:h-1/2">
+          <div className="relative w-1/2 lg:w-full h-[200px] md:h-[350px] lg:h-1/2">
             <Image
               src="/images/herohover.png"
               alt="right image 2"
               fill
-              className="object-cover hover:scale-105 transition-transform duration-300"
+              className="object-cover hover:scale-105 transition-transform duration-300 rounded-xl"
             />
           </div>
         </div>

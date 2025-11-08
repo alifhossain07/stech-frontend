@@ -57,7 +57,7 @@ const products = [
 ];
 
   return (
-    <div className="w-10/12 mx-auto py-14">
+    <div className="w-11/12 mx-auto py-14">
       <div className="flex justify-between items-center py-6 md:py-8 w-full">
         <div className=" w-7/12 ">
           <h1 className="text-lg sm:text-2xl md:text-4xl font-semibold mb-1 md:mb-2">
@@ -68,7 +68,7 @@ const products = [
           </p>
         </div>
 
-        <button className="bg-black text-xs sm:text-sm md:text-lg flex items-center gap-2 text-white px-3 sm:px-5 md:px-6 py-2 md:py-3 rounded-xl font-semibold hover:bg-orange-300 duration-300 transition whitespace-nowrap">
+        <button className="bg-black text-xs sm:text-sm md:text-lg flex items-center gap-2 text-white px-3 sm:px-5 md:px-6 py-2 md:py-3 rounded-xl hover:text-black font-semibold hover:bg-gray-200 duration-300 transition whitespace-nowrap">
           See More{" "}
           <FiChevronRight className="text-sm sm:text-base md:text-xl" />
         </button>

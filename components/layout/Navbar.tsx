@@ -17,10 +17,10 @@ const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [open, setOpen] = useState(false);
   return (
-    <header className="w-full relative z-50">
+    <header className="w-full  relative z-50">
       {/* Top Bar */}
       <div className="py-3 shadow-md border-b border-gray-100 bg-black text-white">
-        <div className="w-10/12 mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-sm text-white md:font-semibold text-center sm:text-left">
+        <div className="w-11/12 mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-sm text-white md:font-semibold text-center sm:text-left">
           {/* Left - Contact */}
           <div className="flex items-center justify-center sm:justify-start gap-2">
             <span>Contact Us 24/7:</span>
@@ -41,7 +41,7 @@ const Navbar = () => {
       </div>
 
       {/* Middle Section */}
-      <div className="w-10/12 mx-auto py-8 flex flex-col md:flex-row items-center justify-between  gap-4 md:gap-0">
+      <div className="w-11/12 bg-white mx-auto py-8 flex flex-col md:flex-row items-center justify-between  gap-4 md:gap-0">
         {/* Logo + Mobile Menu Button */}
         <div className="flex justify-between w-full md:w-auto items-center">
           <Image
@@ -152,7 +152,7 @@ const Navbar = () => {
 
       {/* Navigation Bar */}
       <div className="bg-orange-500">
-        <div className="w-10/12 hidden mx-auto md:flex justify-between items-center h-14">
+        <div className="w-11/12 hidden mx-auto md:flex justify-between items-center h-14">
           {/* Nav Links (Desktop) */}
           <ul className="hidden cursor-pointer  md:flex gap-6 lg:gap-4 text-white font-semibold  text-sm ">
             <li className="flex hover:text-gray-300 duration-300  items-center gap-1">
