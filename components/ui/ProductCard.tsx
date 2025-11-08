@@ -1,10 +1,23 @@
 import Image from "next/image";
 
-export default function ProductCard({ product }) {
+type ProductType = {
+  id: number;
+  name: string;
+  price: number;
+  oldPrice: number;
+  discount: string;
+  rating: string;
+  reviews: string;
+  image: string;
+};
 
-    
+type ProductCardProps = {
+  product: ProductType;
+};
+
+export default function ProductCard({ product }: ProductCardProps) {
   return (
-    <div className="relative w-full max-w-[320px] rounded-lg shadow-md border border-gray-200 p-4">
+    <div className="relative w-full max-w-[320px] rounded-lg shadow-md border border-gray-200 p-4 hover:shadow-lg transition-shadow duration-300">
       {/* Image Wrapper */}
       <div className="relative flex items-center justify-center bg-gray-50 md:p-14 p-8 rounded-md">
         {/* NEW Label */}
@@ -14,7 +27,7 @@ export default function ProductCard({ product }) {
 
         {/* Product Image */}
         <Image
-          className="w-[100px]  mb-3 hover:scale-110 transition-transform duration-300"
+          className="w-[100px] mb-3 hover:scale-110 transition-transform duration-300"
           src={product.image}
           alt={product.name}
           width={200}
@@ -30,7 +43,9 @@ export default function ProductCard({ product }) {
       </div>
 
       {/* Product Name */}
-      <h1 className="text-base mb-3 font-semibold mt-2">{product.name}</h1>
+      <h1 className="text-base mb-3 font-semibold mt-2 truncate">
+        {product.name}
+      </h1>
 
       {/* Feature Rows */}
       <div className="flex rounded-md p-2 bg-[#F4F4F4] gap-2 mb-1 items-center">
@@ -52,16 +67,18 @@ export default function ProductCard({ product }) {
       <div className="flex items-center gap-3 mb-2">
         <h1 className="font-semibold text-lg">${product.price}</h1>
         <p className="line-through text-[#939393]">${product.oldPrice}</p>
-        <p className="text-green-600 bg-green-200 px-2 py-1 rounded-full text-xs">{product.discount}</p>
+        <p className="text-green-600 bg-green-200 px-2 py-1 rounded-full text-xs">
+          {product.discount}
+        </p>
       </div>
 
       {/* Buttons */}
       <div className="flex gap-2 mt-2">
-        <button className="flex gap-2 items-center justify-center w-1/2 rounded-md text-white text-sm bg-[#FF6B01] md:py-2">
+        <button className="flex gap-2 items-center justify-center w-1/2 rounded-md text-white text-sm bg-[#FF6B01] md:py-2 hover:opacity-90 transition">
           <Image src="/images/buy.png" alt="Buy" width={12} height={12} />
           Buy Now
         </button>
-        <button className="w-1/2  text-sm rounded-md py-2 text-black border hover:bg-black hover:text-white border-black duration-300">
+        <button className="w-1/2 text-sm rounded-md py-2 text-black border hover:bg-black hover:text-white border-black duration-300">
           + Add to Cart
         </button>
       </div>

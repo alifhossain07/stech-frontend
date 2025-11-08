@@ -3,19 +3,38 @@ import Image from "next/image";
 import { FiChevronRight } from "react-icons/fi";
 import ProductCard2 from "@/components/ui/ProductCard2";
 
-const EarbudsProducts = ({ products }) => {
-  const product = [
-    {
-      id: 1,
-      name: "25 Watt Samsung Fast Charger",
-      price: 2500,
-      oldPrice: 2600,
-      discount: "10% Off",
-      rating: "3.0",
-      reviews: "(1)",
-      image: "/images/charger.png",
-    },
-    {
+type ProductType = {
+  id: number;
+  name: string;
+  price: number;
+  oldPrice: number;
+  discount: string;
+  rating: string;
+  reviews: string;
+  image: string;
+};
+
+type EarbudsProductsProps = {
+  products?: ProductType[];
+};
+
+const EarbudsProducts = ({ products }: EarbudsProductsProps) => {
+  // Local static data (temporary until API integration)
+  const productList: ProductType[] =
+    products && products.length > 0
+      ? products
+      : [
+          {
+            id: 1,
+            name: "25 Watt Samsung Fast Charger",
+            price: 2500,
+            oldPrice: 2600,
+            discount: "10% Off",
+            rating: "3.0",
+            reviews: "(1)",
+            image: "/images/charger.png",
+          },
+          {
       id: 2,
       name: "Super Fast Wall Charger",
       price: 2300,
@@ -106,25 +125,25 @@ const EarbudsProducts = ({ products }) => {
       reviews: "(1)",
       image: "/images/charger.png",
     },
-  ];
+        ];
 
   return (
     <div className="md:w-11/12 w-10/12 mx-auto">
       {/* Header Section */}
       <div className="flex flex-col sm:flex-row justify-between items-center text-center sm:text-left py-6 md:py-8 w-full gap-3">
-             <div className="w-full sm:w-7/12">
-               <h1 className="text-2xl sm:text-2xl md:text-4xl font-semibold mb-1 md:mb-2">
-                 Earbud Products
-               </h1>
-               <p className="text-xs sm:text-sm md:text-lg text-gray-600">
-                 Discover Our Latest Arrivals Designed to Inspire and Impress
-               </p>
-             </div>
-     
-             <button className="bg-black text-xs sm:text-sm md:text-lg flex items-center justify-center gap-2 text-white px-4 sm:px-5 md:px-6 py-2 md:py-3 rounded-xl hover:text-black font-semibold hover:bg-gray-200 duration-300 transition whitespace-nowrap">
-               See More <FiChevronRight className="text-sm sm:text-base md:text-xl" />
-             </button>
-           </div>
+        <div className="w-full sm:w-7/12">
+          <h1 className="text-2xl sm:text-2xl md:text-4xl font-semibold mb-1 md:mb-2">
+            Earbud Products
+          </h1>
+          <p className="text-xs sm:text-sm md:text-lg text-gray-600">
+            Discover Our Latest Arrivals Designed to Inspire and Impress
+          </p>
+        </div>
+
+        <button className="bg-black text-xs sm:text-sm md:text-lg flex items-center justify-center gap-2 text-white px-4 sm:px-5 md:px-6 py-2 md:py-3 rounded-xl hover:text-black font-semibold hover:bg-gray-200 duration-300 transition whitespace-nowrap">
+          See More <FiChevronRight className="text-sm sm:text-base md:text-xl" />
+        </button>
+      </div>
 
       {/* Main Layout */}
       <div className="flex flex-col md:flex-row gap-4">
@@ -132,19 +151,19 @@ const EarbudsProducts = ({ products }) => {
         <div className="md:w-3/12 flex justify-center items-center">
           <div className="w-full h-auto md:h-full">
             <Image
-  src="/images/earbudsimage.png"
-  alt="Earbuds Banner"
-  width={400}
-  height={600}
-  className="rounded-xl object-contain md:object-cover w-full h-auto sm:h-[250px] md:h-full"
-/>
+              src="/images/earbudsimage.png"
+              alt="Earbuds Banner"
+              width={400}
+              height={600}
+              className="rounded-xl object-contain md:object-cover w-full h-auto sm:h-[250px] md:h-full"
+            />
           </div>
         </div>
 
         {/* RIGHT: Product Grid */}
         <div className="md:w-9/12 w-full flex justify-center">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 md:gap-3 gap-8 w-full sm:w-full justify-items-center">
-            {product.map((p) => (
+            {productList.map((p) => (
               <ProductCard2 key={p.id} product={p} />
             ))}
           </div>
@@ -155,3 +174,5 @@ const EarbudsProducts = ({ products }) => {
 };
 
 export default EarbudsProducts;
+
+
