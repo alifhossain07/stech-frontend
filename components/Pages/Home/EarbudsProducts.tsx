@@ -32,7 +32,7 @@ const EarbudsProducts = ({ products }: EarbudsProductsProps) => {
             discount: "10% Off",
             rating: "3.0",
             reviews: "(1)",
-            image: "/images/charger.png",
+            image: "/images/twssection.png",
           },
           {
       id: 2,
@@ -42,7 +42,7 @@ const EarbudsProducts = ({ products }: EarbudsProductsProps) => {
       discount: "8% Off",
       rating: "4.0",
       reviews: "(12)",
-      image: "/images/charger.png",
+      image: "/images/twssection.png",
     },
     {
       id: 3,
@@ -52,7 +52,7 @@ const EarbudsProducts = ({ products }: EarbudsProductsProps) => {
       discount: "9% Off",
       rating: "4.5",
       reviews: "(7)",
-      image: "/images/charger.png",
+      image: "/images/twssection.png",
     },
     {
       id: 4,
@@ -62,7 +62,7 @@ const EarbudsProducts = ({ products }: EarbudsProductsProps) => {
       discount: "10% Off",
       rating: "3.8",
       reviews: "(4)",
-      image: "/images/charger.png",
+      image: "/images/twssection.png",
     },
     {
       id: 5,
@@ -72,7 +72,7 @@ const EarbudsProducts = ({ products }: EarbudsProductsProps) => {
       discount: "7% Off",
       rating: "4.2",
       reviews: "(10)",
-      image: "/images/charger.png",
+      image: "/images/twssection.png",
     },
     {
       id: 6,
@@ -82,7 +82,7 @@ const EarbudsProducts = ({ products }: EarbudsProductsProps) => {
       discount: "10% Off",
       rating: "3.0",
       reviews: "(1)",
-      image: "/images/charger.png",
+      image: "/images/twssection.png",
     },
     {
       id: 7,
@@ -92,7 +92,7 @@ const EarbudsProducts = ({ products }: EarbudsProductsProps) => {
       discount: "10% Off",
       rating: "3.0",
       reviews: "(1)",
-      image: "/images/charger.png",
+      image: "/images/twssection.png",
     },
     {
       id: 8,
@@ -102,7 +102,7 @@ const EarbudsProducts = ({ products }: EarbudsProductsProps) => {
       discount: "10% Off",
       rating: "3.0",
       reviews: "(1)",
-      image: "/images/charger.png",
+      image: "/images/twssection.png",
     },
 
     {
@@ -113,7 +113,7 @@ const EarbudsProducts = ({ products }: EarbudsProductsProps) => {
       discount: "10% Off",
       rating: "3.0",
       reviews: "(1)",
-      image: "/images/charger.png",
+      image: "/images/twssection.png",
     },
     {
       id:10,
@@ -123,7 +123,7 @@ const EarbudsProducts = ({ products }: EarbudsProductsProps) => {
       discount: "10% Off",
       rating: "3.0",
       reviews: "(1)",
-      image: "/images/charger.png",
+      image: "/images/twssection.png",
     },
         ];
 
@@ -168,6 +168,14 @@ const EarbudsProducts = ({ products }: EarbudsProductsProps) => {
             ))}
           </div>
         </div>
+      </div>
+       <div className="flex justify-end mt-10 space-x-3">
+        <button className="flex items-center bg-black text-white justify-center w-16 h-10 border border-gray-300 rounded-md  hover:bg-gray-100 transition hover:text-black">
+          &lt;
+        </button>
+        <button className="flex items-center bg-black text-white justify-center w-16 h-10 border border-gray-300 rounded-md  hover:bg-gray-100 hover:text-black transition">
+          &gt;
+        </button>
       </div>
     </div>
   );

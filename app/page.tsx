@@ -1,4 +1,6 @@
 import EarbudsProducts from "@/components/Pages/Home/EarbudsProducts";
+import FastChargerProduct from "@/components/Pages/Home/FastChargerProducts";
+import FlashSale from "@/components/Pages/Home/FlashSale";
 import NewArrival from "@/components/Pages/Home/NewArrival";
 import PopularCategories from "@/components/Pages/Home/PopularCategories";
 import HeroSlider from "@/components/ui/HeroSlider";
@@ -11,6 +13,8 @@ export default function Home() {
       <PopularCategories />
       <NewArrival/>
       <EarbudsProducts/>
+      <FlashSale/>
+      <FastChargerProduct/>
 
   
     </div>

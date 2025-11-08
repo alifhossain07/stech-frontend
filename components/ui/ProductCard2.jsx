@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { LuShoppingBag } from "react-icons/lu";
 
 export default function ProductCard2({ product }) {
   return (
@@ -53,11 +54,11 @@ export default function ProductCard2({ product }) {
 
       {/* Buttons */}
       <div className="flex gap-2 mt-auto">
-        <button className="flex gap-1 items-center justify-center w-1/2 rounded-md text-white text-[11px] bg-[#FF6B01] py-1.5">
-          <Image src="/images/buy.png" alt="Buy" width={10} height={10} />
+        <button className="flex gap-1 items-center justify-center w-1/2 rounded-md text-white text-[11px] bg-[#FF6B01] py-1.5 hover:bg-white hover:text-orange-500 hover:border hover:border-orange-500 duration-300">
+        <LuShoppingBag/>
           Buy Now
         </button>
-        <button className="w-1/2 text-[11px] rounded-md py-1.5 text-black border hover:bg-black hover:text-white border-black duration-300">
+        <button className="w-1/2 text-[11px] rounded-md py-1.5 text-black border hover:bg-black hover:text-white border-black duration-300 ">
           + Add To Cart
         </button>
       </div>
