@@ -58,7 +58,7 @@ export default function ProductCard2({ product }) {
           Buy Now
         </button>
         <button className="w-1/2 text-[11px] rounded-md py-1.5 text-black border hover:bg-black hover:text-white border-black duration-300">
-          + Add
+          + Add To Cart
         </button>
       </div>
     </div>

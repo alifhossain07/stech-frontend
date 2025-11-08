@@ -57,6 +57,47 @@ const EarbudsProducts = ({ products }) => {
     },
     {
       id: 6,
+      name: "Super Fast Wall Charger",
+      price: 2500,
+      oldPrice: 2600,
+      discount: "10% Off",
+      rating: "3.0",
+      reviews: "(1)",
+      image: "/images/charger.png",
+    },
+    {
+      id: 7,
+      name: "25 Watt Samsung Fast Charger",
+      price: 2500,
+      oldPrice: 2600,
+      discount: "10% Off",
+      rating: "3.0",
+      reviews: "(1)",
+      image: "/images/charger.png",
+    },
+    {
+      id: 8,
+      name: "Super Fast Wall Charger",
+      price: 2500,
+      oldPrice: 2600,
+      discount: "10% Off",
+      rating: "3.0",
+      reviews: "(1)",
+      image: "/images/charger.png",
+    },
+
+    {
+      id: 9,
+      name: "25 Watt Samsung Fast Charger",
+      price: 2500,
+      oldPrice: 2600,
+      discount: "10% Off",
+      rating: "3.0",
+      reviews: "(1)",
+      image: "/images/charger.png",
+    },
+    {
+      id:10,
       name: "25 Watt Samsung Fast Charger",
       price: 2500,
       oldPrice: 2600,
@@ -68,22 +109,22 @@ const EarbudsProducts = ({ products }) => {
   ];
 
   return (
-    <div className="w-11/12 mx-auto">
+    <div className="md:w-11/12 w-10/12 mx-auto">
       {/* Header Section */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-4 md:py-6 gap-3">
-        <div className="w-full sm:w-8/12">
-          <h1 className="text-lg sm:text-2xl md:text-3xl font-semibold mb-1 md:mb-2">
-            Earbuds Products
-          </h1>
-          <p className="text-xs sm:text-sm md:text-base text-gray-600">
-            Don't Miss Out Our Exciting Earbuds, Limited Stock Available
-          </p>
-        </div>
-
-        <button className="bg-black text-xs sm:text-sm md:text-base flex items-center gap-2 text-white px-4 sm:px-5 md:px-6 py-2 md:py-2.5 rounded-lg hover:text-black font-semibold hover:bg-gray-200 duration-300 transition whitespace-nowrap">
-          See More <FiChevronRight className="text-sm sm:text-base md:text-lg" />
-        </button>
-      </div>
+      <div className="flex flex-col sm:flex-row justify-between items-center text-center sm:text-left py-6 md:py-8 w-full gap-3">
+             <div className="w-full sm:w-7/12">
+               <h1 className="text-2xl sm:text-2xl md:text-4xl font-semibold mb-1 md:mb-2">
+                 Earbud Products
+               </h1>
+               <p className="text-xs sm:text-sm md:text-lg text-gray-600">
+                 Discover Our Latest Arrivals Designed to Inspire and Impress
+               </p>
+             </div>
+     
+             <button className="bg-black text-xs sm:text-sm md:text-lg flex items-center justify-center gap-2 text-white px-4 sm:px-5 md:px-6 py-2 md:py-3 rounded-xl hover:text-black font-semibold hover:bg-gray-200 duration-300 transition whitespace-nowrap">
+               See More <FiChevronRight className="text-sm sm:text-base md:text-xl" />
+             </button>
+           </div>
 
       {/* Main Layout */}
       <div className="flex flex-col md:flex-row gap-4">
@@ -91,18 +132,18 @@ const EarbudsProducts = ({ products }) => {
         <div className="md:w-3/12 flex justify-center items-center">
           <div className="w-full h-auto md:h-full">
             <Image
-              src="/images/earbudsimage.png"
-              alt="Earbuds Banner"
-              width={400}
-              height={600}
-              className="rounded-xl object-cover w-full h-[200px] sm:h-[250px] md:h-full"
-            />
+  src="/images/earbudsimage.png"
+  alt="Earbuds Banner"
+  width={400}
+  height={600}
+  className="rounded-xl object-contain md:object-cover w-full h-auto sm:h-[250px] md:h-full"
+/>
           </div>
         </div>
 
         {/* RIGHT: Product Grid */}
         <div className="md:w-9/12 w-full flex justify-center">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 w-[95%] sm:w-full justify-items-center">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 md:gap-3 gap-8 w-full sm:w-full justify-items-center">
             {product.map((p) => (
               <ProductCard2 key={p.id} product={p} />
             ))}
