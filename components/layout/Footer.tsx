@@ -8,7 +8,7 @@ const Footer = () => {
   return (
     <footer className="bg-black text-white py-16 mt-20">
       {/* Outer Wrapper */}
-      <div className="w-11/12 sm:w-10/12 mx-auto border-b border-gray-700 pb-10">
+      <div className=" w-11/12 mx-auto border-b border-gray-700 pb-10">
         {/* Main Grid: Left (4) + Right (8) */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-10">
           {/* LEFT SECTION */}
