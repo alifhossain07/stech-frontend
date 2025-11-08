@@ -66,7 +66,7 @@ const NewArrival = () => {
           </h1>
           <p className="text-xs sm:text-sm md:text-lg text-gray-600">
             Discover Our Latest Arrivals Designed to Inspire and Impress
-          </p>
+          </p> 
         </div>
 
         <button className="bg-black text-xs sm:text-sm md:text-lg flex items-center justify-center gap-2 text-white px-4 sm:px-5 md:px-6 py-2 md:py-3 rounded-xl hover:text-black font-semibold hover:bg-gray-200 duration-300 transition whitespace-nowrap">
@@ -75,7 +75,7 @@ const NewArrival = () => {
       </div>
 
       {/* Product Grid */}
-      <div className="mt-7 flex justify-center">
+      <div className=" flex justify-center">
         <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-6 justify-items-center w-[98%] sm:w-full">
           {products.map((p) => (
             <ProductCard key={p.id} product={p} />
