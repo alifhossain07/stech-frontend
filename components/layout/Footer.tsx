@@ -19,7 +19,7 @@ const Footer = () => {
                 alt="Sannai Logo"
                 width={140}
                 height={140}
-                className="object-contain mb-5 mx-auto md:mx-0 w-28 sm:w-32 md:w-36 lg:w-40 h-auto"
+                className="object-contain mb-5  md:mx-0 w-28 sm:w-32 md:w-36 lg:w-40 h-auto"
               />
 
               <p className="text-gray-400 text-sm leading-relaxed mb-6 sm:w-11/12  md:text-justify text-justify">
