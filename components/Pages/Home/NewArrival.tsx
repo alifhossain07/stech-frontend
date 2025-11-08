@@ -60,7 +60,7 @@ const products = [
     <div className="w-10/12 mx-auto py-14">
       <div className="flex justify-between items-center py-6 md:py-8 w-full">
         <div className=" w-7/12 ">
-          <h1 className="text-xl sm:text-2xl md:text-4xl font-semibold mb-1 md:mb-2">
+          <h1 className="text-lg sm:text-2xl md:text-4xl font-semibold mb-1 md:mb-2">
             New Arrival Products
           </h1>
           <p className="text-xs sm:text-sm md:text-lg text-gray-600 ">
