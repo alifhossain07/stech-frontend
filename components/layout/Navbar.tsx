@@ -3,7 +3,6 @@ import Image from "next/image";
 import Link from "next/link";
 import React, { useState } from "react";
 import { FaMapMarkerAlt } from "react-icons/fa";
-// import { MdOutlineHeadsetMic, MdOutlineLocalShipping } from "react-icons/md";
 import {
   FiChevronDown,
   FiSearch,
@@ -17,11 +16,12 @@ import {
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [open, setOpen] = useState(false);
+
   return (
-    <header className="w-full  relative z-50">
+    <header className="w-full relative z-50">
       {/* Top Bar */}
       <div className="py-3 shadow-md border-b border-gray-100 bg-black text-white">
-        <div className="w-11/12 mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-sm text-white md:font-semibold text-center sm:text-left">
+        <div className="w-11/12 mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-sm md:font-semibold text-center sm:text-left">
           {/* Left - Contact */}
           <div className="flex items-center justify-center sm:justify-start gap-2">
             <span>Contact Us 24/7:</span>
@@ -42,11 +42,10 @@ const Navbar = () => {
       </div>
 
       {/* Middle Section */}
-      <div className="w-11/12 bg-white mx-auto py-8 flex flex-col md:flex-row items-center justify-between  gap-4 md:gap-0">
+      <div className="w-11/12 bg-white mx-auto py-8 flex flex-col md:flex-row items-center justify-between gap-4 md:gap-0">
         {/* Logo + Mobile Menu Button */}
-        <div className="flex justify-between w-full md:w-auto items-center">
-          
-         <Link href="/">
+        <div className="flex justify-between w-full md:w-full lg:w-auto items-center">
+  <Link href="/">
     <Image
       src="/images/sannailogo.png"
       alt="Sannai Technology Logo"
@@ -56,29 +55,17 @@ const Navbar = () => {
     />
   </Link>
 
-          {/* Mobile Menu Icon */}
-          <button
-            className="md:hidden text-2xl text-orange-500"
-            onClick={() => setMenuOpen(true)}
-          >
-            <FiMenu />
-          </button>
-        </div>
+  {/* Mobile Menu Icon (visible on md and below, hidden on lg and above) */}
+  <button
+    className="text-2xl text-orange-500 lg:hidden"
+    onClick={() => setMenuOpen(true)}
+  >
+    <FiMenu />
+  </button>
+</div>
 
-        {/* Search Bar */}
-        {/* <div className="relative w-full md:w-4/12">
-          <input
-            type="text"
-            placeholder="Search your Favourite Accessories."
-            className="w-full bg-black border border-black rounded-full py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <button className="absolute top-1/2 right-2 transform -translate-y-1/2 bg-orange-500 text-white p-2 rounded-full">
-            <FiSearch />
-          </button>
-        </div> */}
-
-        {/* Desktop Action Buttons */}
-        <div className="hidden md:flex items-center    gap-3 lg:gap-4">
+        {/* Desktop Action Buttons (visible from lg and up) */}
+        <div className="hidden lg:flex items-center gap-3 lg:gap-4">
           <div>
             <div className="relative w-full md:w-96 mr-6">
               <input
@@ -118,11 +105,6 @@ const Navbar = () => {
                   ? "opacity-100 visible translate-y-0"
                   : "opacity-0 invisible -translate-y-2"
               }`}
-              style={{
-                position: "absolute",
-                overflow: "hidden",
-                willChange: "transform",
-              }}
             >
               <button className="block w-full text-left px-4 py-2 hover:bg-gray-100">
                 English
@@ -132,7 +114,8 @@ const Navbar = () => {
               </button>
             </div>
           </div>
-          <button className=" border hover:text-gray-600 duration-300 border-gray-400 px-5 lg:px-4 py-2 h-[46px] rounded-md flex items-center gap-3 text-sm">
+
+          <button className="border hover:text-gray-600 duration-300 border-gray-400 px-5 lg:px-4 py-2 h-[46px] rounded-md flex items-center gap-3 text-sm">
             <div className="flex items-center gap-2">
               <FiShoppingCart className="text-3xl" />
               <div className="text-left">
@@ -143,29 +126,29 @@ const Navbar = () => {
           </button>
 
           <button className="border hover:text-gray-600 duration-300 border-gray-400 px-5 lg:px-4 py-2 h-[46px] rounded-md flex items-center gap-1 text-sm lg:text-base">
-             <Link href="/login" className="flex items-center gap-2">
-      <FiUser className="text-3xl" />
-      <div className="text-left">
-        <h1 className="text-base">Profile</h1>
-        <p className="text-xs">Amanullah</p>
-      </div>
-    </Link>
+            <Link href="/login" className="flex items-center gap-2">
+              <FiUser className="text-3xl" />
+              <div className="text-left">
+                <h1 className="text-base">Profile</h1>
+                <p className="text-xs">Amanullah</p>
+              </div>
+            </Link>
           </button>
         </div>
       </div>
 
       {/* Navigation Bar */}
       <div className="bg-orange-500">
-        <div className="w-11/12 hidden mx-auto md:flex justify-between items-center h-14">
+        <div className="w-11/12 hidden mx-auto lg:flex justify-between items-center h-14">
           {/* Nav Links (Desktop) */}
-          <ul className="hidden cursor-pointer  md:flex gap-6 lg:gap-4 text-white font-semibold  text-sm ">
-            <li className="flex hover:text-gray-300 duration-300  items-center gap-1">
+          <ul className="hidden cursor-pointer lg:flex gap-6 lg:gap-4 text-white font-semibold text-sm">
+            <li className="flex hover:text-gray-300 duration-300 items-center gap-1">
               Fast Charger <FiChevronDown className="text-white text-sm" />
             </li>
             <li className="flex hover:text-gray-300 duration-300 items-center gap-1">
               Fast Cable <FiChevronDown className="text-white text-sm" />
             </li>
-            <li className="flex hover:text-gray-300 duration-300  items-center gap-1">
+            <li className="flex hover:text-gray-300 duration-300 items-center gap-1">
               Neckband <FiChevronDown className="text-white text-sm" />
             </li>
             <li className="flex hover:text-gray-300 duration-300 items-center gap-1">
@@ -190,12 +173,10 @@ const Navbar = () => {
               Authentication <FiChevronDown className="text-white text-sm" />
             </li>
           </ul>
-
-          {/* Right Button */}
         </div>
 
-        {/* MOBILE: Offers, Cart, Login */}
-        <div className="md:hidden  mx-auto py-3 flex flex-wrap justify-center gap-3">
+        {/* MOBILE + iPad: Offers, Cart, Login */}
+        <div className="lg:hidden mx-auto py-3 flex flex-wrap justify-center gap-3">
           <button
             className="flex items-center gap-1 text-white px-3 rounded-xl text-sm lg:text-base"
             style={{
@@ -204,7 +185,8 @@ const Navbar = () => {
           >
             <FiGift className="text-xl mr-1 animate-pulseScaleColor" /> Offers
           </button>
-          <button className=" bg-white border border-gray-400 px-3 h-[46px] rounded-md flex items-center gap-3 text-sm">
+
+          <button className="bg-white border border-gray-400 px-3 h-[46px] rounded-md flex items-center gap-3 text-sm">
             <div className="flex items-center gap-2">
               <FiShoppingCart className="text-3xl" />
               <div className="text-left">
@@ -213,6 +195,7 @@ const Navbar = () => {
               </div>
             </div>
           </button>
+
           <button className="border px-3 bg-white border-gray-400 h-[46px] rounded-md flex items-center gap-1 text-sm lg:text-base">
             <div className="flex items-center gap-2">
               <FiUser className="text-3xl" />
