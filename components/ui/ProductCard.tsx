@@ -84,32 +84,34 @@ export default function ProductCard({ product }: ProductCardProps) {
       </div>
 
       {/* Buttons */}
-      <div className="flex gap-2  mt-4 ">
-        {/* Buy Now Button */}
-        <button className="flex items-center justify-center w-1/2 rounded-md text-white md:text-sm text-xs bg-[#FF6B01] md:py-2 hover:opacity-90 transition hover:bg-white hover:text-orange-500 hover:border hover:border-orange-500">
-          {/* Mobile: Icon only */}
-          <span className="block md:hidden text-xs">
-            <LuShoppingBag />
-          </span>
+      <div className="flex gap-2  mt-4  ">
+             {/* Buy Now Button */}
+             <button className="flex items-center justify-center w-1/2 rounded-md text-white md:text-sm text-xs bg-[#FF6B01] md:py-2 hover:opacity-90 transition hover:bg-white hover:text-orange-500 hover:border hover:border-orange-500">
+               {/* Mobile: Icon only */}
+               <span className="block xl:hidden text-xs">
+                 <LuShoppingBag />
+               </span>
+     
+               {/* Tablet/Desktop: Icon + Text */}
+               <span className="hidden xl:text-sm text-base md:text-base 2xl:text-sm md:hidden xl:flex md:gap-2 items-center">
+                 <LuShoppingBag />
+                 Buy Now
+               </span>
+             </button>
+     
+             {/* Add to Cart Button */}
+             <button className="flex items-center justify-center w-1/2 xl:text-[13px] md:text-sm text-xs rounded-md py-2 text-black border hover:bg-black hover:text-white border-black duration-300">
+               {/* Mobile: Icon only */}
+               <span className="block xl:hidden  text-xs">
+                 <FaCartPlus />
+               </span>
+     
+               {/* Tablet/Desktop: Text only */}
+               <span className="md:hidden xl:inline hidden  ">+ Add to Cart</span>
+             </button>
+           </div>
 
-          {/* Tablet/Desktop: Icon + Text */}
-          <span className="hidden md:flex md:gap-2 items-center">
-            <LuShoppingBag />
-            Buy Now
-          </span>
-        </button>
 
-        {/* Add to Cart Button */}
-        <button className="flex items-center justify-center w-1/2 md:text-sm text-xs rounded-md py-2 text-black border hover:bg-black hover:text-white border-black duration-300">
-          {/* Mobile: Icon only */}
-          <span className="block md:hidden text-xs">
-            <FaCartPlus />
-          </span>
-
-          {/* Tablet/Desktop: Text only */}
-          <span className="hidden md:inline">+ Add to Cart</span>
-        </button>
-      </div>
       </div>
 
      
