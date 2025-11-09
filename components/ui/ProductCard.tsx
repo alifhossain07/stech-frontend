@@ -73,7 +73,7 @@ export default function ProductCard({ product }: ProductCardProps) {
       </div>
 
       {/* Pricing */}
-      <div className="flex items-center gap-2 md:gap-3 mb-2">
+      <div className="flex items-center gap-2 mt-4 md:gap-3 mb-2">
         <h1 className="font-semibold text-sm md:text-lg">${product.price}</h1>
         <p className="line-through text-sm md:text-lg text-[#939393]">
           ${product.oldPrice}
@@ -84,11 +84,11 @@ export default function ProductCard({ product }: ProductCardProps) {
       </div>
 
       {/* Buttons */}
-      <div className="flex gap-2 mt-auto">
+      <div className="flex gap-2  mt-4 ">
         {/* Buy Now Button */}
         <button className="flex items-center justify-center w-1/2 rounded-md text-white md:text-sm text-xs bg-[#FF6B01] md:py-2 hover:opacity-90 transition hover:bg-white hover:text-orange-500 hover:border hover:border-orange-500">
           {/* Mobile: Icon only */}
-          <span className="block md:hidden text-lg">
+          <span className="block md:hidden text-xs">
             <LuShoppingBag />
           </span>
 
@@ -102,7 +102,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         {/* Add to Cart Button */}
         <button className="flex items-center justify-center w-1/2 md:text-sm text-xs rounded-md py-2 text-black border hover:bg-black hover:text-white border-black duration-300">
           {/* Mobile: Icon only */}
-          <span className="block md:hidden text-lg">
+          <span className="block md:hidden text-xs">
             <FaCartPlus />
           </span>
 
