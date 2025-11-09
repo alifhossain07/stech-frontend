@@ -15,7 +15,7 @@ const NewsLetter = () => {
       >
         {/* Left Content */}
         <div className="text-white md:w-1/2 w-11/12 space-y-4 md:space-y-6 px-4 sm:px-6 md:pl-20 lg:pl-28 py-10 md:py-0">
-          <h2 className="text-2xl sm:text-3xl md:text-5xl md:tracking-widest leading-[1.6] md:leading-[1.4]   drop-shadow-md">
+          <h2 className="text-2xl sm:text-3xl md:text-3xl xl:text-4xl 2xl:text-5xl md:tracking-widest leading-[1.6] md:leading-[1.4]   drop-shadow-md">
             Stay Home{" "}
             <span className="bg-black px-2 rounded-md">&amp; Get All</span> <br className="hidden md:block" />
             Your Essentials From <br className="hidden md:block" /> Our Website !
