@@ -57,9 +57,9 @@ const NewArrival = () => {
   ];
 
   return (
-    <div className="w-11/12 mx-auto py-14">
+    <div className="w-11/12 mx-auto py-16">
       {/* Header Section */}
-      <div className="flex flex-col sm:flex-row justify-between items-center text-center sm:text-left py-6 md:py-8 w-full gap-3">
+      <div className="flex flex-col sm:flex-row justify-between items-center text-center sm:text-left py-6 md:py-8 w-full gap-3 mb-5">
         <div className="w-full sm:w-7/12">
           <h1 className="text-2xl sm:text-2xl md:text-4xl font-semibold mb-1 md:mb-2">
             New Arrival Products
