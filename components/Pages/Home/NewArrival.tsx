@@ -76,7 +76,7 @@ const NewArrival = () => {
 
       {/* Product Grid */}
       <div className=" flex justify-center">
-        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-5 gap-6 justify-items-center w-[98%] sm:w-full">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-5 gap-3 md:gap-6 xl:gap-4 justify-items-center w-[98%] sm:w-full">
           {products.map((p) => (
             <ProductCard key={p.id} product={p} />
           ))}
