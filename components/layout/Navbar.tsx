@@ -1,5 +1,6 @@
 "use client";
 import Image from "next/image";
+import Link from "next/link";
 import React, { useState } from "react";
 import { FaMapMarkerAlt } from "react-icons/fa";
 // import { MdOutlineHeadsetMic, MdOutlineLocalShipping } from "react-icons/md";
@@ -44,13 +45,16 @@ const Navbar = () => {
       <div className="w-11/12 bg-white mx-auto py-8 flex flex-col md:flex-row items-center justify-between  gap-4 md:gap-0">
         {/* Logo + Mobile Menu Button */}
         <div className="flex justify-between w-full md:w-auto items-center">
-          <Image
-            src="/images/sannailogo.png"
-            alt="Like Telecom Logo"
-            width={140}
-            height={140}
-            className="object-contain  w-28 sm:w-32 md:w-36 lg:w-40 h-auto"
-          />
+          
+         <Link href="/">
+    <Image
+      src="/images/sannailogo.png"
+      alt="Sannai Technology Logo"
+      width={140}
+      height={140}
+      className="object-contain w-28 sm:w-32 md:w-36 lg:w-40 h-auto"
+    />
+  </Link>
 
           {/* Mobile Menu Icon */}
           <button
@@ -139,13 +143,13 @@ const Navbar = () => {
           </button>
 
           <button className="border hover:text-gray-600 duration-300 border-gray-400 px-5 lg:px-4 py-2 h-[46px] rounded-md flex items-center gap-1 text-sm lg:text-base">
-            <div className="flex items-center gap-2">
-              <FiUser className="text-3xl" />
-              <div className="text-left">
-                <h1 className="text-base">Profile</h1>
-                <p className="text-xs">Amanullah</p>
-              </div>
-            </div>
+             <Link href="/login" className="flex items-center gap-2">
+      <FiUser className="text-3xl" />
+      <div className="text-left">
+        <h1 className="text-base">Profile</h1>
+        <p className="text-xs">Amanullah</p>
+      </div>
+    </Link>
           </button>
         </div>
       </div>
