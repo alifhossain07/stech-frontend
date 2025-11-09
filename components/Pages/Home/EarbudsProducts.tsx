@@ -207,7 +207,7 @@ const EarbudsProducts = ({ products }: EarbudsProductsProps) => {
       </div>
 
       {/* Pagination Buttons */}
-      <div className="flex justify-end mt-10 space-x-3">
+      <div className="flex justify-center xl:justify-end mt-10 space-x-3">
         <button className="flex items-center bg-black text-white justify-center w-16 h-10 border border-gray-300 rounded-md hover:bg-gray-100 transition hover:text-black">
           &lt;
         </button>

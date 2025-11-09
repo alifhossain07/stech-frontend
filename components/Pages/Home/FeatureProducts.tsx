@@ -62,7 +62,7 @@ const FeatureProducts = () => {
       <div className="flex flex-col sm:flex-row justify-between items-center text-center sm:text-left py-6 md:py-8 w-full gap-3">
         <div className="w-full sm:w-7/12">
           <h1 className="text-2xl sm:text-2xl md:text-4xl font-semibold mb-1 md:mb-2">
-            Our Feature Products
+           Our Feature Products
           </h1>
           <p className="text-xs sm:text-sm md:text-lg text-gray-600">
             Discover Our Latest Arrivals Designed to Inspire and Impress
@@ -76,7 +76,7 @@ const FeatureProducts = () => {
 
       {/* Product Grid */}
       <div className=" flex justify-center">
-        <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-6 justify-items-center w-[98%] sm:w-full">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-6 xl:gap-4 justify-items-center w-[98%] sm:w-full">
           {products.map((p) => (
             <ProductCard key={p.id} product={p} />
           ))}
