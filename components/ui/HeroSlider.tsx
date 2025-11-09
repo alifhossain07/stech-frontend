@@ -38,7 +38,7 @@ const HeroSlider = () => {
   }, []);
 
   return (
-    <div className="w-11/12 md:w-11/12 mx-auto md:pt-10 pt-5 pb-24">
+    <div className="w-11/12 md:w-11/12 mx-auto md:pt-10 pt-5 md:pb-10 pb-20 xl:pb-20 ">
       {/* Parent Container */}
       <div
         className="

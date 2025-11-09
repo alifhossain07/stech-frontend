@@ -38,7 +38,7 @@ const PopularCategories = () => {
         <p className='md:text-sm text-xs'>Find your preferred item in the highlighted product selection.</p>
         </div>
 
-       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-12 p-6 mt-10">
+       <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4 md:gap-12 p-6 mt-10">
       {items.map((item, index) => (
         <div
           key={index}
@@ -51,7 +51,7 @@ const PopularCategories = () => {
             height={100}
             className="mb-3"
           />
-          <h3 className="text-lg  text-gray-800">{item.title}</h3>
+          <h3 className="text-lg text-center  text-gray-800">{item.title}</h3>
         </div>
       ))}
     </div>
