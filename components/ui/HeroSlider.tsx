@@ -131,7 +131,7 @@ const HeroSlider = () => {
 
         {/* RIGHT: Two stacked images */}
         <div className="flex flex-row lg:flex-col gap-4 w-full lg:w-1/3 h-full">
-          <div className="relative w-1/2 lg:w-full h-[200px] md:h-[350px] lg:h-1/2">
+          <div className="relative w-1/2 lg:w-full h-[200px] md:h-[200px] xl:h-[300px] 2xl:h-[350px] lg:h-1/2">
             <Image
               src="/images/herohover.png"
               alt="right image 1"
@@ -139,7 +139,7 @@ const HeroSlider = () => {
               className="object-cover hover:scale-105 transition-transform duration-300 rounded-xl"
             />
           </div>
-          <div className="relative w-1/2 lg:w-full h-[200px] md:h-[350px] lg:h-1/2">
+          <div className="relative w-1/2 lg:w-full h-[200px] md:h-[200px] xl:h-[300px] 2xl:h-[350px] lg:h-1/2">
             <Image
               src="/images/herohover.png"
               alt="right image 2"
