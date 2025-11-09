@@ -126,7 +126,7 @@ const FastChargerProduct = ({ products }: FastChargerProductProps) => {
         ];
 
   return (
-    <div className="md:w-11/12 w-10/12 mx-auto">
+    <div className="md:w-11/12 w-11/12 mx-auto">
       {/* Header Section */}
       <div className="flex flex-col sm:flex-row justify-between items-center text-center sm:text-left py-6 md:py-8 w-full gap-3">
         <div className="w-full sm:w-7/12">
@@ -144,9 +144,9 @@ const FastChargerProduct = ({ products }: FastChargerProductProps) => {
       </div>
 
       {/* Main Layout */}
-      <div className="flex flex-col md:flex-row gap-6">
+      <div className="flex flex-col xl:flex-row 2xl:flex-row gap-6">
         {/* LEFT: 3 stacked images */}
-        <div className="md:w-3/12 flex flex-col justify-between gap-0 ">
+        <div className="xl:w-3/12 flex flex-col justify-between gap-0 ">
           {[
             "/images/fastchargerbanner.png",
             "/images/fastchargerbanner.png",
@@ -165,17 +165,32 @@ const FastChargerProduct = ({ products }: FastChargerProductProps) => {
         </div>
 
         {/* RIGHT: Product Grid */}
-        <div className="md:w-9/12 w-full flex justify-center">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 justify-items-center w-full">
-            {productList.map((p) => (
-              <ProductCard2 key={p.id} product={p} />
-            ))}
-          </div>
-        </div>
+         <div className="xl:w-9/12 2xl:w-9/12 w-full flex justify-center">
+                  {/* Default + md (show 10) */}
+                  <div className="grid grid-cols-2 md:grid-cols-3 xl:hidden 2xl:hidden md:gap-4 gap-3 w-full justify-items-center">
+                    {productList.slice(0, 10).map((p) => (
+                      <ProductCard2 key={p.id} product={p} />
+                    ))}
+                  </div>
+        
+                  {/* xl (show 8) */}
+                  <div className="hidden xl:grid 2xl:hidden grid-cols-4 gap-4 w-full justify-items-center">
+                    {productList.slice(0, 8).map((p) => (
+                      <ProductCard2 key={p.id} product={p} />
+                    ))}
+                  </div>
+        
+                  {/* 2xl (show 10) */}
+                  <div className="hidden 2xl:grid grid-cols-5 gap-4 w-full justify-items-center">
+                    {productList.slice(0, 10).map((p) => (
+                      <ProductCard2 key={p.id} product={p} />
+                    ))}
+                  </div>
+                </div>
       </div>
 
       {/* Pagination */}
-      <div className="flex justify-end mt-10 space-x-3">
+      <div className="flex justify-center xl:justify-end mt-10 space-x-3">
         <button className="flex items-center bg-black text-white justify-center w-16 h-10 border border-gray-300 rounded-md hover:bg-gray-100 transition hover:text-black">
           &lt;
         </button>

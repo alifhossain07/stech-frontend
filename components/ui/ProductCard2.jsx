@@ -52,7 +52,7 @@ export default function ProductCard2({ product }) {
         <p className="line-through text-sm md:text-lg text-[#939393]">
           ${product.oldPrice}
         </p>
-        <p className="text-green-600 bg-green-200 md:px-2 py-1 px-1 md:rounded-full rounded-2xl  text-[8px] md:text-xs">
+        <p className="text-green-600 bg-green-200 md:px-2 py-1 px-1 md:rounded-full rounded-2xl  text-[8px] md:[10px]">
           {product.discount}
         </p>
       </div>
