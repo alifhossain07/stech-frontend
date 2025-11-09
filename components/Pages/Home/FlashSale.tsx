@@ -50,12 +50,12 @@ const products = [
 
 const FlashSale = () => {
   return (
-    <div className="md:w-11/12 w-10/12 mx-auto pt-10 pb-24">
+    <div className="md:w-11/12 w-11/12 mx-auto pt-10 pb-24">
       {/* Header */}
     <div className="flex flex-col sm:flex-row justify-between items-center text-center sm:text-left py-6 md:py-8 w-full gap-3">
             <div className="w-full sm:w-7/12">
               <h1 className="text-2xl sm:text-2xl md:text-4xl font-semibold mb-1 md:mb-2">
-                Fast Charger Products
+                Flash Sale Products
               </h1>
               <p className="text-xs sm:text-sm md:text-lg text-gray-600">
                 Discover Our Latest Arrivals Designed to Inspire and Impress
@@ -68,17 +68,17 @@ const FlashSale = () => {
           </div>
 
       {/* Flash Sale Layout */}
-      <div className="flex flex-col md:flex-row items-stretch justify-between gap-6">
+      <div className="flex flex-col md:flex-col xl:flex-row 2xl:flex-row items-stretch justify-between gap-6">
         {/* Deal of the Day (Orange Card with Background Image) */}
         <div
-          className="relative flex flex-col justify-center items-center rounded-2xl p-8 text-center md:w-96 min-h-full overflow-hidden"
+          className="relative flex flex-col justify-center items-center rounded-2xl p-8 text-center md:w-full xl:w-72 2xl:w-96 min-h-full overflow-hidden"
           style={{
             backgroundImage: `url('/images/flashsale.png')`,
             backgroundSize: "cover",
             backgroundPosition: "center",
           }}
         >
-          {/* Orange Overlay */}
+          
           
 
           {/* Content */}
@@ -93,7 +93,7 @@ const FlashSale = () => {
             </p>
 
             {/* Countdown Boxes */}
-            <div className="grid grid-cols-4 mt-10 gap-4">
+            <div className="grid grid-cols-4 md:ml-10 ml-0 xl:ml-0 2xl:ml-0 mt-10 gap-4">
               {[
                 { value: "03", label: "Days" },
                 { value: "24", label: "Hours" },
@@ -102,7 +102,7 @@ const FlashSale = () => {
               ].map((item) => (
                 <div
                   key={item.label}
-                  className="bg-white text-orange-500 rounded-lg py-5 md:px-10 flex flex-col items-center justify-center w-14"
+                  className="bg-white text-orange-500 rounded-lg py-5 md:px-10 xl:px-0 2xl:px-10 flex flex-col items-center justify-center w-14"
                 >
                   <span className="text-2xl font-bold leading-none">
                     {item.value}
@@ -117,7 +117,7 @@ const FlashSale = () => {
         </div>
 
         {/* Product Cards Section */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6 flex-1">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6 flex-1">
           {products.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
@@ -125,7 +125,7 @@ const FlashSale = () => {
       </div>
 
       {/* Pagination (Right-Aligned, Arrows Only) */}
-      <div className="flex justify-end mt-10 space-x-3">
+      <div className="flex justify-center xl:justify-end mt-10 space-x-3">
         <button className="flex items-center bg-black text-white justify-center w-16 h-10 border border-gray-300 rounded-md  hover:bg-gray-100 transition ">
           &lt;
         </button>
