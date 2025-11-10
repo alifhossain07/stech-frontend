@@ -149,9 +149,9 @@ const NeckBandProducts2 = ({ products }: NeckBandProducts2Props) => {
         ];
 
   return (
-    <div className="md:w-11/12 w-11/12 mx-auto py-16">
+    <div className="md:w-11/12 w-11/12 mx-auto pb-[56px] ">
       {/* Header Section */}
-      <div className="flex flex-col sm:flex-row justify-between items-center text-center sm:text-left py-6 md:py-8 w-full gap-3 mb-5">
+      <div className="flex flex-col sm:flex-row justify-between items-center text-center sm:text-left  w-full gap-3 mb-7">
         <div className="w-full sm:w-7/12">
           <h1 className="text-2xl sm:text-2xl md:text-4xl font-semibold mb-1 md:mb-2">
             Neckband Products
@@ -161,7 +161,7 @@ const NeckBandProducts2 = ({ products }: NeckBandProducts2Props) => {
           </p>
         </div>
 
-        <button className="bg-black text-xs sm:text-sm md:text-lg flex items-center justify-center gap-2 text-white px-4 sm:px-5 md:px-6 py-2 md:py-3 rounded-xl hover:text-black font-semibold hover:bg-gray-200 duration-300 transition whitespace-nowrap">
+        <button className="bg-black text-xs sm:text-sm md:text-sm flex items-center justify-center gap-2 text-white px-3.5 py-2 rounded-xl hover:text-black  hover:bg-gray-200 duration-300 transition whitespace-nowrap">
           See More <FiChevronRight className="text-sm sm:text-base md:text-xl" />
         </button>
       </div>

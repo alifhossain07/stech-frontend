@@ -6,7 +6,7 @@ import { IoCallOutline, IoMailOutline } from "react-icons/io5";
 
 const Footer = () => {
   return (
-    <footer className="bg-black text-white py-12 xl:py-16 mt-10 xl:mt-20">
+    <footer className="bg-black text-white py-12 xl:py-16 mt-10 xl:mt-14">
       {/* Outer Wrapper */}
       <div className="w-11/12 mx-auto border-b border-gray-700 pb-8 xl:pb-10">
         {/* Main Grid */}

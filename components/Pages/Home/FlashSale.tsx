@@ -50,9 +50,9 @@ const products = [
 
 const FlashSale = () => {
   return (
-    <div className="md:w-11/12 w-11/12 mx-auto pt-10 pb-24">
+    <div className="md:w-11/12 w-11/12 mx-auto pb-[56px] ">
       {/* Header */}
-    <div className="flex flex-col sm:flex-row justify-between items-center text-center sm:text-left py-6 md:py-8 w-full gap-3 mb-5">
+    <div className="flex flex-col sm:flex-row justify-between items-center text-center sm:text-left  w-full gap-3 mb-7">
             <div className="w-full sm:w-7/12">
               <h1 className="text-2xl sm:text-2xl md:text-4xl font-semibold mb-1 md:mb-2">
                 Flash Sale Products
@@ -62,9 +62,9 @@ const FlashSale = () => {
               </p>
             </div>
     
-            <button className="bg-black text-xs sm:text-sm md:text-lg flex items-center justify-center gap-2 text-white px-4 sm:px-5 md:px-6 py-2 md:py-3 rounded-xl hover:text-black font-semibold hover:bg-gray-200 duration-300 transition whitespace-nowrap">
-              See More <FiChevronRight className="text-sm sm:text-base md:text-xl" />
-            </button>
+            <button className="bg-black text-xs sm:text-sm md:text-sm flex items-center justify-center gap-2 text-white px-3.5 py-2 rounded-xl hover:text-black  hover:bg-gray-200 duration-300 transition whitespace-nowrap">
+          See More <FiChevronRight className="text-sm sm:text-base md:text-xl" />
+        </button>
           </div>
 
       {/* Flash Sale Layout */}
@@ -93,7 +93,7 @@ const FlashSale = () => {
             </p>
 
             {/* Countdown Boxes */}
-            <div className="grid grid-cols-4 md:ml-10 ml-0 xl:ml-0 2xl:ml-0 mt-10 gap-4">
+            <div className="grid grid-cols-4 md:ml-16 ml-5 xl:ml-0 xl:mr-4 2xl:mr-0 2xl:ml-0 mt-10 xl:gap-7 2xl:gap-4">
               {[
                 { value: "03", label: "Days" },
                 { value: "24", label: "Hours" },
@@ -102,12 +102,12 @@ const FlashSale = () => {
               ].map((item) => (
                 <div
                   key={item.label}
-                  className="bg-white text-orange-500 rounded-lg py-5 md:px-10 xl:px-0 2xl:px-10 flex flex-col items-center justify-center w-14"
+                  className="bg-white text-orange-500 rounded-lg xl:py-3 md:py-2  py-2 2xl:py-5 md:px-10 xl:px-0 2xl:px-10 flex flex-col items-center justify-center w-14"
                 >
-                  <span className="text-2xl font-bold leading-none">
+                  <span className="2xl:text-2xl font-bold leading-none">
                     {item.value}
                   </span>
-                  <span className="text-[16px] font-medium mt-1">
+                  <span className="2xl:text-[16px] font-medium mt-1">
                     {item.label}
                   </span>
                 </div>

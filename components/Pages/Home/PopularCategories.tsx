@@ -32,7 +32,7 @@ const PopularCategories = () => {
   ];
 
   return (
-    <div className="w-11/12 mx-auto">
+    <div className="w-11/12 mx-auto pb-[56px]">
         <div className=' space-y-3 text-center'>
         <h1 className='md:text-4xl text-2xl font-semibold' >Explore Popular Categories</h1>
         <p className='md:text-sm text-xs'>Find your preferred item in the highlighted product selection.</p>
@@ -42,16 +42,16 @@ const PopularCategories = () => {
       {items.map((item, index) => (
         <div
           key={index}
-          className="flex flex-col h-64 hover:bg-orange-300 duration-300 items-center justify-center bg-white border border-gray-300 rounded-lg cursor-pointer p-6 hover:shadow-lg transition"
+          className="flex flex-col h-44 xl:h-52 2xl:h-64 hover:bg-orange-300 duration-300 items-center justify-center bg-white border border-gray-300 rounded-lg cursor-pointer p-6 hover:shadow-lg transition"
         >
           <Image
             src={item.image}
             alt={item.title}
             width={100}
             height={100}
-            className="mb-3"
+            className="mb-3 w-16 xl:w-24 2xl:w-32"
           />
-          <h3 className="text-lg text-center  text-gray-800">{item.title}</h3>
+          <h3 className="xl:text-lg text-sm text-center  text-gray-800">{item.title}</h3>
         </div>
       ))}
     </div>

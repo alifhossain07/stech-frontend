@@ -3,7 +3,7 @@ import Image from "next/image";
 
 const HomeBannerSection = () => {
   return (
-    <div className="w-11/12 mx-auto py-14">
+    <div className="w-11/12 mx-auto pb-[56px] ">
       <div className="flex flex-col md:flex-row gap-4">
         {/* Banner 1 */}
         <div className="w-full md:w-1/2">

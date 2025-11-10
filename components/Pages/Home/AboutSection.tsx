@@ -3,7 +3,7 @@ import React from "react";
 
 const AboutSection = () => {
   return (
-    <div className="w-11/12 mx-auto py-12 md:py-20">
+    <div className="w-11/12 mx-auto pb-[56px] ">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* Card 1 - Text */}
         <div className="bg-white shadow-md rounded-xl  border border-gray-200">

@@ -38,13 +38,13 @@ const HeroSlider = () => {
   }, []);
 
   return (
-    <div className="w-11/12 md:w-11/12 mx-auto md:pt-10 pt-5 md:pb-10 pb-20 xl:pb-20 ">
+    <div className="w-11/12 md:w-11/12 mx-auto md:pt-10 pt-5 pb-[56px]">
       {/* Parent Container */}
       <div
         className="
           flex flex-col lg:flex-row 
           gap-5 
-          overflow-hidden xl:rounded-xl
+          overflow-hidden xl:rounded-sm
           md:h-[590px]
         "
       >
@@ -147,7 +147,7 @@ const HeroSlider = () => {
               src="/images/herohover.png"
               alt="right image 1"
               fill
-              className="object-cover hover:scale-105 transition-transform duration-300 xl:rounded-xl"
+              className="object-cover hover:scale-105 transition-transform duration-300 xl:rounded-md"
             />
           </div>
           <div className="relative w-1/2 lg:w-full h-[200px] md:h-[200px] xl:h-[300px] 2xl:h-[350px] lg:h-1/2">
@@ -155,7 +155,7 @@ const HeroSlider = () => {
               src="/images/herohover.png"
               alt="right image 2"
               fill
-              className="object-cover hover:scale-105 transition-transform duration-300 xl:rounded-xl"
+              className="object-cover hover:scale-105 transition-transform duration-300 xl:rounded-md"
             />
           </div>
         </div>
