@@ -2,7 +2,7 @@
 
 import ProductCard from "@/components/ui/ProductCard";
 import React, { useState, useMemo, useRef } from "react";
-import {FiChevronDown } from "react-icons/fi";
+import { FiChevronDown } from "react-icons/fi";
 
 type Product = {
   id: number;
@@ -17,17 +17,18 @@ type Product = {
 
 const NewArrivalProducts = () => {
   // ✅ Product list
-  const products = useMemo<Product[]>(() => [
-    {
-      id: 1,
-      name: "25 Watt Samsung Fast Charger",
-      price: 2500,
-      oldPrice: 2600,
-      discount: "10% Off",
-      rating: "3.0",
-      reviews: "(1)",
-      image: "/images/charger.png",
-    },
+  const products = useMemo<Product[]>(
+    () => [
+      {
+        id: 1,
+        name: "25 Watt Samsung Fast Charger",
+        price: 2500,
+        oldPrice: 2600,
+        discount: "10% Off",
+        rating: "3.0",
+        reviews: "(1)",
+        image: "/images/charger.png",
+      },
       {
         id: 2,
         name: "Super Fast Wall Charger",
@@ -218,7 +219,7 @@ const NewArrivalProducts = () => {
         reviews: "(10)",
         image: "/images/charger.png",
       },
-       {
+      {
         id: 21,
         name: "Super Compact Quick Charger",
         price: 2400,
@@ -278,7 +279,9 @@ const NewArrivalProducts = () => {
         reviews: "(10)",
         image: "/images/charger.png",
       },
-  ], []);
+    ],
+    []
+  );
 
   // ✅ Pagination setup
   const productsPerPage = 15;
@@ -294,7 +297,10 @@ const NewArrivalProducts = () => {
   // Close dropdown when clicking outside
   React.useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setOpen(false);
       }
     };
@@ -320,50 +326,51 @@ const NewArrivalProducts = () => {
   return (
     <div ref={sectionRef} className="w-full mx-auto pb-[56px]">
       {/* Header Section */}
-      <div className="flex flex-col sm:flex-row justify-between items-center text-center sm:text-left w-full gap-3 mb-7">
-        <div className="w-full sm:w-7/12">
-          <h1 className="text-2xl sm:text-2xl md:text-4xl font-semibold mb-1 md:mb-2">
-            New Arrival Products
-          </h1>
-          <p className="text-xs sm:text-sm md:text-lg text-gray-600">
-            Discover Our Latest Arrivals Designed to Inspire and Impress
-          </p>
-        </div>
+      <div className="flex flex-row flex-nowrap justify-between items-center w-full gap-2 mb-7">
+  {/* Left: Title + Subtitle */}
+  <div className="flex flex-col min-w-0 w-[70%] sm:w-[75%] md:w-[65%] xl:w-[60%] 2xl:w-[55%]">
+    <h1 className="text-sm sm:text-lg md:text-2xl xl:text-3xl font-semibold mb-1 truncate">
+      New Arrival Products
+    </h1>
+    <p className="text-[10px] sm:text-xs md:text-sm xl:text-base text-gray-600 leading-snug ">
+      Discover Our Latest Arrivals Designed to Inspire and Impress
+    </p>
+  </div>
 
-        {/* ✅ Dropdown Filter */}
-        <div className="relative inline-block" ref={dropdownRef}>
-          <button
-            onClick={() => setOpen(!open)}
-            className="border border-gray-400 px-5 py-2 h-[46px] flex items-center gap-2 rounded-md text-sm bg-white hover:text-gray-700 hover:border-gray-500 transition"
-          >
-            <span className="font-medium">{sortOption}</span>
-            <FiChevronDown className={`text-lg transition-transform ${open ? "rotate-180" : ""}`} />
-          </button>
+  {/* Right: Dropdown */}
+  <div className="relative flex-shrink-0" ref={dropdownRef}>
+    <button
+      onClick={() => setOpen(!open)}
+      className="border border-gray-400 px-2 py-1 sm:px-3 sm:py-1.5 md:px-4 md:py-2 flex items-center justify-between gap-1 sm:gap-2 rounded-md text-[10px] sm:text-xs md:text-sm bg-white hover:text-gray-700 hover:border-gray-500 transition w-[110px] sm:w-[130px] md:w-[160px]"
+    >
+      <span className="truncate">{sortOption}</span>
+      <FiChevronDown
+        className={`text-xs sm:text-sm md:text-lg transition-transform ${
+          open ? "rotate-180" : ""
+        }`}
+      />
+    </button>
 
-          {/* Dropdown Menu */}
-          <div
-            className={`absolute right-0 top-full mt-2 bg-white border border-gray-300 rounded-md shadow-md w-48 z-50 transform transition-all duration-200 ${
-              open
-                ? "opacity-100 visible translate-y-0"
-                : "opacity-0 invisible -translate-y-2"
-            }`}
-          >
-            {["Most Recent", "Price: Low to High", "Price: High to Low", "Top Rated"].map(
-              (option) => (
-                <button
-                  key={option}
-                  onClick={() => handleSort(option)}
-                  className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${
-                    sortOption === option ? "bg-gray-50 font-semibold" : ""
-                  }`}
-                >
-                  {option}
-                </button>
-              )
-            )}
-          </div>
-        </div>
-      </div>
+    {/* Dropdown Menu */}
+    <div
+      className={`absolute right-0 top-full mt-2 bg-white border border-gray-300 rounded-md shadow-md w-[130px] sm:w-[160px] md:w-[180px] z-50 transform transition-all duration-200 ${
+        open ? "opacity-100 visible translate-y-0" : "opacity-0 invisible -translate-y-2"
+      }`}
+    >
+      {["Most Recent", "Price: Low to High", "Price: High to Low", "Top Rated"].map((option) => (
+        <button
+          key={option}
+          onClick={() => handleSort(option)}
+          className={`block w-full text-left px-4 py-2 text-xs sm:text-sm hover:bg-gray-100 ${
+            sortOption === option ? "bg-gray-50 font-semibold" : ""
+          }`}
+        >
+          {option}
+        </button>
+      ))}
+    </div>
+  </div>
+</div>
 
       {/* ✅ Fixed-height grid */}
       <div className="flex justify-center min-h-[1050px] md:min-h-[1100px] lg:min-h-[900px]">
