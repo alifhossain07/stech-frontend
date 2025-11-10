@@ -25,6 +25,19 @@ body {
   animation: slideIn 0.3s ease-out forwards;
 }
 
+@keyframes slideOut {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+.animate-slideOut {
+  animation: slideOut 0.3s ease-out forwards;
+}
+
 @keyframes pulseScaleColor {
   0%, 100% {
     transform: scale(1);
