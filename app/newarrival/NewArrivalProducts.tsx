@@ -1,9 +1,8 @@
 "use client";
 
 import ProductCard from "@/components/ui/ProductCard";
-import Link from "next/link";
 import React, { useState, useMemo, useRef } from "react";
-import { FiChevronRight } from "react-icons/fi";
+import {FiChevronDown } from "react-icons/fi";
 
 type Product = {
   id: number;
@@ -287,6 +286,28 @@ const NewArrivalProducts = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const sectionRef = useRef<HTMLDivElement | null>(null);
 
+  // ✅ Filter/Sort dropdown
+  const [open, setOpen] = useState(false);
+  const [sortOption, setSortOption] = useState("Most Recent");
+  const dropdownRef = useRef<HTMLDivElement | null>(null);
+
+  // Close dropdown when clicking outside
+  React.useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleSort = (option: string) => {
+    setSortOption(option);
+    setOpen(false);
+    // Optional: add sorting logic if desired
+  };
+
   const startIndex = (currentPage - 1) * productsPerPage;
   const endIndex = startIndex + productsPerPage;
   const visibleProducts = products.slice(startIndex, endIndex);
@@ -309,11 +330,39 @@ const NewArrivalProducts = () => {
           </p>
         </div>
 
-        <Link href="/newarrival">
-          <button className="bg-black text-xs sm:text-sm md:text-sm flex items-center justify-center gap-2 text-white px-3.5 py-2 rounded-xl hover:text-black hover:bg-gray-200 duration-300 transition whitespace-nowrap">
-            See More <FiChevronRight className="text-sm sm:text-base md:text-xl" />
+        {/* ✅ Dropdown Filter */}
+        <div className="relative inline-block" ref={dropdownRef}>
+          <button
+            onClick={() => setOpen(!open)}
+            className="border border-gray-400 px-5 py-2 h-[46px] flex items-center gap-2 rounded-md text-sm bg-white hover:text-gray-700 hover:border-gray-500 transition"
+          >
+            <span className="font-medium">{sortOption}</span>
+            <FiChevronDown className={`text-lg transition-transform ${open ? "rotate-180" : ""}`} />
           </button>
-        </Link>
+
+          {/* Dropdown Menu */}
+          <div
+            className={`absolute right-0 top-full mt-2 bg-white border border-gray-300 rounded-md shadow-md w-48 z-50 transform transition-all duration-200 ${
+              open
+                ? "opacity-100 visible translate-y-0"
+                : "opacity-0 invisible -translate-y-2"
+            }`}
+          >
+            {["Most Recent", "Price: Low to High", "Price: High to Low", "Top Rated"].map(
+              (option) => (
+                <button
+                  key={option}
+                  onClick={() => handleSort(option)}
+                  className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${
+                    sortOption === option ? "bg-gray-50 font-semibold" : ""
+                  }`}
+                >
+                  {option}
+                </button>
+              )
+            )}
+          </div>
+        </div>
       </div>
 
       {/* ✅ Fixed-height grid */}
