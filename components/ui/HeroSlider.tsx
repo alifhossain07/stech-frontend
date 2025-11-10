@@ -44,7 +44,7 @@ const HeroSlider = () => {
         className="
           flex flex-col lg:flex-row 
           gap-5 
-          overflow-hidden rounded-xl
+          overflow-hidden xl:rounded-xl
           md:h-[590px]
         "
       >
@@ -82,50 +82,61 @@ const HeroSlider = () => {
 
             {/* Controls */}
             <div
-              className="absolute left-0 flex items-center justify-between w-full h-0 px-4 top-1/2 z-10"
-              data-glide-el="controls"
-            >
-              <button
-                className="inline-flex items-center justify-center w-10 h-10 transition duration-300 border rounded-full border-slate-700 bg-white/30 text-slate-700 hover:border-slate-900 hover:text-slate-900 focus-visible:outline-none"
-                data-glide-dir="<"
-                aria-label="prev slide"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth="1.5"
-                  stroke="currentColor"
-                  className="w-5 h-5"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M6.75 15.75L3 12m0 0l3.75-3.75M3 12h18"
-                  />
-                </svg>
-              </button>
-              <button
-                className="inline-flex items-center justify-center w-10 h-10 transition duration-300 border rounded-full border-slate-700 bg-white/30 text-slate-700 hover:border-slate-900 hover:text-slate-900 focus-visible:outline-none"
-                data-glide-dir=">"
-                aria-label="next slide"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth="1.5"
-                  stroke="currentColor"
-                  className="w-5 h-5"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"
-                  />
-                </svg>
-              </button>
-            </div>
+  className="absolute left-0 flex items-center justify-between w-full h-0 px-4 top-1/2 z-10"
+  data-glide-el="controls"
+>
+  <button
+    className="inline-flex items-center justify-center 
+               w-8 h-8 md:w-8 md:h-8 xl:w-10 xl:h-10 
+               transition duration-300 border rounded-full 
+               border-slate-700 hover:bg-orange-400 bg-white/30 text-slate-700 
+               hover:border-slate-900 hover:text-slate-900 
+               focus-visible:outline-none"
+    data-glide-dir="<"
+    aria-label="prev slide"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth="1.5"
+      stroke="currentColor"
+      className="w-4 h-4 xl:w-5 xl:h-5"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M6.75 15.75L3 12m0 0l3.75-3.75M3 12h18"
+      />
+    </svg>
+  </button>
+
+  <button
+    className="inline-flex items-center justify-center 
+               w-8 h-8 md:w-8 md:h-8 xl:w-10 xl:h-10 
+               transition duration-300 border rounded-full 
+               border-slate-700 bg-white/30 text-slate-700 
+               hover:border-slate-900 hover:bg-orange-400 hover:text-slate-900 
+               focus-visible:outline-none"
+    data-glide-dir=">"
+    aria-label="next slide"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth="1.5"
+      stroke="currentColor"
+      className="w-4 h-4 xl:w-5 xl:h-5"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"
+      />
+    </svg>
+  </button>
+</div>
           </div>
         </div>
 
@@ -136,7 +147,7 @@ const HeroSlider = () => {
               src="/images/herohover.png"
               alt="right image 1"
               fill
-              className="object-cover hover:scale-105 transition-transform duration-300 rounded-xl"
+              className="object-cover hover:scale-105 transition-transform duration-300 xl:rounded-xl"
             />
           </div>
           <div className="relative w-1/2 lg:w-full h-[200px] md:h-[200px] xl:h-[300px] 2xl:h-[350px] lg:h-1/2">
@@ -144,7 +155,7 @@ const HeroSlider = () => {
               src="/images/herohover.png"
               alt="right image 2"
               fill
-              className="object-cover hover:scale-105 transition-transform duration-300 rounded-xl"
+              className="object-cover hover:scale-105 transition-transform duration-300 xl:rounded-xl"
             />
           </div>
         </div>

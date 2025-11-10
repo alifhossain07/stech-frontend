@@ -53,7 +53,7 @@ const NewsLetter = () => {
       </div>
 
       <div className="mt-10 bg-orange-500 p-8 flex justify-between items-center">
-        <h1 className="text-3xl text-white tracking-wider">Sannai Technology - Trusted Retail Mobile Accessories Shop in Bangladesh</h1>
+        <h1 className="xl:text-3xl text-lg text-white tracking-wider">Sannai Technology - Trusted Retail Mobile Accessories Shop in Bangladesh</h1>
         <FiChevronDown className="text-white font-bold text-4xl" />
 
       </div>

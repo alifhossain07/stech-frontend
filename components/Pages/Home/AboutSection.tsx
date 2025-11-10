@@ -7,10 +7,10 @@ const AboutSection = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* Card 1 - Text */}
         <div className="bg-white shadow-md rounded-xl  border border-gray-200">
-          <h3 className="bg-black text-white text-sm md:text-base font-semibold px-4 py-4 rounded-md inline-block mb-4">
+          <h3 className="bg-black text-white text-sm md:text-base font-semibold px-4 py-5 rounded-md inline-block mb-4">
             Bangladesh’s Trusted Tech E-Commerce Store for Phones, Gadgets & Accessories
           </h3>
-          <p className="text-gray-700 p-4 text-sm md:text-base leading-relaxed">
+          <p className="text-gray-600 text-justify p-4 text-sm md:text-base leading-loose">
             In Bangladesh, Apple Gadgets has emerged as the premier source for
             genuine gadgets and accessories. We provide you with reliable brands
             all in one place, from the newest iPhones and iPads to robust MacBooks
@@ -39,10 +39,10 @@ const AboutSection = () => {
 </div>
         {/* Card 3 - Text */}
         <div className="bg-white shadow-md rounded-xl  border border-gray-200">
-          <h3 className="bg-black text-white text-sm md:text-base font-semibold px-4 py-4 rounded-md inline-block mb-4">
+          <h3 className="bg-black text-white text-sm md:text-base font-semibold px-4 py-5 rounded-md inline-block mb-4">
             Bangladesh’s Trusted Tech E-Commerce Store for Phones, Gadgets & Accessories
           </h3>
-          <p className="text-gray-700 text-sm md:text-base leading-relaxed p-4">
+          <p className="text-gray-600 text-justify p-4 text-sm md:text-base leading-loose">
             In Bangladesh, Apple Gadgets has emerged as the premier source for
             genuine gadgets and accessories. We provide you with reliable brands
             all in one place, from the newest iPhones and iPads to robust MacBooks
@@ -62,10 +62,10 @@ const AboutSection = () => {
 
         {/* Card 4 - Text */}
         <div className="bg-white shadow-md rounded-xl  border border-gray-200">
-          <h3 className="bg-black text-white text-sm md:text-base font-semibold px-4 py-4 rounded-md inline-block mb-4">
+          <h3 className="bg-black text-white text-sm md:text-base font-semibold px-4 py-5 rounded-md inline-block mb-4">
             Bangladesh’s Trusted Tech E-Commerce Store for Phones, Gadgets & Accessories
           </h3>
-          <p className="text-gray-700 text-sm md:text-base leading-relaxed p-4">
+          <p className="text-gray-600 text-justify p-4 text-sm md:text-base leading-loose">
             In Bangladesh, Apple Gadgets has emerged as the premier source for
             genuine gadgets and accessories. We provide you with reliable brands
             all in one place, from the newest iPhones and iPads to robust MacBooks
@@ -85,10 +85,10 @@ const AboutSection = () => {
 
         {/* Card 5 - Text */}
         <div className="bg-white shadow-md rounded-xl  border border-gray-200">
-          <h3 className="bg-black text-white text-sm md:text-base font-semibold px-4 py-4 rounded-md inline-block mb-4">
+          <h3 className="bg-black text-white text-sm md:text-base font-semibold px-4 py-5 rounded-md inline-block mb-4">
             Bangladesh’s Trusted Tech E-Commerce Store for Phones, Gadgets & Accessories
           </h3>
-          <p className="text-gray-700 text-sm md:text-base leading-relaxed p-4">
+          <p className="text-gray-600 text-justify p-4 text-sm md:text-base leading-loose">
             In Bangladesh, Apple Gadgets has emerged as the premier source for
             genuine gadgets and accessories. We provide you with reliable brands
             all in one place, from the newest iPhones and iPads to robust MacBooks
@@ -108,10 +108,10 @@ const AboutSection = () => {
 
         {/* Card 6 - Text */}
         <div className="bg-white shadow-md rounded-xl  border border-gray-200">
-          <h3 className="bg-black text-white text-sm md:text-base font-semibold px-4 py-4 rounded-md inline-block mb-4">
+          <h3 className="bg-black text-white text-sm md:text-base font-semibold px-4 py-5 rounded-md inline-block mb-4">
             Bangladesh’s Trusted Tech E-Commerce Store for Phones, Gadgets & Accessories
           </h3>
-          <p className="text-gray-700 text-sm md:text-base leading-relaxed p-4">
+          <p className="text-gray-600 text-justify p-4 text-sm md:text-base leading-loose">
             In Bangladesh, Apple Gadgets has emerged as the premier source for
             genuine gadgets and accessories. We provide you with reliable brands
             all in one place, from the newest iPhones and iPads to robust MacBooks
