@@ -297,7 +297,7 @@ const Navbar = () => {
               </button>
             </div>
 
-            <ul ref={submenuRef} className="p-4 space-y-3 text-gray-800 font-medium">
+            <ul ref={submenuRef} className="p-4 space-y-3  text-gray-800 font-medium">
               <button className="mt-1 w-full py-4 bg-gradient-to-b from-[#FFD522] to-[#FF6B01] text-white rounded-lg hover:opacity-90 transition text-sm">
                 Buy Dealer Products
               </button>
