@@ -199,7 +199,7 @@ const Navbar = () => {
         {/* Desktop Nav */}
         <div className="bg-orange-500 hidden lg:block">
           <div className="w-11/12 mx-auto flex justify-between items-center h-10">
-            <ul className="flex gap-6 text-white font-semibold text-sm">
+            <ul className="flex gap-6 text-white  text-sm">
               {categories.map((category, i) => (
                 <li
                   key={i}
@@ -297,7 +297,7 @@ const Navbar = () => {
               </button>
             </div>
 
-            <ul ref={submenuRef} className="p-4 space-y-3  text-gray-800 font-medium">
+            <ul ref={submenuRef} className="p-4 space-y-3  text-gray-800 ">
               <button className="mt-1 w-full py-3 bg-gradient-to-b from-[#FFD522] to-[#FF6B01] text-white rounded-lg hover:opacity-90 transition text-sm">
                 Buy Dealer Products
               </button>
