@@ -102,7 +102,7 @@ const FlashSale = () => {
               ].map((item) => (
                 <div
                   key={item.label}
-                  className="bg-white text-orange-500 rounded-lg xl:py-3 md:py-2  py-2 2xl:py-5 md:px-10 xl:px-0 2xl:px-10 flex flex-col items-center justify-center w-14"
+                  className="bg-white text-orange-500 rounded-lg  xl:py-3 md:pt-3   pt-3 pb-2 2xl:py-5 xl:pt-4 md:px-10 xl:px-0 2xl:px-10 flex flex-col items-center justify-center w-14"
                 >
                   <span className="2xl:text-2xl font-bold leading-none">
                     {item.value}
