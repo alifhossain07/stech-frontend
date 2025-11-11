@@ -29,7 +29,7 @@ const AboutSection = () => {
         </div>
 
         {/* Card 2 - Image only */}
-        <div className="bg-white shadow-md rounded-xl border border-gray-200 relative overflow-hidden">
+        <div className="bg-white hidden md:block shadow-md rounded-xl border border-gray-200 relative overflow-hidden">
   <Image
     src="/images/aboutimage.png"
     alt="Gadget Showcase"

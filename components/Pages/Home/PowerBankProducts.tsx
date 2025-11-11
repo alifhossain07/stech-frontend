@@ -161,7 +161,7 @@ const PowerBankProducts = ({ products }: PowerBankProductsProps) => {
           </p>
         </div>
 
-        <button className="bg-black text-xs sm:text-sm md:text-sm flex items-center justify-center gap-2 text-white px-3.5 py-2 rounded-xl hover:text-black  hover:bg-gray-200 duration-300 transition whitespace-nowrap">
+        <button className="bg-black hidden   text-xs sm:text-sm md:text-sm md:flex items-center justify-center gap-2 text-white px-3.5 py-2 rounded-xl hover:text-black  hover:bg-gray-200 duration-300 transition whitespace-nowrap">
           See More <FiChevronRight className="text-sm sm:text-base md:text-xl" />
         </button>
       </div>
@@ -207,14 +207,11 @@ const PowerBankProducts = ({ products }: PowerBankProductsProps) => {
       </div>
 
       {/* Pagination Buttons */}
-      <div className="flex justify-center xl:justify-end mt-10 space-x-3">
-        <button className="flex items-center bg-black text-white justify-center w-16 h-10 border border-gray-300 rounded-md hover:bg-gray-100 transition hover:text-black">
-          &lt;
-        </button>
-        <button className="flex items-center bg-black text-white justify-center w-16 h-10 border border-gray-300 rounded-md hover:bg-gray-100 hover:text-black transition">
-          &gt;
-        </button>
-      </div>
+       <div className="flex items-center justify-center md:hidden pt-[44px]">
+                      <button className="bg-black text-xs sm:text-sm md:text-sm flex items-center justify-center gap-2 text-white px-3.5 py-2 rounded-xl hover:text-black  hover:bg-gray-200 duration-300 transition whitespace-nowrap">
+                      See More <FiChevronRight className="text-sm sm:text-base md:text-xl" />
+                    </button>
+                    </div>
     </div>
   );
 };

@@ -158,7 +158,7 @@ const NewArrival = () => {
         </div>
 
         <Link href="/newarrival">
-          <button className="bg-black text-xs sm:text-sm md:text-sm flex items-center justify-center gap-2 text-white px-3.5 py-2 rounded-xl hover:text-black hover:bg-gray-200 duration-300 transition whitespace-nowrap">
+          <button className="bg-black hidden text-xs sm:text-sm md:text-sm md:flex items-center justify-center gap-2 text-white px-3.5 py-2 rounded-xl hover:text-black hover:bg-gray-200 duration-300 transition whitespace-nowrap">
             See More <FiChevronRight className="text-sm sm:text-base md:text-xl" />
           </button>
         </Link>
@@ -172,6 +172,14 @@ const NewArrival = () => {
           ))}
         </div>
       </div>
+
+      <Link href="/newarrival">
+           <div className="flex items-center justify-center md:hidden pt-[44px]">
+                <button className="bg-black text-xs sm:text-sm md:text-sm flex items-center justify-center gap-2 text-white px-3.5 py-2 rounded-xl hover:text-black  hover:bg-gray-200 duration-300 transition whitespace-nowrap">
+                See More <FiChevronRight className="text-sm sm:text-base md:text-xl" />
+              </button>
+              </div>
+        </Link>
     </div>
   );
 };
