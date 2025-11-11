@@ -1,0 +1,167 @@
+[
+  {
+    "id": 1,
+    "name": "25 Watt Samsung Fast Charger",
+    "slug": "25-watt-samsung-fast-charger",
+    "price": 2500,
+    "oldPrice": 2600,
+    "discount": "10% Off",
+    "rating": "3.0",
+    "reviews": "(1)",
+    "image": "/images/charger.png"
+  },
+  {
+    "id": 2,
+    "name": "Super Fast Wall Charger",
+    "slug": "super-fast-wall-charger",
+    "price": 2300,
+    "oldPrice": 2500,
+    "discount": "8% Off",
+    "rating": "4.0",
+    "reviews": "(12)",
+    "image": "/images/charger.png"
+  },
+  {
+    "id": 3,
+    "name": "Compact USB-C Adapter",
+    "slug": "compact-usb-c-adapter",
+    "price": 2200,
+    "oldPrice": 2400,
+    "discount": "9% Off",
+    "rating": "4.5",
+    "reviews": "(7)",
+    "image": "/images/charger.png"
+  },
+  {
+    "id": 4,
+    "name": "Dual Port Fast Charger",
+    "slug": "dual-port-fast-charger",
+    "price": 2700,
+    "oldPrice": 3000,
+    "discount": "10% Off",
+    "rating": "3.8",
+    "reviews": "(4)",
+    "image": "/images/charger.png"
+  },
+  {
+    "id": 5,
+    "name": "Super Compact Quick Charger",
+    "slug": "super-compact-quick-charger",
+    "price": 2400,
+    "oldPrice": 2600,
+    "discount": "7% Off",
+    "rating": "4.2",
+    "reviews": "(10)",
+    "image": "/images/charger.png"
+  },
+  {
+    "id": 6,
+    "name": "25 Watt Samsung Fast Charger",
+    "slug": "25-watt-samsung-fast-charger-2",
+    "price": 2500,
+    "oldPrice": 2600,
+    "discount": "10% Off",
+    "rating": "3.0",
+    "reviews": "(1)",
+    "image": "/images/charger.png"
+  },
+  {
+    "id": 7,
+    "name": "Super Fast Wall Charger",
+    "slug": "super-fast-wall-charger-2",
+    "price": 2300,
+    "oldPrice": 2500,
+    "discount": "8% Off",
+    "rating": "4.0",
+    "reviews": "(12)",
+    "image": "/images/charger.png"
+  },
+  {
+    "id": 8,
+    "name": "Compact USB-C Adapter",
+    "slug": "compact-usb-c-adapter-2",
+    "price": 2200,
+    "oldPrice": 2400,
+    "discount": "9% Off",
+    "rating": "4.5",
+    "reviews": "(7)",
+    "image": "/images/charger.png"
+  },
+  {
+    "id": 9,
+    "name": "Dual Port Fast Charger",
+    "slug": "dual-port-fast-charger-2",
+    "price": 2700,
+    "oldPrice": 3000,
+    "discount": "10% Off",
+    "rating": "3.8",
+    "reviews": "(4)",
+    "image": "/images/charger.png"
+  },
+  {
+    "id": 10,
+    "name": "Super Compact Quick Charger",
+    "slug": "super-compact-quick-charger-2",
+    "price": 2400,
+    "oldPrice": 2600,
+    "discount": "7% Off",
+    "rating": "4.2",
+    "reviews": "(10)",
+    "image": "/images/charger.png"
+  },
+  {
+    "id": 11,
+    "name": "25 Watt Samsung Fast Charger",
+    "slug": "25-watt-samsung-fast-charger-3",
+    "price": 2500,
+    "oldPrice": 2600,
+    "discount": "10% Off",
+    "rating": "3.0",
+    "reviews": "(1)",
+    "image": "/images/charger.png"
+  },
+  {
+    "id": 12,
+    "name": "Super Fast Wall Charger",
+    "slug": "super-fast-wall-charger-3",
+    "price": 2300,
+    "oldPrice": 2500,
+    "discount": "8% Off",
+    "rating": "4.0",
+    "reviews": "(12)",
+    "image": "/images/charger.png"
+  },
+  {
+    "id": 13,
+    "name": "Compact USB-C Adapter",
+    "slug": "compact-usb-c-adapter-3",
+    "price": 2200,
+    "oldPrice": 2400,
+    "discount": "9% Off",
+    "rating": "4.5",
+    "reviews": "(7)",
+    "image": "/images/charger.png"
+  },
+  {
+    "id": 14,
+    "name": "Dual Port Fast Charger",
+    "slug": "dual-port-fast-charger-3",
+    "price": 2700,
+    "oldPrice": 3000,
+    "discount": "10% Off",
+    "rating": "3.8",
+    "reviews": "(4)",
+    "image": "/images/charger.png"
+  },
+  {
+    "id": 15,
+    "name": "Super Compact Quick Charger",
+    "slug": "super-compact-quick-charger-3",
+    "price": 2400,
+    "oldPrice": 2600,
+    "discount": "7% Off",
+    "rating": "4.2",
+    "reviews": "(10)",
+    "image": "/images/charger.png"
+  }
+]
