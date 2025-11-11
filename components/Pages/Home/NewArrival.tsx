@@ -6,8 +6,20 @@ import ProductCard from "@/components/ui/ProductCard";
 import { FiChevronRight } from "react-icons/fi";
 import Loader from "@/components/ui/Loader";
 
+interface Product {
+  id: number;
+  name: string;
+  price: number;
+  oldPrice: number;
+  discount: string;
+  rating: string;
+  reviews: string;
+  image: string;
+  slug: string;
+}
+
 const NewArrival = () => {
-  const [products, setProducts] = useState<any[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [itemsToShow, setItemsToShow] = useState(6);
