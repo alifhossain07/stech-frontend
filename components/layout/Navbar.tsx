@@ -12,75 +12,112 @@ import {
   FiMenu,
   FiX,
   FiHome,
+  FiChevronRight,
 } from "react-icons/fi";
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [open, setOpen] = useState(false);
   const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
+  const [hoveredSubcategory, setHoveredSubcategory] = useState<string | null>(
+    null
+  );
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
+  const [expandedSubcategory, setExpandedSubcategory] = useState<string | null>(
+    null
+  );
   const [closing, setClosing] = useState(false);
 
   const dropdownRef = useRef<HTMLDivElement>(null);
   const submenuRef = useRef<HTMLUListElement>(null);
+
   const handleCloseMenu = () => {
     setClosing(true);
     setTimeout(() => {
       setClosing(false);
       setMenuOpen(false);
-    }, 300); // Match your animation duration (0.3s)
+    }, 300);
   };
+
+  // ✅ UPDATED CATEGORY STRUCTURE
   const categories = [
     {
       name: "Fast Charger",
-      subcategories: ["18W Chargers", "33W Chargers", "65W Chargers"],
+      subcategories: [
+        {
+          name: "18W Chargers",
+          children: ["Type-C", "Type-B", "Lightning"],
+        },
+        { name: "33W Chargers", children: [] },
+        { name: "65W Chargers", children: [] },
+      ],
     },
     {
       name: "Fast Cable",
-      subcategories: ["Type-C Cable", "Micro USB", "Lightning Cable"],
+      subcategories: [
+        {
+          name: "Type-C Cable",
+          children: ["1 Meter", "2 Meter", "Braided"],
+        },
+        { name: "Micro USB", children: [] },
+        { name: "Lightning Cable", children: [] },
+      ],
     },
     {
       name: "Neckband",
-      subcategories: ["Sports Series", "Bass Boost", "Pro Series"],
+      subcategories: [
+        { name: "Sports Series", children: [] },
+        { name: "Bass Boost", children: [] },
+        { name: "Pro Series", children: [] },
+      ],
     },
     {
       name: "TWS",
-      subcategories: ["Gaming TWS", "Music TWS", "Noise Cancel TWS"],
+      subcategories: [
+        { name: "Gaming TWS", children: [] },
+        { name: "Music TWS", children: [] },
+        { name: "Noise Cancel TWS", children: [] },
+      ],
     },
     {
       name: "Power Bank",
-      subcategories: ["10,000 mAh", "20,000 mAh", "Mini Power Banks"],
+      subcategories: [
+        { name: "10,000 mAh", children: [] },
+        { name: "20,000 mAh", children: [] },
+        { name: "Mini Power Banks", children: [] },
+      ],
     },
-    { name: "Ear Phone", subcategories: ["Wired", "Wireless", "Studio Grade"] },
+    { name: "Ear Phone", subcategories: [{ name: "Wired", children: [] }, { name: "Wireless", children: [] }, { name: "Studio Grade", children: [] }] },
     { name: "About Us", subcategories: [] },
     { name: "Our Blog", subcategories: [] },
     { name: "Contact Us", subcategories: [] },
     { name: "Authentication", subcategories: [] },
   ];
 
+  // Detect click outside for dropdowns
   useEffect(() => {
-  const handleClickOutside = (event: MouseEvent) => {
-    // For Language dropdown
-    if (
-      dropdownRef.current &&
-      !dropdownRef.current.contains(event.target as Node)
-    ) {
-      setOpen(false);
-    }
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setOpen(false);
+      }
 
-    // For Navbar submenu
-    if (
-      submenuRef.current &&
-      !submenuRef.current.contains(event.target as Node)
-    ) {
-      setHoveredCategory(null); // For desktop hover submenus
-      setExpandedCategory(null); // For mobile submenu
-    }
-  };
+      if (
+        submenuRef.current &&
+        !submenuRef.current.contains(event.target as Node)
+      ) {
+        setHoveredCategory(null);
+        setHoveredSubcategory(null);
+        setExpandedCategory(null);
+        setExpandedSubcategory(null);
+      }
+    };
 
-  document.addEventListener("mousedown", handleClickOutside);
-  return () => document.removeEventListener("mousedown", handleClickOutside);
-}, []);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
     <>
@@ -118,7 +155,6 @@ const Navbar = () => {
                 className="object-contain w-24 sm:w-32 md:w-28 xl:w-32 2xl:w-36 h-auto"
               />
             </Link>
-            {/* Hamburger Icon */}
             <button
               className="text-2xl text-orange-500 lg:hidden"
               onClick={() => setMenuOpen(true)}
@@ -146,8 +182,7 @@ const Navbar = () => {
                 background: "linear-gradient(to bottom, #FFD522, #FF6B01)",
               }}
             >
-              <FiGift className="text-base mr-1 animate-pulseScaleColor" />{" "}
-              Offers
+              <FiGift className="text-base mr-1 animate-pulseScaleColor" /> Offers
             </button>
 
             {/* Language Dropdown */}
@@ -196,16 +231,19 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* Desktop Nav */}
+        {/* Desktop Nav with Nested Hover */}
         <div className="bg-orange-500 hidden lg:block">
           <div className="w-11/12 mx-auto flex justify-between items-center h-10">
-            <ul className="flex gap-6 text-white  text-sm">
+            <ul className="flex gap-6 text-white text-sm">
               {categories.map((category, i) => (
                 <li
                   key={i}
                   className="relative group cursor-pointer"
                   onMouseEnter={() => setHoveredCategory(category.name)}
-                  onMouseLeave={() => setHoveredCategory(null)}
+                  onMouseLeave={() => {
+                    setHoveredCategory(null);
+                    setHoveredSubcategory(null);
+                  }}
                 >
                   <div className="flex items-center gap-1 hover:text-gray-300 duration-300">
                     {category.name}
@@ -214,6 +252,7 @@ const Navbar = () => {
                     )}
                   </div>
 
+                  {/* 1st Level Dropdown */}
                   {category.subcategories.length > 0 && (
                     <div
                       className={`absolute left-0 top-full mt-2 bg-white text-black rounded-md shadow-lg transition-all duration-300 transform origin-top ${
@@ -222,13 +261,44 @@ const Navbar = () => {
                           : "opacity-0 invisible scale-95 -translate-y-2"
                       }`}
                     >
-                      <ul className="min-w-[180px] py-2">
+                      <ul className="min-w-[180px] py-2 relative">
                         {category.subcategories.map((sub, idx) => (
                           <li
                             key={idx}
-                            className="px-4 py-2 hover:bg-gray-100 text-sm transition"
+                            className="px-4 py-2 hover:bg-gray-100 text-sm transition flex justify-between items-center"
+                            onMouseEnter={() =>
+                              setHoveredSubcategory(sub.name)
+                            }
+                            onMouseLeave={() =>
+                              setHoveredSubcategory(null)
+                            }
                           >
-                            {sub}
+                            {sub.name}
+                            {sub.children?.length > 0 && (
+                              <FiChevronRight className="text-gray-500 text-xs" />
+                            )}
+
+                            {/* 2nd Level Dropdown */}
+                            {sub.children?.length > 0 && (
+                              <div
+                                className={`absolute left-full top-3 ml-1 bg-white rounded-md shadow-lg transition-all duration-300 transform origin-top-left ${
+                                  hoveredSubcategory === sub.name
+                                    ? "opacity-100 visible translate-x-0"
+                                    : "opacity-0 invisible -translate-x-2"
+                                }`}
+                              >
+                                <ul className="min-w-[160px] py-2">
+                                  {sub.children.map((child, cidx) => (
+                                    <li
+                                      key={cidx}
+                                      className="px-4 py-2 hover:bg-gray-100 text-sm transition"
+                                    >
+                                      {child}
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
                           </li>
                         ))}
                       </ul>
@@ -267,7 +337,6 @@ const Navbar = () => {
       {/* ========= MOBILE SIDEBAR ========= */}
       {menuOpen && (
         <>
-          {/* Background Overlay */}
           <div
             className={`fixed inset-0 bg-black bg-opacity-40 z-40 transition-opacity duration-300 ${
               closing ? "opacity-0" : "opacity-100"
@@ -275,7 +344,6 @@ const Navbar = () => {
             onClick={handleCloseMenu}
           ></div>
 
-          {/* Sidebar with slide animation */}
           <div
             className={`fixed left-0 top-0 w-72 sm:w-80 h-full bg-white shadow-lg z-50 overflow-y-auto ${
               closing ? "animate-slideOut" : "animate-slideIn"
@@ -297,7 +365,7 @@ const Navbar = () => {
               </button>
             </div>
 
-            <ul ref={submenuRef} className="p-4 space-y-3  text-gray-800 ">
+            <ul ref={submenuRef} className="p-4 space-y-3 text-gray-800">
               <button className="mt-1 w-full py-3 bg-gradient-to-b from-[#FFD522] to-[#FF6B01] text-white rounded-lg hover:opacity-90 transition text-sm">
                 Buy Dealer Products
               </button>
@@ -322,24 +390,62 @@ const Navbar = () => {
                     )}
                   </button>
 
+                  {/* 1st Level Subcategories */}
                   <div
-  className={`ml-4 border-l border-gray-200 pl-3 mt-1 overflow-hidden transition-all duration-300 ease-in-out ${
-    expandedCategory === cat.name
-      ? "max-h-40 opacity-100 translate-y-0"
-      : "max-h-0 opacity-0 -translate-y-2"
-  }`}
->
-  <ul className="space-y-1">
-    {cat.subcategories.map((sub, subIndex) => (
-      <li
-        key={subIndex}
-        className="py-1 text-sm text-gray-600 hover:text-orange-500 cursor-pointer"
-      >
-        {sub}
-      </li>
-    ))}
-  </ul>
-</div>
+                    className={`ml-4 border-l border-gray-200 pl-3 mt-1 overflow-hidden transition-all duration-300 ease-in-out ${
+                      expandedCategory === cat.name
+                        ? "max-h-60 opacity-100 translate-y-0"
+                        : "max-h-0 opacity-0 -translate-y-2"
+                    }`}
+                  >
+                    <ul className="space-y-1">
+                      {cat.subcategories.map((sub, subIndex) => (
+                        <li key={subIndex}>
+                          <button
+                            className="flex justify-between w-full items-center py-1 text-left text-sm text-gray-600 hover:text-orange-500"
+                            onClick={() =>
+                              setExpandedSubcategory(
+                                expandedSubcategory === sub.name
+                                  ? null
+                                  : sub.name
+                              )
+                            }
+                          >
+                            {sub.name}
+                            {sub.children?.length > 0 && (
+                              <FiChevronDown
+                                className={`transform transition-transform ${
+                                  expandedSubcategory === sub.name
+                                    ? "rotate-180"
+                                    : ""
+                                }`}
+                              />
+                            )}
+                          </button>
+
+                          {/* 2nd Level Children */}
+                          <div
+                            className={`ml-4 border-l border-gray-200 pl-3 mt-1 overflow-hidden transition-all duration-300 ease-in-out ${
+                              expandedSubcategory === sub.name
+                                ? "max-h-40 opacity-100 translate-y-0"
+                                : "max-h-0 opacity-0 -translate-y-2"
+                            }`}
+                          >
+                            <ul className="space-y-1">
+                              {sub.children?.map((child, cidx) => (
+                                <li
+                                  key={cidx}
+                                  className="py-1 text-sm text-gray-600 hover:text-orange-500 cursor-pointer"
+                                >
+                                  {child}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 </li>
               ))}
             </ul>
