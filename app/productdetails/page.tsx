@@ -16,7 +16,7 @@ import {
   FaYoutube,
   FaWhatsapp,
 } from "react-icons/fa";
-import NewArrival from "@/components/Pages/Home/NewArrival";
+
 import YouMayLike from "./YouMayLike";
 
 const Page = () => {
