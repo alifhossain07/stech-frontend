@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
-const page = () => {
+const Page = () => {
 
   const images = [
     "/images/charger1.png",
@@ -172,4 +172,4 @@ const page = () => {
   )
 }
 
-export default page
+export default Page
