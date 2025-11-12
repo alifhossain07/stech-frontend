@@ -5,7 +5,7 @@ import { promises as fs } from "fs";
 export async function GET() {
   try {
     // Locate the JSON file inside the root-level "database" folder
-    const filePath = path.join(process.cwd(), "database", "powerbBanks.json");
+    const filePath = path.join(process.cwd(), "database", "featureproducts.json");
 
     // Read file content
     const data = await fs.readFile(filePath, "utf-8");

@@ -1,9 +1,11 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
+import axios from "axios";
 import { FiChevronRight } from "react-icons/fi";
 import ProductCard2 from "@/components/ui/ProductCard2";
+import Loader from "@/components/ui/Loader"; // 👈 make sure you have this
 
 type ProductType = {
   id: number;
@@ -16,142 +18,28 @@ type ProductType = {
   image: string;
 };
 
-type FastChargerProductsProps = {
-  products?: ProductType[];
-};
+const FastChargerProducts = () => {
+  const [products, setProducts] = useState<ProductType[]>([]);
+  const [loading, setLoading] = useState(true);
 
-const FastChargerProducts = ({ products }: FastChargerProductsProps) => {
-  // Local static data (temporary until API integration)
-  const productList: ProductType[] =
-    products && products.length > 0
-      ? products
-      : [
-          {
-            id: 1,
-            name: "25 Watt Samsung Fast Charger",
-            price: 2500,
-            oldPrice: 2600,
-            discount: "10% Off",
-            rating: "3.0",
-            reviews: "(1)",
-            image: "/images/fastcharger2.png",
-          },
-          {
-            id: 2,
-            name: "Super Fast Wall Charger",
-            price: 2300,
-            oldPrice: 2500,
-            discount: "8% Off",
-            rating: "4.0",
-            reviews: "(12)",
-            image: "/images/fastcharger2.png",
-          },
-          {
-            id: 3,
-            name: "Compact USB-C Adapter",
-            price: 2200,
-            oldPrice: 2400,
-            discount: "9% Off",
-            rating: "4.5",
-            reviews: "(7)",
-            image: "/images/fastcharger2.png",
-          },
-          {
-            id: 4,
-            name: "Dual Port Fast Charger",
-            price: 2700,
-            oldPrice: 3000,
-            discount: "10% Off",
-            rating: "3.8",
-            reviews: "(4)",
-            image: "/images/fastcharger2.png",
-          },
-          {
-            id: 5,
-            name: "Super Compact Quick Charger",
-            price: 2400,
-            oldPrice: 2600,
-            discount: "7% Off",
-            rating: "4.2",
-            reviews: "(10)",
-            image: "/images/fastcharger2.png",
-          },
-          {
-            id: 6,
-            name: "Ultra Mini Wall Charger",
-            price: 2200,
-            oldPrice: 2400,
-            discount: "9% Off",
-            rating: "4.1",
-            reviews: "(9)",
-            image: "/images/fastcharger2.png",
-          },
-          {
-            id: 7,
-            name: "Smart Charge Adapter",
-            price: 2600,
-            oldPrice: 2800,
-            discount: "7% Off",
-            rating: "4.0",
-            reviews: "(3)",
-            image: "/images/fastcharger2.png",
-          },
-          {
-            id: 8,
-            name: "Dual USB Quick Charger",
-            price: 2500,
-            oldPrice: 2700,
-            discount: "9% Off",
-            rating: "3.9",
-            reviews: "(5)",
-            image: "/images/fastcharger2.png",
-          },
-          {
-            id: 9,
-            name: "Super Charge Turbo Adapter",
-            price: 2800,
-            oldPrice: 3000,
-            discount: "7% Off",
-            rating: "4.3",
-            reviews: "(11)",
-            image: "/images/fastcharger2.png",
-          },
-          {
-            id: 10,
-            name: "25 Watt Samsung Fast Charger",
-            price: 2500,
-            oldPrice: 2600,
-            discount: "10% Off",
-            rating: "3.0",
-            reviews: "(1)",
-            image: "/images/fastcharger2.png",
-          },
-          {
-            id: 11,
-            name: "PD 30W Quick Charger",
-            price: 2900,
-            oldPrice: 3100,
-            discount: "6% Off",
-            rating: "4.4",
-            reviews: "(8)",
-            image: "/images/fastcharger2.png",
-          },
-          {
-            id: 12,
-            name: "Compact Super Charger",
-            price: 2600,
-            oldPrice: 2800,
-            discount: "8% Off",
-            rating: "4.1",
-            reviews: "(5)",
-            image: "/images/fastcharger2.png",
-          },
-        ];
+  useEffect(() => {
+    const fetchFastChargers = async () => {
+      try {
+        const res = await axios.get("/api/products/fast-chargers");
+        setProducts(res.data);
+      } catch (error) {
+        console.error("Error fetching Fast Charger products:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchFastChargers();
+  }, []);
 
   return (
-    <div className="md:w-11/12 w-11/12 pb-[56px]  mx-auto">
+    <div className="md:w-11/12 w-11/12 pb-[56px] mx-auto">
       {/* Header Section */}
-      <div className="flex flex-col sm:flex-row justify-between items-center text-center sm:text-left  w-full gap-3 mb-7">
+      <div className="flex flex-col sm:flex-row justify-between items-center text-center sm:text-left w-full gap-3 mb-7">
         <div className="w-full sm:w-7/12">
           <h1 className="text-2xl sm:text-2xl md:text-4xl font-semibold mb-1 md:mb-2">
             Fast Charger Products
@@ -161,7 +49,7 @@ const FastChargerProducts = ({ products }: FastChargerProductsProps) => {
           </p>
         </div>
 
-        <button className="bg-black hidden   text-xs sm:text-sm md:text-sm md:flex items-center justify-center gap-2 text-white px-3.5 py-2 rounded-xl hover:text-black  hover:bg-gray-200 duration-300 transition whitespace-nowrap">
+        <button className="bg-black hidden text-xs sm:text-sm md:text-sm md:flex items-center justify-center gap-2 text-white px-3.5 py-2 rounded-xl hover:text-black hover:bg-gray-200 duration-300 transition whitespace-nowrap">
           See More <FiChevronRight className="text-sm sm:text-base md:text-xl" />
         </button>
       </div>
@@ -173,7 +61,7 @@ const FastChargerProducts = ({ products }: FastChargerProductsProps) => {
           <div className="w-full h-auto md:h-full">
             <Image
               src="/images/fastchargerbanner.png"
-              alt="Earbuds Banner"
+              alt="Fast Charger Banner"
               width={400}
               height={600}
               className="rounded-xl object-contain md:object-fill w-full h-auto md:h-[500px] xl:h-full"
@@ -182,36 +70,44 @@ const FastChargerProducts = ({ products }: FastChargerProductsProps) => {
         </div>
 
         {/* RIGHT: Product Grid */}
-        <div className="xl:w-9/12 2xl:w-9/12 w-full flex justify-center">
-          {/* Default + md (show 10) */}
-          <div className="grid grid-cols-2 md:grid-cols-3 xl:hidden 2xl:hidden md:gap-4 gap-3 w-full justify-items-center">
-            {productList.slice(0, 10).map((p) => (
-              <ProductCard2 key={p.id} product={p} />
-            ))}
-          </div>
-
-          {/* xl (show 8) */}
-          <div className="hidden xl:grid 2xl:hidden grid-cols-4 gap-4 w-full justify-items-center">
-            {productList.slice(0, 8).map((p) => (
-              <ProductCard2 key={p.id} product={p} />
-            ))}
-          </div>
-
-          {/* 2xl (show 10) */}
-          <div className="hidden 2xl:grid grid-cols-5 gap-4 w-full justify-items-center">
-            {productList.slice(0, 10).map((p) => (
-              <ProductCard2 key={p.id} product={p} />
-            ))}
-          </div>
-        </div>
+<div className="xl:w-9/12 2xl:w-9/12 w-full flex justify-center items-center min-h-[700px]">
+  {loading ? (
+    <div className="flex justify-center items-center w-full h-[500px]">
+      <Loader />
+    </div>
+  ) : (
+    <>
+      {/* Default + md (show 6) */}
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:hidden 2xl:hidden md:gap-4 gap-3 w-full justify-items-center">
+        {products.slice(0, 6).map((p) => (
+          <ProductCard2 key={p.id} product={p} />
+        ))}
       </div>
 
-      {/* Pagination Buttons */}
-       <div className="flex items-center justify-center md:hidden pt-[44px]">
-                      <button className="bg-black text-xs sm:text-sm md:text-sm flex items-center justify-center gap-2 text-white px-3.5 py-2 rounded-xl hover:text-black  hover:bg-gray-200 duration-300 transition whitespace-nowrap">
-                      See More <FiChevronRight className="text-sm sm:text-base md:text-xl" />
-                    </button>
-        </div>
+      {/* xl (show 8 → 4 per row) */}
+      <div className="hidden xl:grid 2xl:hidden grid-cols-4 gap-4 w-full justify-items-center">
+        {products.slice(0, 8).map((p) => (
+          <ProductCard2 key={p.id} product={p} />
+        ))}
+      </div>
+
+      {/* 2xl (show 10 → 5 per row) */}
+      <div className="hidden 2xl:grid grid-cols-5 gap-4 w-full justify-items-center">
+        {products.slice(0, 10).map((p) => (
+          <ProductCard2 key={p.id} product={p} />
+        ))}
+      </div>
+    </>
+  )}
+</div>
+      </div>
+
+      {/* Mobile “See More” Button */}
+      <div className="flex items-center justify-center md:hidden pt-[44px]">
+        <button className="bg-black text-xs sm:text-sm md:text-sm flex items-center justify-center gap-2 text-white px-3.5 py-2 rounded-xl hover:text-black hover:bg-gray-200 duration-300 transition whitespace-nowrap">
+          See More <FiChevronRight className="text-sm sm:text-base md:text-xl" />
+        </button>
+      </div>
     </div>
   );
 };
