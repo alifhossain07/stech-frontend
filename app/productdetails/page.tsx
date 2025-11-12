@@ -8,13 +8,46 @@ import {
   FaTwitter,
   FaYoutube,
   FaWhatsapp,
-  FaLock,
-  FaTruck,
-  FaUndoAlt,
 } from "react-icons/fa";
 
 
 const Page = () => {
+
+  const products = [
+    {
+      id: 1,
+      name: "AirPods Pro (2nd generation) USB-",
+      price: 2600,
+      oldPrice: 2800,
+      discount: "10% OFF",
+      image: "/images/nb.png",
+    },
+    {
+      id: 2,
+      name: "AirPods Pro (2nd generation) USB-",
+      price: 2600,
+      oldPrice: 2800,
+      discount: "10% OFF",
+      image: "/images/nb.png",
+    },
+    {
+      id: 3,
+      name: "AirPods Pro (2nd generation) USB-",
+      price: 2600,
+      oldPrice: 2800,
+      discount: "10% OFF",
+      image: "/images/nb.png",
+    },
+    {
+      id: 4,
+      name: "AirPods Pro (2nd generation) USB-",
+      price: 2600,
+      oldPrice: 2800,
+      discount: "10% OFF",
+      image: "/images/nb.png",
+    },
+  ];
+  
   const images = [
     "/images/detailsC.png",
     "/images/detailsC.png",
@@ -404,21 +437,39 @@ const Page = () => {
       {/* --- Info Cards --- */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <div className="flex items-center gap-2 bg-gray-50 rounded-lg px-4 py-5">
-          <FaLock className="text-[20px] text-gray-700" />
+         <Image
+                  src="/images/sp.png"
+                  alt="Fast Charging"
+                  width={20}
+                  height={20}
+                  className="object-contain"
+                />
           <span className="text-[15px] font-medium text-gray-700">
             Secure Payments
           </span>
         </div>
 
         <div className="flex items-center gap-2 bg-gray-50 rounded-lg px-4 py-3">
-          <FaTruck className="text-[20px] text-gray-700" />
+         <Image
+                  src="/images/scc.png"
+                  alt="Fast Charging"
+                  width={20}
+                  height={20}
+                  className="object-contain"
+                />
           <span className="text-[15px] font-medium text-gray-700">
             Shipping & Charge
           </span>
         </div>
 
         <div className="flex items-center gap-2 bg-gray-50 rounded-lg px-4 py-3">
-          <FaUndoAlt className="text-[20px] text-gray-700" />
+         <Image
+                  src="/images/rp.png"
+                  alt="Fast Charging"
+                  width={20}
+                  height={20}
+                  className="object-contain"
+                />
           <span className="text-[15px] font-medium text-gray-700">
             Return Policy
           </span>
@@ -430,6 +481,54 @@ const Page = () => {
     </div>
         </div>
       </div>
+
+      <div className="border mt-10 flex gap-6 w-full border-black">
+         <div className="w-[80%] border border-green-500">Left</div>
+ <div className="w-[20.5%] bg-white rounded-2xl shadow-sm p-4">
+      <h2 className="text-lg bg-[#f4f4f4] py-4 font-semibold text-center mb-4">Recently Viewed</h2>
+
+      <div className="flex flex-col gap-3">
+        {products.map((item) => (
+          <div
+            key={item.id}
+            className="flex items-center gap-3 bg-[#f4f4f4] rounded-xl p-2 hover:shadow-md transition"
+          >
+            <div className="w-16 h-16 flex-shrink-0">
+              <Image
+                src={item.image}
+                alt={item.name}
+                width={64}
+                height={64}
+                className="rounded-lg object-cover w-full h-full"
+              />
+            </div>
+
+            <div className="flex flex-col text-sm flex-1">
+              <p className="leading-tight text-gray-800 font-medium">
+                {item.name}
+              </p>
+              <div className="flex items-center gap-2 mt-1">
+                <span className="text-orange-500 font-semibold">
+                  ৳{item.price}
+                </span>
+                <span className="text-xs bg-green-100 text-green-600 px-2 py-[1px] rounded-md font-semibold">
+                  {item.discount}
+                </span>
+                <span className="text-gray-400 line-through text-xs">
+                  ৳{item.oldPrice}
+                </span>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+
+      </div>
+        
+              
+      
+
     </div>
   );
 };
