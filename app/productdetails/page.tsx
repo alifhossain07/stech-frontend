@@ -717,7 +717,38 @@ const scrollToSection = (ref: RefObject<HTMLDivElement>) => {
                 priority
               />
             </div>
-
+            <div className="mt-4 text-[15px] leading-relaxed">
+                <p>
+                  Sannai 22.5–Watt Fast Charger: Experience lightning-fast
+                  charging with our 18W charger, designed for universal
+                  compatibility and equipped with advanced safety features.
+                  Compact, durable, and perfect for powering up your devices
+                  efficiently.{" "}
+                  <strong>
+                    Sannai 22.5–Watt Fast Charger: The Ultimate Fast Charging
+                    Solution
+                  </strong>
+                </p>
+                <p className="mt-3">
+                  Looking for a reliable, high–performance charger that powers
+                  up your devices quickly and safely? The Sannai 22.5–Watt Fast
+                  Charger is the perfect choice for tech–savvy users. With
+                  cutting–edge technology, universal compatibility, and robust
+                  safety features, this charger ensures a hassle–free charging
+                  experience every time.
+                </p>
+              </div>
+ <div className="w-full relative mt-8 h-[450px]">
+              {" "}
+              {/* ← change height later */}
+              <Image
+                src="/images/fastchargerbanner.png" // replace with your image path
+                alt="Product image"
+                fill
+                className="object-fill rounded-lg"
+                priority
+              />
+            </div>
            <div className="scroll-mt-36" ref={faqRef}>
   <FAQ />
 </div>
