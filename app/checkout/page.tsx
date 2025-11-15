@@ -70,10 +70,10 @@ const Page = () => {
       {/* Main Grid */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         {/* In Your Cart */}
-        <div className="border rounded-xl p-4 bg-white shadow-sm w-full">
+        <div className="border rounded-md p-4 bg-white shadow-sm w-full">
           {/* Header */}
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-semibold">In Your Cart</h2>
+            <h2 className="md:text-2xl text-xl font-semibold">In Your Cart</h2>
 
             <button className="flex items-center gap-1 bg-[#e8e8e8] text-[#6b6b6b] px-3 py-1 rounded-md text-sm">
               Add Cart <span className="text-lg">+</span>
@@ -87,7 +87,7 @@ const Page = () => {
               className="flex gap-3 p-3 mb-3 w-11/12 rounded-lg relative"
             >
               {/* Image */}
-              <div className="w-28 h-28 bg-gray-100 rounded-lg flex items-center justify-center">
+              <div className="md:w-28 md:h-28 w-20 h-20 bg-gray-100 rounded-lg flex items-center justify-center">
                 <Image
                   src={item.img}
                   alt={item.name}
@@ -99,10 +99,10 @@ const Page = () => {
 
               {/* Details */}
               <div className="flex-1 space-y-1">
-                <h3 className=" text-lg">{item.name}</h3>
-                <p className="text-base text-gray-500">{item.color}</p>
+                <h3 className="text-sm md:text-lg">{item.name}</h3>
+                <p className="md:text-base text-sm text-gray-500">{item.color}</p>
 
-                <div className="font-semibold text-orange-600 text-lg mt-1">
+                <div className="font-semibold text-orange-600 text-sm md:text-lg mt-1">
                   ৳{item.price}
                   <span className="line-through text-gray-400 ml-2 text-xs">
                     ৳{item.oldPrice}
@@ -110,7 +110,7 @@ const Page = () => {
                 </div>
 
                 {/* Qty Row */}
-                <div className="flex items-center gap-4 mt-1 text-sm">
+                <div className="flex items-center gap-4 mt-1 text-sm md:text-sm">
                   <span className="font-medium">QTY :</span>
 
                   <div className="flex items-center bg-gray-200 rounded-full px-3 py-1 gap-3">
@@ -147,8 +147,8 @@ const Page = () => {
         {/* Customer Info + Shipping */}
         <div className="flex flex-col gap-6">
           {/* Customer Info */}
-          <div className="border rounded-xl p-4 bg-white shadow-sm">
-            <h2 className="text-2xl font-semibold mb-4">Customer Information</h2>
+          <div className="border rounded-md p-4 bg-white shadow-sm">
+            <h2 className="md:text-2xl text-xl font-semibold mb-4">Customer Information</h2>
 
             <div className="flex flex-col gap-3">
               <label>Your Name*</label>
@@ -176,7 +176,7 @@ const Page = () => {
                 className="border p-2 mb-4 rounded"
               />
               <div className="flex items-end justify-end rounded-full">
-                <button className="bg-orange-500 rounded-full text-white  px-6 py-2 ">
+                <button className="bg-orange-500 rounded-full text-white px-4 py-1  md:px-6 md:py-2 ">
                 Save
               </button>
               </div>
@@ -186,9 +186,9 @@ const Page = () => {
 
           {/* Shipping Method */}
           <div className="border rounded-xl p-4 bg-white shadow-sm">
-            <h2 className="text-2xl font-semibold mb-4">Shipping Method</h2>
+            <h2 className="md:text-2xl text-xl font-semibold mb-4">Shipping Method</h2>
 
-            <div className="flex flex-col space-y-4 text-lg gap-3 mt-8 text-sm">
+            <div className="flex flex-col space-y-4 md:text-lg text-base gap-3 mt-8 ">
               <label className="flex items-center gap-2">
                 <input type="radio" name="shipping" defaultChecked />
                 Inside Dhaka - 2/4 Days ৳ 70
@@ -208,65 +208,107 @@ const Page = () => {
         {/* Payment + Summary */}
         <div className="flex flex-col gap-6">
           {/* Payment Method */}
-          <div className="border rounded-xl p-4 bg-white shadow-sm">
+          <div className="border rounded-md p-4 bg-white shadow-sm">
             <h2 className="text-lg font-semibold mb-4">Payment Method</h2>
 
-            <label className="flex items-center gap-2 text-sm mb-2">
+            <label className="flex items-center gap-2 text-lg mb-6">
               <input type="radio" name="payment" defaultChecked />
               Online Payment*
             </label>
 
-            <div className="flex gap-2 mb-3">
-              <div className="w-10 h-6 bg-gray-200 rounded"></div>
-              <div className="w-10 h-6 bg-gray-200 rounded"></div>
-              <div className="w-10 h-6 bg-gray-200 rounded"></div>
-              <div className="w-10 h-6 bg-gray-200 rounded"></div>
-            </div>
+            <div className="flex gap-2 mb-5 items-center">
+  <h1 className="text-[#8f8f8f] text-sm">We Accept</h1>
 
-            <label className="flex items-center gap-2 text-sm mb-2">
+  <div className="w-12 h-8 cursor-pointer ">
+    <Image
+      src="/images/visa.png"
+      alt="Visa"
+      width={40}
+      height={24}
+      className="w-full h-full object-contain"
+    />
+  </div>
+
+  <div className="w-12 h-8 cursor-pointer">
+    <Image
+      src="/images/master.png"
+      alt="Mastercard"
+      width={40}
+      height={24}
+      className="w-full h-full object-contain"
+    />
+  </div>
+
+  <div className="w-12 h-8 cursor-pointer">
+    <Image
+      src="/images/bkash.png"
+      alt="bKash"
+      width={40}
+      height={24}
+      className="w-full h-full object-contain"
+    />
+  </div>
+
+  <div className="w-12 h-8 cursor-pointer">
+    <Image
+      src="/images/nagad.png"
+      alt="Nagad"
+      width={40}
+      height={24}
+      className="w-full h-full object-contain"
+    />
+  </div>
+</div>
+
+
+            <label className="flex items-center gap-2 text-lg mb-6">
               <input type="radio" name="payment" />
               Cash On Delivery*
             </label>
 
             <label className="flex items-center gap-2 text-xs">
-              <input type="checkbox" />I have read & agree to the Terms &
-              Conditions, Privacy policy, and Return Policy
+              <input type="checkbox" />I have read & agree to the <span className="text-orange-500">Terms &
+              Conditions, Privacy policy,</span>  and <span className="text-orange-500">Return Policy</span>
             </label>
           </div>
 
           {/* Promo Code */}
           <div className="border rounded-xl p-4 bg-white shadow-sm">
-            <h2 className="text-lg font-semibold mb-3">Promo Code</h2>
+            <h2 className="md:text-2xl text-xl font-semibold mb-3">Promo Code</h2>
             <div className="flex gap-2">
               <input type="text" className="border p-2 rounded flex-1" />
-              <button className="bg-orange-500 text-white px-4 py-2 rounded">
+              
+            </div>
+            <div className="flex items-end justify-end">
+ <button className="bg-orange-500 mt-4 text-white px-4 py-1  md:px-6 md:py-2 rounded-full">
                 Send
               </button>
             </div>
+           
           </div>
 
           {/* Order Summary */}
           <div className="border rounded-xl p-4 bg-white shadow-sm">
-            <h2 className="text-lg font-semibold mb-4">
+            <h2 className="md:text-2xl text-xl font-semibold mb-4">
               In Your Order Summary
             </h2>
 
-            <div className="flex justify-between text-sm mb-2">
+            <div className="flex justify-between md:text-lg text-base mb-2">
               <span>Sub Total :</span>
               <span>৳ 800</span>
             </div>
 
-            <div className="flex justify-between text-sm mb-2">
+            <div className="flex justify-between md:text-lg text-base mb-2">
               <span>Delivery Charge :</span>
               <span>৳ 80</span>
             </div>
 
-            <div className="flex justify-between text-sm mb-2">
+            <div className="flex justify-between md:text-lg text-base mb-2">
               <span>Discount :</span>
               <span>৳ 10</span>
             </div>
 
-            <div className="flex justify-between font-semibold text-orange-600 text-lg mt-4">
+            <div className="flex bg-[#f4f4f4] py-4 px-2 justify-between font-semibold text-orange-600 text-lg md:text-xl mt-4">
               <span>Total Amount :</span>
               <span>৳ 890</span>
             </div>
