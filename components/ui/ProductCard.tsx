@@ -74,9 +74,9 @@ export default function ProductCard({ product }: ProductCardProps) {
 
       {/* Pricing */}
       <div className="flex items-center gap-2 mt-4 md:gap-3 mb-2">
-        <h1 className="font-semibold text-sm md:text-lg">${product.price}</h1>
+        <h1 className="font-semibold text-sm md:text-lg">৳{product.price}</h1>
         <p className="line-through text-sm md:text-lg text-[#939393]">
-          ${product.oldPrice}
+           ৳{product.oldPrice}
         </p>
         <p className="text-green-600 bg-green-200 md:px-2 py-1 px-1 md:rounded-full rounded-2xl  text-[8px] md:text-[9px]">
           {product.discount}
