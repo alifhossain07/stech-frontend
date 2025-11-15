@@ -87,7 +87,7 @@ const Page = () => {
               className="flex gap-3 p-3 mb-3 w-11/12 rounded-lg relative"
             >
               {/* Image */}
-              <div className="md:w-28 md:h-28 w-20 h-20 bg-gray-100 rounded-lg flex items-center justify-center">
+              <div className="md:w-28 md:h-28 h-20 w-20 xl:w-20 xl:h-20 2xl:w-28 2xl:h-28 bg-gray-100 rounded-lg flex items-center justify-center">
                 <Image
                   src={item.img}
                   alt={item.name}
@@ -100,7 +100,9 @@ const Page = () => {
               {/* Details */}
               <div className="flex-1 space-y-1">
                 <h3 className="text-sm md:text-lg">{item.name}</h3>
-                <p className="md:text-base text-sm text-gray-500">{item.color}</p>
+                <p className="md:text-base text-sm text-gray-500">
+                  {item.color}
+                </p>
 
                 <div className="font-semibold text-orange-600 text-sm md:text-lg mt-1">
                   ৳{item.price}
@@ -148,7 +150,9 @@ const Page = () => {
         <div className="flex flex-col gap-6">
           {/* Customer Info */}
           <div className="border rounded-md p-4 bg-white shadow-sm">
-            <h2 className="md:text-2xl text-xl font-semibold mb-4">Customer Information</h2>
+            <h2 className="md:text-2xl text-xl font-semibold mb-4">
+              Customer Information
+            </h2>
 
             <div className="flex flex-col gap-3">
               <label>Your Name*</label>
@@ -177,18 +181,19 @@ const Page = () => {
               />
               <div className="flex items-end justify-end rounded-full">
                 <button className="bg-orange-500 rounded-full text-white px-4 py-1  md:px-6 md:py-2 ">
-                Save
-              </button>
+                  Save
+                </button>
               </div>
-             
             </div>
           </div>
 
           {/* Shipping Method */}
           <div className="border rounded-xl p-4 bg-white shadow-sm">
-            <h2 className="md:text-2xl text-xl font-semibold mb-4">Shipping Method</h2>
+            <h2 className="md:text-2xl text-xl font-semibold mb-4">
+              Shipping Method
+            </h2>
 
-            <div className="flex flex-col space-y-4 md:text-lg text-base gap-3 mt-8 ">
+            <div className="flex flex-col space-y-4 md:text-lg xl:text-base 2xl:text-lg  text-base gap-3 mt-8 ">
               <label className="flex items-center gap-2">
                 <input type="radio" name="shipping" defaultChecked />
                 Inside Dhaka - 2/4 Days ৳ 70
@@ -217,74 +222,80 @@ const Page = () => {
             </label>
 
             <div className="flex gap-2 mb-5 items-center">
-  <h1 className="text-[#8f8f8f] text-sm">We Accept</h1>
+              <h1 className="text-[#8f8f8f] text-sm">We Accept</h1>
 
-  <div className="w-12 h-8 cursor-pointer ">
-    <Image
-      src="/images/visa.png"
-      alt="Visa"
-      width={40}
-      height={24}
-      className="w-full h-full object-contain"
-    />
-  </div>
+              <div className="w-12 h-8 cursor-pointer ">
+                <Image
+                  src="/images/visa.png"
+                  alt="Visa"
+                  width={40}
+                  height={24}
+                  className="w-full h-full object-contain"
+                />
+              </div>
 
-  <div className="w-12 h-8 cursor-pointer">
-    <Image
-      src="/images/master.png"
-      alt="Mastercard"
-      width={40}
-      height={24}
-      className="w-full h-full object-contain"
-    />
-  </div>
+              <div className="w-12 h-8 cursor-pointer">
+                <Image
+                  src="/images/master.png"
+                  alt="Mastercard"
+                  width={40}
+                  height={24}
+                  className="w-full h-full object-contain"
+                />
+              </div>
 
-  <div className="w-12 h-8 cursor-pointer">
-    <Image
-      src="/images/bkash.png"
-      alt="bKash"
-      width={40}
-      height={24}
-      className="w-full h-full object-contain"
-    />
-  </div>
+              <div className="w-12 h-8 cursor-pointer">
+                <Image
+                  src="/images/bkash.png"
+                  alt="bKash"
+                  width={40}
+                  height={24}
+                  className="w-full h-full object-contain"
+                />
+              </div>
 
-  <div className="w-12 h-8 cursor-pointer">
-    <Image
-      src="/images/nagad.png"
-      alt="Nagad"
-      width={40}
-      height={24}
-      className="w-full h-full object-contain"
-    />
-  </div>
-</div>
-
+              <div className="w-12 h-8 cursor-pointer">
+                <Image
+                  src="/images/nagad.png"
+                  alt="Nagad"
+                  width={40}
+                  height={24}
+                  className="w-full h-full object-contain"
+                />
+              </div>
+            </div>
 
             <label className="flex items-center gap-2 text-lg mb-6">
               <input type="radio" name="payment" />
               Cash On Delivery*
             </label>
 
-            <label className="flex items-center gap-2 text-xs">
-              <input type="checkbox" />I have read & agree to the <span className="text-orange-500">Terms &
-              Conditions, Privacy policy,</span>  and <span className="text-orange-500">Return Policy</span>
+            <label className="flex items-center gap-2 text-xs sm:text-sm flex-wrap">
+              <input type="checkbox" className="shrink-0" />
+
+              <span className="flex-1">
+                I have read & agree to the{" "}
+                <span className="text-orange-500">
+                  Terms & Conditions, Privacy Policy,
+                </span>{" "}
+                and <span className="text-orange-500">Return Policy</span>.
+              </span>
             </label>
           </div>
 
           {/* Promo Code */}
           <div className="border rounded-xl p-4 bg-white shadow-sm">
-            <h2 className="md:text-2xl text-xl font-semibold mb-3">Promo Code</h2>
+            <h2 className="md:text-2xl text-xl font-semibold mb-3">
+              Promo Code
+            </h2>
             <div className="flex gap-2">
               <input type="text" className="border p-2 rounded flex-1" />
-              
             </div>
             <div className="flex items-end justify-end">
- <button className="bg-orange-500 mt-4 text-white px-4 py-1  md:px-6 md:py-2 rounded-full">
+              <button className="bg-orange-500 mt-4 text-white px-4 py-1  md:px-6 md:py-2 rounded-full">
                 Send
               </button>
             </div>
-           
           </div>
 
           {/* Order Summary */}
