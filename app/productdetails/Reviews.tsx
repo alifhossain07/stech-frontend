@@ -45,10 +45,10 @@ const Reviews = () => {
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h2 className="text-2xl font-semibold text-gray-900">
+          <h2 className="md:text-2xl text-xl font-semibold text-gray-900">
             -Reviews ({reviews.length < 10 ? "0" : ""}{reviews.length})
           </h2>
-          <p className="text-gray-600 text-sm mt-1">
+          <p className="text-gray-600 text-sm mt-1 w-10/12 md:w-full">
             Get specific details about this product from customers who own it.
           </p>
         </div>
@@ -93,7 +93,7 @@ const Reviews = () => {
             </div>
 
             {/* Review Text */}
-            <p className="text-gray-800 mb-3">{review.text}</p>
+            <p className="text-gray-800 md:text-base text-sm mb-3">{review.text}</p>
 
             {/* Images */}
             <div className="flex gap-3">

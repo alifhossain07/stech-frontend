@@ -98,7 +98,7 @@ const Page = () => {
 
   
   return (
-    <div className="mt-10 w-11/12 mx-auto">
+    <div className="md:mt-10 mt-5 w-11/12 mx-auto">
       {/* Product Details Container */}
       <div className="xl:h-[1038px] flex flex-col xl:flex-row gap-6">
         {/* ---------- Left: Images ---------- */}
@@ -372,7 +372,7 @@ const Page = () => {
                   height={20}
                   className="object-contain"
                 />
-                <span className="text-[16px] md:text-[16px] text-[12px] text-black">Smart Chip</span>
+                <span className="xl:text-[16px] md:text-[16px] text-[12px] text-black">Smart Chip</span>
               </div>
 
               {/* Item 5 */}
@@ -546,7 +546,7 @@ const Page = () => {
                 </div>
 
                 {/* WhatsApp Button */}
-                <button className="flex items-center gap-2 bg-green-100 text-green-700 font-medium text-[15px] px-5 py-2 rounded-full hover:bg-green-200 transition-all">
+                <button className="flex mt-2 md:mt-0 items-center gap-2 bg-green-100 text-green-700 font-medium text-[15px] px-5 py-2 rounded-full hover:bg-green-200 transition-all">
                   <FaWhatsapp className="text-[18px]" />
                   Chat with what’sapp
                 </button>
@@ -562,7 +562,7 @@ const Page = () => {
                     height={20}
                     className="object-contain"
                   />
-                  <span className="text-[15px] font-medium text-gray-700">
+                  <span className="md:text-[15px] text-sm font-medium text-gray-700">
                     Secure Payments
                   </span>
                 </div>
@@ -575,7 +575,7 @@ const Page = () => {
                     height={20}
                     className="object-contain"
                   />
-                  <span className="text-[15px] font-medium text-gray-700">
+                  <span className="md:text-[15px] text-sm font-medium text-gray-700">
                     Shipping & Charge
                   </span>
                 </div>
@@ -588,7 +588,7 @@ const Page = () => {
                     height={20}
                     className="object-contain"
                   />
-                  <span className="text-[15px] font-medium text-gray-700">
+                  <span className="md:text-[15px] text-sm font-medium text-gray-700">
                     Return Policy
                   </span>
                 </div>
@@ -599,11 +599,11 @@ const Page = () => {
       </div>
 
       {/* Specs Container */}
-      <div className=" mt-10 flex gap-6 w-full ">
-        <div className="w-[80%] ">
+      <div className=" mt-10 flex flex-col xl:flex-row gap-6 w-full ">
+        <div className="xl:w-[80%] w-full ">
           <div className="w-full bg-white rounded-xl">
             {/* --- Tabs --- */}
-            <div className="grid grid-cols-4 gap-3 bg-gray-100 p-2 rounded-t-xl">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 bg-gray-100 p-2 rounded-t-xl">
               {tabs.map((tab) => (
                 <button
                   key={tab.id}
@@ -618,7 +618,7 @@ const Page = () => {
                       scrollToSection(faqRef);
                     }
                   }}
-                  className={`py-4 text-sm sm:text-base font-semibold rounded-md transition-all duration-200 ${
+                  className={`md:py-4 py-3 text-[12px] md:text-base font-semibold rounded-md transition-all duration-200 ${
                     activeTab === tab.id
                       ? "bg-black text-white shadow-sm"
                       : "bg-white text-gray-800 hover:bg-gray-200"
@@ -633,7 +633,7 @@ const Page = () => {
             <div className="border border-t-0 rounded-b-xl overflow-hidden">
               {activeTab === "spec" && (
                 <div ref={specRef}>
-                  <table className="w-full text-left text-[15px] border-collapse">
+                  <table className="w-full text-left text-[12px] md:text-[15px] border-collapse">
                     <tbody>
                       <tr className="border-b">
                         <td className="w-1/3 py-5 px-4 font-medium text-gray-800">
@@ -704,17 +704,17 @@ const Page = () => {
               className="w-full scroll-mt-36 font-medium  border-t border-gray-200 pt-4"
             >
               {/* Title */}
-              <h2 className="text-2xl font-semibold mb-4">- Product Details</h2>
+              <h2 className=" md:text-2xl text-xl font-semibold mb-4">- Product Details</h2>
 
               {/* Main content */}
               <div className="flex flex-col md:flex-row md:items-start gap-6">
                 {/* Left text block */}
                 <div className="md:w-[60%]">
-                  <p className="text-[15px] mb-2 leading-relaxed">
+                  <p className= "text-sm md:text-[15px] mb-2 leading-relaxed">
                     <strong>Technical Specifications:</strong> Mi 20W Charger
                     (Type–C) EU
                   </p>
-                  <ul className="list-disc pl-5 space-y-1 text-[15px]">
+                  <ul className="list-disc pl-5 space-y-1  text-sm md:text-[15px]">
                     <li>Product Name: Mi 20W Charger (Type–C)</li>
                     <li>Model: AD201</li>
                     <li>Input: 100–240V~50/60Hz, 0.5A</li>
@@ -753,7 +753,7 @@ const Page = () => {
               </div>
 
               {/* Long paragraph below image */}
-              <div className="mt-4 text-[15px] leading-relaxed">
+              <div className="mt-4  text-sm md:text-[15px] leading-relaxed">
                 <p>
                   Sannai 22.5–Watt Fast Charger: Experience lightning-fast
                   charging with our 18W charger, designed for universal
@@ -788,7 +788,7 @@ const Page = () => {
                 priority
               />
             </div>
-            <div className="mt-4 text-[15px] leading-relaxed">
+            <div className="mt-4  text-sm md:text-[15px] leading-relaxed">
               <p>
                 Sannai 22.5–Watt Fast Charger: Experience lightning-fast
                 charging with our 18W charger, designed for universal
@@ -829,7 +829,7 @@ const Page = () => {
           </div>
         </div>
 
-        <div className="w-[20.5%] bg-white rounded-2xl shadow-sm ">
+        <div className="xl:w-[20.5%] w-full bg-white rounded-2xl shadow-sm ">
           <h2 className="text-lg bg-[#f4f4f4] py-4 font-semibold text-center mb-4">
             Recently Viewed
           </h2>

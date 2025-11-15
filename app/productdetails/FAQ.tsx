@@ -51,7 +51,7 @@ const FAQ = () => {
 
   return (
     <section className="w-full py-10">
-      <h2 className="text-2xl font-semibold mb-4">
+      <h2 className="md:text-2xl text-xl font-semibold mb-4">
        - {faqLeft.title}
       </h2>
 
@@ -66,7 +66,7 @@ const FAQ = () => {
               onClick={() => toggle(index)}
               className="w-full flex justify-between items-center px-4 py-4 text-left hover:bg-gray-100 transition"
             >
-              <span className="text-gray-800 font-medium">{item.question}</span>
+              <span className="text-gray-800 text-sm md:text-lg font-medium">{item.question}</span>
 
               {activeIndex !== index ? (
                 // Down arrow
@@ -116,7 +116,7 @@ const FAQ = () => {
               }}
               className="overflow-hidden bg-[#f4f4f4] transition-all duration-500"
             >
-              <p className="px-4 py-4 text-gray-700 leading-relaxed">
+              <p className="px-4 py-4 text-sm md:text-lg text-gray-700 leading-relaxed">
                 {item.answer}
               </p>
             </div>
