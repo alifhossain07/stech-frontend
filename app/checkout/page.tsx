@@ -1,5 +1,6 @@
 "use client";
 import Image from "next/image";
+import Link from "next/link";
 import React from "react";
 
 import { useState } from "react";
@@ -324,10 +325,11 @@ const Page = () => {
               <span>৳ 890</span>
             </div>
           </div>
-
-          <button className="w-full bg-orange-500 text-white py-3 rounded-full font-semibold text-center">
-            Confirm Order
+           <Link className="w-full bg-orange-500 text-white py-3 rounded-full font-semibold text-center" href="/checkout/ordercomplete">
+          <button >
+           Confirm Order
           </button>
+          </Link>
         </div>
       </div>
     </div>
