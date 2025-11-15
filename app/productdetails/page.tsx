@@ -1,5 +1,6 @@
 "use client";
 import React, {useRef, useState } from "react";
+import { RefObject } from "react";
 import Image from "next/image";
 import {
   FiChevronLeft,
@@ -28,10 +29,12 @@ const detailsRef = useRef<HTMLDivElement | null>(null);
 const reviewRef = useRef<HTMLDivElement | null>(null);
 const faqRef = useRef<HTMLDivElement | null>(null);
 
-const scrollToSection = (ref: any) => {
-  ref.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+const scrollToSection = (ref: RefObject<HTMLDivElement>) => {
+  ref.current?.scrollIntoView({
+    behavior: "smooth",
+    block: "start"
+  });
 };
-
 
   const tabs = [
     { id: "spec", label: "Specification" },
