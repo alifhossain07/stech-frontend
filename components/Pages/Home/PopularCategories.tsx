@@ -38,7 +38,7 @@ const PopularCategories = () => {
         <p className='md:text-sm text-xs'>Find your preferred item in the highlighted product selection.</p>
         </div>
 
-       <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4 md:gap-12 p-6 mt-4">
+       <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4 md:gap-6 p-6 mt-4">
       {items.map((item, index) => (
         <div
           key={index}

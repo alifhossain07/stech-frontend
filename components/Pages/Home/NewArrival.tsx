@@ -85,9 +85,11 @@ const NewArrival = () => {
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3 md:gap-6 xl:gap-4 justify-items-center w-[98%] sm:w-full">
             {products.slice(0, itemsToShow).map((p) => (
-              <Link key={p.id} href="/productdetails">
+            
+            <Link key={p.id} href="/productdetails" className="block  w-full h-full">
               <ProductCard key={p.id} product={p} />
               </Link>
+              
             ))}
           </div>
         )}
