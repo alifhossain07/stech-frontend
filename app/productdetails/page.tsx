@@ -18,6 +18,7 @@ import {
 } from "react-icons/fa";
 
 import YouMayLike from "./YouMayLike";
+import FAQ from "./FAQ";
 
 const Page = () => {
   const [activeTab, setActiveTab] = useState("spec");
@@ -663,15 +664,19 @@ const Page = () => {
             </div>
 
             {/* image div */}
-             <div className="w-full relative mt-8 h-[450px]"> {/* ← change height later */}
-      <Image
-        src="/images/fastchargerbanner.png" // replace with your image path
-        alt="Product image"
-        fill
-        className="object-fill rounded-lg"
-        priority
-      />
-    </div>
+            <div className="w-full relative mt-8 h-[450px]">
+              {" "}
+              {/* ← change height later */}
+              <Image
+                src="/images/fastchargerbanner.png" // replace with your image path
+                alt="Product image"
+                fill
+                className="object-fill rounded-lg"
+                priority
+              />
+            </div>
+
+            <FAQ/>
           </div>
         </div>
 
@@ -718,8 +723,7 @@ const Page = () => {
         </div>
       </div>
 
-
-      <YouMayLike/>
+      <YouMayLike />
     </div>
   );
 };

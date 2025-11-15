@@ -63,7 +63,7 @@ const YouMayLike = () => {
       <div className="flex flex-col sm:flex-row justify-between items-center text-center sm:text-left w-full gap-3 mb-7">
         <div className="w-full sm:w-7/12">
           <h1 className="text-2xl sm:text-2xl md:text-4xl font-semibold mb-1 md:mb-2">
-            New Arrival Products
+            You May Also Like
           </h1>
           <p className="text-xs sm:text-sm md:text-lg text-gray-600">
             Discover Our Latest Arrivals Designed to Inspire and Impress
