@@ -210,7 +210,7 @@ const Navbar = () => {
                 </button>
               </div>
             </div>
-              <Link href="/productdetails">
+              <Link href="/checkout">
             <button className="border hover:text-gray-600 border-gray-400 px-5 py-2 h-[46px] rounded-md flex items-center gap-3 text-sm">
               <FiShoppingCart className="text-2xl 2xl:text-3xl" />
               <div className="text-left">
@@ -321,14 +321,16 @@ const Navbar = () => {
           <FiHome className="text-lg mb-1" />
           Home
         </Link>
-        <button className="flex flex-col items-center text-xs">
+
+  
+       <Link href="/checkout" className="flex flex-col items-center text-xs">
           <FiGift className="text-lg mb-1" />
           Offers
-        </button>
-        <button className="flex flex-col items-center text-xs">
+       </Link>
+        <Link href="/checkout" className="flex flex-col items-center text-xs">
           <FiShoppingCart className="text-lg mb-1" />
           Cart
-        </button>
+        </Link>
         <button className="flex flex-col items-center text-xs">
           <FiUser className="text-lg mb-1" />
           Profile

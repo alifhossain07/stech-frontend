@@ -5,6 +5,7 @@ import axios from "axios";
 import ProductCard from "@/components/ui/ProductCard";
 import { FiChevronRight } from "react-icons/fi";
 import Loader from "@/components/ui/Loader";
+import Link from "next/link";
 
 interface Product {
   id: number;
@@ -84,7 +85,9 @@ const NewArrival = () => {
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3 md:gap-6 xl:gap-4 justify-items-center w-[98%] sm:w-full">
             {products.slice(0, itemsToShow).map((p) => (
+              <Link key={p.id} href="/productdetails">
               <ProductCard key={p.id} product={p} />
+              </Link>
             ))}
           </div>
         )}
