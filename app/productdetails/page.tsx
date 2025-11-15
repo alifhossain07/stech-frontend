@@ -19,6 +19,7 @@ import {
 
 import YouMayLike from "./YouMayLike";
 import FAQ from "./FAQ";
+import Reviews from "./Reviews";
 
 const Page = () => {
   const [activeTab, setActiveTab] = useState("spec");
@@ -677,6 +678,7 @@ const Page = () => {
             </div>
 
             <FAQ/>
+            <Reviews/>
           </div>
         </div>
 
