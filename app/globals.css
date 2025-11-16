@@ -52,3 +52,36 @@ body {
 .animate-pulseScaleColor {
   animation: pulseScaleColor 1.5s infinite ease-in-out;
 }
+
+/* GLOBAL MARQUEE ANIMATION */
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 28s linear infinite;
+}
+
+/* FADE EFFECT ON LEFT + RIGHT */
+.marquee-wrapper {
+  position: relative;
+}
+
+.marquee-wrapper::before,
+.marquee-wrapper::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 80px;
+  height: 100%;
+  pointer-events: none;
+  z-index: 10;
+}
+
