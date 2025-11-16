@@ -3,10 +3,10 @@ import React from "react";
 
 const MissionVision = () => {
   return (
-    <div className="flex justify-between gap-10 mt-14  ">
+    <div className="flex flex-col xl:flex-row justify-between gap-10 mt-14  ">
 
       {/* Mission */}
-      <div className="bg-black rounded-xl p-10 w-1/2 flex flex-col gap-6">
+      <div className="bg-black rounded-xl p-10 xl:w-1/2 flex flex-col gap-6">
         <Image
           src="/images/mission.png"
           alt="Mission Icon"
@@ -15,11 +15,11 @@ const MissionVision = () => {
           className="w-[56px] h-[56px]"
         />
 
-        <h1 className="text-4xl text-white tracking-wide">
+        <h1 className="2xl:text-4xl xl:text-3xl text-xl text-white tracking-wide">
           Our Mission
         </h1>
 
-        <p className="text-xl leading-[32px] text-white">
+        <p className="2xl:text-xl xl:text-lg text-justify text-base leading-[32px] text-white">
           At Sannai Technology, our mission is to provide innovative, reliable, and high-
           quality mobile accessories that enhance the everyday digital lifestyle of our 
           customers. We are committed to blending advanced technology with modern
@@ -33,7 +33,7 @@ const MissionVision = () => {
       </div>
 
       {/* Vision */}
-      <div className="bg-black rounded-xl p-10 w-1/2 flex flex-col gap-6">
+      <div className="bg-black rounded-xl p-10 xl:w-1/2 flex flex-col gap-6">
         <Image
           src="/images/vission.png"
           alt="Vision Icon"
@@ -42,11 +42,11 @@ const MissionVision = () => {
           className="w-[56px] h-[56px]"
         />
 
-        <h1 className="text-4xl text-white tracking-wide">
+        <h1 className="2xl:text-4xl xl:text-3xl text-xl text-white tracking-wide">
           Our Vision
         </h1>
 
-        <p className="text-xl leading-[32px] text-white">
+        <p className="2xl:text-xl xl:text-lg text-base text-justify leading-[32px] text-white">
           Our vision is to become the most trusted and leading provider of mobile 
           accessories in Bangladesh and beyond—a brand recognized for its quality, 
           innovation, and customer-first approach. We aspire to set benchmarks in the
