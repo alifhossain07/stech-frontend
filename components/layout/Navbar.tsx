@@ -19,13 +19,9 @@ const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [open, setOpen] = useState(false);
   const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
-  const [hoveredSubcategory, setHoveredSubcategory] = useState<string | null>(
-    null
-  );
+  const [hoveredSubcategory, setHoveredSubcategory] = useState<string | null>(null);
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
-  const [expandedSubcategory, setExpandedSubcategory] = useState<string | null>(
-    null
-  );
+  const [expandedSubcategory, setExpandedSubcategory] = useState<string | null>(null);
   const [closing, setClosing] = useState(false);
 
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -39,15 +35,12 @@ const Navbar = () => {
     }, 300);
   };
 
-  // ✅ UPDATED CATEGORY STRUCTURE
+  // ✅ REAL CATEGORIES (ONLY THOSE WITH DROPDOWNS)
   const categories = [
     {
       name: "Fast Charger",
       subcategories: [
-        {
-          name: "18W Chargers",
-          children: ["Type-C", "Type-B", "Lightning"],
-        },
+        { name: "18W Chargers", children: ["Type-C", "Type-B", "Lightning"] },
         { name: "33W Chargers", children: [] },
         { name: "65W Chargers", children: [] },
       ],
@@ -55,10 +48,7 @@ const Navbar = () => {
     {
       name: "Fast Cable",
       subcategories: [
-        {
-          name: "Type-C Cable",
-          children: ["1 Meter", "2 Meter", "Braided"],
-        },
+        { name: "Type-C Cable", children: ["1 Meter", "2 Meter", "Braided"] },
         { name: "Micro USB", children: [] },
         { name: "Lightning Cable", children: [] },
       ],
@@ -87,53 +77,50 @@ const Navbar = () => {
         { name: "Mini Power Banks", children: [] },
       ],
     },
-    { name: "Ear Phone", subcategories: [{ name: "Wired", children: [] }, { name: "Wireless", children: [] }, { name: "Studio Grade", children: [] }] },
-    { name: "About Us", subcategories: [] },
-    { name: "Our Blog", subcategories: [] },
-    { name: "Contact Us", subcategories: [] },
-    { name: "Authentication", subcategories: [] },
+    {
+      name: "Ear Phone",
+      subcategories: [
+        { name: "Wired", children: [] },
+        { name: "Wireless", children: [] },
+        { name: "Studio Grade", children: [] },
+      ],
+    },
   ];
 
-  // Detect click outside for dropdowns
+  // ✅ SIMPLE LINKS (NOT CATEGORIES)
+  const simplePages = [
+    { name: "About Us", href: "/about" },
+    { name: "Our Blog", href: "/blog" },
+    { name: "Contact Us", href: "/contact" },
+    { name: "Authentication", href: "/auth" },
+  ];
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setOpen(false);
       }
-
-      if (
-        submenuRef.current &&
-        !submenuRef.current.contains(event.target as Node)
-      ) {
+      if (submenuRef.current && !submenuRef.current.contains(event.target as Node)) {
         setHoveredCategory(null);
         setHoveredSubcategory(null);
         setExpandedCategory(null);
         setExpandedSubcategory(null);
       }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   return (
     <>
-      {/* ========= HEADER FIXED AT TOP ========= */}
+      {/* ========= HEADER ========= */}
       <header className="fixed top-0 left-0 w-full bg-white z-50 shadow-md">
-        {/* Top Bar */}
+        {/* TOP BAR */}
         <div className="py-1 hidden xl:block border-b border-gray-100 bg-black text-white">
           <div className="w-11/12 mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-sm">
             <div className="flex items-center gap-2">
               <span>Contact Us 24/7:</span>
-              <a
-                href="tel:+--854789956"
-                className="underline hover:text-yellow-300"
-              >
-                +--854789956
-              </a>
+              <a href="tel:+--854789956" className="underline hover:text-yellow-300">+--854789956</a>
             </div>
 
             <div className="flex items-center gap-2">
@@ -143,7 +130,7 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* Middle Section */}
+        {/* MIDDLE LOGO + SEARCH */}
         <div className="w-11/12 mx-auto py-5 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex justify-between w-full md:w-full lg:w-auto items-center">
             <Link href="/">
@@ -155,21 +142,20 @@ const Navbar = () => {
                 className="object-contain w-24 sm:w-32 md:w-28 xl:w-32 2xl:w-36 h-auto"
               />
             </Link>
-            <button
-              className="text-2xl text-orange-500 lg:hidden"
-              onClick={() => setMenuOpen(true)}
-            >
+
+            <button className="text-2xl text-orange-500 lg:hidden" onClick={() => setMenuOpen(true)}>
               <FiMenu />
             </button>
           </div>
 
-          {/* Desktop Buttons */}
+          {/* DESKTOP BUTTONS */}
           <div className="hidden lg:flex items-center gap-3">
-            <div className="relative w-full md:w-96  2xl:w-[550px] mr-6">
+            {/* SEARCH */}
+            <div className="relative w-full md:w-96 2xl:w-[550px] mr-6">
               <input
                 type="text"
                 placeholder="Search your Favourite Accessories."
-                className="w-full text-white bg-black border border-black rounded-full py-2 px-4 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                className="w-full text-white bg-black border border-black rounded-full py-2 px-4"
               />
               <button className="absolute top-1/2 right-2 transform -translate-y-1/2 bg-orange-500 text-white p-2 rounded-full">
                 <FiSearch />
@@ -177,53 +163,48 @@ const Navbar = () => {
             </div>
 
             <button
-              className="flex items-center gap-1 text-white px-5 mr-5 lg:px-4 py-2 rounded-xl text-sm"
-              style={{
-                background: "linear-gradient(to bottom, #FFD522, #FF6B01)",
-              }}
+              className="flex items-center gap-1 text-white px-5 mr-5 py-2 rounded-xl text-sm"
+              style={{ background: "linear-gradient(to bottom, #FFD522, #FF6B01)" }}
             >
               <FiGift className="text-base mr-1 animate-pulseScaleColor" /> Offers
             </button>
 
-            {/* Language Dropdown */}
+            {/* LANGUAGE DROPDOWN */}
             <div className="relative inline-block" ref={dropdownRef}>
               <button
                 onClick={() => setOpen(!open)}
-                className="border hover:text-gray-600 border-gray-400 px-5 py-2 h-[46px] flex items-center gap-2 rounded-md text-md bg-white"
+                className="border border-gray-400 px-5 py-2 h-[46px] flex items-center gap-2 rounded-md bg-white"
               >
                 <span className="underline">English</span>
                 <FiChevronDown className="text-black text-2xl" />
               </button>
 
               <div
-                className={`absolute left-0 top-full mt-2 bg-white border border-gray-300 rounded-md shadow-md w-32 z-50 transform transition-all duration-200 ${
-                  open
-                    ? "opacity-100 visible translate-y-0"
-                    : "opacity-0 invisible -translate-y-2"
+                className={`absolute left-0 top-full mt-2 bg-white border border-gray-300 rounded-md shadow-md w-32 z-50 transition-all ${
+                  open ? "opacity-100 visible" : "opacity-0 invisible"
                 }`}
               >
-                <button className="block w-full text-left px-4 py-2 hover:bg-gray-100">
-                  English
-                </button>
-                <button className="block w-full text-left px-4 py-2 hover:bg-gray-100">
-                  Bangla
-                </button>
+                <button className="block w-full text-left px-4 py-2 hover:bg-gray-100">English</button>
+                <button className="block w-full text-left px-4 py-2 hover:bg-gray-100">Bangla</button>
               </div>
             </div>
-              <Link href="/checkout">
-            <button className="border hover:text-gray-600 border-gray-400 px-5 py-2 h-[46px] rounded-md flex items-center gap-3 text-sm">
-              <FiShoppingCart className="text-2xl 2xl:text-3xl" />
-              <div className="text-left">
-                <h1 className="text-base">Cart</h1>
-                <p className="text-xs">01 Items</p>
-              </div>
-            </button>
+
+            {/* CART */}
+            <Link href="/checkout">
+              <button className="border border-gray-400 px-5 py-2 h-[46px] rounded-md flex items-center gap-3 text-sm">
+                <FiShoppingCart className="text-2xl" />
+                <div>
+                  <h1 className="text-base">Cart</h1>
+                  <p className="text-xs">01 Items</p>
+                </div>
+              </button>
             </Link>
 
-            <button className="border hover:text-gray-600 border-gray-400 px-5 py-2 h-[46px] rounded-md flex items-center gap-1 text-sm">
+            {/* PROFILE */}
+            <button className="border border-gray-400 px-5 py-2 h-[46px] rounded-md flex items-center gap-1 text-sm">
               <Link href="/login" className="flex items-center gap-2">
-                <FiUser className="text-2xl 2xl:text-3xl" />
-                <div className="text-left">
+                <FiUser className="text-2xl" />
+                <div>
                   <h1 className="text-base">Profile</h1>
                   <p className="text-xs">Amanullah</p>
                 </div>
@@ -232,10 +213,11 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* Desktop Nav with Nested Hover */}
+        {/* ========= DESKTOP NAV ========= */}
         <div className="bg-orange-500 hidden lg:block">
           <div className="w-11/12 mx-auto flex justify-between items-center h-10">
             <ul className="flex gap-6 text-white text-sm">
+              {/* CATEGORIES WITH DROPDOWNS */}
               {categories.map((category, i) => (
                 <li
                   key={i}
@@ -246,54 +228,44 @@ const Navbar = () => {
                     setHoveredSubcategory(null);
                   }}
                 >
-                  <div className="flex items-center gap-1 hover:text-gray-300 duration-300">
+                  <div className="flex items-center gap-1 hover:text-gray-300">
                     {category.name}
-                    {category.subcategories.length > 0 && (
-                      <FiChevronDown className="text-white text-sm" />
-                    )}
+                    {category.subcategories.length > 0 && <FiChevronDown className="text-white text-sm" />}
                   </div>
 
-                  {/* 1st Level Dropdown */}
+                  {/* FIRST LEVEL DROPDOWN */}
                   {category.subcategories.length > 0 && (
                     <div
-                      className={`absolute left-0 top-full mt-2 bg-white text-black rounded-md shadow-lg transition-all duration-300 transform origin-top ${
+                      className={`absolute left-0 top-full mt-2 bg-white text-black rounded-md shadow-lg transition-all ${
                         hoveredCategory === category.name
-                          ? "opacity-100 visible scale-100 translate-y-0"
-                          : "opacity-0 invisible scale-95 -translate-y-2"
+                          ? "opacity-100 visible"
+                          : "opacity-0 invisible"
                       }`}
                     >
                       <ul className="min-w-[180px] py-2 relative">
                         {category.subcategories.map((sub, idx) => (
                           <li
                             key={idx}
-                            className="px-4 py-2 hover:bg-gray-100 text-sm transition flex justify-between items-center"
-                            onMouseEnter={() =>
-                              setHoveredSubcategory(sub.name)
-                            }
-                            onMouseLeave={() =>
-                              setHoveredSubcategory(null)
-                            }
+                            className="px-4 py-2 hover:bg-gray-100 text-sm flex justify-between items-center"
+                            onMouseEnter={() => setHoveredSubcategory(sub.name)}
+                            onMouseLeave={() => setHoveredSubcategory(null)}
                           >
                             {sub.name}
-                            {sub.children?.length > 0 && (
-                              <FiChevronRight className="text-gray-500 text-xs" />
-                            )}
 
-                            {/* 2nd Level Dropdown */}
+                            {sub.children?.length > 0 && <FiChevronRight className="text-gray-500 text-xs" />}
+
+                            {/* SECOND LEVEL DROPDOWN */}
                             {sub.children?.length > 0 && (
                               <div
-                                className={`absolute left-full top-3 ml-1 bg-white rounded-md shadow-lg transition-all duration-300 transform origin-top-left ${
+                                className={`absolute left-full top-3 ml-1 bg-white rounded-md shadow-lg transition-all ${
                                   hoveredSubcategory === sub.name
-                                    ? "opacity-100 visible translate-x-0"
-                                    : "opacity-0 invisible -translate-x-2"
+                                    ? "opacity-100 visible"
+                                    : "opacity-0 invisible"
                                 }`}
                               >
                                 <ul className="min-w-[160px] py-2">
                                   {sub.children.map((child, cidx) => (
-                                    <li
-                                      key={cidx}
-                                      className="px-4 py-2 hover:bg-gray-100 text-sm transition"
-                                    >
+                                    <li key={cidx} className="px-4 py-2 hover:bg-gray-100 text-sm">
                                       {child}
                                     </li>
                                   ))}
@@ -307,139 +279,131 @@ const Navbar = () => {
                   )}
                 </li>
               ))}
+
+              {/* ⭐ SIMPLE LINKS (NO DROPDOWNS) */}
+              {simplePages.map((page, i) => (
+                <li key={i}>
+                  <Link href={page.href} className="hover:text-gray-200">
+                    {page.name}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
         </div>
       </header>
 
-      {/* Add padding to prevent overlap */}
+      {/* Prevent overlap */}
       <div className="pt-[70px] xl:pt-[150px]"></div>
 
-      {/* ========= MOBILE BOTTOM FIXED NAV ========= */}
+      {/* ========= MOBILE BOTTOM NAV ========= */}
       <div className="bg-orange-500 fixed bottom-0 left-0 w-full flex justify-around items-center py-2 text-white lg:hidden z-50">
         <Link href="/" className="flex flex-col items-center text-xs">
-          <FiHome className="text-lg mb-1" />
+          <FiHome className="text-lg" />
           Home
         </Link>
 
-  
-       <Link href="/checkout" className="flex flex-col items-center text-xs">
-          <FiGift className="text-lg mb-1" />
-          Offers
-       </Link>
         <Link href="/checkout" className="flex flex-col items-center text-xs">
-          <FiShoppingCart className="text-lg mb-1" />
+          <FiGift className="text-lg" />
+          Offers
+        </Link>
+
+        <Link href="/checkout" className="flex flex-col items-center text-xs">
+          <FiShoppingCart className="text-lg" />
           Cart
         </Link>
-        <button className="flex flex-col items-center text-xs">
-          <FiUser className="text-lg mb-1" />
+
+        <Link href="/login" className="flex flex-col items-center text-xs">
+          <FiUser className="text-lg" />
           Profile
-        </button>
+        </Link>
       </div>
 
       {/* ========= MOBILE SIDEBAR ========= */}
       {menuOpen && (
         <>
+          {/* OVERLAY */}
           <div
-            className={`fixed inset-0 bg-black bg-opacity-40 z-40 transition-opacity duration-300 ${
-              closing ? "opacity-0" : "opacity-100"
-            }`}
+            className={`fixed inset-0 bg-black bg-opacity-40 z-40 ${closing ? "opacity-0" : "opacity-100"}`}
             onClick={handleCloseMenu}
           ></div>
 
+          {/* SIDEBAR */}
           <div
             className={`fixed left-0 top-0 w-72 sm:w-80 h-full bg-white shadow-lg z-50 overflow-y-auto ${
               closing ? "animate-slideOut" : "animate-slideIn"
             }`}
           >
             <div className="flex justify-between items-center px-5 py-4 border-b">
-              <Image
-                src="/images/sannailogo.png"
-                alt="Sannai Logo"
-                width={120}
-                height={120}
-                className="object-contain w-24"
-              />
-              <button
-                className="text-3xl text-orange-500"
-                onClick={handleCloseMenu}
-              >
+              <Image src="/images/sannailogo.png" width={120} height={120} alt="Logo" />
+              <button className="text-3xl text-orange-500" onClick={handleCloseMenu}>
                 <FiX />
               </button>
             </div>
 
             <ul ref={submenuRef} className="p-4 space-y-3 text-gray-800">
-              <button className="mt-1 w-full py-3 bg-gradient-to-b from-[#FFD522] to-[#FF6B01] text-white rounded-lg hover:opacity-90 transition text-sm">
+              <button className="mt-1 w-full py-3 bg-gradient-to-b from-[#FFD522] to-[#FF6B01] text-white rounded-lg text-sm">
                 Buy Dealer Products
               </button>
 
+              {/* MOBILE DROPDOWNS */}
               {categories.map((cat, index) => (
                 <li key={index}>
                   <button
                     className="flex justify-between w-full items-center py-2 text-left"
                     onClick={() =>
-                      setExpandedCategory(
-                        expandedCategory === cat.name ? null : cat.name
-                      )
+                      setExpandedCategory(expandedCategory === cat.name ? null : cat.name)
                     }
                   >
                     {cat.name}
                     {cat.subcategories.length > 0 && (
                       <FiChevronDown
-                        className={`transform transition-transform ${
+                        className={`transition-transform ${
                           expandedCategory === cat.name ? "rotate-180" : ""
                         }`}
                       />
                     )}
                   </button>
 
-                  {/* 1st Level Subcategories */}
+                  {/* FIRST LEVEL */}
                   <div
-                    className={`ml-4 border-l border-gray-200 pl-3 mt-1 overflow-hidden transition-all duration-300 ease-in-out ${
-                      expandedCategory === cat.name
-                        ? "max-h-60 opacity-100 translate-y-0"
-                        : "max-h-0 opacity-0 -translate-y-2"
+                    className={`ml-4 border-l border-gray-200 pl-3 overflow-hidden transition-all ${
+                      expandedCategory === cat.name ? "max-h-60 opacity-100" : "max-h-0 opacity-0"
                     }`}
                   >
                     <ul className="space-y-1">
                       {cat.subcategories.map((sub, subIndex) => (
                         <li key={subIndex}>
                           <button
-                            className="flex justify-between w-full items-center py-1 text-left text-sm text-gray-600 hover:text-orange-500"
+                            className="flex justify-between w-full py-1 text-sm text-gray-600"
                             onClick={() =>
                               setExpandedSubcategory(
-                                expandedSubcategory === sub.name
-                                  ? null
-                                  : sub.name
+                                expandedSubcategory === sub.name ? null : sub.name
                               )
                             }
                           >
                             {sub.name}
+
                             {sub.children?.length > 0 && (
                               <FiChevronDown
-                                className={`transform transition-transform ${
-                                  expandedSubcategory === sub.name
-                                    ? "rotate-180"
-                                    : ""
+                                className={`transition-transform ${
+                                  expandedSubcategory === sub.name ? "rotate-180" : ""
                                 }`}
                               />
                             )}
                           </button>
 
-                          {/* 2nd Level Children */}
+                          {/* SECOND LEVEL */}
                           <div
-                            className={`ml-4 border-l border-gray-200 pl-3 mt-1 overflow-hidden transition-all duration-300 ease-in-out ${
+                            className={`ml-4 border-l border-gray-200 pl-3 overflow-hidden transition-all ${
                               expandedSubcategory === sub.name
-                                ? "max-h-40 opacity-100 translate-y-0"
-                                : "max-h-0 opacity-0 -translate-y-2"
+                                ? "max-h-40 opacity-100"
+                                : "max-h-0 opacity-0"
                             }`}
                           >
                             <ul className="space-y-1">
                               {sub.children?.map((child, cidx) => (
-                                <li
-                                  key={cidx}
-                                  className="py-1 text-sm text-gray-600 hover:text-orange-500 cursor-pointer"
-                                >
+                                <li key={cidx} className="py-1 text-sm text-gray-600">
                                   {child}
                                 </li>
                               ))}
@@ -450,6 +414,19 @@ const Navbar = () => {
                     </ul>
                   </div>
                 </li>
+              ))}
+
+              {/* ⭐ SIMPLE PAGE LINKS (NO DROPDOWNS) */}
+              <hr className="my-2" />
+              {simplePages.map((page, i) => (
+                <Link
+                  key={i}
+                  href={page.href}
+                  onClick={handleCloseMenu}
+                  className="block py-2 text-sm hover:text-orange-500"
+                >
+                  {page.name}
+                </Link>
               ))}
             </ul>
           </div>

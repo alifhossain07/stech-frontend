@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import React from "react";
 import { BsTwitterX } from "react-icons/bs";
 import { FaFacebookF, FaInstagram, FaYoutube, FaMapMarkerAlt } from "react-icons/fa";
@@ -78,7 +79,8 @@ const Footer = () => {
                 <li className="hover:text-orange-500 cursor-pointer duration-300">Flash Deal</li>
                 <li className="hover:text-orange-500 cursor-pointer duration-300">Featured Products</li>
                 <li className="hover:text-orange-500 cursor-pointer duration-300">About Us</li>
-                <li className="hover:text-orange-500 cursor-pointer duration-300">Contact Us</li>
+                
+                <li className="hover:text-orange-500 cursor-pointer duration-300"><Link href="/contact">Contact Us</Link></li>
                 <li className="hover:text-orange-500 cursor-pointer duration-300">Support Center</li>
                 <li className="hover:text-orange-500 cursor-pointer duration-300">Privacy Policy</li>
                 <li className="hover:text-orange-500 cursor-pointer duration-300">Terms & Condition</li>
@@ -121,7 +123,7 @@ const Footer = () => {
               {/* Google Map */}
               <div className="rounded-md overflow-hidden w-full h-[160px] xl:h-[140px]">
                 <iframe
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3651.902087158993!2d90.42027327536774!3d23.750857288811812!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3755b89832a89a67%3A0x9b4a955a8ed6f9b4!2sJamuna%20Future%20Park!5e0!3m2!1sen!2sbd!4v1699786046284!5m2!1sen!2sbd"
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3651.419972449816!2d90.35562917615226!3d23.768054778658282!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3755c7bc71a75901%3A0xbc0de6971840e8ab!2sSannai%20Technology%20Limited!5e0!3m2!1sen!2sbd!4v1763270186535!5m2!1sen!2sbd"
                   width="100%"
                   height="100%"
                   style={{ border: 0 }}
