@@ -14,7 +14,8 @@ import {
   FiHome,
   FiChevronRight,
 } from "react-icons/fi";
-
+import { IoSearch,IoCartOutline } from "react-icons/io5";
+import CartSidebar from "./CartSidebar";
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [open, setOpen] = useState(false);
@@ -23,7 +24,9 @@ const Navbar = () => {
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   const [expandedSubcategory, setExpandedSubcategory] = useState<string | null>(null);
   const [closing, setClosing] = useState(false);
-
+  
+const [showMobileSearch, setShowMobileSearch] = useState(false);
+const [cartOpen, setCartOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const submenuRef = useRef<HTMLUListElement>(null);
 
@@ -133,20 +136,34 @@ const Navbar = () => {
         {/* MIDDLE LOGO + SEARCH */}
         <div className="w-11/12 mx-auto py-5 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex justify-between w-full md:w-full lg:w-auto items-center">
+            <button className="text-2xl text-orange-500 lg:hidden" onClick={() => setMenuOpen(true)}>
+              <FiMenu />
+            </button>
             <Link href="/">
               <Image
                 src="/images/sannailogo.png"
                 alt="Sannai Technology Logo"
                 width={140}
                 height={140}
-                className="object-contain w-24 sm:w-32 md:w-28 xl:w-32 2xl:w-36 h-auto"
+                className="object-contain w-[90px] sm:w-32 md:w-28 xl:w-32 2xl:w-36 h-auto"
               />
             </Link>
 
-            <button className="text-2xl text-orange-500 lg:hidden" onClick={() => setMenuOpen(true)}>
-              <FiMenu />
-            </button>
+            <div className="flex lg:hidden items-center text-orange-500 gap-4"> 
+  {/* SEARCH ICON */}
+  <button onClick={() => setShowMobileSearch(!showMobileSearch)}>
+    <IoSearch className="text-2xl" />
+  </button>
+
+  {/* CART ICON */}
+  <button onClick={() => setCartOpen(true)}>
+    <IoCartOutline className="text-2xl" />
+  </button>
+</div>
+
+            
           </div>
+          
 
           {/* DESKTOP BUTTONS */}
           <div className="hidden lg:flex items-center gap-3">
@@ -432,6 +449,7 @@ const Navbar = () => {
           </div>
         </>
       )}
+      <CartSidebar externalOpen={cartOpen} setExternalOpen={setCartOpen} />
     </>
   );
 };
