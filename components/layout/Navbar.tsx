@@ -29,7 +29,7 @@ const [showMobileSearch, setShowMobileSearch] = useState(false);
 const [cartOpen, setCartOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const submenuRef = useRef<HTMLUListElement>(null);
-
+const searchRef = useRef<HTMLDivElement>(null);
   const handleCloseMenu = () => {
     setClosing(true);
     setTimeout(() => {
@@ -114,6 +114,20 @@ const [cartOpen, setCartOpen] = useState(false);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  useEffect(() => {
+  function handleClickOutside(e: MouseEvent) {
+    if (
+      showMobileSearch &&
+      searchRef.current &&
+      !searchRef.current.contains(e.target as Node)
+    ) {
+      setShowMobileSearch(false);
+    }
+  }
+
+  document.addEventListener("mousedown", handleClickOutside);
+  return () => document.removeEventListener("mousedown", handleClickOutside);
+}, [showMobileSearch]);
   return (
     <>
       {/* ========= HEADER ========= */}
@@ -229,6 +243,7 @@ const [cartOpen, setCartOpen] = useState(false);
             </button>
           </div>
         </div>
+      
 
         {/* ========= DESKTOP NAV ========= */}
         <div className="bg-orange-500 hidden lg:block">
@@ -309,6 +324,27 @@ const [cartOpen, setCartOpen] = useState(false);
           </div>
         </div>
       </header>
+      {showMobileSearch && (
+  <div ref={searchRef} className="fixed top-[70px] left-0 w-full z-40 lg:hidden animate-[fadeDown_0.25s_ease-out]">
+    <div className=" ">
+      <input
+        type="text"
+        placeholder="Search your Favourite Accessories..."
+        className="
+          w-full
+          bg-white
+          text-black
+          py-3 px-4
+          rounded-md
+          shadow-lg
+          outline-none
+          caret-black
+          placeholder:text-gray-500
+        "
+      />
+    </div>
+  </div>
+)}
 
       {/* Prevent overlap */}
       <div className="pt-[70px] xl:pt-[150px]"></div>

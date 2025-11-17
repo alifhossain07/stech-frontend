@@ -184,11 +184,11 @@ function Card({ icon, title, text }: CardProps) {
         {title}
       </h3>
 
-      <p className="text-sm md:text-lg text-gray-700 leading-[22px] whitespace-pre-line">
-        {lines.map((line, i) => (
-          <p key={i}>{line}</p>
-        ))}
-      </p>
+      <div className="text-sm md:text-lg text-gray-700 leading-[22px] space-y-1">
+  {lines.map((line, i) => (
+    <div key={i}>{line}</div>
+  ))}
+</div>
     </div>
   );
 }
