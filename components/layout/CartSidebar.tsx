@@ -29,7 +29,7 @@ export default function CartSidebar() {
       oldPrice: 2200,
       qty: 1,
       img: "/images/tws.png",
-      selected: true,
+      selected: false,
     },
     {
       id: 2,
@@ -39,7 +39,7 @@ export default function CartSidebar() {
       oldPrice: 2200,
       qty: 1,
       img: "/images/tws.png",
-      selected: true,
+      selected: false,
     },
     {
       id: 3,
@@ -49,7 +49,7 @@ export default function CartSidebar() {
       oldPrice: 2200,
       qty: 1,
       img: "/images/tws.png",
-      selected: true,
+      selected: false,
     },
   ]);
 
@@ -155,11 +155,13 @@ export default function CartSidebar() {
       )}
 
       {/* Sidebar */}
-      <aside
-        className={`fixed top-0 right-0 h-full w-[380px] md:w-[420px] bg-white shadow-xl 
-                    z-[10000] transform transition-transform duration-300 
-                    ${isOpen ? "translate-x-0" : "translate-x-full"}`}
-      >
+     <aside
+  className={`cart-sidebar fixed top-0 right-0 h-full 
+              w-[345px] sm:w-[380px] md:w-[420px]
+              bg-white shadow-xl z-[10000]
+              transform transition-transform duration-300
+              ${isOpen ? "translate-x-0" : "translate-x-full"}`}
+>
         {/* Top Header */}
         <div className="absolute top-0 left-0 w-full bg-orange-500 text-white px-5 py-4 flex items-center justify-between">
           <h2 className="text-lg font-semibold">Your Cart</h2>
@@ -174,14 +176,8 @@ export default function CartSidebar() {
         {/* Secondary header */}
         <div className="mt-16 px-4 py-3 bg-[#f4f4f4] border-b flex justify-between items-center">
           <label className="flex items-center gap-2 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={allSelected}
-              onChange={toggleSelectAll}
-              className="w-4 h-4 rounded-full appearance-none border-2 border-gray-300 
-                         checked:bg-orange-500 checked:border-orange-500 cursor-pointer"
-            />
-            <span className="font-medium text-sm">All</span>
+            
+            <span className="font-medium text-sm">Shipping Cart</span>
           </label>
 
           <span className="text-gray-500">(0{cartItems.length}) Items</span>
@@ -323,7 +319,7 @@ export default function CartSidebar() {
   <button
     onClick={() => setIsOpen(false)}
     disabled={selectedCount === 0}
-    className={`mt-4 w-full py-3 rounded-full text-lg shadow-md ${
+    className={`mt-4 w-full md:py-3 py-2 rounded-full md:text-lg text-base shadow-md ${
       selectedCount === 0
         ? "bg-gray-300 text-gray-600 cursor-not-allowed"
         : "bg-orange-500 text-white hover:bg-orange-600"
