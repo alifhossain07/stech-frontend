@@ -323,7 +323,7 @@ export default function CartSidebar() {
   <button
     onClick={() => setIsOpen(false)}
     disabled={selectedCount === 0}
-    className={`mt-4 w-full py-3 rounded-xl text-lg shadow-md ${
+    className={`mt-4 w-full py-3 rounded-full text-lg shadow-md ${
       selectedCount === 0
         ? "bg-gray-300 text-gray-600 cursor-not-allowed"
         : "bg-orange-500 text-white hover:bg-orange-600"
