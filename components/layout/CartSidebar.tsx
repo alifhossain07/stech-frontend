@@ -125,38 +125,35 @@ export default function CartSidebar({ externalOpen, setExternalOpen }:CartSideba
   return (
     <>
       {/* Desktop Floating Button */}
-      {!isMobile && !internalOpen && (
-        <button
-          onClick={() => setIsOpen(true)}
-          className="fixed right-0 top-1/2 -translate-y-1/2 z-[10001] shadow-lg 
-                     rounded-l-xl overflow-hidden"
-        >
-          <div className="w-[90px]">
-            {/* Top Black */}
-            <div className="bg-black text-white flex flex-col items-center py-3">
-              <div className="w-[28px] h-[28px] flex items-center justify-center">
-                <Image
-                  src="/images/buy.png"
-                  alt="Cart Icon"
-                  width={400}
-                  height={400}
-                  className="w-full h-full object-contain"
-                />
-              </div>
+      {!isOpen && (
+  <button
+    onClick={() => setIsOpen(true)}
+    className="fixed hidden lg:block right-0 top-1/2 -translate-y-1/2 z-[10001] 
+               shadow-lg rounded-l-xl overflow-hidden"
+  >
+    <div className="w-[90px]">
+      <div className="bg-black text-white flex flex-col items-center py-3">
+        <div className="w-[28px] h-[28px] flex items-center justify-center">
+          <Image
+            src="/images/buy.png"
+            alt="Cart Icon"
+            width={400}
+            height={400}
+            className="w-full h-full object-contain"
+          />
+        </div>
 
-              <span className="text-xs mt-2">
-                *{cartItems.length.toString().padStart(2, "0")} Items
-              </span>
-            </div>
+        <span className="text-xs mt-2">
+          *{cartItems.length.toString().padStart(2, "0")} Items
+        </span>
+      </div>
 
-            {/* Bottom Orange */}
-            <div className="bg-orange-500 text-white text-center py-2 font-semibold">
-              ৳{subtotal.toLocaleString()}
-            </div>
-          </div>
-        </button>
-      )}
-
+      <div className="bg-orange-500 text-white text-center py-2 font-semibold">
+        ৳{subtotal.toLocaleString()}
+      </div>
+    </div>
+  </button>
+)}
       {/* Overlay */}
       {isOpen && (
         <div
@@ -169,7 +166,7 @@ export default function CartSidebar({ externalOpen, setExternalOpen }:CartSideba
       <aside
         className={`fixed top-0 right-0 h-full 
         w-[345px] sm:w-[380px] md:w-[420px]
-        bg-white shadow-xl z-[10000]
+        bg-white shadow-xl z-[999999]
         transform transition-transform duration-300
         ${isOpen ? "translate-x-0" : "translate-x-full"}`}
       >
