@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server";
 import axios from "axios";
 
-const API_BASE = "http://sannai.test/api/v2";
-const SYSTEM_KEY =
-  "$2y$10$0oj5nwGr0flo5Udh49U3o.SqzgNNA7K4N0.rIRPloMM0ANtfk7PJK";
+const API_BASE = process.env.API_BASE!;
+const SYSTEM_KEY = process.env.SYSTEM_KEY!;
 
 // Types
 type Banner = {

@@ -8,7 +8,7 @@ type ProductType = {
   price: number;
   oldPrice: number;
   discount: string;
-  rating: string;
+  rating: number;
   reviews: string;
   image: string;
 };

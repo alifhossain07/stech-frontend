@@ -1,11 +1,35 @@
 import { NextResponse } from "next/server";
 
-const API_BASE = "http://sannai.test/api/v2";
-const SYSTEM_KEY =
-  "$2y$10$0oj5nwGr0flo5Udh49U3o.SqzgNNA7K4N0.rIRPloMM0ANtfk7PJK";
+const API_BASE = process.env.API_BASE!;
+const SYSTEM_KEY = process.env.SYSTEM_KEY!;
+
+
 
 export async function GET() {
   try {
+ 
+    // DEBUG 1 — Check ENV loaded
+    // console.log("API_BASE =", API_BASE);
+    // console.log("SYSTEM_KEY =", SYSTEM_KEY);
+
+    // // DEBUG 2 — Check simple fetch first
+    // console.log("Trying to call:", `${API_BASE}/categories`);
+
+    // try {
+    //   const test = await fetch(`${API_BASE}/categories`, {
+    //     headers: {
+    //       Accept: "application/json",
+    //       "System-Key": SYSTEM_KEY,
+    //     }
+    //   });
+
+    //   console.log("STATUS:", test.status);
+
+    //   const tjson = await test.text();
+    //   console.log("RAW RESPONSE:", tjson); // Very useful
+    // } catch (e) {
+    //   console.log("FETCH ERROR:", e);
+    // }
     // Do both API calls at the same time
     const [categoriesRes, featuredRes] = await Promise.all([
       fetch(`${API_BASE}/categories`, {

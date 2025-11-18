@@ -1,22 +1,51 @@
+// app/api/products/new-arrivals/route.ts
 import { NextResponse } from "next/server";
-import path from "path";
-import { promises as fs } from "fs";
+import axios from "axios";
+
+type LaravelProduct = {
+  id: number;
+  slug: string;
+  name: string;
+  main_price: string;
+  stroked_price: string;
+  discount: string;
+  rating: number;
+  sales: number;
+  thumbnail_image: string;
+};
 
 export async function GET() {
   try {
-    // Locate the JSON file inside the root-level "database" folder
-    const filePath = path.join(process.cwd(), "database", "newArrivals.json");
+    const url = `${process.env.API_BASE}/products/new-arrivals`;
 
-    // Read file content
-    const data = await fs.readFile(filePath, "utf-8");
+    const res = await axios.get(url, {
+      headers: {
+        "System-Key": process.env.SYSTEM_KEY!,
+      },
+    });
 
-    // Parse JSON
-    const products = JSON.parse(data);
+    const products: LaravelProduct[] = res.data?.data ?? [];
 
-    // Respond with JSON
-    return NextResponse.json(products);
-  } catch (error) {
-    console.error("❌ Error reading products file:", error);
-    return NextResponse.json({ error: "Failed to load products" }, { status: 500 });
+    const formatted = products.map((p) => ({
+      id: p.id,
+      slug: p.slug,
+      name: p.name,
+
+      price: Number(p.main_price.replace(/[^\d.]/g, "")),
+      oldPrice: Number(p.stroked_price.replace(/[^\d.]/g, "")),
+      discount: p.discount,
+
+      rating: p.rating,
+      reviews: p.sales,
+
+      image: p.thumbnail_image,
+    }));
+
+    return NextResponse.json(formatted);
+  } catch (e) {
+    return NextResponse.json(
+      { error: "Unable to load new arrival products" },
+      { status: 500 }
+    );
   }
 }

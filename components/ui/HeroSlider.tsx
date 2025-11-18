@@ -78,38 +78,77 @@ const HeroSlider = () => {
       >
 
         {/* =============================== */}
-        {/*   LEFT SECTION WITH SKELETON   */}
-        {/* =============================== */}
-        <div className="w-full lg:w-2/3 h-full relative">
+{/*   LEFT SECTION WITH SKELETON   */}
+{/* =============================== */}
+<div className="w-full lg:w-2/3 h-full relative">
 
-          {loading ? (
-            // LEFT SKELETON
-            <div className="w-full h-full bg-gray-200 animate-pulse rounded-md" />
-          ) : (
-            <div
-              className={`relative w-full h-full glide-01 transition-opacity duration-500 ${
-                isLoaded ? "opacity-100" : "opacity-0"
-              }`}
-            >
-              <div className="overflow-hidden h-full" data-glide-el="track">
-                <ul className="flex relative w-full h-full overflow-hidden p-0 m-0">
-                  {sliders.map((slide, idx) => (
-                    <li key={idx} className="flex-shrink-0 w-full h-full">
-                      <Image
-                        src={slide.photo}
-                        alt={`slider-${idx}`}
-                        width={800}
-                        height={700}
-                        priority={idx === 0}
-                        className="w-full h-full object-cover"
-                      />
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          )}
-        </div>
+  {loading ? (
+    <div className="w-full h-full bg-gray-200 animate-pulse rounded-md" />
+  ) : (
+    <div
+      className={`relative w-full h-full glide-01 transition-opacity duration-500 ${
+        isLoaded ? "opacity-100" : "opacity-0"
+      }`}
+    >
+
+      {/* SLIDES */}
+      <div className="overflow-hidden h-full" data-glide-el="track">
+        <ul className="flex relative w-full h-full overflow-hidden p-0 m-0">
+          {sliders.map((slide, idx) => (
+            <li key={idx} className="flex-shrink-0 w-full h-full">
+              <Image
+                src={slide.photo}
+                alt={`slider-${idx}`}
+                width={800}
+                height={700}
+                priority={idx === 0}
+                className="w-full h-full object-cover"
+              />
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {/* ========================= */}
+      {/*     ARROWS CONTROLLER     */}
+      {/* ========================= */}
+      <div
+        className="absolute inset-0 flex items-center justify-between px-4 z-20"
+        data-glide-el="controls"
+      >
+        <button
+          className="text-white bg-black/40 hover:bg-black/60 px-3 py-2 rounded-full"
+          data-glide-dir="<"
+        >
+          ‹
+        </button>
+
+        <button
+          className="text-white bg-black/40 hover:bg-black/60 px-3 py-2 rounded-full"
+          data-glide-dir=">"
+        >
+          ›
+        </button>
+      </div>
+
+      {/* ========================= */}
+      {/*       BULLET DOTS         */}
+      {/* ========================= */}
+      <div
+        className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2 z-20"
+        data-glide-el="controls[nav]"
+      >
+        {sliders.map((_, i) => (
+          <button
+            key={i}
+            className="w-3 h-3 rounded-full bg-white/40 hover:bg-white/70 transition"
+            data-glide-dir={`=${i}`}
+          />
+        ))}
+      </div>
+    </div>
+  )}
+</div>
 
         {/* =============================== */}
         {/*   RIGHT TWO BANNERS + SKELETON */}
