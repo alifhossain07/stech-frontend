@@ -1,66 +1,61 @@
 import { NextResponse } from "next/server";
+import axios from "axios";
 
 const API_BASE = "http://sannai.test/api/v2";
 const SYSTEM_KEY =
   "$2y$10$0oj5nwGr0flo5Udh49U3o.SqzgNNA7K4N0.rIRPloMM0ANtfk7PJK";
 
-// ---- TYPE DEFINITIONS ----
-type LaravelResponse<T> = {
-  data?: T;
-  success?: boolean;
-  message?: string;
-};
-
 type Banner = {
-  id: number;
-  image: string;
+  id?: number;
+  photo: string;
+  url?: string;
   position: number | string;
 };
 
 type Slider = {
-  id: number;
-  image: string;
+  id?: number;
+  photo: string;
 };
-
-// ---- FIXED FUNCTION (typed properly) ----
-async function fetchFromLaravel<T>(endpoint: string): Promise<LaravelResponse<T>> {
-  const res = await fetch(`${API_BASE}/${endpoint}`, {
-    headers: {
-      Accept: "application/json",
-      "System-Key": SYSTEM_KEY,
-    },
-    cache: "no-store",
-  });
-
-  return res.json();
-}
 
 export async function GET() {
   try {
     const [bannersRes, slidersRes] = await Promise.all([
-      fetchFromLaravel<Banner[]>("banners"),
-      fetchFromLaravel<Slider[]>("sliders"),
+      axios.get(`${API_BASE}/banners`, {
+        headers: { "System-Key": SYSTEM_KEY },
+      }),
+      axios.get(`${API_BASE}/sliders`, {
+        headers: { "System-Key": SYSTEM_KEY },
+      }),
     ]);
 
-    const banners = Array.isArray(bannersRes.data) ? bannersRes.data : [];
-    const sliders = Array.isArray(slidersRes.data) ? slidersRes.data : [];
-
-    const rightBanners = banners.filter(
-      (b) => Number(b.position) === 1
-    );
+    const banners: Banner[] = bannersRes.data.data || [];
+    const sliders: Slider[] = slidersRes.data.data || [];
 
     return NextResponse.json({
-      sliders,
-      rightBanners,
       success: true,
+      sliders,
+      rightBanners: banners.filter((b) => Number(b.position) === 1),
+      leftBanners: banners.filter((b) => Number(b.position) === 2),
+      bottomBanners: banners.filter((b) => Number(b.position) === 3),
     });
+  } catch (err: unknown) {
+    // Type narrowing for AxiosError
+    if (axios.isAxiosError(err)) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: err.response?.data ?? err.message,
+        },
+        { status: 500 }
+      );
+    }
 
-  } catch (error) {
-    // error is unknown → fix by casting to Error
-    const message = error instanceof Error ? error.message : "Unknown error";
-
+    // Non-Axios error (fallback)
     return NextResponse.json(
-      { success: false, error: message },
+      {
+        success: false,
+        error: "Unknown error occurred",
+      },
       { status: 500 }
     );
   }

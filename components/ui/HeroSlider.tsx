@@ -23,7 +23,7 @@ const HeroSlider = () => {
   useEffect(() => {
     const loadHomeData = async () => {
       try {
-        const res = await fetch("/api/home", { cache: "no-store" });
+        const res = await fetch("/api/banners", { cache: "no-store" });
         const data = await res.json();
 
         setRightBanners(data.rightBanners || []);
