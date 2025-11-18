@@ -5,6 +5,7 @@ const API_BASE = "http://sannai.test/api/v2";
 const SYSTEM_KEY =
   "$2y$10$0oj5nwGr0flo5Udh49U3o.SqzgNNA7K4N0.rIRPloMM0ANtfk7PJK";
 
+// Types
 type Banner = {
   id?: number;
   photo: string;
@@ -17,19 +18,36 @@ type Slider = {
   photo: string;
 };
 
+type BottomBannerIcon = {
+  photo: string;
+  link: string | null;
+};
+
+type HomeBottomBanner = {
+  image: string;
+  title: string;
+  subtitle: string;
+  icons: BottomBannerIcon[];
+};
+
 export async function GET() {
   try {
-    const [bannersRes, slidersRes] = await Promise.all([
+    const [bannersRes, slidersRes, bottomBannerRes] = await Promise.all([
       axios.get(`${API_BASE}/banners`, {
         headers: { "System-Key": SYSTEM_KEY },
       }),
       axios.get(`${API_BASE}/sliders`, {
         headers: { "System-Key": SYSTEM_KEY },
       }),
+      axios.get(`${API_BASE}/home-bottom-banner`, {
+        headers: { "System-Key": SYSTEM_KEY },
+      }),
     ]);
 
     const banners: Banner[] = bannersRes.data.data || [];
     const sliders: Slider[] = slidersRes.data.data || [];
+    const bottomBanner: HomeBottomBanner | null =
+      bottomBannerRes.data.data?.[0] ?? null;
 
     return NextResponse.json({
       success: true,
@@ -37,9 +55,11 @@ export async function GET() {
       rightBanners: banners.filter((b) => Number(b.position) === 1),
       leftBanners: banners.filter((b) => Number(b.position) === 2),
       bottomBanners: banners.filter((b) => Number(b.position) === 3),
+
+      // ✨ New Section Returned
+      homeBottomBanner: bottomBanner,
     });
-  } catch (err: unknown) {
-    // Type narrowing for AxiosError
+  } catch (err) {
     if (axios.isAxiosError(err)) {
       return NextResponse.json(
         {
@@ -50,7 +70,6 @@ export async function GET() {
       );
     }
 
-    // Non-Axios error (fallback)
     return NextResponse.json(
       {
         success: false,
