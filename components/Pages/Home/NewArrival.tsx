@@ -23,7 +23,6 @@ interface Product {
 const ProductSkeleton = () => (
   <div className="w-full max-w-[320px] rounded-lg shadow-md border border-gray-200 p-0 animate-pulse">
     <div className="flex items-center justify-center bg-gray-100 md:p-14 p-8 rounded-md">
-      <div className="absolute top-2 left-2 bg-gray-300 h-4 w-16 rounded-full"></div>
       <div className="md:w-[100px] w-[40px] h-[40px] md:h-[100px] bg-gray-300 rounded-md"></div>
     </div>
 
@@ -55,6 +54,7 @@ const ProductSkeleton = () => (
   </div>
 );
 
+
 const NewArrival = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -77,7 +77,7 @@ const NewArrival = () => {
       new Glide(".glide-new-arrival", {
         type: "carousel",
         perView: 5,
-        gap: 20,
+        gap: 10,
         rewind: false,
         bound: false,
         animationDuration: 500,
@@ -112,16 +112,17 @@ const NewArrival = () => {
 
       {/* ⭐ LOADING SKELETON */}
       {loading ? (
-        <div className="glide-new-arrival">
-          <div className="overflow-hidden">
-            <ul className="glide__slides">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <li key={i} className="glide__slide px-2">
-                  <ProductSkeleton />
-                </li>
-              ))}
-            </ul>
-          </div>
+        <div
+          className="
+            grid gap-5
+            grid-cols-2
+            md:grid-cols-3
+            xl:grid-cols-5
+          "
+        >
+          {Array.from({ length: 5 }).map((_, i) => (
+            <ProductSkeleton key={i} />
+          ))}
         </div>
       ) : (
         <div className="glide-new-arrival relative">

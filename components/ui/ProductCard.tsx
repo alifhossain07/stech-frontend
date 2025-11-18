@@ -9,8 +9,9 @@ type ProductType = {
   oldPrice: number;
   discount: string;
   rating: number;
-  reviews: string;
+  reviews: number;   // ← change string → number
   image: string;
+  slug?: string; // optional if needed
 };
 
 type ProductCardProps = {
