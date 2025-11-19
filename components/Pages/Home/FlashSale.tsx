@@ -33,7 +33,7 @@ const FlashSale = () => {
         setBanner(res.data.banner); // Set the dynamic banner image
 
         // Map the API data to match the Product interface
-        const mappedProducts = res.data.products.map((product: any) => ({
+        const mappedProducts : Product[] = res.data.products.map((product: any) => ({
           id: product.id,
           name: product.name,
           price: parseFloat(product.main_price.replace('৳', '').replace(',', '')), // Convert string to number
@@ -104,7 +104,7 @@ const FlashSale = () => {
       {loading ? (
         <FlashSaleShimmerSkeleton /> // Show shimmer skeleton while loading
       ) : (
-        <div className="flex flex-col md:flex-col xl:flex-row 2xl:flex-row items-stretch justify-between gap-6">
+        <div className="flex flex-col md:flex-col xl:flex-row 2xl:flex-row  justify-between gap-4 xl:gap-0">
           {/* Left: Deal of the Day */}
           <div
             className="relative flex flex-col justify-center items-center rounded-2xl p-8 text-center md:w-full xl:w-72 2xl:w-96 min-h-full overflow-hidden"
