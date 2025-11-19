@@ -19,6 +19,9 @@ type HomeBottomBanner = {
 
 const NewsLetter = () => {
   const [open, setOpen] = useState(false);
+  const [infoRows, setInfoRows] = useState<
+  { title: string; paragraph: string }[]
+>([]);
   const formatTitle = (title: string) => {
     return title
       .replace(/\*(.*?)\*/g, (_, text) => {
@@ -39,8 +42,17 @@ const NewsLetter = () => {
         console.error("Failed to load bottom banner:", error);
       }
     };
-
+ const fetchBottomInfo = async () => {
+    try {
+      const res = await fetch("/api/home-info-seo", { cache: "no-store" });
+      const json = await res.json();
+      if (json.success) setInfoRows(json.rows);
+    } catch (error) {
+      console.error("Failed to load bottom info:", error);
+    }
+  };
     fetchBottomBanner();
+     fetchBottomInfo();
   }, []);
 
   if (!data)
@@ -139,74 +151,12 @@ const NewsLetter = () => {
 >
         <div className="p-6 bg-white rounded-md shadow-md">
           <div className="space-y-10">
-
-  {/* 1️⃣ Best Computer Shop */}
-  <div>
-    <h1 className="text-xl font-bold mb-2">
-      Best Computer Shop in Bangladesh
-    </h1>
-    <p className="text-gray-700 leading-relaxed">
-      Tech Land BD, established in 2016, stands out as the best Computer Shop in 
-      BD (Bangladesh) and the go-to computer shop in Dhaka. We are your trusted 
-      source for high-quality computer hardware, laptops, office equipment, home 
-      appliances, and tech gadgets. With an extensive selection of products and 
-      unbeatable prices, Tech Land has solidified its reputation as the top 
-      computer shop in Bangladesh.
-    </p>
-  </div>
-
-  {/* 2️⃣ Laptop Shop */}
-  <div>
-    <h1 className="text-xl font-bold mb-2">
-      Buy the Best Laptop in Bangladesh from Tech Land BD
-    </h1>
-    <p className="text-gray-700 leading-relaxed">
-      Discover the best laptop shop in BD – Tech Land, your go-to destination for 
-      laptops in Bangladesh. We sell the best laptop prices in BD. Explore top 
-      brands like HP, Asus, Acer, Lenovo, MSI, Gigabyte, Apple, Xiaomi, Huawei, 
-      and Microsoft. Whether youre a gamer or a student, find the perfect laptop 
-      that suits your needs and budget. Tech Land, the trusted name in gaming 
-      laptops, brings you the latest models from Razer and more. Shop with 
-      confidence at Tech Land, the ultimate laptop seller in Bangladesh.
-    </p>
-  </div>
-
-  {/* 3️⃣ Desktop PC */}
-  <div>
-    <h1 className="text-xl font-bold mb-2">
-      Best Desktop PC Shop in Bangladesh
-    </h1>
-    <p className="text-gray-700 leading-relaxed">
-      Looking for where to buy a Desktop PC in BD or Dhaka? Look no further – 
-      Tech Land is your answer. As a leading gaming PC seller in BD and a gaming 
-      PC shop in BD, we cater to the needs of tech enthusiasts and gamers. But 
-      thats not all; were also a comprehensive computer store in BD, serving 
-      customers nationwide. Experience the difference at Tech Land – your trusted 
-      partner for brands like Corsair, Razer, Lian Li, NZXT, Cooler Master, 
-      Antec, Gamdias, Gigabyte, and more. Techland BD is most popular for AMD 
-      5600G and AMD 5700G processors in Bangladesh. If you want to buy a desktop 
-      PC, Techland BD is the best computer shop in BD.
-    </p>
-  </div>
-
-  {/* 4️⃣ Gadgets */}
-  <div>
-    <h1 className="text-xl font-bold mb-2">
-      Best Gadgets PC Shop in Bangladesh
-    </h1>
-    <p className="text-gray-700 leading-relaxed">
-      Discover the best gadget shop in BD for top-notch tech solutions! Explore 
-      our wide range of gadgets at unbeatable prices, including smartwatches from 
-      leading brands like Xiaomi and Amazfit, premium earbuds, powerful gimbals, 
-      and more. Find the perfect balance of quality and affordability with our 
-      collection featuring DJI, Zhiyun, Kieslect, Huawei, Anker, OnePlus, Apple, 
-      Baseus, HOCO, Havit, Ugreen, Vention, Orico, Belkin, and other renowned 
-      brands. Shop now and simplify your daily life with our innovative tech 
-      offerings. Techland BD is the best computer shop in BD and also a top 
-      gadget store.
-    </p>
-  </div>
-
+  {infoRows.map((row, index) => (
+    <div key={index}>
+      <h1 className="text-xl font-bold mb-2">{row.title}</h1>
+      <p className="text-gray-700 leading-relaxed">{row.paragraph}</p>
+    </div>
+  ))}
 </div>
         </div>
       </div>
