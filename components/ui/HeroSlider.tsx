@@ -93,21 +93,23 @@ const HeroSlider = () => {
 
       {/* SLIDES */}
       <div className="overflow-hidden h-full" data-glide-el="track">
-        <ul className="flex relative w-full h-full overflow-hidden p-0 m-0">
-          {sliders.map((slide, idx) => (
-            <li key={idx} className="flex-shrink-0 w-full h-full">
-              <Image
-                src={slide.photo}
-                alt={`slider-${idx}`}
-                width={800}
-                height={700}
-                priority={idx === 0}
-                className="w-full h-full object-cover"
-              />
-            </li>
-          ))}
-        </ul>
-      </div>
+  <ul className="glide__slides w-full h-full m-0 p-0">
+    {sliders.map((slide, idx) => (
+      <li
+        key={idx}
+        className="glide__slide w-full h-full relative"
+      >
+        <Image
+          src={slide.photo}
+          alt={`slider-${idx}`}
+          fill
+          priority={idx === 0}
+          className="object-cover"
+        />
+      </li>
+    ))}
+  </ul>
+</div>
 
       {/* ========================= */}
       {/*     ARROWS CONTROLLER     */}

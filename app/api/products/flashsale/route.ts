@@ -1,22 +1,37 @@
 import { NextResponse } from "next/server";
-import path from "path";
-import { promises as fs } from "fs";
+import axios from "axios";
+
+const API_BASE = process.env.API_BASE!;
+const SYSTEM_KEY = process.env.SYSTEM_KEY!;
 
 export async function GET() {
   try {
-    // Locate the JSON file inside the root-level "database" folder
-    const filePath = path.join(process.cwd(), "database", "flashsale.json");
+    // Fetch the flash sale data and the deal of the day
+    const res = await axios.get(`${API_BASE}/flash-deals`, {
+      headers: {
+        Accept: "application/json",
+        "System-Key": SYSTEM_KEY,
+      },
+    });
 
-    // Read file content
-    const data = await fs.readFile(filePath, "utf-8");
+    // Extract the flash sale data and the deal of the day
+    const flashSaleData = res.data.data[0]; // Assuming we only care about the first flash sale
+    const banner = flashSaleData.banner;
+    const products = flashSaleData.products.data;
+     const title = flashSaleData.title;  // New field: title
+    const date = flashSaleData.date;
+    
 
-    // Parse JSON
-    const products = JSON.parse(data);
-
-    // Respond with JSON
-    return NextResponse.json(products);
+    // Respond with the fetched data
+    return NextResponse.json({
+      success: true,
+      banner: banner,
+      products: products,
+      title: title,   // Including title in the response
+      date: date,
+    });
   } catch (error) {
-    console.error("❌ Error reading products file:", error);
-    return NextResponse.json({ error: "Failed to load products" }, { status: 500 });
+    console.error("Error fetching Flash Sale data:", error);
+    return NextResponse.json({ success: false, error: "Failed to fetch flash sale data" }, { status: 500 });
   }
 }

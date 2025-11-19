@@ -4,7 +4,8 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { FiChevronRight } from "react-icons/fi";
 import ProductCard from "@/components/ui/ProductCard";
-import Loader from "@/components/ui/Loader"; // 👈 make sure you have a loader component
+import FlashSaleShimmerSkeleton from "@/components/Skeletons/FlashSaleShimmerSkeleton";
+ // Import the ShimmerSkeleton component
 
 interface Product {
   id: number;
@@ -12,27 +13,72 @@ interface Product {
   price: number;
   oldPrice: number;
   discount: string;
-  rating: string;
-  reviews: string;
+  rating: number;
+  reviews: number;
   image: string;
   slug?: string;
 }
 
 const FlashSale = () => {
   const [products, setProducts] = useState<Product[]>([]);
+  const [banner, setBanner] = useState<string>("");
   const [loading, setLoading] = useState(true);
+  const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  const [endTime, setEndTime] = useState<number>(0); // Store the end time in Unix timestamp format
 
   useEffect(() => {
     const fetchFlashSale = async () => {
       try {
-        const res = await axios.get("/api/products/flashsale");
-        setProducts(res.data);
+        const res = await axios.get("/api/products/flashsale"); // Correct API route
+        setBanner(res.data.banner); // Set the dynamic banner image
+
+        // Map the API data to match the Product interface
+        const mappedProducts = res.data.products.map((product: any) => ({
+          id: product.id,
+          name: product.name,
+          price: parseFloat(product.main_price.replace('৳', '').replace(',', '')), // Convert string to number
+          oldPrice: parseFloat(product.stroked_price.replace('৳', '').replace(',', '')),
+          discount: product.discount,
+          rating: parseFloat(product.rating),  // Convert string to number for rating
+          reviews: 0, // Assuming you have a reviews field or you can map it if available
+          image: product.thumbnail_image,  // Map to image from thumbnail_image
+        }));
+
+        setProducts(mappedProducts); // Set the dynamic product list
+
+        // Set the end time from the API date (convert it from Unix timestamp)
+        const apiEndTime = res.data.date * 1000; // Convert to milliseconds
+        setEndTime(apiEndTime);
+        console.log(endTime);
+
+        // Start the countdown
+        startCountdown(apiEndTime);
       } catch (error) {
         console.error("Error fetching Flash Sale products:", error);
       } finally {
         setLoading(false);
       }
     };
+
+    // Function to start the countdown
+    const startCountdown = (endTime: number) => {
+      const interval = setInterval(() => {
+        const currentTime = new Date().getTime();
+        const timeRemaining = endTime - currentTime;
+
+        if (timeRemaining <= 0) {
+          clearInterval(interval); // Stop the countdown when time reaches zero
+        } else {
+          const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+          const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+          const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+          const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+
+          setCountdown({ days, hours, minutes, seconds });
+        }
+      }, 1000);
+    };
+
     fetchFlashSale();
   }, []);
 
@@ -55,79 +101,64 @@ const FlashSale = () => {
       </div>
 
       {/* Flash Sale Layout */}
-      <div className="flex flex-col md:flex-col xl:flex-row 2xl:flex-row items-stretch justify-between gap-6">
-        {/* Left: Deal of the Day */}
-        <div
-          className="relative flex flex-col justify-center items-center rounded-2xl p-8 text-center md:w-full xl:w-72 2xl:w-96 min-h-full overflow-hidden"
-          style={{
-            backgroundImage: `url('/images/flashsale.png')`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-          }}
-        >
-          <div className="relative text-white space-y-5 z-10">
-            <p className="text-sm font-medium opacity-90">
-              Only One Week Offer’s
-            </p>
-            <h1 className="md:text-2xl text-xl font-bold">Deal Of The Day</h1>
-            <p className="md:text-lg">
-              Explore brand-new products crafted for style, quality, and innovation.
-            </p>
+      {loading ? (
+        <FlashSaleShimmerSkeleton /> // Show shimmer skeleton while loading
+      ) : (
+        <div className="flex flex-col md:flex-col xl:flex-row 2xl:flex-row items-stretch justify-between gap-6">
+          {/* Left: Deal of the Day */}
+          <div
+            className="relative flex flex-col justify-center items-center rounded-2xl p-8 text-center md:w-full xl:w-72 2xl:w-96 min-h-full overflow-hidden"
+            style={{
+              backgroundImage: `url(${banner})`, // Set the dynamic banner image
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+            }}
+          >
+            <div className="relative text-white space-y-5 z-10">
+              <p className="text-sm font-medium opacity-90">Only One Week Offer’s</p>
+              <h1 className="md:text-2xl text-xl font-bold">Deal Of The Day</h1>
+              <p className="md:text-lg">
+                Explore brand-new products crafted for style, quality, and innovation.
+              </p>
 
-            {/* Countdown */}
-            <div className="grid grid-cols-4 md:ml-16 ml-5 xl:ml-0 xl:mr-4 2xl:mr-0 2xl:ml-0 mt-10 xl:gap-7 2xl:gap-4">
-              {[
-                { value: "03", label: "Days" },
-                { value: "24", label: "Hours" },
-                { value: "12", label: "Mins" },
-                { value: "36", label: "Sec" },
-              ].map((item) => (
-                <div
-                  key={item.label}
-                  className="bg-white text-orange-500 rounded-lg xl:py-3 md:pt-3 pt-3 pb-2 2xl:py-5 xl:pt-4 md:px-10 xl:px-0 2xl:px-10 flex flex-col items-center justify-center w-14"
-                >
-                  <span className="2xl:text-2xl font-bold leading-none">
-                    {item.value}
-                  </span>
-                  <span className="2xl:text-[16px] font-medium mt-1">
-                    {item.label}
-                  </span>
+              {/* Countdown */}
+              <div className="grid grid-cols-4 md:ml-16 ml-5 xl:ml-0 xl:mr-4 2xl:mr-0 2xl:ml-0 mt-10 xl:gap-7 2xl:gap-4">
+                <div className="bg-white text-orange-500 rounded-lg xl:py-3 md:pt-3 pt-3 pb-2 2xl:py-5 xl:pt-4 md:px-10 xl:px-0 2xl:px-10 flex flex-col items-center justify-center w-14">
+                  <span className="2xl:text-2xl font-bold leading-none">{countdown.days}</span>
+                  <span className="2xl:text-[16px] font-medium mt-1">Days</span>
                 </div>
+                <div className="bg-white text-orange-500 rounded-lg xl:py-3 md:pt-3 pt-3 pb-2 2xl:py-5 xl:pt-4 md:px-10 xl:px-0 2xl:px-10 flex flex-col items-center justify-center w-14">
+                  <span className="2xl:text-2xl font-bold leading-none">{countdown.hours}</span>
+                  <span className="2xl:text-[16px] font-medium mt-1">Hours</span>
+                </div>
+                <div className="bg-white text-orange-500 rounded-lg xl:py-3 md:pt-3 pt-3 pb-2 2xl:py-5 xl:pt-4 md:px-10 xl:px-0 2xl:px-10 flex flex-col items-center justify-center w-14">
+                  <span className="2xl:text-2xl font-bold leading-none">{countdown.minutes}</span>
+                  <span className="2xl:text-[16px] font-medium mt-1">Mins</span>
+                </div>
+                <div className="bg-white text-orange-500 rounded-lg xl:py-3 md:pt-3 pt-3 pb-2 2xl:py-5 xl:pt-4 md:px-10 xl:px-0 2xl:px-10 flex flex-col items-center justify-center w-14">
+                  <span className="2xl:text-2xl font-bold leading-none">{countdown.seconds}</span>
+                  <span className="2xl:text-[16px] font-medium mt-1">Sec</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right: Product Grid */}
+          <div className="xl:w-9/12 2xl:w-9/12 w-full flex justify-center items-center min-h-[300px]">
+            <div className="grid grid-cols-2 md:grid-cols-3 xl:hidden 2xl:hidden md:gap-4 gap-3 w-full justify-items-center">
+              {products.slice(0, 6).map((p) => (
+                <ProductCard key={p.id} product={p} />
+              ))}
+            </div>
+
+            <div className="hidden xl:grid grid-cols-4 gap-4 w-full justify-items-center">
+              {products.slice(0, 4).map((p) => (
+                <ProductCard key={p.id} product={p} />
               ))}
             </div>
           </div>
         </div>
-
-        {/* Right: Product Grid */}
-        <div className="xl:w-9/12 2xl:w-9/12 w-full flex justify-center items-center min-h-[300px]">
-          {loading ? (
-            <Loader />
-          ) : (
-            <>
-              {/* Default + md: show 6 */}
-              <div className="grid grid-cols-2 md:grid-cols-3 xl:hidden 2xl:hidden md:gap-4 gap-3 w-full justify-items-center">
-                {products.slice(0, 6).map((p) => (
-                  <ProductCard key={p.id} product={p} />
-                ))}
-              </div>
-
-              {/* xl + 2xl: show 4 */}
-              <div className="hidden xl:grid grid-cols-4 gap-4 w-full justify-items-center">
-                {products.slice(0, 4).map((p) => (
-                  <ProductCard key={p.id} product={p} />
-                ))}
-              </div>
-            </>
-          )}
-        </div>
-      </div>
-
-      {/* Mobile “See More” Button */}
-      <div className="flex items-center justify-center md:hidden pt-[44px]">
-        <button className="bg-black text-xs sm:text-sm md:text-sm flex items-center justify-center gap-2 text-white px-3.5 py-2 rounded-xl hover:text-black hover:bg-gray-200 duration-300 transition whitespace-nowrap">
-          See More <FiChevronRight className="text-sm sm:text-base md:text-xl" />
-        </button>
-      </div>
+      )}
     </div>
   );
 };

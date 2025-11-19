@@ -105,7 +105,7 @@ const NewArrival = () => {
           </p>
         </div>
 
-        <button className="hidden md:flex bg-black text-white px-4 py-2 rounded-xl">
+        <button className="hidden md:flex bg-black text-white px-4 py-2 items-center rounded-xl">
           See More <FiChevronRight />
         </button>
       </div>
@@ -144,14 +144,14 @@ const NewArrival = () => {
           <div data-glide-el="controls">
             <button
               data-glide-dir="<"
-              className="absolute xl:-left-7 -left-4 top-1/2 -translate-y-1/2 z-20 bg-white shadow-md p-2 rounded-full"
+              className="absolute xl:-left-7 -left-4 top-1/2 -translate-y-1/2 z-20 bg-white shadow-md px-3 py-1 "
             >
               <FiChevronLeft className="text-2xl" />
             </button>
 
             <button
               data-glide-dir=">"
-              className="absolute -right-3 top-1/2 -translate-y-1/2 z-20 bg-white shadow-md p-2 rounded-full"
+              className="absolute -right-3 top-1/2 -translate-y-1/2 z-20 bg-white shadow-md p-2 px-3 py-1"
             >
               <FiChevronRight className="text-2xl" />
             </button>
