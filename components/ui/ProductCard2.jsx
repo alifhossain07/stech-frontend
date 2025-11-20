@@ -34,17 +34,17 @@ export default function ProductCard2({ product }) {
       </h1>
 
       {/* Feature Rows */}
-      <div>
-        <div className="flex rounded-md p-1.5 bg-[#F4F4F4] gap-1.5 mb-1 items-center">
-          <Image src="/images/watt.png" alt="Watt" width={16} height={16} />
-          <p className="text-[10px]">25 Watts of Power</p>
-        </div>
-
-        <div className="flex p-1.5 rounded-md bg-[#F4F4F4] gap-1.5 mb-2 items-center">
-          <Image src="/images/fastcharge.png" alt="Fast Charge" width={16} height={16} />
-          <p className="text-[10px]">Super Fast Charging</p>
-        </div>
-      </div>
+     <div>
+  {product.featured_specs?.slice(0, 2).map((spec, i) => (
+    <div
+      key={i}
+      className="flex rounded-md p-1.5 bg-[#F4F4F4] gap-1.5 mb-1 items-center"
+    >
+      <Image src={spec.icon} alt={spec.text} width={16} height={16} />
+      <p className="text-[10px]">{spec.text}</p>
+    </div>
+  ))}
+</div>
 
       {/* Pricing */}
       <div className="flex items-center gap-2 mt-4 md:gap-3 mb-2">

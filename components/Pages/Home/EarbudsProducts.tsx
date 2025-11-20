@@ -36,6 +36,10 @@ type ProductType = {
   rating: string;
   reviews: string;
   image: string;
+  featured_specs: {
+    text: string;
+    icon: string;
+  }[]; // ⭐ NEW
 };
 
 type EarbudsResponse = {

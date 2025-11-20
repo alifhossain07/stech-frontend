@@ -15,6 +15,10 @@ interface ApiProduct {
   main_price: string;
   rating: number;
   sales: number;
+  featured_specs: {
+    text: string;
+    icon: string;
+  }[];
 }
 
 // Response type for the category
@@ -50,16 +54,18 @@ export async function GET() {
 
     // Map into your frontend ProductType
     const products = apiProducts.map((p) => ({
-      id: p.id,
-      name: p.name,
-      price: Number(p.main_price.replace(/[৳,]/g, "")),
-      oldPrice: Number(p.stroked_price.replace(/[৳,]/g, "")),
-      discount: p.discount,
-      rating: p.rating?.toString() ?? "0",
-      reviews: p.sales?.toString() ?? "0",
-      image: p.thumbnail_image,
-      banner,
-    }));
+  id: p.id,
+  name: p.name,
+  price: Number(p.main_price.replace(/[৳,]/g, "")),
+  oldPrice: Number(p.stroked_price.replace(/[৳,]/g, "")),
+  discount: p.discount,
+  rating: p.rating?.toString() ?? "0",
+  reviews: p.sales?.toString() ?? "0",
+  image: p.thumbnail_image,
+  banner,
+  featured_specs: p.featured_specs || [], // ⭐ NEW
+}));
+
 
     return NextResponse.json({
       banner,

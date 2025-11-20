@@ -32,7 +32,7 @@ interface ApiCategory {
 export async function GET() {
   try {
     // Call Laravel API
-    const res = await fetch(`${API_BASE}/categories/home1`, {
+    const res = await fetch(`${API_BASE}/categories/home3`, {
       headers: {
         Accept: "application/json",
         "System-Key": SYSTEM_KEY,
@@ -46,14 +46,14 @@ export async function GET() {
       return NextResponse.json([]);
     }
 
-    const earbudsCategory: ApiCategory = json.data[1];
+    const earbudsCategory: ApiCategory = json.data[0];
 
     const banner = earbudsCategory.banner;
 
     const apiProducts: ApiProduct[] = earbudsCategory.products?.data || [];
 
     // Map into your frontend ProductType
-    const products = apiProducts.map((p) => ({
+   const products = apiProducts.map((p) => ({
   id: p.id,
   name: p.name,
   price: Number(p.main_price.replace(/[৳,]/g, "")),
