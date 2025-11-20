@@ -28,7 +28,7 @@ interface ApiCategory {
 export async function GET() {
   try {
     // Call Laravel API
-    const res = await fetch(`${API_BASE}/categories/home1`, {
+    const res = await fetch(`${API_BASE}/categories/home2`, {
       headers: {
         Accept: "application/json",
         "System-Key": SYSTEM_KEY,

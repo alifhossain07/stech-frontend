@@ -12,7 +12,7 @@ export default function ProductCard2({ product }) {
         </span>
 
         <Image
-          className="md:w-[80px] w-[50px] mt-4 mb-2 hover:scale-110 transition-transform duration-300"
+          className="md:w-[100px] w-[50px] mt-4 mb-2 hover:scale-110 transition-transform duration-300"
           src={product.image}
           alt={product.name}
           width={160}

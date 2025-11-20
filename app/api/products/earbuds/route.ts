@@ -1,22 +1,75 @@
 import { NextResponse } from "next/server";
-import path from "path";
-import { promises as fs } from "fs";
+
+const API_BASE = process.env.API_BASE!;
+const SYSTEM_KEY = process.env.SYSTEM_KEY!;
+
+// API product type
+interface ApiProduct {
+  id: number;
+  slug: string;
+  name: string;
+  thumbnail_image: string;
+  has_discount: boolean;
+  discount: string;
+  stroked_price: string;
+  main_price: string;
+  rating: number;
+  sales: number;
+}
+
+// Response type for the category
+interface ApiCategory {
+  banner: string;
+  products: {
+    data: ApiProduct[];
+  };
+}
 
 export async function GET() {
   try {
-    // Locate the JSON file inside the root-level "database" folder
-    const filePath = path.join(process.cwd(), "database", "earbuds.json");
+    // Call Laravel API
+    const res = await fetch(`${API_BASE}/categories/home1`, {
+      headers: {
+        Accept: "application/json",
+        "System-Key": SYSTEM_KEY,
+      },
+      cache: "no-cache",
+    });
 
-    // Read file content
-    const data = await fs.readFile(filePath, "utf-8");
+    const json = await res.json();
 
-    // Parse JSON
-    const products = JSON.parse(data);
+    if (!json.data || json.data.length === 0) {
+      return NextResponse.json([]);
+    }
 
-    // Respond with JSON
-    return NextResponse.json(products);
+    const earbudsCategory: ApiCategory = json.data[0];
+
+    const banner = earbudsCategory.banner;
+
+    const apiProducts: ApiProduct[] = earbudsCategory.products?.data || [];
+
+    // Map into your frontend ProductType
+    const products = apiProducts.map((p) => ({
+      id: p.id,
+      name: p.name,
+      price: Number(p.main_price.replace(/[৳,]/g, "")),
+      oldPrice: Number(p.stroked_price.replace(/[৳,]/g, "")),
+      discount: p.discount,
+      rating: p.rating?.toString() ?? "0",
+      reviews: p.sales?.toString() ?? "0",
+      image: p.thumbnail_image,
+      banner,
+    }));
+
+    return NextResponse.json({
+      banner,
+      products,
+    });
   } catch (error) {
-    console.error("❌ Error reading products file:", error);
-    return NextResponse.json({ error: "Failed to load products" }, { status: 500 });
+    console.error("Earbuds API error:", error);
+    return NextResponse.json(
+      { error: "Failed to load earbuds" },
+      { status: 500 }
+    );
   }
 }

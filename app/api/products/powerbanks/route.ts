@@ -28,7 +28,7 @@ interface ApiCategory {
 export async function GET() {
   try {
     // Call Laravel API
-    const res = await fetch(`${API_BASE}/categories/home1`, {
+    const res = await fetch(`${API_BASE}/categories/home2`, {
       headers: {
         Accept: "application/json",
         "System-Key": SYSTEM_KEY,
@@ -42,7 +42,7 @@ export async function GET() {
       return NextResponse.json([]);
     }
 
-    const earbudsCategory: ApiCategory = json.data[1];
+    const earbudsCategory: ApiCategory = json.data[0];
 
     const banner = earbudsCategory.banner;
 
