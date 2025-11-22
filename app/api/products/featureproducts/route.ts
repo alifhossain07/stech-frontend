@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 const API_BASE = process.env.API_BASE!;
 const SYSTEM_KEY = process.env.SYSTEM_KEY!;
 
-// API product type from backend
+// Backend product type
 interface ApiProduct {
   id: number;
   slug: string;
@@ -15,16 +15,16 @@ interface ApiProduct {
   main_price: string;
   rating: number;
   sales: number;
+  featured_specs: { text: string; icon: string }[];
 }
 
-// Response type from backend
+// Backend response type
 interface ApiResponse {
   data: ApiProduct[];
 }
 
 export async function GET() {
   try {
-    // Call backend featured products API
     const res = await fetch(`${API_BASE}/products/featured`, {
       headers: {
         Accept: "application/json",
@@ -34,20 +34,19 @@ export async function GET() {
     });
 
     const json: ApiResponse = await res.json();
+    const apiProducts = json.data || [];
 
-    const apiProducts: ApiProduct[] = json.data || [];
-
-    // Map into your frontend Product interface
     const products = apiProducts.map((p) => ({
       id: p.id,
-      name: p.name,
-      price: Number(p.main_price.replace(/[৳,]/g, "")),
-      oldPrice: Number(p.stroked_price.replace(/[৳,]/g, "")),
-      discount: p.discount || "-0%",
-      rating: p.rating?.toString() ?? "0",
-      reviews: p.sales?.toString() ?? "0",
-      image: p.thumbnail_image,
       slug: p.slug,
+      name: p.name,
+      price: Number(p.main_price.replace(/[^\d.]/g, "")),
+      oldPrice: Number(p.stroked_price.replace(/[^\d.]/g, "")),
+      discount: p.discount || "-0%",
+      rating: p.rating,
+      reviews: p.sales,
+      image: p.thumbnail_image,
+      featured_specs: p.featured_specs || [],
     }));
 
     return NextResponse.json(products);

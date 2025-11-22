@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import axios from "axios";
 import { FiChevronRight } from "react-icons/fi";
-import ProductCard2 from "@/components/ui/ProductCard2";
+import ProductCard from "@/components/ui/ProductCard";
 
 
 // ⭐ Skeleton Components Added
@@ -136,21 +136,21 @@ const NeckBandProducts = () => {
               {/* Default + md */}
               <div className="grid grid-cols-2 md:grid-cols-3 xl:hidden 2xl:hidden md:gap-4 gap-3 w-full justify-items-center">
                 {products.slice(0, 10).map((p) => (
-                  <ProductCard2 key={p.id} product={p} />
+                  <ProductCard key={p.id} product={p} />
                 ))}
               </div>
 
               {/* xl */}
               <div className="hidden xl:grid 2xl:hidden grid-cols-4 gap-4 w-full justify-items-center">
                 {products.slice(0, 8).map((p) => (
-                  <ProductCard2 key={p.id} product={p} />
+                  <ProductCard key={p.id} product={p} />
                 ))}
               </div>
 
               {/* 2xl */}
               <div className="hidden 2xl:grid grid-cols-5 gap-4 w-full justify-items-center">
                 {products.slice(0, 10).map((p) => (
-                  <ProductCard2 key={p.id} product={p} />
+                  <ProductCard key={p.id} product={p} />
                 ))}
               </div>
             </>

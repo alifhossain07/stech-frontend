@@ -3,6 +3,18 @@ import { FaCartPlus } from "react-icons/fa";
 import { LuShoppingBag } from "react-icons/lu";
 
 export default function ProductCard2({ product }) {
+
+  const fallbackSpecs = [
+  {
+    icon: "/images/watt.png", // your fallback image
+    text: "25 Watts of Power ",
+  },
+  {
+    icon: "/images/fastcharge.png",
+    text: "Super Fast Charging",
+  },
+];
+
   return (
     <div className="relative w-full max-w-[300px] h-full flex flex-col justify-between rounded-lg shadow-md border border-gray-200 ">
       {/* Image Wrapper */}
@@ -34,16 +46,19 @@ export default function ProductCard2({ product }) {
       </h1>
 
       {/* Feature Rows */}
-     <div>
-  {product.featured_specs?.slice(0, 2).map((spec, i) => (
-    <div
-      key={i}
-      className="flex rounded-md p-1.5 bg-[#F4F4F4] gap-1.5 mb-1 items-center"
-    >
-      <Image src={spec.icon} alt={spec.text} width={16} height={16} />
-      <p className="text-[10px]">{spec.text}</p>
-    </div>
-  ))}
+     {/* Feature Specs with fallback */}
+<div>
+  {(product.featured_specs?.length ? product.featured_specs : fallbackSpecs)
+    .slice(0, 2)
+    .map((spec, i) => (
+      <div
+        key={i}
+        className="flex rounded-md p-1.5 bg-[#F4F4F4] gap-1.5 mb-1 items-center"
+      >
+        <Image src={spec.icon} alt={spec.text} width={16} height={16} />
+        <p className="text-[10px]">{spec.text}</p>
+      </div>
+    ))}
 </div>
 
       {/* Pricing */}

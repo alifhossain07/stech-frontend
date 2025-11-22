@@ -17,6 +17,7 @@ interface Product {
   reviews: number;
   image: string;
   slug: string;
+
 }
 
 // ⭐ Product Skeleton

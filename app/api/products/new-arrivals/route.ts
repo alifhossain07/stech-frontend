@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import axios from "axios";
 
+// ⭐ Updated LaravelProduct type to include featured_specs
 type LaravelProduct = {
   id: number;
   slug: string;
@@ -12,6 +13,10 @@ type LaravelProduct = {
   rating: number;
   sales: number;
   thumbnail_image: string;
+  featured_specs: {
+    text: string;
+    icon: string;
+  }[];
 };
 
 export async function GET() {
@@ -39,10 +44,14 @@ export async function GET() {
       reviews: p.sales,
 
       image: p.thumbnail_image,
+
+      // ⭐ Include featured_specs
+      featured_specs: p.featured_specs || [],
     }));
 
     return NextResponse.json(formatted);
   } catch (e) {
+    console.error("New arrivals API error:", e);
     return NextResponse.json(
       { error: "Unable to load new arrival products" },
       { status: 500 }
