@@ -1,12 +1,17 @@
+"use client"
+
+import { useCart } from "@/app/context/CartContext";
 import Image from "next/image";
 import { FaCartPlus } from "react-icons/fa";
 import { LuShoppingBag } from "react-icons/lu";
+
 type Spec = {
   icon: string;
   text: string;
 };
 
 type Product = {
+  slug: string;  
   image: string;
   name: string;
   price: number;
@@ -16,18 +21,31 @@ type Product = {
   reviews: number | string;
   featured_specs?: Spec[];
 };
+
 export default function ProductCard({ product }: { product: Product }) {
+  const { addToCart, setCartOpen } = useCart();
+
+  const handleAdd = () => {
+    // Generate a unique ID for this cart item
+    const uniqueId = Math.random().toString(36).substr(2, 9);
+
+    addToCart({
+      id: uniqueId,          // Unique identifier for this entry
+      slug: product.slug,
+      name: product.name,
+      price: product.price,
+      oldPrice: product.oldPrice,
+      img: product.image,
+      qty: 1,
+    });
+
+    setCartOpen(true);
+  };
 
   const fallbackSpecs = [
-  {
-    icon: "/images/watt.png", // your fallback image
-    text: "25 Watts of Power ",
-  },
-  {
-    icon: "/images/fastcharge.png",
-    text: "Super Fast Charging",
-  },
-];
+    { icon: "/images/watt.png", text: "25 Watts of Power " },
+    { icon: "/images/fastcharge.png", text: "Super Fast Charging" },
+  ];
 
   return (
     <div className="relative w-full max-w-[300px] h-full flex flex-col justify-between rounded-lg shadow-md border border-gray-200 ">
@@ -53,70 +71,61 @@ export default function ProductCard({ product }: { product: Product }) {
       </div>
 
       <div className="p-3">
+        {/* Product Name */}
+        <h1 className="md:text-base text-sm mb-3 font-semibold  line-clamp-2 min-h-[38px]">
+          {product.name}
+        </h1>
 
-      {/* Product Name */}
-      <h1 className="md:text-base text-sm mb-3 font-semibold  line-clamp-2 min-h-[38px]">
-        {product.name}
-      </h1>
+        {/* Feature Rows */}
+        <div>
+          {(product.featured_specs?.length ? product.featured_specs : fallbackSpecs)
+            .slice(0, 2)
+            .map((spec, i) => (
+              <div
+                key={i}
+                className="flex rounded-md p-1.5 bg-[#F4F4F4] gap-1.5 mb-1 items-center"
+              >
+                <Image src={spec.icon} alt={spec.text} width={16} height={16} />
+                <p className="text-[10px]">{spec.text}</p>
+              </div>
+            ))}
+        </div>
 
-      {/* Feature Rows */}
-     {/* Feature Specs with fallback */}
-<div>
-  {(product.featured_specs?.length ? product.featured_specs : fallbackSpecs)
-    .slice(0, 2)
-    .map((spec, i) => (
-      <div
-        key={i}
-        className="flex rounded-md p-1.5 bg-[#F4F4F4] gap-1.5 mb-1 items-center"
-      >
-        <Image src={spec.icon} alt={spec.text} width={16} height={16} />
-        <p className="text-[10px]">{spec.text}</p>
+        {/* Pricing */}
+        <div className="flex items-center gap-2 mt-4 md:gap-3 mb-2">
+          <h1 className="font-semibold text-sm md:text-lg">৳{product.price}</h1>
+          <p className="line-through text-sm md:text-lg text-[#939393]">
+            ৳{product.oldPrice}
+          </p>
+          <p className="text-green-600 bg-green-200 md:px-2 py-1 px-1 md:rounded-full rounded-2xl  text-[8px] md:[10px]">
+            {product.discount}
+          </p>
+        </div>
+
+        {/* Buttons */}
+        <div className="flex gap-2 mt-4">
+          {/* Buy Now Button */}
+          <button className="flex items-center justify-center w-1/2 rounded-md text-white md:text-sm text-xs bg-[#FF6B01] md:py-2 hover:opacity-90 transition hover:bg-white hover:text-orange-500 hover:border hover:border-orange-500">
+            <span className="block xl:hidden text-xs">
+              <LuShoppingBag />
+            </span>
+            <span className="hidden xl:text-sm text-base md:text-base 2xl:text-sm md:hidden xl:flex md:gap-2 items-center">
+              <LuShoppingBag /> Buy Now
+            </span>
+          </button>
+
+          {/* Add to Cart Button */}
+          <button
+            onClick={handleAdd}
+            className="flex items-center justify-center w-1/2 xl:text-[13px] md:text-sm text-xs rounded-md py-2 text-black border hover:bg-black hover:text-white border-black duration-300"
+          >
+            <span className="block xl:hidden text-xs">
+              <FaCartPlus />
+            </span>
+            <span className="md:hidden xl:inline hidden">+ Add to Cart</span>
+          </button>
+        </div>
       </div>
-    ))}
-</div>
-
-      {/* Pricing */}
-      <div className="flex items-center gap-2 mt-4 md:gap-3 mb-2">
-        <h1 className="font-semibold text-sm md:text-lg">৳{product.price}</h1>
-        <p className="line-through text-sm md:text-lg text-[#939393]">
-          ৳{product.oldPrice}
-        </p>
-        <p className="text-green-600 bg-green-200 md:px-2 py-1 px-1 md:rounded-full rounded-2xl  text-[8px] md:[10px]">
-          {product.discount}
-        </p>
-      </div>
-
-      {/* Buttons */}
-     <div className="flex gap-2  mt-4  ">
-             {/* Buy Now Button */}
-             <button className="flex items-center justify-center w-1/2 rounded-md text-white md:text-sm text-xs bg-[#FF6B01] md:py-2 hover:opacity-90 transition hover:bg-white hover:text-orange-500 hover:border hover:border-orange-500">
-               {/* Mobile: Icon only */}
-               <span className="block xl:hidden text-xs">
-                 <LuShoppingBag />
-               </span>
-     
-               {/* Tablet/Desktop: Icon + Text */}
-               <span className="hidden xl:text-sm text-base md:text-base 2xl:text-sm md:hidden xl:flex md:gap-2 items-center">
-                 <LuShoppingBag />
-                 Buy Now
-               </span>
-             </button>
-     
-             {/* Add to Cart Button */}
-             <button className="flex items-center justify-center w-1/2 xl:text-[13px] md:text-sm text-xs rounded-md py-2 text-black border hover:bg-black hover:text-white border-black duration-300">
-               {/* Mobile: Icon only */}
-               <span className="block xl:hidden  text-xs">
-                 <FaCartPlus />
-               </span>
-     
-               {/* Tablet/Desktop: Text only */}
-               <span className="md:hidden xl:inline hidden  ">+ Add to Cart</span>
-             </button>
-           </div>
-
-      </div>
-
-      
     </div>
   );
 }

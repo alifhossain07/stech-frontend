@@ -1,9 +1,8 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import Glide from "@glidejs/glide";
+import React, { useEffect, useState, useRef } from "react";
 import Image from "next/image";
-
+import { HiArrowSmLeft,HiArrowSmRight } from "react-icons/hi";
 type Slider = {
   id: number;
   photo: string;
@@ -21,6 +20,10 @@ const HeroSlider = () => {
   const [sliders, setSliders] = useState<Slider[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const [current, setCurrent] = useState(0);
+  const slideInterval = useRef<NodeJS.Timeout | null>(null);
+
+  // Fetch data
   useEffect(() => {
     const loadHomeData = async () => {
       try {
@@ -29,7 +32,6 @@ const HeroSlider = () => {
 
         setRightBanners(data.rightBanners || []);
         setSliders(data.sliders || []);
-
       } catch (e) {
         console.error("Home API load error", e);
       } finally {
@@ -40,34 +42,31 @@ const HeroSlider = () => {
     loadHomeData();
   }, []);
 
-  // Slider mount
+  // Autoplay slider
   useEffect(() => {
     if (sliders.length === 0) return;
 
-    const slider = new Glide(".glide-01", {
-      type: "slider",
-      focusAt: "center",
-      perView: 1,
-      autoplay: 3000,
-      animationDuration: 700,
-      gap: 0,
-    });
+    slideInterval.current = setInterval(() => {
+      setCurrent((prev) => (prev + 1) % sliders.length);
+    }, 3500);
 
-    const timeout = setTimeout(() => {
-      slider.mount();
-      setIsLoaded(true);
-    }, 100);
+    setIsLoaded(true);
 
     return () => {
-      clearTimeout(timeout);
-      slider.destroy();
+      if (slideInterval.current) clearInterval(slideInterval.current);
     };
   }, [sliders]);
+
+  // Manual slide
+  const goTo = (index: number) => setCurrent(index);
+  const prevSlide = () =>
+    setCurrent((prev) => (prev === 0 ? sliders.length - 1 : prev - 1));
+  const nextSlide = () =>
+    setCurrent((prev) => (prev === sliders.length - 1 ? 0 : prev + 1));
 
   return (
     <div className="w-11/12 md:w-11/12 mx-auto md:pt-10 pt-5 pb-[56px]">
 
-      {/* PARENT CONTAINER */}
       <div
         className="
           flex flex-col lg:flex-row 
@@ -77,89 +76,79 @@ const HeroSlider = () => {
         "
       >
 
-        {/* =============================== */}
-{/*   LEFT SECTION WITH SKELETON   */}
-{/* =============================== */}
-<div className="w-full lg:w-2/3 h-full relative">
+        {/* LEFT SLIDER */}
+        <div className="w-full lg:w-2/3 h-full relative">
+          {loading ? (
+            <div className="w-full h-full bg-gray-200 animate-pulse rounded-md" />
+          ) : (
+            <div
+              className={`relative w-full h-full transition-opacity duration-500 ${
+                isLoaded ? "opacity-100" : "opacity-0"
+              }`}
+            >
+              {/* SLIDER WRAPPER */}
+              <div className="overflow-hidden w-full h-full relative">
+                <div
+                  className="flex w-full h-full transition-transform duration-700"
+                  style={{
+                    transform: `translateX(-${current * 100}%)`,
+                  }}
+                >
+                  {sliders.map((slide, idx) => (
+                    <div className="w-full h-full flex-shrink-0 relative" key={idx}>
+                      <Image
+                        src={slide.photo}
+                        alt={`slider-${idx}`}
+                        fill
+                        priority={idx === 0}
+                        className="object-cover"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
 
-  {loading ? (
-    <div className="w-full h-full bg-gray-200 animate-pulse rounded-md" />
-  ) : (
-    <div
-      className={`relative w-full h-full glide-01 transition-opacity duration-500 ${
-        isLoaded ? "opacity-100" : "opacity-0"
-      }`}
-    >
+              {/* ARROWS */}
+              <div className="absolute inset-0 flex items-center justify-between px-4 z-20">
+                <button
+                  onClick={prevSlide}
+                  className="text-white bg-black/40 hover:bg-orange-400 px-3 py-3 rounded-full"
+                >
+                 <HiArrowSmLeft />
+                </button>
 
-      {/* SLIDES */}
-      <div className="overflow-hidden h-full" data-glide-el="track">
-  <ul className="glide__slides w-full h-full m-0 p-0">
-    {sliders.map((slide, idx) => (
-      <li
-        key={idx}
-        className="glide__slide w-full h-full relative"
-      >
-        <Image
-          src={slide.photo}
-          alt={`slider-${idx}`}
-          fill
-          priority={idx === 0}
-          className="object-cover"
-        />
-      </li>
-    ))}
-  </ul>
-</div>
+                <button
+                  onClick={nextSlide}
+                  className="text-white bg-black/40 hover:bg-orange-400 px-3 py-3 rounded-full"
+                >
+                  <HiArrowSmRight />
+                </button>
+              </div>
 
-      {/* ========================= */}
-      {/*     ARROWS CONTROLLER     */}
-      {/* ========================= */}
-      <div
-        className="absolute inset-0 flex items-center justify-between px-4 z-20"
-        data-glide-el="controls"
-      >
-        <button
-          className="text-white bg-black/40 hover:bg-black/60 px-3 py-2 rounded-full"
-          data-glide-dir="<"
-        >
-          ‹
-        </button>
+              {/* DOTS */}
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-20">
+                {sliders.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => goTo(i)}
+                    className={`w-3 h-3 rounded-full transition
+                      ${
+                        i === current
+                          ? "bg-white"
+                          : "bg-white/40 hover:bg-white/70"
+                      }
+                    `}
+                  ></button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
 
-        <button
-          className="text-white bg-black/40 hover:bg-black/60 px-3 py-2 rounded-full"
-          data-glide-dir=">"
-        >
-          ›
-        </button>
-      </div>
-
-      {/* ========================= */}
-      {/*       BULLET DOTS         */}
-      {/* ========================= */}
-      <div
-        className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2 z-20"
-        data-glide-el="controls[nav]"
-      >
-        {sliders.map((_, i) => (
-          <button
-            key={i}
-            className="w-3 h-3 rounded-full bg-white/40 hover:bg-white/70 transition"
-            data-glide-dir={`=${i}`}
-          />
-        ))}
-      </div>
-    </div>
-  )}
-</div>
-
-        {/* =============================== */}
-        {/*   RIGHT TWO BANNERS + SKELETON */}
-        {/* =============================== */}
+        {/* RIGHT BANNERS */}
         <div className="flex flex-row lg:flex-col gap-4 w-full lg:w-1/3 h-full">
-
           {loading
-            ? // RIGHT SKELETONS
-              [1, 2].map((i) => (
+            ? [1, 2].map((i) => (
                 <div
                   key={i}
                   className="w-1/2 lg:w-full h-[200px] md:h-[200px] xl:h-[300px] 2xl:h-[350px] lg:h-1/2 bg-gray-200 animate-pulse rounded-md"

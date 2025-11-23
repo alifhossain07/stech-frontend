@@ -5,6 +5,7 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 
 import ClientLayoutWrapper from "@/components/layout/ClientLayoutWrapper";
+import { CartProvider } from "./context/CartContext";
 
 
 const poppins = Poppins({
@@ -27,11 +28,13 @@ export default function RootLayout({
     <html lang="en" data-theme="light" suppressHydrationWarning>
       {/* Add the font variable to <html> */}
       <body className={`${poppins.variable} antialiased`}>
+        <CartProvider>
      <Navbar />
      <ClientLayoutWrapper>
         {children}
         </ClientLayoutWrapper>
         <Footer/>
+        </CartProvider>
       </body>
     </html>
   );

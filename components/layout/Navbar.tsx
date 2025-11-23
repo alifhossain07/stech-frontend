@@ -16,6 +16,7 @@ import {
 } from "react-icons/fi";
 import { IoSearch,IoCartOutline } from "react-icons/io5";
 import CartSidebar from "./CartSidebar";
+import { useCart } from "@/app/context/CartContext";
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [open, setOpen] = useState(false);
@@ -24,6 +25,7 @@ const Navbar = () => {
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   const [expandedSubcategory, setExpandedSubcategory] = useState<string | null>(null);
   const [closing, setClosing] = useState(false);
+   const { cart } = useCart();
   
 const [showMobileSearch, setShowMobileSearch] = useState(false);
 const [cartOpen, setCartOpen] = useState(false);
@@ -226,7 +228,7 @@ const searchRef = useRef<HTMLDivElement>(null);
                 <FiShoppingCart className="text-2xl" />
                 <div>
                   <h1 className="text-base">Cart</h1>
-                  <p className="text-xs">01 Items</p>
+                  <span className="text-xs mt-2">*{cart.length.toString().padStart(2, "0")} Items</span>
                 </div>
               </button>
             </Link>

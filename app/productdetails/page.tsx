@@ -23,7 +23,6 @@ import FAQ from "./FAQ";
 import Reviews from "./Reviews";
 
 const Page = () => {
-
   const [activeTab, setActiveTab] = useState("spec");
   const specRef = useRef<HTMLDivElement | null>(null);
   const detailsRef = useRef<HTMLDivElement | null>(null);
@@ -96,7 +95,6 @@ const Page = () => {
     "/images/pdetails2.png",
   ];
 
-  
   return (
     <div className="md:mt-10 mt-5 w-11/12 mx-auto">
       {/* Product Details Container */}
@@ -237,88 +235,87 @@ const Page = () => {
 
             {/* -------- Right: Compare & Wishlist -------- */}
             {/* -------- Right: Compare & Wishlist -------- */}
-<div className="flex items-center gap-4 text-gray-500">
+            <div className="flex items-center gap-4 text-gray-500">
+              {/* --- Mobile Icons Only --- */}
+              <div className="flex md:hidden items-center gap-3">
+                {/* Compare Icon Button */}
+                <button className="p-2 rounded-full bg-gray-100 hover:bg-gray-200">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                    className="w-5 h-5"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M8 16h8M8 12h8m-8-4h8m-6 8v4m4-4v4"
+                    />
+                  </svg>
+                </button>
 
-  {/* --- Mobile Icons Only --- */}
-  <div className="flex md:hidden items-center gap-3">
-    {/* Compare Icon Button */}
-    <button className="p-2 rounded-full bg-gray-100 hover:bg-gray-200">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        strokeWidth={1.5}
-        stroke="currentColor"
-        className="w-5 h-5"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M8 16h8M8 12h8m-8-4h8m-6 8v4m4-4v4"
-        />
-      </svg>
-    </button>
+                {/* Wishlist Icon Button */}
+                <button className="p-2 rounded-full bg-gray-100 hover:bg-gray-200">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                    className="w-5 h-5"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M21 8.25c0-2.485-2.015-4.5-4.5-4.5a4.5 4.5 0 00-3.75 2.028A4.5 4.5 0 009 3.75C6.515 3.75 4.5 5.765 4.5 8.25c0 7.125 7.5 11.25 7.5 11.25s7.5-4.125 7.5-11.25z"
+                    />
+                  </svg>
+                </button>
+              </div>
 
-    {/* Wishlist Icon Button */}
-    <button className="p-2 rounded-full bg-gray-100 hover:bg-gray-200">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        strokeWidth={1.5}
-        stroke="currentColor"
-        className="w-5 h-5"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M21 8.25c0-2.485-2.015-4.5-4.5-4.5a4.5 4.5 0 00-3.75 2.028A4.5 4.5 0 009 3.75C6.515 3.75 4.5 5.765 4.5 8.25c0 7.125 7.5 11.25 7.5 11.25s7.5-4.125 7.5-11.25z"
-        />
-      </svg>
-    </button>
-  </div>
+              {/* --- Desktop Buttons (md and up) --- */}
+              <div className="hidden md:flex items-center gap-4 text-[16px]">
+                <button className="flex items-center gap-1 hover:text-gray-700 transition">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                    className="w-4 h-4"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M8 16h8M8 12h8m-8-4h8m-6 8v4m4-4v4"
+                    />
+                  </svg>
+                  Add to Compare
+                </button>
 
-  {/* --- Desktop Buttons (md and up) --- */}
-  <div className="hidden md:flex items-center gap-4 text-[16px]">
-    <button className="flex items-center gap-1 hover:text-gray-700 transition">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        strokeWidth={1.5}
-        stroke="currentColor"
-        className="w-4 h-4"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M8 16h8M8 12h8m-8-4h8m-6 8v4m4-4v4"
-        />
-      </svg>
-      Add to Compare
-    </button>
-
-    <button className="flex items-center gap-1 hover:text-gray-700 transition">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        strokeWidth={1.5}
-        stroke="currentColor"
-        className="w-4 h-4"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M21 8.25c0-2.485-2.015-4.5-4.5-4.5a4.5 4.5 0 00-3.75 2.028A4.5 4.5 0 009 3.75C6.515 3.75 4.5 5.765 4.5 8.25c0 7.125 7.5 11.25 7.5 11.25s7.5-4.125 7.5-11.25z"
-        />
-      </svg>
-      Add wishlist
-    </button>
-  </div>
-</div>
+                <button className="flex items-center gap-1 hover:text-gray-700 transition">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                    className="w-4 h-4"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M21 8.25c0-2.485-2.015-4.5-4.5-4.5a4.5 4.5 0 00-3.75 2.028A4.5 4.5 0 009 3.75C6.515 3.75 4.5 5.765 4.5 8.25c0 7.125 7.5 11.25 7.5 11.25s7.5-4.125 7.5-11.25z"
+                    />
+                  </svg>
+                  Add wishlist
+                </button>
+              </div>
+            </div>
           </div>
-          
+
           {/* Quick Overview */}
           <div>
             <p className="tracking-wide 2xl:text-[14px] xl:text-[12px] font-medium mb-2">
@@ -348,7 +345,9 @@ const Page = () => {
                   height={20}
                   className="object-contain"
                 />
-                <span className="md:text-[16px] text-[12px] text-black">22.5W</span>
+                <span className="md:text-[16px] text-[12px] text-black">
+                  22.5W
+                </span>
               </div>
 
               {/* Item 3 */}
@@ -360,7 +359,9 @@ const Page = () => {
                   height={20}
                   className="object-contain"
                 />
-                <span className="md:text-[16px] text-[12px] text-black">Compact Build</span>
+                <span className="md:text-[16px] text-[12px] text-black">
+                  Compact Build
+                </span>
               </div>
 
               {/* Item 4 */}
@@ -372,7 +373,9 @@ const Page = () => {
                   height={20}
                   className="object-contain"
                 />
-                <span className="xl:text-[16px] md:text-[16px] text-[12px] text-black">Smart Chip</span>
+                <span className="xl:text-[16px] md:text-[16px] text-[12px] text-black">
+                  Smart Chip
+                </span>
               </div>
 
               {/* Item 5 */}
@@ -394,25 +397,25 @@ const Page = () => {
           {/* Product Compatible */}
 
           <div className="bg-[#f4f4f4] rounded-xl p-4 mt-2">
-  <h1 className="tracking-wide text-[14px] font-medium mb-2">
-    Product Compatible
-  </h1>
+            <h1 className="tracking-wide text-[14px] font-medium mb-2">
+              Product Compatible
+            </h1>
 
-  <div className="flex flex-wrap gap-2 md:gap-4">
-    {["Samsung", "Vivo", "Oppo", "Redmi", "Apple"].map((brand) => (
-      <button
-        key={brand}
-        className="
+            <div className="flex flex-wrap gap-2 md:gap-4">
+              {["Samsung", "Vivo", "Oppo", "Redmi", "Apple"].map((brand) => (
+                <button
+                  key={brand}
+                  className="
           bg-black text-white rounded-full 
           px-3 py-[4px] text-[12px]       /* mobile */
           md:px-4 md:py-1 md:text-[16px]  /* md and up */
         "
-      >
-        {brand}
-      </button>
-    ))}
-  </div>
-</div>
+                >
+                  {brand}
+                </button>
+              ))}
+            </div>
+          </div>
 
           <div className="bg-gray-50 px-4 py-3 rounded-lg flex flex-wrap items-center justify-between gap-4 mt-3">
             {/* Variants */}
@@ -497,9 +500,9 @@ const Page = () => {
 
             {/* Action Buttons */}
             <div className="flex items-center gap-3 md:gap-4">
-  {/* Buy Now */}
-  <button
-    className="
+              {/* Buy Now */}
+              <button
+                className="
       flex items-center justify-center w-1/2
       bg-orange-500 hover:bg-orange-600 text-white font-medium
       gap-2 rounded-full transition-all
@@ -507,14 +510,14 @@ const Page = () => {
       px-4 py-2 text-[13px]        /* mobile */
       md:px-10 md:py-4 md:text-[15px] /* md+ */
     "
-  >
-    <FiShoppingBag className="text-sm md:text-lg" />
-    Buy Now
-  </button>
+              >
+                <FiShoppingBag className="text-sm md:text-lg" />
+                Buy Now
+              </button>
 
-  {/* Add to Cart */}
-  <button
-    className="
+              {/* Add to Cart */}
+              <button
+                className="
       flex items-center justify-center w-1/2
       border border-gray-400 hover:border-gray-600 text-gray-800 font-medium
       gap-2 rounded-full transition-all
@@ -522,12 +525,11 @@ const Page = () => {
       px-4 py-2 text-[13px]        /* mobile */
       md:px-10 md:py-4 md:text-[15px] /* md+ */
     "
-  >
-    <FiPlus className="text-sm md:text-lg" />
-    Add to Cart
-  </button>
-</div>
-
+              >
+                <FiPlus className="text-sm md:text-lg" />
+                Add to Cart
+              </button>
+            </div>
 
             <div className="mt-8 space-y-6">
               {/* --- Share + WhatsApp Row --- */}
@@ -704,13 +706,15 @@ const Page = () => {
               className="w-full scroll-mt-36 font-medium  border-t border-gray-200 pt-4"
             >
               {/* Title */}
-              <h2 className=" md:text-2xl text-xl font-semibold mb-4">- Product Details</h2>
+              <h2 className=" md:text-2xl text-xl font-semibold mb-4">
+                - Product Details
+              </h2>
 
               {/* Main content */}
               <div className="flex flex-col md:flex-row md:items-start gap-6">
                 {/* Left text block */}
                 <div className="md:w-[60%]">
-                  <p className= "text-sm md:text-[15px] mb-2 leading-relaxed">
+                  <p className="text-sm md:text-[15px] mb-2 leading-relaxed">
                     <strong>Technical Specifications:</strong> Mi 20W Charger
                     (Type–C) EU
                   </p>
