@@ -98,7 +98,7 @@ const NewArrival = () => {
       {/* HEADER */}
       <div className="flex flex-col sm:flex-row justify-between items-center mb-7">
         <div>
-          <h1 className="xl:text-4xl text-2xl text-center xl:text-left font-semibold">
+          <h1 className="xl:text-4xl text-2xl text-center md:text-left font-semibold">
             New Arrival Products
           </h1>
           <p className="text-gray-600 text-center xl:text-left text-sm xl:text-lg">
@@ -129,7 +129,7 @@ const NewArrival = () => {
         <div className="glide-new-arrival relative">
 
           {/* ⭐ GLIDE TRACK — FIXED */}
-          <div data-glide-el="track" className="overflow-hidden ml-6 ">
+          <div data-glide-el="track" className="overflow-hidden ml-3 md:ml-6 ">
             <ul className="glide__slides">
               {products.map((p) => (
                 <li key={p.id} className="glide__slide  ">
@@ -145,16 +145,16 @@ const NewArrival = () => {
           <div data-glide-el="controls">
             <button
               data-glide-dir="<"
-              className="absolute xl:-left-5 -left-4 top-1/2 -translate-y-1/2 z-20 bg-white shadow-md px-3 py-1 "
+              className="absolute xl:-left-5 -left-4 top-1/2 -translate-y-1/2 z-20 bg-white shadow-md xl:px-3 xl:py-1 px-2 py-1 "
             >
-              <FiChevronLeft className="text-2xl" />
+              <FiChevronLeft className="md:text-2xl text-lg" />
             </button>
 
             <button
               data-glide-dir=">"
-              className="absolute -right-3 top-1/2 -translate-y-1/2 z-20 bg-white shadow-md p-2 px-3 py-1"
+              className="absolute -right-3 top-1/2 -translate-y-1/2 z-20 bg-white shadow-md  xl:px-3 xl:py-1 px-2 py-1"
             >
-              <FiChevronRight className="text-2xl" />
+              <FiChevronRight className="md:text-2xl text-lg" />
             </button>
           </div>
         </div>

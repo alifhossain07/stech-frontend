@@ -86,7 +86,7 @@ export default function CartSidebar({ externalOpen, setExternalOpen }: CartSideb
           </button>
         </div>
 
-        <div className="bg-[#f4f4f4] mt-20 flex items-center justify-between px-4 py-2">
+        <div className="bg-[#f4f4f4] mt-16 flex items-center justify-between px-4 py-2">
           <h1> Shipping Cart </h1>
           <p>
             <span className="text-xs mt-2">*{typedCart.length.toString().padStart(2, "0")} Items</span>
