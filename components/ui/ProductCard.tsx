@@ -27,10 +27,10 @@ export default function ProductCard({ product }: { product: Product }) {
 
   const handleAdd = () => {
     // Generate a unique ID for this cart item
-    const uniqueId = Math.random().toString(36).substr(2, 9);
+    // const uniqueId = Math.random().toString(36).substr(2, 9);
 
     addToCart({
-      id: uniqueId,          // Unique identifier for this entry
+      // id: uniqueId,          // Unique identifier for this entry
       slug: product.slug,
       name: product.name,
       price: product.price,

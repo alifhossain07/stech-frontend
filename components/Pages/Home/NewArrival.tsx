@@ -47,7 +47,7 @@ const ProductSkeleton = () => (
         <div className="h-4 w-10 bg-gray-300 rounded"></div>
       </div>
 
-      <div className="flex gap-2 mt-3">
+      <div className="flex  gap-2 mt-3">
         <div className="w-1/2 h-10 bg-gray-300 rounded-md"></div>
         <div className="w-1/2 h-10 bg-gray-300 rounded-md"></div>
       </div>
@@ -76,19 +76,19 @@ const NewArrival = () => {
   useEffect(() => {
     if (!loading && products.length > 0) {
       new Glide(".glide-new-arrival", {
-        type: "carousel",
-        perView: 5,
-        gap: 10,
-        rewind: false,
-        bound: false,
-        animationDuration: 500,
-        breakpoints: {
-          1280: { perView: 4 },
-          1024: { perView: 3 },
-          768: { perView: 2 },
-          480: { perView: 1 },
-        },
-      }).mount();
+  type: "carousel",
+  perView: 5,
+  gap: 20, // slightly smaller or dynamic
+  bound: false, // ensures slides fit nicely
+  animationDuration: 500,
+  breakpoints: {
+    1536: { perView: 5, gap: 2 },
+    1280: { perView: 4, gap: 2 },
+    1024: { perView: 3, gap: 12 },
+    768: { perView: 2, gap: 12 },
+    480: { perView: 2, gap: 10 },
+  },
+}).mount();
     }
   }, [loading, products]);
 
@@ -129,10 +129,10 @@ const NewArrival = () => {
         <div className="glide-new-arrival relative">
 
           {/* ⭐ GLIDE TRACK — FIXED */}
-          <div data-glide-el="track" className="overflow-hidden">
+          <div data-glide-el="track" className="overflow-hidden ml-6 ">
             <ul className="glide__slides">
               {products.map((p) => (
-                <li key={p.id} className="glide__slide px-2">
+                <li key={p.id} className="glide__slide  ">
                   <Link href={`/productdetails/${p.slug}`}>
                     <ProductCard product={p} />
                   </Link>
@@ -145,7 +145,7 @@ const NewArrival = () => {
           <div data-glide-el="controls">
             <button
               data-glide-dir="<"
-              className="absolute xl:-left-7 -left-4 top-1/2 -translate-y-1/2 z-20 bg-white shadow-md px-3 py-1 "
+              className="absolute xl:-left-5 -left-4 top-1/2 -translate-y-1/2 z-20 bg-white shadow-md px-3 py-1 "
             >
               <FiChevronLeft className="text-2xl" />
             </button>

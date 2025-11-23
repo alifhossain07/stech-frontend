@@ -10,14 +10,26 @@ import FlashSaleShimmerSkeleton from "@/components/Skeletons/FlashSaleShimmerSke
 interface Product {
   id: number;
   name: string;
+  slug: string;
   price: number;
   oldPrice: number;
   discount: string;
   rating: number;
   reviews: number;
   image: string;
-  slug?: string;
+  
 }
+
+type BackendProduct = {
+  id: number;
+  name: string;
+  slug: string;
+  main_price: string;
+  stroked_price: string;
+  discount: string;
+  rating: string;
+  thumbnail_image: string;
+};
 
 const FlashSale = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -33,9 +45,10 @@ const FlashSale = () => {
         setBanner(res.data.banner); // Set the dynamic banner image
 
         // Map the API data to match the Product interface
-        const mappedProducts : Product[] = res.data.products.map((product: any) => ({
+        const mappedProducts : Product[] = res.data.products.map((product: BackendProduct) => ({
           id: product.id,
           name: product.name,
+          slug: product.slug, 
           price: parseFloat(product.main_price.replace('৳', '').replace(',', '')), // Convert string to number
           oldPrice: parseFloat(product.stroked_price.replace('৳', '').replace(',', '')),
           discount: product.discount,
@@ -107,7 +120,7 @@ const FlashSale = () => {
         <div className="flex flex-col md:flex-col xl:flex-row 2xl:flex-row  justify-between gap-4 xl:gap-0">
           {/* Left: Deal of the Day */}
           <div
-            className="relative flex flex-col justify-center items-center rounded-2xl p-8 text-center md:w-full xl:w-72 2xl:w-96 min-h-full overflow-hidden"
+            className="relative flex flex-col justify-center items-center rounded-2xl p-8 text-center md:w-full xl:w-72 2xl:w-[410px] min-h-full overflow-hidden"
             style={{
               backgroundImage: `url(${banner})`, // Set the dynamic banner image
               backgroundSize: "cover",
