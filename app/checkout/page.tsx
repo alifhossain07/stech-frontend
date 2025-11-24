@@ -80,8 +80,8 @@ const CheckoutPage: React.FC = () => {
       email: "",
       address: "",
       shipping: "inside",
-      payment: "online",
-      agreeTerms: false,
+      payment: "cod",
+      agreeTerms: true,
       promoCode: "",
     },
   });
@@ -351,7 +351,7 @@ const router = useRouter();
               render={({ field }) => (
                 <>
                   <label className="flex items-center gap-2 text-lg mb-6">
-                    <input type="radio" value="online" checked={field.value === "online"} onChange={() => field.onChange("online")} />
+                    <input type="radio" value="online" checked={field.value === "online"} onChange={() => field.onChange("online")} disabled />
                     Online Payment*
                   </label>
 
