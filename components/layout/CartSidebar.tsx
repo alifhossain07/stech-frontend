@@ -13,7 +13,7 @@ interface CartSidebarProps {
 
 
 interface CartItem {
-  id: string; 
+ id: string | number; 
   name: string;
   img: string;
   price: number;
@@ -28,7 +28,7 @@ export default function CartSidebar({ externalOpen, setExternalOpen }: CartSideb
 
 const { selectedItems, setSelectedItems } = useCart();
 
-  const toggleSelect = (id: string) => {
+  const toggleSelect = (id: string | number) => {
     setSelectedItems(prev =>
       prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
     );

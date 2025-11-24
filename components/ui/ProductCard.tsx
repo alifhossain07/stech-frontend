@@ -11,6 +11,7 @@ type Spec = {
 };
 
 type Product = {
+  id: number;
   slug: string;  
   image: string;
   name: string;
@@ -30,7 +31,7 @@ export default function ProductCard({ product }: { product: Product }) {
     // const uniqueId = Math.random().toString(36).substr(2, 9);
 
     addToCart({
-      // id: uniqueId,          // Unique identifier for this entry
+      id: product.id.toString(),        // Unique identifier for this entry
       slug: product.slug,
       name: product.name,
       price: product.price,

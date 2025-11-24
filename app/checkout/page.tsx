@@ -1,7 +1,6 @@
 "use client";
-
+import axios from "axios";
 import Image from "next/image";
-// import Link from "next/link";
 import { useCart } from "@/app/context/CartContext";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import toast from "react-hot-toast";
@@ -9,10 +8,11 @@ import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import React from "react";
+import { useRouter } from "next/navigation"; // add at the top
 
 // ------------------------- Types -------------------------
 interface CartItem {
-  id: string;
+  id: string | number;
   name: string;
   img: string;
   price: number;
@@ -55,7 +55,7 @@ const schema: yup.ObjectSchema<CheckoutFormData> = yup.object({
 
 // ------------------------- Checkout Page -------------------------
 const CheckoutPage: React.FC = () => {
-  const { cart, selectedItems, increaseQty, decreaseQty, removeFromCart } = useCart();
+  const { cart, selectedItems, increaseQty, decreaseQty, removeFromCart, clearCart } = useCart();
 
   // Filter selected items
   const selectedCart: CartItem[] = cart.filter(item => selectedItems.includes(item.id));
@@ -109,59 +109,133 @@ const CheckoutPage: React.FC = () => {
   const [promoDiscount, setPromoDiscount] = React.useState<number>(0);
   const [promoDelivery, setPromoDelivery] = React.useState<number | undefined>(undefined);
 
-const handleApplyPromo = () => {
-  const code = watch("promoCode")?.toUpperCase();
-  if (code && promoCodes[code]) {
-    const baseTotal = subtotal - discount + deliveryCharge;
-    const result = promoCodes[code](baseTotal, deliveryCharge);
+  const handleApplyPromo = () => {
+    const code = watch("promoCode")?.toUpperCase();
+    if (code && promoCodes[code]) {
+      const baseTotal = subtotal - discount + deliveryCharge;
+      const result = promoCodes[code](baseTotal, deliveryCharge);
 
-    setAppliedPromo(code);
-    setPromoDiscount(baseTotal - result.newTotal);
-    if (result.newDelivery !== undefined) setPromoDelivery(result.newDelivery);
-    else setPromoDelivery(undefined);
+      setAppliedPromo(code);
+      setPromoDiscount(baseTotal - result.newTotal);
+      if (result.newDelivery !== undefined) setPromoDelivery(result.newDelivery);
+      else setPromoDelivery(undefined);
 
-    // Green toast for promo success
-    toast.success(`Promo code "${code}" applied! 🎉`, {
-      style: {
-        background: "#22c55e", // Tailwind green-500
-        color: "#ffffff",
-        fontWeight: 500,
-         transform: "translateX(100%)", // start off-screen right
-      animation: "slideInRight 0.5s forwards", // slide in
-      },
-    });
-  } else {
-    setAppliedPromo(null);
-    setPromoDiscount(0);
-    setPromoDelivery(undefined);
+      toast.success(`Promo code "${code}" applied! 🎉`, {
+        style: {
+          background: "#22c55e",
+          color: "#ffffff",
+          fontWeight: 500,
+        },
+      });
+    } else {
+      setAppliedPromo(null);
+      setPromoDiscount(0);
+      setPromoDelivery(undefined);
+      toast.error("Invalid promo code ❌", {
+        style: {
+          background: "#ef4444",
+          color: "#ffffff",
+          fontWeight: 500,
+        },
+      });
+    }
+  };
 
-    // Red toast for invalid promo
-    toast.error("Invalid promo code ❌", {
-      style: {
-        background: "#ef4444", // Tailwind red-500
-        color: "#ffffff",
-        fontWeight: 500,
-      },
-    });
+  const effectiveDelivery = promoDelivery !== undefined ? promoDelivery : deliveryCharge;
+  const total = subtotal - discount + effectiveDelivery - promoDiscount;
+
+  // ------------------------- Payment Modal -------------------------
+  const [showPaymentModal, setShowPaymentModal] = React.useState(false);
+  const [paymentData, setPaymentData] = React.useState<CheckoutFormData | null>(null);
+const [selectedPaymentMethod, setSelectedPaymentMethod] = React.useState<"visa" | "mastercard" | "bkash" | "nagad">("visa");
+const [paymentNumber, setPaymentNumber] = React.useState("");
+  const handleConfirmOrder = (data: CheckoutFormData) => {
+    if (data.payment === "cod") {
+      submitOrder(data); // Direct submit for COD
+    } else {
+      setPaymentData(data);
+      setShowPaymentModal(true);
+    }
+  };
+
+  const submitOrder = async (data: CheckoutFormData) => {
+  const orderPayload = {
+    id: Date.now(),
+    customer: {
+      name: data.name,
+      mobile: data.mobile,
+      email: data.email,
+      address: data.address,
+    },
+    shippingMethod: data.shipping,
+    shippingCharge: effectiveDelivery,
+    paymentMethod:
+      data.payment === "cod" ? "Cash on Delivery" : selectedPaymentMethod.toUpperCase(),
+    paymentNumber: data.payment === "cod" ? null : paymentNumber,
+    promoCode: appliedPromo,
+    promoDiscount,
+    items: selectedCart.map((item) => ({
+      id: item.id,
+      name: item.name,
+      qty: item.qty,
+      price: item.price,
+      oldPrice: item.oldPrice,
+    })),
+    subtotal,
+    discount,
+    totalAmount: total,
+    timestamp: new Date().toISOString(),
+  };
+
+  try {
+    const response = await axios.post("/api/orders", orderPayload);
+
+    if (response.data.success) {
+      toast.success("Order placed successfully! 🎉");
+        clearCart();
+      setShowPaymentModal(false);
+      // Optionally: clear cart or redirect to success page
+      router.push("/checkout/ordercomplete");
+    } else {
+      toast.error("Failed to place order ❌");
+      console.error(response.data);
+    }
+  } catch (error) {
+    console.error(error);
+    toast.error("Something went wrong while placing the order ❌");
   }
 };
 
+  const handleModalPaymentConfirm = async () => {
+  if (!paymentData) return;
 
- const effectiveDelivery = promoDelivery !== undefined ? promoDelivery : deliveryCharge;
-const total = subtotal - discount + effectiveDelivery - promoDiscount;
+  try {
+    setIsLoading(true); // Start loading spinner
+    await submitOrder(paymentData); // Wait for submit
+    setIsLoading(false); // Stop loading spinner
+    setShowPaymentModal(false);
+    router.push("/checkout/ordercomplete"); // Navigate after success
+  } catch (error) {
+    console.error(error);
+    setIsLoading(false);
+    toast.error("Something went wrong ❌");
+  }
+};
 
-  const onSubmit = (data: CheckoutFormData) => {
-    console.log("Checkout Data:", data);
-    alert("Checkout submitted! Check console for data.");
-    // send data + selectedCart to backend here
+  const handleModalCancel = () => {
+    setShowPaymentModal(false);
+    setPaymentData(null);
   };
 
+const [isLoading, setIsLoading] = React.useState(false);
+const router = useRouter();
+
+  // ------------------------- JSX -------------------------
   return (
     <div className="w-11/12 mx-auto mt-9 min-h-[50vh]">
       <h1 className="text-2xl md:text-3xl font-bold mb-6">Shipping Information</h1>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-
+      <form onSubmit={handleSubmit(handleConfirmOrder)} className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         {/* In Your Cart */}
         <div className="border rounded-md p-4 bg-white shadow-sm w-full">
           <div className="flex items-center justify-between mb-4">
@@ -173,12 +247,10 @@ const total = subtotal - discount + effectiveDelivery - promoDiscount;
           ) : (
             selectedCart.map(item => (
               <div key={item.id} className="flex gap-3 p-3 mb-3 w-11/12 rounded-lg relative">
-                {/* Image */}
                 <div className="md:w-28 md:h-28 h-20 w-20 xl:w-20 xl:h-20 2xl:w-24 2xl:h-24 bg-gray-100 rounded-lg flex items-center justify-center">
                   <Image src={item.img} alt={item.name} width={110} height={110} className="object-contain"/>
                 </div>
 
-                {/* Details */}
                 <div className="flex-1 space-y-1">
                   <h3 className="text-sm md:text-lg">{item.name}</h3>
                   <div className="font-semibold text-orange-600 text-sm md:text-lg mt-1">
@@ -186,7 +258,6 @@ const total = subtotal - discount + effectiveDelivery - promoDiscount;
                     <span className="line-through text-gray-400 ml-2 text-xs">৳{item.oldPrice}</span>
                   </div>
 
-                  {/* Qty Row */}
                   <div className="flex items-center gap-4 mt-1 text-sm md:text-sm">
                     <span className="font-medium">QTY :</span>
                     <div className="flex items-center bg-gray-200 rounded-full px-3 py-1 gap-3">
@@ -205,7 +276,6 @@ const total = subtotal - discount + effectiveDelivery - promoDiscount;
                   </div>
                 </div>
 
-                {/* Delete Button */}
                 <button
                   type="button"
                   onClick={() => removeFromCart(item.id)}
@@ -220,45 +290,24 @@ const total = subtotal - discount + effectiveDelivery - promoDiscount;
 
         {/* Customer Info + Shipping */}
         <div className="flex flex-col gap-6">
-
           {/* Customer Info */}
           <div className="border rounded-md p-4 bg-white shadow-sm">
             <h2 className="md:text-2xl text-xl font-semibold mb-4">Customer Information</h2>
             <div className="flex flex-col gap-3">
               <label>Your Name*</label>
-              <input
-                type="text"
-                placeholder="Enter your name"
-                className="border p-2 mb-1 rounded"
-                {...register("name")}
-              />
+              <input type="text" placeholder="Enter your name" className="border p-2 mb-1 rounded" {...register("name")} />
               {errors.name && <p className="text-red-500 text-sm">{errors.name.message}</p>}
 
               <label>Mobile*</label>
-              <input
-                type="text"
-                placeholder="019*******"
-                className="border p-2 mb-1 rounded"
-                {...register("mobile")}
-              />
+              <input type="text" placeholder="019*******" className="border p-2 mb-1 rounded" {...register("mobile")} />
               {errors.mobile && <p className="text-red-500 text-sm">{errors.mobile.message}</p>}
 
               <label>E-mail (optional)</label>
-              <input
-                type="email"
-                placeholder="@email"
-                className="border p-2 mb-1 rounded"
-                {...register("email")}
-              />
+              <input type="email" placeholder="@email" className="border p-2 mb-1 rounded" {...register("email")} />
               {errors.email && <p className="text-red-500 text-sm">{errors.email.message}</p>}
 
               <label>Address*</label>
-              <input
-                type="text"
-                placeholder="Delivery address"
-                className="border p-2 mb-1 rounded"
-                {...register("address")}
-              />
+              <input type="text" placeholder="Delivery address" className="border p-2 mb-1 rounded" {...register("address")} />
               {errors.address && <p className="text-red-500 text-sm">{errors.address.message}</p>}
             </div>
           </div>
@@ -292,7 +341,6 @@ const total = subtotal - discount + effectiveDelivery - promoDiscount;
 
         {/* Payment + Summary */}
         <div className="flex flex-col gap-6">
-
           {/* Payment Method */}
           <div className="border rounded-md p-4 bg-white shadow-sm">
             <h2 className="text-lg font-semibold mb-4">Payment Method</h2>
@@ -310,7 +358,7 @@ const total = subtotal - discount + effectiveDelivery - promoDiscount;
                   <div className="flex gap-2 mb-5 items-center">
                     <h1 className="text-[#8f8f8f] text-sm">We Accept</h1>
                     <Image src="/images/visa.png" alt="Visa" width={40} height={24} className="w-full h-full object-contain"/>
-                    <Image src="/images/master.png" alt="Mastercard" width={40} height={24} className="w-full h-full object-contain"/>
+                    <Image src="/images/mastercard.png" alt="Mastercard" width={40} height={24} className="w-full h-full object-contain"/>
                     <Image src="/images/bkash.png" alt="bKash" width={40} height={24} className="w-full h-full object-contain"/>
                     <Image src="/images/nagad.png" alt="Nagad" width={40} height={24} className="w-full h-full object-contain"/>
                   </div>
@@ -349,49 +397,112 @@ const total = subtotal - discount + effectiveDelivery - promoDiscount;
           </div>
 
           {/* Order Summary */}
-          {/* Order Summary */}
-<div className="border rounded-xl p-4 bg-white shadow-sm">
-  <h2 className="md:text-2xl text-xl font-semibold mb-4">In Your Order Summary</h2>
+          <div className="border rounded-xl p-4 bg-white shadow-sm">
+            <h2 className="md:text-2xl text-xl font-semibold mb-4">In Your Order Summary</h2>
 
-  <div className="flex justify-between md:text-lg text-base mb-2">
-    <span>Sub Total :</span>
-    <span>৳ {subtotal.toLocaleString()}</span>
-  </div>
+            <div className="flex justify-between md:text-lg text-base mb-2">
+              <span>Sub Total :</span>
+              <span>৳ {subtotal.toLocaleString()}</span>
+            </div>
 
-  <div className="flex justify-between md:text-lg text-base mb-2">
-    <span>Delivery Charge :</span>
-    <span>৳ {effectiveDelivery.toLocaleString()}</span>
-  </div>
+            <div className="flex justify-between md:text-lg text-base mb-2">
+              <span>Delivery Charge :</span>
+              <span>৳ {effectiveDelivery.toLocaleString()}</span>
+            </div>
 
-  <div className="flex justify-between md:text-lg text-base mb-2">
-    <span>Discount :</span>
-    <span>৳ {discount.toLocaleString()}</span>
-  </div>
+            <div className="flex justify-between md:text-lg text-base mb-2">
+              <span>Discount :</span>
+              <span>৳ {discount.toLocaleString()}</span>
+            </div>
 
-  {appliedPromo && (
-    <div className="flex justify-between md:text-lg text-base mb-2 text-green-600 font-medium">
-      <span>Promo Discount ({appliedPromo}) :</span>
-      <span>-৳ {promoDiscount.toLocaleString()}</span>
-    </div>
-  )}
+            {appliedPromo && (
+              <div className="flex justify-between md:text-lg text-base mb-2 text-green-600 font-medium">
+                <span>Promo Discount ({appliedPromo}) :</span>
+                <span>-৳ {promoDiscount.toLocaleString()}</span>
+              </div>
+            )}
 
-  <div className="flex bg-[#f4f4f4] py-4 px-2 justify-between font-semibold text-orange-600 text-lg md:text-xl mt-4">
-    <span>Total Amount :</span>
-    <span>৳ {total.toLocaleString()}</span>
-  </div>
+            <div className="flex bg-[#f4f4f4] py-4 px-2 justify-between font-semibold text-orange-600 text-lg md:text-xl mt-4">
+              <span>Total Amount :</span>
+              <span>৳ {total.toLocaleString()}</span>
+            </div>
 
-  <button
-    type="submit"
-    className={`w-full bg-orange-500 text-white py-3 rounded-full font-semibold text-center mt-4 ${
-      !isValid ? "opacity-60 cursor-not-allowed" : ""
-    }`}
-    disabled={!isValid}
-  >
-    Confirm Order
-  </button>
-</div>
+            <button
+              type="submit"
+              className={`w-full bg-orange-500 text-white py-3 rounded-full font-semibold text-center mt-4 ${!isValid ? "opacity-60 cursor-not-allowed" : ""}`}
+              disabled={!isValid}
+            >
+              Confirm Order
+            </button>
+          </div>
         </div>
       </form>
+
+      {/* ------------------------- Payment Modal ------------------------- */}
+      {/* ------------------------- Payment Modal ------------------------- */}
+{showPaymentModal && paymentData && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="bg-white rounded-lg p-6 w-[650px] relative shadow-lg">
+      <h2 className="text-xl font-semibold mb-4">Demo Payment</h2>
+      <p className="mb-4">Amount: <span className="font-bold">৳ {total.toLocaleString()}</span></p>
+
+      {/* Payment Method Selection */}
+      <div className="flex gap-3">
+  {(["visa", "mastercard", "bkash", "nagad"] as const).map((method) => (
+    <button
+      key={method}
+      type="button"
+      onClick={() => setSelectedPaymentMethod(method)}
+      className={`flex-1 p-2 border rounded hover:border-orange-500 flex items-center justify-center gap-2
+        ${selectedPaymentMethod === method ? "border-orange-500 bg-orange-50" : "border-gray-300"}`}
+    >
+      <Image
+        src={`/images/${method}.png`}
+        alt={method}
+        width={40}
+        height={24}
+        className="object-contain"
+      />
+      <span className="capitalize">{method}</span>
+    </button>
+  ))}
+</div>
+
+      {/* Demo Card / Number Input */}
+      <div className="mb-4 mt-4">
+        <label className="block mb-1 font-medium">Enter Number</label>
+        <input
+          type="text"
+          placeholder={selectedPaymentMethod === "bkash" || selectedPaymentMethod === "nagad" ? "e.g. 01XXXXXXXXX" : "Card Number"}
+          className="w-full border p-2 rounded"
+          value={paymentNumber}
+          onChange={(e) => setPaymentNumber(e.target.value)}
+        />
+      </div>
+
+      <div className="flex justify-end gap-2 mt-3">
+        <button
+          onClick={handleModalCancel}
+          className="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={handleModalPaymentConfirm}
+          className="px-4 py-2 rounded bg-orange-500 text-white hover:bg-orange-600"
+          disabled={!paymentNumber || !selectedPaymentMethod}
+        >
+          Confirm
+        </button>
+      </div>
+    </div>
+    {isLoading && (
+  <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center rounded-lg z-50">
+    <div className="w-12 h-12 border-4 border-t-orange-500 border-gray-200 rounded-full animate-spin"></div>
+  </div>
+)}
+  </div>
+)}
     </div>
   );
 };

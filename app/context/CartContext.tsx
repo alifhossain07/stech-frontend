@@ -2,8 +2,9 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
+
 export type CartItem = {
-  id: string;
+  id: string | number; // database product ID
   slug: string;
   name: string;
   price: number;
@@ -14,16 +15,16 @@ export type CartItem = {
 
 type CartContextType = {
   cart: CartItem[];
-  addToCart: (item: Omit<CartItem, "id">) => void;
-  removeFromCart: (id: string) => void;
-  increaseQty: (id: string) => void;
-  decreaseQty: (id: string) => void;
+  addToCart: (item: CartItem) => void;
+  removeFromCart: (id: string | number) => void;
+  increaseQty: (id: string | number) => void;
+  decreaseQty: (id: string | number) => void;
   clearCart: () => void;
   cartOpen: boolean;
   setCartOpen: (state: boolean) => void;
 
-  selectedItems: string[];
-  setSelectedItems: React.Dispatch<React.SetStateAction<string[]>>;
+  selectedItems: (string | number)[];
+  setSelectedItems: React.Dispatch<React.SetStateAction<(string | number)[]>>;
 };
 
 const CartContext = createContext<CartContextType | null>(null);
@@ -31,80 +32,68 @@ const CartContext = createContext<CartContextType | null>(null);
 export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
-
-  // New: selection state
-  const [selectedItems, setSelectedItems] = useState<string[]>([]);
+  const [selectedItems, setSelectedItems] = useState<(string | number)[]>([]);
 
   // Load cart
   useEffect(() => {
     try {
       const saved = localStorage.getItem("cart");
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) setCart(parsed);
-      }
+      if (saved) setCart(JSON.parse(saved));
     } catch {
       console.warn("Failed to load cart");
     }
   }, []);
 
-  // Save cart
   useEffect(() => {
     localStorage.setItem("cart", JSON.stringify(cart));
   }, [cart]);
 
-  // Cart functions
-  const addToCart = (item: Omit<CartItem, "id">) => {
-    setCart((prev) => [
-      ...prev,
-      { ...item, id: Math.random().toString(36).substring(2, 10) },
-    ]);
-      toast.success("Product added to cart!", {
-    position: "top-right",
-    style: {
-      background: "#FF6D00",
-      color: "#fff",
-      fontWeight: "500",
-      borderRadius: "8px",
-      boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
-      transform: "translateX(100%)", // start off-screen right
-      animation: "slideInRight 0.5s forwards", // slide in
-    },
-    iconTheme: {
-      primary: "#fff",
-      secondary: "#FF6D00",
-    },
-  });
+  // Load selected items
+  useEffect(() => {
+    const savedSelected = localStorage.getItem("selectedItems");
+    if (savedSelected) setSelectedItems(JSON.parse(savedSelected));
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("selectedItems", JSON.stringify(selectedItems));
+  }, [selectedItems]);
+
+  const addToCart = (item: CartItem) => {
+    // Check if already in cart, increase qty
+    const exists = cart.find((i) => i.id === item.id);
+    if (exists) {
+      setCart((prev) =>
+        prev.map((i) => (i.id === item.id ? { ...i, qty: i.qty + item.qty } : i))
+      );
+    } else {
+      setCart((prev) => [...prev, item]);
+    }
+
+    toast.success("Product added to cart!", {
+      position: "top-right",
+      style: {
+        background: "#FF6D00",
+        color: "#fff",
+        fontWeight: "500",
+        borderRadius: "8px",
+      },
+    });
   };
 
-  const removeFromCart = (id: string) => {
+  const removeFromCart = (id: string | number) => {
     setCart((prev) => prev.filter((i) => i.id !== id));
-    setSelectedItems((prev) => prev.filter((i) => i !== id)); // auto unselect
+    setSelectedItems((prev) => prev.filter((i) => i !== id));
   };
 
-  const increaseQty = (id: string) =>
+  const increaseQty = (id: string | number) =>
     setCart((prev) =>
       prev.map((i) => (i.id === id ? { ...i, qty: i.qty + 1 } : i))
     );
 
-  const decreaseQty = (id: string) =>
+  const decreaseQty = (id: string | number) =>
     setCart((prev) =>
-      prev.map((i) =>
-        i.id === id && i.qty > 1 ? { ...i, qty: i.qty - 1 } : i
-      )
+      prev.map((i) => (i.id === id && i.qty > 1 ? { ...i, qty: i.qty - 1 } : i))
     );
-
-    useEffect(() => {
-  const savedSelected = localStorage.getItem("selectedItems");
-  if (savedSelected) {
-    setSelectedItems(JSON.parse(savedSelected));
-  }
-}, []);
-
-// Save selected items
-useEffect(() => {
-  localStorage.setItem("selectedItems", JSON.stringify(selectedItems));
-}, [selectedItems]);
 
   const clearCart = () => {
     setCart([]);
