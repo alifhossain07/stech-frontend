@@ -2,6 +2,7 @@
 
 import { useCart } from "@/app/context/CartContext";
 import Image from "next/image";
+import { useState } from "react";
 import { FaCartPlus } from "react-icons/fa";
 import { LuShoppingBag } from "react-icons/lu";
 
@@ -25,13 +26,14 @@ type Product = {
 
 export default function ProductCard({ product }: { product: Product }) {
   const { addToCart, setCartOpen } = useCart();
-
+const [loading, setLoading] = useState(false);
   const handleAdd = () => {
-    // Generate a unique ID for this cart item
-    // const uniqueId = Math.random().toString(36).substr(2, 9);
+  setLoading(true);
 
+  // simulate short delay (optional but looks good)
+  setTimeout(() => {
     addToCart({
-      id: product.id.toString(),        // Unique identifier for this entry
+      id: product.id.toString(),
       slug: product.slug,
       name: product.name,
       price: product.price,
@@ -41,7 +43,9 @@ export default function ProductCard({ product }: { product: Product }) {
     });
 
     setCartOpen(true);
-  };
+    setLoading(false);
+  }, 700);
+};
 
   const fallbackSpecs = [
     { icon: "/images/watt.png", text: "25 Watts of Power " },
@@ -117,14 +121,22 @@ export default function ProductCard({ product }: { product: Product }) {
 
           {/* Add to Cart Button */}
           <button
-            onClick={handleAdd}
-            className="flex items-center justify-center w-1/2 xl:text-[13px] md:text-sm text-xs rounded-md py-2 text-black border hover:bg-black hover:text-white border-black duration-300"
-          >
-            <span className="block xl:hidden text-xs">
-              <FaCartPlus />
-            </span>
-            <span className="md:hidden xl:inline hidden">+ Add to Cart</span>
-          </button>
+  onClick={handleAdd}
+  disabled={loading}
+  className={`flex items-center justify-center w-1/2 xl:text-[13px] md:text-sm text-xs rounded-md py-2 border text-black border-black duration-300 
+  ${loading ? "opacity-60 cursor-not-allowed" : "hover:bg-black hover:text-white"}`}
+>
+  {loading ? (
+    <div className="animate-spin h-4 w-4 border-2 border-orange-500 border-t-transparent rounded-full"></div>
+  ) : (
+    <>
+      <span className="block xl:hidden text-xs">
+        <FaCartPlus />
+      </span>
+      <span className="md:hidden xl:inline hidden">+ Add to Cart</span>
+    </>
+  )}
+</button>
         </div>
       </div>
     </div>

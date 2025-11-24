@@ -195,7 +195,7 @@ const [paymentNumber, setPaymentNumber] = React.useState("");
         clearCart();
       setShowPaymentModal(false);
       // Optionally: clear cart or redirect to success page
-      router.push("/checkout/ordercomplete");
+    router.push(`/checkout/ordercomplete?orderId=${orderPayload.id}`);
     } else {
       toast.error("Failed to place order ❌");
       console.error(response.data);
