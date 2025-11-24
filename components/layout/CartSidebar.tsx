@@ -4,7 +4,7 @@ import { useCart } from "@/app/context/CartContext";
 import Image from "next/image";
 import Link from "next/link";
 import { RiDeleteBin6Line } from "react-icons/ri";
-import { useState } from "react";
+
 
 interface CartSidebarProps {
   externalOpen: boolean;
@@ -26,7 +26,7 @@ export default function CartSidebar({ externalOpen, setExternalOpen }: CartSideb
 
   const typedCart: CartItem[] = cart;
 
-  const [selectedItems, setSelectedItems] = useState<string[]>([]);
+const { selectedItems, setSelectedItems } = useCart();
 
   const toggleSelect = (id: string) => {
     setSelectedItems(prev =>
@@ -188,10 +188,18 @@ export default function CartSidebar({ externalOpen, setExternalOpen }: CartSideb
           </div>
 
           {/* Checkout Button */}
-          <Link href="/checkout">
-            <button className="w-full py-3 rounded-full bg-orange-500 text-white hover:bg-orange-600">
-              Checkout
-            </button>
+          <Link href="/checkout"  onClick={() => setExternalOpen(false)}>
+              <button
+    className={`w-full py-3 rounded-full text-white ${
+      selectedItems.length > 0
+        ? "bg-orange-500 hover:bg-orange-600"
+        : "bg-gray-400 cursor-not-allowed"
+    }`}
+    disabled={selectedItems.length === 0} // Disable if nothing selected
+    onClick={() => setExternalOpen(false)} // Close sidebar
+  >
+    Checkout
+  </button>
           </Link>
         </div>
       </aside>

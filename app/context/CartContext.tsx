@@ -1,9 +1,9 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
-
+import toast from "react-hot-toast";
 export type CartItem = {
-  id: string; // Unique for each cart entry
+  id: string;
   slug: string;
   name: string;
   price: number;
@@ -21,6 +21,9 @@ type CartContextType = {
   clearCart: () => void;
   cartOpen: boolean;
   setCartOpen: (state: boolean) => void;
+
+  selectedItems: string[];
+  setSelectedItems: React.Dispatch<React.SetStateAction<string[]>>;
 };
 
 const CartContext = createContext<CartContextType | null>(null);
@@ -29,44 +32,84 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
 
-  // Load cart from localStorage
+  // New: selection state
+  const [selectedItems, setSelectedItems] = useState<string[]>([]);
+
+  // Load cart
   useEffect(() => {
-    const saved = localStorage.getItem("cart");
-    if (saved) setCart(JSON.parse(saved));
+    try {
+      const saved = localStorage.getItem("cart");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) setCart(parsed);
+      }
+    } catch {
+      console.warn("Failed to load cart");
+    }
   }, []);
 
-  // Save cart whenever it changes
+  // Save cart
   useEffect(() => {
     localStorage.setItem("cart", JSON.stringify(cart));
   }, [cart]);
 
-  // --- CART FUNCTIONS ---
-
+  // Cart functions
   const addToCart = (item: Omit<CartItem, "id">) => {
     setCart((prev) => [
       ...prev,
-      { ...item, id: Math.random().toString(36).substr(2, 9) }, // unique id
+      { ...item, id: Math.random().toString(36).substring(2, 10) },
     ]);
+      toast.success("Product added to cart!", {
+    position: "top-right",
+    style: {
+      background: "#FF6D00",
+      color: "#fff",
+      fontWeight: "500",
+      borderRadius: "8px",
+      boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+      transform: "translateX(100%)", // start off-screen right
+      animation: "slideInRight 0.5s forwards", // slide in
+    },
+    iconTheme: {
+      primary: "#fff",
+      secondary: "#FF6D00",
+    },
+  });
   };
 
-  const removeFromCart = (id: string) =>
-    setCart((prev) => prev.filter((item) => item.id !== id));
+  const removeFromCart = (id: string) => {
+    setCart((prev) => prev.filter((i) => i.id !== id));
+    setSelectedItems((prev) => prev.filter((i) => i !== id)); // auto unselect
+  };
 
   const increaseQty = (id: string) =>
     setCart((prev) =>
-      prev.map((item) =>
-        item.id === id ? { ...item, qty: item.qty + 1 } : item
-      )
+      prev.map((i) => (i.id === id ? { ...i, qty: i.qty + 1 } : i))
     );
 
   const decreaseQty = (id: string) =>
     setCart((prev) =>
-      prev.map((item) =>
-        item.id === id && item.qty > 1 ? { ...item, qty: item.qty - 1 } : item
+      prev.map((i) =>
+        i.id === id && i.qty > 1 ? { ...i, qty: i.qty - 1 } : i
       )
     );
 
-  const clearCart = () => setCart([]);
+    useEffect(() => {
+  const savedSelected = localStorage.getItem("selectedItems");
+  if (savedSelected) {
+    setSelectedItems(JSON.parse(savedSelected));
+  }
+}, []);
+
+// Save selected items
+useEffect(() => {
+  localStorage.setItem("selectedItems", JSON.stringify(selectedItems));
+}, [selectedItems]);
+
+  const clearCart = () => {
+    setCart([]);
+    setSelectedItems([]);
+  };
 
   return (
     <CartContext.Provider
@@ -79,6 +122,8 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
         clearCart,
         cartOpen,
         setCartOpen,
+        selectedItems,
+        setSelectedItems,
       }}
     >
       {children}

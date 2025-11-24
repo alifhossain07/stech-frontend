@@ -3,7 +3,7 @@ import { Poppins } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-
+import { Toaster } from "react-hot-toast";
 import ClientLayoutWrapper from "@/components/layout/ClientLayoutWrapper";
 import { CartProvider } from "./context/CartContext";
 
@@ -34,6 +34,18 @@ export default function RootLayout({
         {children}
         </ClientLayoutWrapper>
         <Footer/>
+            <Toaster
+    position="top-right"
+    reverseOrder={false}
+    toastOptions={{
+      duration: 3000,
+      style: {
+        fontWeight: 500,
+        borderRadius: "8px",
+        boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+      },
+    }}
+  />
         </CartProvider>
       </body>
     </html>

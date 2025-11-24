@@ -6,11 +6,15 @@ import { useCart } from "@/app/context/CartContext";
 import { RiDeleteBin6Line } from "react-icons/ri";
 
 const CheckoutPage = () => {
-  const { cart, increaseQty, decreaseQty, removeFromCart } = useCart();
+  const { cart, selectedItems, increaseQty, decreaseQty, removeFromCart } = useCart();
 
-  const subtotal = cart.reduce((acc, item) => acc + item.price * item.qty, 0);
-  const deliveryCharge = 80; // example default delivery
-  const discount = cart.reduce((acc, item) => acc + (item.oldPrice - item.price) * item.qty, 0);
+  // Filter only selected items
+  const selectedCart = cart.filter(item => selectedItems.includes(item.id));
+
+  // Totals for selected items
+  const subtotal = selectedCart.reduce((acc, item) => acc + item.price * item.qty, 0);
+  const discount = selectedCart.reduce((acc, item) => acc + (item.oldPrice - item.price) * item.qty, 0);
+  const deliveryCharge = 80; // example default delivery, you can enhance later
   const total = subtotal + deliveryCharge - discount;
 
   return (
@@ -20,63 +24,68 @@ const CheckoutPage = () => {
       </h1>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+
         {/* In Your Cart */}
         <div className="border rounded-md p-4 bg-white shadow-sm w-full">
           <div className="flex items-center justify-between mb-4">
             <h2 className="md:text-2xl text-xl font-semibold">In Your Cart</h2>
           </div>
 
-          {cart.map((item) => (
-            <div key={item.slug} className="flex gap-3 p-3 mb-3 w-11/12 rounded-lg relative">
-              {/* Image */}
-              <div className="md:w-28 md:h-28 h-20 w-20 xl:w-20 xl:h-20 2xl:w-28 2xl:h-28 bg-gray-100 rounded-lg flex items-center justify-center">
-                <Image src={item.img} alt={item.name} width={110} height={110} className="object-contain"/>
-              </div>
-
-              {/* Details */}
-              <div className="flex-1 space-y-1">
-                <h3 className="text-sm md:text-lg">{item.name}</h3>
-
-                <div className="font-semibold text-orange-600 text-sm md:text-lg mt-1">
-                  ৳{item.price}
-                  <span className="line-through text-gray-400 ml-2 text-xs">
-                    ৳{item.oldPrice}
-                  </span>
+          {selectedCart.length === 0 ? (
+            <p className="text-gray-500 text-sm">No items selected.</p>
+          ) : (
+            selectedCart.map((item) => (
+              <div key={item.id} className="flex gap-3 p-3 mb-3 w-11/12 rounded-lg relative">
+                {/* Image */}
+                <div className="md:w-28 md:h-28 h-20 w-20 xl:w-20 xl:h-20 2xl:w-24 2xl:h-24 bg-gray-100 rounded-lg flex items-center justify-center">
+                  <Image src={item.img} alt={item.name} width={110} height={110} className="object-contain"/>
                 </div>
 
-                {/* Qty Row */}
-                <div className="flex items-center gap-4 mt-1 text-sm md:text-sm">
-                  <span className="font-medium">QTY :</span>
+                {/* Details */}
+                <div className="flex-1 space-y-1">
+                  <h3 className="text-sm md:text-lg">{item.name}</h3>
 
-                  <div className="flex items-center bg-gray-200 rounded-full px-3 py-1 gap-3">
-                    <button
-                      className="w-5 h-5 flex items-center justify-center bg-black text-white rounded-full"
-                      onClick={() => decreaseQty(item.slug)}
-                    >
-                      -
-                    </button>
+                  <div className="font-semibold text-orange-600 text-sm md:text-lg mt-1">
+                    ৳{item.price}
+                    <span className="line-through text-gray-400 ml-2 text-xs">
+                      ৳{item.oldPrice}
+                    </span>
+                  </div>
 
-                    <span className="font-semibold">{item.qty}</span>
+                  {/* Qty Row */}
+                  <div className="flex items-center gap-4 mt-1 text-sm md:text-sm">
+                    <span className="font-medium">QTY :</span>
 
-                    <button
-                      className="w-5 h-5 flex items-center justify-center bg-black text-white rounded-full"
-                      onClick={() => increaseQty(item.slug)}
-                    >
-                      +
-                    </button>
+                    <div className="flex items-center bg-gray-200 rounded-full px-3 py-1 gap-3">
+                      <button
+                        className="w-5 h-5 flex items-center justify-center bg-black text-white rounded-full"
+                        onClick={() => decreaseQty(item.id)}
+                      >
+                        -
+                      </button>
+
+                      <span className="font-semibold">{item.qty}</span>
+
+                      <button
+                        className="w-5 h-5 flex items-center justify-center bg-black text-white rounded-full"
+                        onClick={() => increaseQty(item.id)}
+                      >
+                        +
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Delete Button */}
-              <button
-                onClick={() => removeFromCart(item.slug)}
-                className="absolute right-2 bottom-2 text-gray-400 hover:text-red-500 text-lg"
-              >
-                <RiDeleteBin6Line className="text-xl mr-2 mb-2" />
-              </button>
-            </div>
-          ))}
+                {/* Delete Button */}
+                <button
+                  onClick={() => removeFromCart(item.id)}
+                  className="absolute right-2 bottom-2 text-gray-400 hover:text-red-500 text-lg"
+                >
+                  <RiDeleteBin6Line className="text-xl mr-2 mb-2" />
+                </button>
+              </div>
+            ))
+          )}
         </div>
 
         {/* Customer Info + Shipping */}
