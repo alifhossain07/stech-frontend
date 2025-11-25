@@ -5,7 +5,7 @@ import axios from "axios";
 import ProductCard from "@/components/ui/ProductCard";
 import { FiChevronRight, FiChevronLeft } from "react-icons/fi";
 import Glide from "@glidejs/glide";
-import Link from "next/link";
+// import Link from "next/link";
 
 interface Product {
   id: number;
@@ -132,10 +132,10 @@ const NewArrival = () => {
           <div data-glide-el="track" className="overflow-hidden ml-3 md:ml-6 ">
             <ul className="glide__slides">
               {products.map((p) => (
-                <li key={p.id} className="glide__slide  ">
-                  <Link href={`/productdetails/${p.slug}`}>
+                <li key={p.id} className="glide__slide flex  ">
+                
                     <ProductCard product={p} />
-                  </Link>
+                 
                 </li>
               ))}
             </ul>
