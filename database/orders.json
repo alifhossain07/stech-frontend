@@ -1,18 +1,18 @@
 [
   {
-    "id": 1763979969965,
+    "id": 1764050500764,
     "customer": {
       "name": "Alif Hossain",
-      "mobile": "01911185815",
-      "email": "alifhossain56882@gmail.com",
-      "address": "HelalMarket Uttarkhan"
+      "mobile": "01645305137",
+      "email": "alifhossain01@gmail.com",
+      "address": "HelalMarket, Uttarkhan, Dhaka"
     },
-    "shippingMethod": "inside",
-    "shippingCharge": 70,
+    "shippingMethod": "outside",
+    "shippingCharge": 140,
     "paymentMethod": "Cash on Delivery",
     "paymentNumber": null,
-    "promoCode": null,
-    "promoDiscount": 0,
+    "promoCode": "BD50",
+    "promoDiscount": 50,
     "items": [
       {
         "id": "112",
@@ -22,107 +22,89 @@
         "oldPrice": 1350
       },
       {
-        "id": "75",
-        "name": "Samsung Fast Charging Cable",
+        "id": "97",
+        "name": "Samsung Wireless Neckband N500",
         "qty": 1,
-        "price": 296.1,
-        "oldPrice": 329
-      }
-    ],
-    "subtotal": 1511.1,
-    "discount": 167.89999999999998,
-    "totalAmount": 1413.1999999999998,
-    "timestamp": "2025-11-24T10:26:09.965Z"
-  },
-  {
-    "id": 1763980160789,
-    "customer": {
-      "name": "Jamal Bhuiya",
-      "mobile": "01911185815",
-      "email": "alifhossain56882@gmail.com",
-      "address": "HelalMarket Uttarkhan Dhaka"
-    },
-    "shippingMethod": "inside",
-    "shippingCharge": 70,
-    "paymentMethod": "Cash on Delivery",
-    "paymentNumber": null,
-    "promoCode": "BD50",
-    "promoDiscount": 50,
-    "items": [
+        "price": 315,
+        "oldPrice": 350
+      },
       {
-        "id": "118",
+        "id": "119",
         "name": "33W Samsung Fast Charger",
         "qty": 1,
         "price": 2304,
         "oldPrice": 2560
-      },
-      {
-        "id": "107",
-        "name": "Samsung 10000MAH Power Bank",
-        "qty": 1,
-        "price": 1215,
-        "oldPrice": 1350
-      },
-      {
-        "id": "100",
-        "name": "Samsung Wireless Neckband N500",
-        "qty": 1,
-        "price": 315,
-        "oldPrice": 350
-      },
-      {
-        "id": "80",
-        "name": "Samsung Fast Charging Cable",
-        "qty": 1,
-        "price": 296.1,
-        "oldPrice": 329
-      },
-      {
-        "id": "90",
-        "name": "Remax 512 Wired Earphone",
-        "qty": 1,
-        "price": 225,
-        "oldPrice": 230
       }
     ],
-    "subtotal": 4355.1,
-    "discount": 463.9,
-    "totalAmount": 3911.2000000000003,
-    "timestamp": "2025-11-24T10:29:20.789Z"
-  },
-  {
-    "id": 1763980322766,
-    "customer": {
-      "name": "Alif Hossain",
-      "mobile": "01911185841",
-      "email": "alifhossain56882@gmail.com",
-      "address": "HelalMarket Uttarkhan"
-    },
-    "shippingMethod": "inside",
-    "shippingCharge": 70,
-    "paymentMethod": "Cash on Delivery",
-    "paymentNumber": null,
-    "promoCode": "BD50",
-    "promoDiscount": 50,
-    "items": [
-      {
-        "id": "135",
-        "name": "Samsung TWS",
-        "qty": 2,
-        "price": 2250,
-        "oldPrice": 2250
-      },
-      {
-        "id": "97",
-        "name": "Samsung Wireless Neckband N500",
-        "qty": 2,
-        "price": 315,
-        "oldPrice": 350
-      }
-    ],
-    "subtotal": 5130,
-    "discount": 70,
-    "totalAmount": 5080,
-    "timestamp": "2025-11-24T10:32:02.766Z"
+    "subtotal": 3834,
+    "discount": 426,
+    "totalAmount": 3498,
+    "timestamp": "2025-11-25T06:01:40.764Z"
   }
+  {
+  "user_id": 999,
+  "idempotency_key": "8f14e45f-ce89-4b2b-a2b6-3a6c2f7f",
+  "shipping_address": {
+    "name": "Alif Hossain",
+    "email": "alifhossain01@gmail.com",
+    "address": "HelalMarket, Uttarkhan, Dhaka",
+    "phone": "01645305137"
+  },
+  "additional_info": "",
+  "payment_option": "cash_on_delivery",
+  "coupon_code": "BD50",
+  "coupon_discount_total": 50,
+  "subtotal": 3834,
+  "tax_total": 0,
+  "shipping_total": 140,
+  "grand_total": 3498,
+  "timestamp": "2025-11-25T06:01:40.764Z",
+  "cart_items": [
+    {
+      "product_id": 112,
+      "variant": "Default",
+      "quantity": 1,
+      "price": 1215,
+      "oldPrice": 1350,
+      "tax": 0,
+      "discount": 0,
+      "shipping_type": "home_delivery",
+      "shipping_cost": 0,
+      "pickup_point": null,
+      "carrier_id": null,
+      "product_referral_code": null,
+      "coupon_code": null
+    },
+    {
+      "product_id": 97,
+      "variant": "Default",
+      "quantity": 1,
+      "price": 315,
+      "oldPrice": 350,
+      "tax": 0,
+      "discount": 0,
+      "shipping_type": "home_delivery",
+      "shipping_cost": 0,
+      "pickup_point": null,
+      "carrier_id": null,
+      "product_referral_code": null,
+      "coupon_code": null
+    },
+    {
+      "product_id": 119,
+      "variant": "Default",
+      "quantity": 1,
+      "price": 2304,
+      "oldPrice": 2560,
+      "tax": 0,
+      "discount": 0,
+      "shipping_type": "home_delivery",
+      "shipping_cost": 0,
+      "pickup_point": null,
+      "carrier_id": null,
+      "product_referral_code": null,
+      "coupon_code": null
+    }
+  ]
+}
 ]

@@ -110,3 +110,10 @@ body {
     opacity: 1;
   }
 }
+.prose img:nth-of-type(n+2) {
+  width: 100% !important;
+  height: 300px !important; /* Fixed height */
+  object-fit: cover !important; /* Ensure the image covers the area */
+  display: block !important;
+  max-width: 100% !important;
+}

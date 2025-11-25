@@ -29,6 +29,7 @@ const ProductCardSkeleton = () => (
 
 type ProductType = {
   id: number;
+  slug: string;
   name: string;
   price: number;
   oldPrice: number;

@@ -55,6 +55,7 @@ export async function GET() {
    const products = apiProducts.map((p) => ({
   id: p.id,
   name: p.name,
+  slug: p.slug,
   price: Number(p.main_price.replace(/[৳,]/g, "")),
   oldPrice: Number(p.stroked_price.replace(/[৳,]/g, "")),
   discount: p.discount,

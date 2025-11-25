@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { FaCartPlus } from "react-icons/fa";
 import { LuShoppingBag } from "react-icons/lu";
-
+import Link from "next/link";
 type Spec = {
   icon: string;
   text: string;
@@ -56,7 +56,7 @@ export default function ProductCard({ product }: { product: Product }) {
     <div className="relative w-full max-w-[300px] rounded-lg shadow-md border border-gray-200 flex flex-col">
 
       {/* FIXED IMAGE AREA */}
-      <div className="relative bg-gray-50 h-[180px] md:h-[220px] rounded-md flex items-center justify-center overflow-hidden">
+      <Link href={`/${product.slug}`} className="relative bg-gray-50 h-[180px] md:h-[220px] rounded-md flex items-center justify-center overflow-hidden">
         <span className="absolute top-1.5 left-1.5 bg-[#FF6B01] text-white text-[10px] font-semibold px-1.5 py-0.5 rounded-full">
           New Arrival
         </span>
@@ -74,14 +74,16 @@ export default function ProductCard({ product }: { product: Product }) {
           <span>{product.rating}</span>
           <span className="text-gray-500 ml-0.5">{product.reviews}</span>
         </div>
-      </div>
+      </Link>
 
       <div className="p-3 flex flex-col flex-grow">
 
         {/* FIXED HEIGHT TITLE (2 LINES ALWAYS) */}
-        <h1 className="md:text-base text-sm mb-3 font-semibold line-clamp-2 h-[45px]">
-          {product.name}
-        </h1>
+       <Link href={`/${product.slug}`}>
+          <h1 className="md:text-base text-sm mb-3 hover:text-orange-600 cursor-pointer hover:underline duration-300 font-semibold line-clamp-2 h-[45px]">
+            {product.name}
+          </h1>
+        </Link>
 
         {/* FIXED HEIGHT SPECS */}
         <div className="space-y-1 h-[55px]">

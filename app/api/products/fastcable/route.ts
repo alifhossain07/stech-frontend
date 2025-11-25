@@ -55,6 +55,7 @@ export async function GET() {
     // Map into your frontend ProductType
    const products = apiProducts.map((p) => ({
   id: p.id,
+  slug: p.slug,
   name: p.name,
   price: Number(p.main_price.replace(/[৳,]/g, "")),
   oldPrice: Number(p.stroked_price.replace(/[৳,]/g, "")),

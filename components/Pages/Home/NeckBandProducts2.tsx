@@ -31,6 +31,7 @@ type ProductType = {
   id: number;
   name: string;
   price: number;
+  slug:string;
   oldPrice: number;
   discount: string;
   rating: string;
