@@ -44,21 +44,31 @@ type ProductType = {
 };
 
 type EarbudsResponse = {
+  title: string;
+  subtitle: string;
+  link: string;
   banner: string;
   products: ProductType[];
 };
 
 const EarbudsProducts = () => {
-  const [products, setProducts] = useState<ProductType[]>([]);
-  const [banner, setBanner] = useState<string>("");
-  const [loading, setLoading] = useState(true);
-
+ const [products, setProducts] = useState<ProductType[]>([]);
+const [banner, setBanner] = useState<string>("");
+const [title, setTitle] = useState<string>("Earbud Products"); // NEW
+const [subtitle, setSubtitle] = useState<string>(
+  "Discover Our Latest Arrivals Designed to Inspire and Impress"
+); // NEW
+const [link, setLink] = useState<string>("#"); // NEW
+const [loading, setLoading] = useState(true);
   useEffect(() => {
     const fetchEarbuds = async () => {
       try {
         const res = await axios.get<EarbudsResponse>("/api/products/earbuds");
         setProducts(res.data.products);
         setBanner(res.data.banner);
+        setTitle(res.data.title || "Earbud Products");
+setSubtitle(res.data.subtitle || "Discover Our Latest Arrivals Designed to Inspire and Impress");
+setLink(res.data.link || "#");
       } catch (err) {
         console.error("Error fetching earbuds products:", err);
       } finally {
@@ -75,17 +85,20 @@ const EarbudsProducts = () => {
       <div className="flex flex-col sm:flex-row justify-between items-center text-center sm:text-left w-full gap-3 mb-7">
         <div className="w-full sm:w-7/12">
           <h1 className="text-2xl sm:text-2xl md:text-4xl font-semibold mb-1 md:mb-2">
-            Earbud Products
+           {title}
           </h1>
           <p className="text-xs sm:text-sm md:text-lg text-gray-600">
-            Discover Our Latest Arrivals Designed to Inspire and Impress
+            {subtitle}
           </p>
         </div>
 
-        <button className="bg-black hidden text-xs sm:text-sm md:text-sm md:flex items-center justify-center gap-2 text-white px-3.5 py-2 rounded-xl hover:text-black hover:bg-gray-200 duration-300 transition whitespace-nowrap">
-          See More
-          <FiChevronRight className="text-sm sm:text-base md:text-xl" />
-        </button>
+        <button
+  onClick={() => window.location.href = link} // ⭐ dynamic link
+  className="bg-black hidden text-xs sm:text-sm md:text-sm md:flex items-center justify-center gap-2 text-white px-3.5 py-2 rounded-xl hover:text-black hover:bg-gray-200 duration-300 transition whitespace-nowrap"
+>
+  See More
+  <FiChevronRight className="text-sm sm:text-base md:text-xl" />
+</button>
       </div>
 
       {/* Main Layout */}
