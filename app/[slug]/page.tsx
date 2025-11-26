@@ -22,10 +22,43 @@ import {
 import YouMayLike from "./YouMayLike";
 import FAQ from "./FAQ";
 import Reviews from "./Reviews";
+interface Brand {
+  id: number;
+  name: string;
+}
 
+interface FeaturedSpec {
+  icon: string;
+  text: string;
+}
+
+interface ProductType {
+  id: number;
+  name: string;
+  main_price: number;
+  stroked_price: number;
+  discount: string;
+  brand: Brand;
+  description: string;
+  photos: { path: string }[];
+  colors: string[];
+  featured_specs: FeaturedSpec[];
+  current_stock: number;
+  est_shipping_time: number;
+}
+
+// Optional: Recently Viewed Products
+// interface RecentProduct {
+//   id: number;
+//   name: string;
+//   price: number;
+//   oldPrice: number;
+//   discount: string;
+//   image: string;
+// }
 const Page = () => {
   const { slug } = useParams(); // <-- grabs slug from URL
-  const [product, setProduct] = useState<any>(null);
+const [product, setProduct] = useState<ProductType | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState("spec");
@@ -45,21 +78,24 @@ const Page = () => {
   useEffect(() => {
     if (!slug) return;
 
-    const fetchProduct = async () => {
-      setLoading(true);
-      try {
-        const res = await fetch(`/api/products/${slug}`); // <-- your API route
-        if (!res.ok) throw new Error("Failed to fetch product");
+   const fetchProduct = async () => {
+  setLoading(true);
+  try {
+    const res = await fetch(`/api/products/${slug}`);
+    if (!res.ok) throw new Error("Failed to fetch product");
 
-        const data = await res.json();
-        setProduct(data); // <-- full product object from Laravel
-      } catch (err: any) {
-        console.error(err);
-        setError(err.message || "Something went wrong");
-      } finally {
-        setLoading(false);
-      }
-    };
+    const data: ProductType = await res.json(); // <-- explicitly typed
+    setProduct(data);
+  } catch (err: unknown) {   // <-- avoid 'any' here too
+    if (err instanceof Error) {
+      setError(err.message);
+    } else {
+      setError("Something went wrong");
+    }
+  } finally {
+    setLoading(false);
+  }
+};
 
     fetchProduct();
   }, [slug]);
@@ -117,7 +153,7 @@ const Page = () => {
   if (loading) return <p className="text-center mt-10">Loading...</p>;
   if (error) return <p className="text-center mt-10 text-red-500">{error}</p>;
   if (!product) return <p className="text-center mt-10">No product found</p>;
-const images = product.photos.map((photo: any) => photo.path);
+const images = product.photos.map((photo) => photo.path);
 const colors = product.colors;
   return (
     <div className="md:mt-10 mt-5 w-11/12 mx-auto">
