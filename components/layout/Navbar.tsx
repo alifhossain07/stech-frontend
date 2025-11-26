@@ -17,6 +17,28 @@ import {
 import { IoSearch,IoCartOutline } from "react-icons/io5";
 import CartSidebar from "./CartSidebar";
 import { useCart } from "@/app/context/CartContext";
+
+// ------------------ TYPES ------------------
+type Subcategory = {
+  name: string;
+  children: string[];
+};
+
+type NavbarCategoryAPI = {
+  id: number;
+  name: string;
+  slug: string;
+  banner?: string;
+};
+
+type Category = {
+  id: number;
+  name: string;
+  slug: string;
+  banner?: string;
+  subcategories: Subcategory[];
+};
+
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [open, setOpen] = useState(false);
@@ -25,7 +47,7 @@ const Navbar = () => {
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   const [expandedSubcategory, setExpandedSubcategory] = useState<string | null>(null);
   const [closing, setClosing] = useState(false);
-   const { cart } = useCart();
+  const { cart } = useCart();
   
 const [showMobileSearch, setShowMobileSearch] = useState(false);
 const [cartOpen, setCartOpen] = useState(false);
@@ -41,56 +63,7 @@ const searchRef = useRef<HTMLDivElement>(null);
   };
 
   // ✅ REAL CATEGORIES (ONLY THOSE WITH DROPDOWNS)
-  const categories = [
-    {
-      name: "Fast Charger",
-      subcategories: [
-        { name: "18W Chargers", children: ["Type-C", "Type-B", "Lightning"] },
-        { name: "33W Chargers", children: [] },
-        { name: "65W Chargers", children: [] },
-      ],
-    },
-    {
-      name: "Fast Cable",
-      subcategories: [
-        { name: "Type-C Cable", children: ["1 Meter", "2 Meter", "Braided"] },
-        { name: "Micro USB", children: [] },
-        { name: "Lightning Cable", children: [] },
-      ],
-    },
-    {
-      name: "Neckband",
-      subcategories: [
-        { name: "Sports Series", children: [] },
-        { name: "Bass Boost", children: [] },
-        { name: "Pro Series", children: [] },
-      ],
-    },
-    {
-      name: "TWS",
-      subcategories: [
-        { name: "Gaming TWS", children: [] },
-        { name: "Music TWS", children: [] },
-        { name: "Noise Cancel TWS", children: [] },
-      ],
-    },
-    {
-      name: "Power Bank",
-      subcategories: [
-        { name: "10,000 mAh", children: [] },
-        { name: "20,000 mAh", children: [] },
-        { name: "Mini Power Banks", children: [] },
-      ],
-    },
-    {
-      name: "Ear Phone",
-      subcategories: [
-        { name: "Wired", children: [] },
-        { name: "Wireless", children: [] },
-        { name: "Studio Grade", children: [] },
-      ],
-    },
-  ];
+ const [categories, setCategories] = useState<Category[]>([]);
 
   // ✅ SIMPLE LINKS (NOT CATEGORIES)
   const simplePages = [
@@ -99,6 +72,42 @@ const searchRef = useRef<HTMLDivElement>(null);
     { name: "Contact Us", href: "/contact" },
     { name: "Authentication", href: "/auth" },
   ];
+
+  useEffect(() => {
+  async function fetchCategories() {
+    try {
+      const res = await fetch("/api/navbarCategories");
+      const data = await res.json();
+
+      // Format backend → frontend
+      const formatted = data.data.map((cat: NavbarCategoryAPI) => ({
+        id: cat.id,
+        name: cat.name,
+        slug: cat.slug,
+        banner: cat.banner,
+        subcategories: [
+          // DEMO SUBCATEGORIES
+          {
+            name: "Subcategory 1",
+            children: ["Child 1", "Child 2"] 
+          },
+          {
+            name: "Subcategory 2",
+           children: ["Child A", "Child B", "Child C"] 
+          }
+        ].map(sub => ({ ...sub, children: sub.children || [] }))
+      }));
+
+      setCategories(formatted);
+    } catch (error) {
+      console.error("Navbar category error:", error);
+    }
+  }
+
+  fetchCategories();
+}, []);
+
+
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -130,6 +139,9 @@ const searchRef = useRef<HTMLDivElement>(null);
   document.addEventListener("mousedown", handleClickOutside);
   return () => document.removeEventListener("mousedown", handleClickOutside);
 }, [showMobileSearch]);
+
+
+
   return (
     <>
       {/* ========= HEADER ========= */}
@@ -277,37 +289,36 @@ const searchRef = useRef<HTMLDivElement>(null);
                       }`}
                     >
                       <ul className="min-w-[180px] py-2 relative">
-                        {category.subcategories.map((sub, idx) => (
-                          <li
-                            key={idx}
-                            className="px-4 py-2 hover:bg-gray-100 text-sm flex justify-between items-center"
-                            onMouseEnter={() => setHoveredSubcategory(sub.name)}
-                            onMouseLeave={() => setHoveredSubcategory(null)}
-                          >
-                            {sub.name}
+                       {category.subcategories.map((sub, idx) => (
+  <li
+    key={idx}
+    className="px-4 py-2 hover:bg-gray-100 text-sm flex justify-between items-center"
+    onMouseEnter={() => setHoveredSubcategory(sub.name)}
+    onMouseLeave={() => setHoveredSubcategory(null)}
+  >
+    {sub.name}
 
-                            {sub.children?.length > 0 && <FiChevronRight className="text-gray-500 text-xs" />}
+    {sub.children?.length > 0 && <FiChevronRight className="text-gray-500 text-xs" />}
 
-                            {/* SECOND LEVEL DROPDOWN */}
-                            {sub.children?.length > 0 && (
-                              <div
-                                className={`absolute left-full top-3 ml-1 bg-white rounded-md shadow-lg transition-all ${
-                                  hoveredSubcategory === sub.name
-                                    ? "opacity-100 visible"
-                                    : "opacity-0 invisible"
-                                }`}
-                              >
-                                <ul className="min-w-[160px] py-2">
-                                  {sub.children.map((child, cidx) => (
-                                    <li key={cidx} className="px-4 py-2 hover:bg-gray-100 text-sm">
-                                      {child}
-                                    </li>
-                                  ))}
-                                </ul>
-                              </div>
-                            )}
-                          </li>
-                        ))}
+    {/* SECOND LEVEL DROPDOWN */}
+    {sub.children?.length > 0 && (
+      <div
+        className={`absolute left-full top-3 ml-1 bg-white rounded-md shadow-lg transition-all ${
+          hoveredSubcategory === sub.name ? "opacity-100 visible" : "opacity-0 invisible"
+        }`}
+      >
+        <ul className="min-w-[160px] py-2">
+          {sub.children?.map((child, cidx) => (
+            <li key={cidx} className="px-4 py-2 hover:bg-gray-100 text-sm">
+              {child}
+            </li>
+          ))}
+        </ul>
+      </div>
+    )}
+  </li>
+))}
+
                       </ul>
                     </div>
                   )}
