@@ -6,6 +6,7 @@ import { FiChevronDown } from "react-icons/fi";
 
 type Product = {
   id: number;
+  slug: string;
   name: string;
   price: number;
   oldPrice: number;
@@ -21,6 +22,7 @@ const NewArrivalProducts = () => {
     () => [
       {
         id: 1,
+        slug: "25-watt-c",
         name: "25 Watt Samsung Fast Charger",
         price: 2500,
         oldPrice: 2600,
@@ -31,6 +33,7 @@ const NewArrivalProducts = () => {
       },
       {
         id: 2,
+ slug: "25-watt-cd",
         name: "Super Fast Wall Charger",
         price: 2300,
         oldPrice: 2500,
@@ -41,6 +44,7 @@ const NewArrivalProducts = () => {
       },
       {
         id: 3,
+        slug: "25-watt-cde",
         name: "Compact USB-C Adapter",
         price: 2200,
         oldPrice: 2400,
@@ -51,6 +55,7 @@ const NewArrivalProducts = () => {
       },
       {
         id: 4,
+        slug: "25-watt-cdr",
         name: "Dual Port Fast Charger",
         price: 2700,
         oldPrice: 3000,
@@ -61,6 +66,7 @@ const NewArrivalProducts = () => {
       },
       {
         id: 5,
+        slug: "25-watt-cdy",
         name: "Super Compact Quick Charger",
         price: 2400,
         oldPrice: 2600,
@@ -71,6 +77,7 @@ const NewArrivalProducts = () => {
       },
       {
         id: 6,
+        slug: "25-watt-cdh",
         name: "25 Watt Samsung Fast Charger",
         price: 2500,
         oldPrice: 2600,
@@ -81,6 +88,7 @@ const NewArrivalProducts = () => {
       },
       {
         id: 7,
+        slug: "25-watt-cdhd",
         name: "Super Fast Wall Charger",
         price: 2300,
         oldPrice: 2500,
@@ -91,6 +99,7 @@ const NewArrivalProducts = () => {
       },
       {
         id: 8,
+        slug: "25-watt-cdaa",
         name: "Compact USB-C Adapter",
         price: 2200,
         oldPrice: 2400,
@@ -101,6 +110,7 @@ const NewArrivalProducts = () => {
       },
       {
         id: 9,
+        slug: "25-watt-cdasas",
         name: "Dual Port Fast Charger",
         price: 2700,
         oldPrice: 3000,
@@ -111,6 +121,7 @@ const NewArrivalProducts = () => {
       },
       {
         id: 10,
+        slug: "25-watt-cdasdd",
         name: "Super Compact Quick Charger",
         price: 2400,
         oldPrice: 2600,
@@ -121,6 +132,7 @@ const NewArrivalProducts = () => {
       },
       {
         id: 11,
+        slug: "25-watt-cdsss",
         name: "25 Watt Samsung Fast Charger",
         price: 2500,
         oldPrice: 2600,
@@ -136,6 +148,7 @@ const NewArrivalProducts = () => {
         oldPrice: 2500,
         discount: "8% Off",
         rating: "4.0",
+        slug: "25-watt-cdsss",
         reviews: "(12)",
         image: "/images/charger.png",
       },
@@ -146,6 +159,7 @@ const NewArrivalProducts = () => {
         oldPrice: 2400,
         discount: "9% Off",
         rating: "4.5",
+        slug: "25-watt-cdsss",
         reviews: "(7)",
         image: "/images/charger.png",
       },
@@ -156,6 +170,7 @@ const NewArrivalProducts = () => {
         oldPrice: 3000,
         discount: "10% Off",
         rating: "3.8",
+        slug: "25-watt-cdsss",
         reviews: "(4)",
         image: "/images/charger.png",
       },
@@ -166,6 +181,7 @@ const NewArrivalProducts = () => {
         oldPrice: 2600,
         discount: "7% Off",
         rating: "4.2",
+        slug: "25-watt-cdsss",
         reviews: "(10)",
         image: "/images/charger.png",
       },
@@ -176,6 +192,7 @@ const NewArrivalProducts = () => {
         oldPrice: 2600,
         discount: "10% Off",
         rating: "3.0",
+        slug: "25-watt-cdsss",
         reviews: "(1)",
         image: "/images/charger.png",
       },
@@ -186,6 +203,7 @@ const NewArrivalProducts = () => {
         oldPrice: 2500,
         discount: "8% Off",
         rating: "4.0",
+        slug: "25-watt-cdsss",
         reviews: "(12)",
         image: "/images/charger.png",
       },
@@ -196,6 +214,7 @@ const NewArrivalProducts = () => {
         oldPrice: 2400,
         discount: "9% Off",
         rating: "4.5",
+        slug: "25-watt-cdsss",
         reviews: "(7)",
         image: "/images/charger.png",
       },
@@ -206,6 +225,7 @@ const NewArrivalProducts = () => {
         oldPrice: 3000,
         discount: "10% Off",
         rating: "3.8",
+        slug: "25-watt-cdsss",
         reviews: "(4)",
         image: "/images/charger.png",
       },
@@ -216,6 +236,7 @@ const NewArrivalProducts = () => {
         oldPrice: 2600,
         discount: "7% Off",
         rating: "4.2",
+        slug: "25-watt-cdsss",
         reviews: "(10)",
         image: "/images/charger.png",
       },
@@ -226,6 +247,7 @@ const NewArrivalProducts = () => {
         oldPrice: 2600,
         discount: "7% Off",
         rating: "4.2",
+        slug: "25-watt-cdsss",
         reviews: "(10)",
         image: "/images/charger.png",
       },
@@ -236,6 +258,7 @@ const NewArrivalProducts = () => {
         oldPrice: 2600,
         discount: "10% Off",
         rating: "3.0",
+        slug: "25-watt-cdsss",
         reviews: "(1)",
         image: "/images/charger.png",
       },
@@ -246,6 +269,7 @@ const NewArrivalProducts = () => {
         oldPrice: 2500,
         discount: "8% Off",
         rating: "4.0",
+        slug: "25-watt-cdsss",
         reviews: "(12)",
         image: "/images/charger.png",
       },
@@ -256,6 +280,7 @@ const NewArrivalProducts = () => {
         oldPrice: 2400,
         discount: "9% Off",
         rating: "4.5",
+        slug: "25-watt-cdsss",
         reviews: "(7)",
         image: "/images/charger.png",
       },
@@ -266,6 +291,7 @@ const NewArrivalProducts = () => {
         oldPrice: 3000,
         discount: "10% Off",
         rating: "3.8",
+        slug: "25-watt-cdsss",
         reviews: "(4)",
         image: "/images/charger.png",
       },
@@ -276,6 +302,7 @@ const NewArrivalProducts = () => {
         oldPrice: 2600,
         discount: "7% Off",
         rating: "4.2",
+        slug: "25-watt-cdsss",
         reviews: "(10)",
         image: "/images/charger.png",
       },
