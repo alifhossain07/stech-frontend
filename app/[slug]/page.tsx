@@ -53,7 +53,7 @@ interface ProductType {
 //   name: string;
 //   price: number;
 //   oldPrice: number;
-//   discount: string;
+//   discount: ssdsdstring;
 //   image: string;
 // }
 const Page = () => {
