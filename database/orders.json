@@ -1,50 +1,36 @@
 [
   {
-    "id": 1764050500764,
+    "id": 1764143790238,
     "customer": {
       "name": "Alif Hossain",
-      "mobile": "01645305137",
-      "email": "alifhossain01@gmail.com",
+      "mobile": "01911185815",
+      "email": "alifhossain56882@gmail.com",
       "address": "HelalMarket, Uttarkhan, Dhaka"
     },
-    "shippingMethod": "outside",
-    "shippingCharge": 140,
+    "shippingMethod": "inside",
+    "shippingCharge": 70,
     "paymentMethod": "Cash on Delivery",
     "paymentNumber": null,
-    "promoCode": "BD50",
-    "promoDiscount": 50,
+    "promoCode": null,
+    "promoDiscount": 0,
     "items": [
       {
-        "id": "112",
-        "name": "Samsung 10000MAH Power Bank",
+        "id": "129",
+        "name": "Samsung TWS 11",
         "qty": 1,
-        "price": 1215,
-        "oldPrice": 1350
-      },
-      {
-        "id": "97",
-        "name": "Samsung Wireless Neckband N500",
-        "qty": 1,
-        "price": 315,
-        "oldPrice": 350
-      },
-      {
-        "id": "119",
-        "name": "33W Samsung Fast Charger",
-        "qty": 1,
-        "price": 2304,
-        "oldPrice": 2560
+        "price": 287.2,
+        "oldPrice": 359
       }
     ],
-    "subtotal": 3834,
-    "discount": 426,
-    "totalAmount": 3498,
-    "timestamp": "2025-11-25T06:01:40.764Z"
+    "subtotal": 287.2,
+    "discount": 71.80000000000001,
+    "totalAmount": 285.4,
+    "timestamp": "2025-11-26T07:56:30.238Z"
   },
   {
-    "id": 1764135028843,
+    "id": 1764143922239,
     "customer": {
-      "name": "Alif Hossain",
+      "name": "Jamal Bhuiya All",
       "mobile": "01911185810",
       "email": "alifhossain56882@gmail.com",
       "address": "HelalMarket, Uttarkhan, Dhaka"
@@ -53,8 +39,8 @@
     "shippingCharge": 70,
     "paymentMethod": "Cash on Delivery",
     "paymentNumber": null,
-    "promoCode": "BD50",
-    "promoDiscount": 50,
+    "promoCode": null,
+    "promoDiscount": 0,
     "items": [
       {
         "id": "130",
@@ -66,7 +52,7 @@
     ],
     "subtotal": 2250,
     "discount": 0,
-    "totalAmount": 2270,
-    "timestamp": "2025-11-26T05:30:28.843Z"
+    "totalAmount": 2320,
+    "timestamp": "2025-11-26T07:58:42.240Z"
   }
 ]
