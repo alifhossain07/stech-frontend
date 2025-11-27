@@ -100,6 +100,7 @@ const CheckoutPage: React.FC = () => {
   > = {
     SAVE10: (total) => ({ newTotal: total * 0.9 }),
     BD50: (total) => ({ newTotal: total - 50 }),
+    TBD25: (total) => ({ newTotal: total - 50 }),
     FREESHIP: (total) => ({ newTotal: total, newDelivery: 0 }),
     BUY1GET1: (total) => ({ newTotal: total * 0.5 }),
     WELCOME20: (total) => ({ newTotal: total * 0.8 }),
@@ -158,51 +159,69 @@ const [paymentNumber, setPaymentNumber] = React.useState("");
     }
   };
 
-  const submitOrder = async (data: CheckoutFormData) => {
-  const orderPayload = {
-    id: Date.now(),
-    customer: {
-      name: data.name,
-      mobile: data.mobile,
-      email: data.email,
-      address: data.address,
-    },
-    shippingMethod: data.shipping,
-    shippingCharge: effectiveDelivery,
-    paymentMethod:
-      data.payment === "cod" ? "Cash on Delivery" : selectedPaymentMethod.toUpperCase(),
-    paymentNumber: data.payment === "cod" ? null : paymentNumber,
-    promoCode: appliedPromo,
-    promoDiscount,
-    items: selectedCart.map((item) => ({
-      id: item.id,
-      name: item.name,
-      qty: item.qty,
-      price: item.price,
-      oldPrice: item.oldPrice,
-    })),
-    subtotal,
-    discount,
-    totalAmount: total,
-    timestamp: new Date().toISOString(),
-  };
+ const submitOrder = async (data: CheckoutFormData) => {
+  if (selectedCart.length === 0) {
+    toast.error("Your cart is empty ❌");
+    return;
+  }
+
+  // Build payload exactly like backend expects
+  const payload = {
+  customer: {
+    name: data.name,
+    mobile: data.mobile,
+    email: data.email || null,
+    address: data.address,
+    country_id: null,
+    state_id: null,
+    city_id: null,
+    area_id: null,
+    postal_code: "1230",
+  },
+  items: selectedCart.map((item) => ({
+    id: Number(item.id),
+    qty: Number(item.qty),
+    variant: null,
+    variation: null, // <-- add this
+    referral_code: null,
+  })),
+  shipping_method:
+    data.shipping === "inside" || data.shipping === "outside"
+      ? "home_delivery"
+      : "pickup_point", // <-- correct value
+  shipping_charge: effectiveDelivery,
+  payment_method:
+    data.payment === "cod" ? "cash_on_delivery" : selectedPaymentMethod.toLowerCase(), // normalize
+  payment_number: data.payment === "cod" ? null : paymentNumber || null,
+  promo_code: appliedPromo || null,
+  note: "",
+  pickup_point_id: null,
+  carrier_id: null,
+};
 
   try {
-    const response = await axios.post("/api/orders", orderPayload);
+    setIsLoading(true);
 
-    if (response.data.success) {
-      toast.success("Order placed successfully! 🎉");
-        clearCart();
+    const response = await axios.post("/api/orders", payload);
+
+    if (response.data.success && response.data.data?.result) {
+      toast.success(response.data.data.message || "Order placed successfully! 🎉");
+      clearCart();
       setShowPaymentModal(false);
-      // Optionally: clear cart or redirect to success page
-    router.push(`/checkout/ordercomplete?orderId=${orderPayload.id}`);
+      router.push("/checkout/ordercomplete");
     } else {
-      toast.error("Failed to place order ❌");
-      console.error(response.data);
+      toast.error(response.data.message || "Failed to place order ❌");
     }
-  } catch (error) {
-    console.error(error);
+  } catch (error: unknown) {
+  if (axios.isAxiosError(error)) {
+    console.error("Order submit error:", error.response || error);
+    toast.error(error.response?.data?.message || "Something went wrong while placing the order ❌");
+  } else {
+    console.error("Unexpected error:", error);
     toast.error("Something went wrong while placing the order ❌");
+  }
+} finally {
+    setIsLoading(false);
   }
 };
 

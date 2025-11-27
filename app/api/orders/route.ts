@@ -1,89 +1,103 @@
+// /api/orders.ts
 import { NextRequest, NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
+import axios from "axios";
 
-// Path to your orders.json file
-const ordersFilePath = path.join(process.cwd(), "database", "orders.json");
-
-// ------------------------- Types -------------------------
-interface CartItem {
-  id: string;
-  name: string;
-  qty: number;
-  price: number;
-  oldPrice: number;
+interface OrderItem {
+  id: number | string;
+  qty: number | string;
+  variant?: string | null;
+  variation?: string | null;
+  referral_code?: string | null;
 }
 
-interface Order {
-  id: number;
-  customer: {
-    name: string;
-    mobile: string;
-    email?: string;
-    address: string;
-  };
-  shippingMethod: "inside" | "outside" | "free";
-  shippingCharge: number;
-  paymentMethod: string;
-  paymentNumber?: string | null;
-  promoCode?: string | null;
-  promoDiscount?: number;
-  items: CartItem[];
-  subtotal: number;
-  discount: number;
-  totalAmount: number;
-  timestamp: string;
-}
-
-// ------------------------- POST -------------------------
 export async function POST(req: NextRequest) {
   try {
-    const orderData: Order = await req.json();
+    const data = await req.json();
+    console.log("Frontend payload received:", data);
 
-    // Read existing orders
-    let orders: Order[] = [];
-    if (fs.existsSync(ordersFilePath)) {
-      const fileData = fs.readFileSync(ordersFilePath, "utf-8");
-      orders = fileData ? JSON.parse(fileData) : [];
+    const API_BASE = process.env.API_BASE;
+    const SYSTEM_KEY = process.env.SYSTEM_KEY;
+
+    if (!API_BASE || !SYSTEM_KEY) {
+      console.error("Missing API_BASE or SYSTEM_KEY in environment");
+      return NextResponse.json(
+        { success: false, message: "Server configuration error" },
+        { status: 500 }
+      );
     }
 
-    // Append new order
-    orders.push(orderData);
+    const payload = {
+      customer: {
+        name: data.customer?.name ?? "",
+        mobile: data.customer?.mobile ?? "",
+        email: data.customer?.email || null,
+        address: data.customer?.address ?? "",
+        country_id: data.customer?.country_id ?? null,
+        state_id: data.customer?.state_id ?? null,
+        city_id: data.customer?.city_id ?? null,
+        area_id: data.customer?.area_id ?? null,
+        postal_code: data.customer?.postal_code ?? "1230",
+      },
 
-    // Write back to file
-    fs.writeFileSync(ordersFilePath, JSON.stringify(orders, null, 2), "utf-8");
+      items:
+        Array.isArray(data.items) && data.items.length > 0
+          ? data.items.map((item: OrderItem) => ({
+              id: Number(item.id),
+              qty: Number(item.qty),
+              variant: item.variant ?? null,
+              variation: item.variation ?? null,
+              referral_code: item.referral_code ?? null,
+            }))
+          : null,
 
-    return NextResponse.json({
-      success: true,
-      message: "Order saved successfully!",
-      order: orderData,
+      shipping_method: data.shipping_method,
+      shipping_charge: Number(data.shipping_charge) || 0,
+      payment_method: data.payment_method || null,
+      payment_number: data.payment_number || null,
+      promo_code: data.promo_code || null,
+      note: data.note ?? "",
+      pickup_point_id: data.pickup_point_id ?? null,
+      carrier_id: data.carrier_id ?? null,
+    };
+
+    console.log("Mapped payload to backend API:", payload);
+
+    const response = await axios.post(`${API_BASE}/order/checkout`, payload, {
+      headers: {
+        "System-Key": SYSTEM_KEY,
+        "Content-Type": "application/json",
+      },
     });
-  } catch (error) {
-    console.error("Error saving order:", error);
-    return NextResponse.json(
-      { success: false, message: "Failed to save order", error },
-      { status: 500 }
-    );
-  }
-}
 
-// ------------------------- GET -------------------------
-export async function GET() {
-  try {
-    let orders: Order[] = [];
-    if (fs.existsSync(ordersFilePath)) {
-      const fileData = fs.readFileSync(ordersFilePath, "utf-8");
-      orders = fileData ? JSON.parse(fileData) : [];
+    console.log("Backend URL", `${API_BASE}/order/checkout`);
+    console.log("Backend API response:", response.data);
+
+    if (response.data.result) {
+      return NextResponse.json({ success: true, data: response.data });
+    } else {
+      return NextResponse.json(
+        { success: false, message: response.data.message || "Order failed" },
+        { status: 400 }
+      );
+    }
+  } catch (err: unknown) {
+    if (axios.isAxiosError(err)) {
+      console.error("Proxy /api/orders error:", err.message);
+      console.error("Full error:", err.response?.data);
+
+      return NextResponse.json(
+        {
+          success: false,
+          message: err.response?.data?.message || err.message,
+        },
+        { status: 500 }
+      );
     }
 
-    return NextResponse.json({
-      success: true,
-      orders,
-    });
-  } catch (error) {
-    console.error("Error reading orders:", error);
+    console.error("Unexpected error:", err);
+
     return NextResponse.json(
-      { success: false, message: "Failed to read orders", error },
+      { success: false, message: "An unexpected error occurred" },
       { status: 500 }
     );
   }
