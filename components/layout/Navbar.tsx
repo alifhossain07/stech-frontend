@@ -235,15 +235,15 @@ const searchRef = useRef<HTMLDivElement>(null);
             </div>
 
             {/* CART */}
-            <Link href="/checkout">
-              <button className="border border-gray-400 px-5 py-2 h-[46px] rounded-md flex items-center gap-3 text-sm">
+           
+              <button onClick={() => setCartOpen(true)} className="border border-gray-400 px-5 py-2 h-[46px] rounded-md flex items-center gap-3 text-sm">
                 <FiShoppingCart className="text-2xl" />
                 <div>
                   <h1 className="text-base">Cart</h1>
                   <span className="text-xs mt-2">*{cart.length.toString().padStart(2, "0")} Items</span>
                 </div>
               </button>
-            </Link>
+         
 
             {/* PROFILE */}
             <button className="border border-gray-400 px-5 py-2 h-[46px] rounded-md flex items-center gap-1 text-sm">
