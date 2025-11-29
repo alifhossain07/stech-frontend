@@ -3,17 +3,16 @@
 import { useCart } from "@/app/context/CartContext";
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { RiDeleteBin6Line } from "react-icons/ri";
-
 
 interface CartSidebarProps {
   externalOpen: boolean;
   setExternalOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-
 interface CartItem {
- id: string | number; 
+  id: string | number; 
   name: string;
   img: string;
   price: number;
@@ -22,11 +21,14 @@ interface CartItem {
 }
 
 export default function CartSidebar({ externalOpen, setExternalOpen }: CartSidebarProps) {
-  const { cart, increaseQty, decreaseQty, removeFromCart } = useCart();
+  const { cart, increaseQty, decreaseQty, removeFromCart, selectedItems, setSelectedItems } = useCart();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const typedCart: CartItem[] = cart;
-
-const { selectedItems, setSelectedItems } = useCart();
 
   const toggleSelect = (id: string | number) => {
     setSelectedItems(prev =>
@@ -60,10 +62,14 @@ const { selectedItems, setSelectedItems } = useCart();
             <div className="w-[28px] h-[28px] flex items-center justify-center">
               <Image src="/images/buy.png" alt="Cart Icon" width={28} height={28} />
             </div>
-            <span className="text-xs mt-2">*{typedCart.length.toString().padStart(2, "0")} Items</span>
+            <span className="text-xs mt-2">
+              *{mounted ? typedCart.length.toString().padStart(2, "0") : "00"} Items
+            </span>
           </div>
           <div className="bg-orange-500 text-white text-center py-2 font-semibold">
-            ৳{typedCart.reduce((acc, item) => acc + item.price * item.qty, 0).toLocaleString()}
+            {mounted
+              ? `৳${typedCart.reduce((acc, item) => acc + item.price * item.qty, 0).toLocaleString()}`
+              : "৳0"}
           </div>
         </div>
       </button>
@@ -89,14 +95,15 @@ const { selectedItems, setSelectedItems } = useCart();
         <div className="bg-[#f4f4f4] mt-16 flex items-center justify-between px-4 py-2">
           <h1> Shipping Cart </h1>
           <p>
-            <span className="text-xs mt-2">*{typedCart.length.toString().padStart(2, "0")} Items</span>
+            <span className="text-xs mt-2">
+              *{mounted ? typedCart.length.toString().padStart(2, "0") : "00"} Items
+            </span>
           </p>
         </div>
 
         <div className="p-4 overflow-y-auto" style={{ height: "calc(100vh - 260px)" }}>
           {typedCart.map((item) => (
             <div key={item.id} className="flex gap-3 p-3 mb-3 items-center">
-              
               {/* Checkbox */}
               <button
                 onClick={() => toggleSelect(item.id)}
@@ -117,8 +124,12 @@ const { selectedItems, setSelectedItems } = useCart();
                 <h3 className="text-sm font-medium truncate">{item.name}</h3>
                 <p className="text-xs text-gray-500">Black & Orange</p>
                 <div className="flex items-center gap-2 mt-1">
-                  <span className="text-orange-600 font-semibold">৳{item.price * item.qty}</span>
-                  <span className="line-through text-gray-400 text-xs">৳{item.oldPrice * item.qty}</span>
+                  <span className="text-orange-600 font-semibold">
+                    {mounted ? `৳${item.price * item.qty}` : "৳0"}
+                  </span>
+                  <span className="line-through text-gray-400 text-xs">
+                    {mounted ? `৳${item.oldPrice * item.qty}` : "৳0"}
+                  </span>
                 </div>
 
                 <div className="flex justify-between items-center mt-2">
@@ -153,16 +164,16 @@ const { selectedItems, setSelectedItems } = useCart();
 
         {/* Bottom area: select all + totals + checkout */}
         <div className="absolute bottom-0 left-0 w-full p-4 bg-white border-t flex flex-col gap-2">
-          
           <div className="flex justify-between items-center">
             {/* Select All */}
-            <button
-              onClick={toggleSelectAll}
-              className="flex items-center gap-2 text-sm"
-            >
-              <span className={`w-5 h-5 rounded-full border flex items-center justify-center ${
-                selectedItems.length === typedCart.length && typedCart.length > 0 ? "bg-orange-500 border-orange-500" : "border-gray-400"
-              }`}>
+            <button onClick={toggleSelectAll} className="flex items-center gap-2 text-sm">
+              <span
+                className={`w-5 h-5 rounded-full border flex items-center justify-center ${
+                  selectedItems.length === typedCart.length && typedCart.length > 0
+                    ? "bg-orange-500 border-orange-500"
+                    : "border-gray-400"
+                }`}
+              >
                 {selectedItems.length === typedCart.length && typedCart.length > 0 && (
                   <span className="text-white text-xs font-bold">✓</span>
                 )}
@@ -174,32 +185,31 @@ const { selectedItems, setSelectedItems } = useCart();
             <div className="text-right">
               <div className="flex gap-6 mb-3 justify-between text-sm">
                 <span>Sub-total</span>
-                <span>৳{subtotal.toLocaleString()}</span>
+                <span>৳{mounted ? subtotal.toLocaleString() : "0"}</span>
               </div>
               <div className="flex gap-6 mb-3 justify-between text-sm">
                 <span>Discount</span>
-                <span>৳{discount.toLocaleString()}</span>
+                <span>৳{mounted ? discount.toLocaleString() : "0"}</span>
               </div>
               <div className="flex gap-6 mb-3 justify-between font-bold text-[16px]">
                 <span>Total</span>
-                <span className="text-orange-600">৳{total.toLocaleString()}</span>
+                <span className="text-orange-600">৳{mounted ? total.toLocaleString() : "0"}</span>
               </div>
             </div>
           </div>
 
           {/* Checkout Button */}
-          <Link href="/checkout"  onClick={() => setExternalOpen(false)}>
-              <button
-    className={`w-full py-3 rounded-full text-white ${
-      selectedItems.length > 0
-        ? "bg-orange-500 hover:bg-orange-600"
-        : "bg-gray-400 cursor-not-allowed"
-    }`}
-    disabled={selectedItems.length === 0} // Disable if nothing selected
-    onClick={() => setExternalOpen(false)} // Close sidebar
-  >
-    Checkout
-  </button>
+          <Link href="/checkout" onClick={() => setExternalOpen(false)}>
+            <button
+              className={`w-full py-3 rounded-full text-white ${
+                selectedItems.length > 0
+                  ? "bg-orange-500 hover:bg-orange-600"
+                  : "bg-gray-400 cursor-not-allowed"
+              }`}
+              disabled={selectedItems.length === 0}
+            >
+              Checkout
+            </button>
           </Link>
         </div>
       </aside>
