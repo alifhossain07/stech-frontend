@@ -53,7 +53,7 @@ export default function ProductCard({ product }: { product: Product }) {
   ];
 
   return (
-    <div className="relative w-full max-w-[300px] rounded-lg shadow-md border border-gray-200 flex flex-col">
+    <div className="relative w-full max-w-[350px] rounded-lg shadow-md border border-gray-200 flex flex-col">
 
       {/* FIXED IMAGE AREA */}
       <Link href={`/${product.slug}`} className="relative bg-gray-50 h-[180px] md:h-[220px] rounded-md flex items-center justify-center overflow-hidden">

@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import axios from "axios";
 import ProductCard from "@/components/ui/ProductCard";
 import { Range } from "react-range";
+
 type ProductType = {
   id: number;
   name: string;
@@ -18,30 +19,38 @@ type ProductType = {
   featured_specs?: { text: string; icon: string }[];
 };
 
+const PRODUCTS_PER_PAGE = 12;
+
 const CategoryPage = () => {
   const params = useParams();
   const category = params.category;
 
-
   const [products, setProducts] = useState<ProductType[]>([]);
-  const [subtitle, setSubtitle] = useState<string>("");   // <-- new
-  const [title, setTitle] = useState<string>("");         // optional
+  const [subtitle, setSubtitle] = useState<string>("");
+  const [title, setTitle] = useState<string>("");
+  const [totalProducts, setTotalProducts] = useState(0);
   const [loading, setLoading] = useState(true);
+
+  const [currentPage, setCurrentPage] = useState(1);
+
   const MIN = 0;
   const MAX = 12000;
   const [minPrice, setMinPrice] = useState(0);
   const [maxPrice, setMaxPrice] = useState(12000);
 
+  const [sortOption, setSortOption] = useState("default");
 
+  // Fetch products from API
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
       try {
         const res = await axios.get(`/api/products/${category}`);
-
         setProducts(res.data.products);
-        setSubtitle(res.data.subtitle);  // <-- new
-        setTitle(res.data.title);        // optional
+        setTotalProducts(res.data.total || res.data.products.length);
+        setSubtitle(res.data.subtitle);
+        setTitle(res.data.title);
+        setCurrentPage(1); // reset to first page on category change
       } catch (err) {
         console.error("Error fetching category products:", err);
       } finally {
@@ -52,26 +61,43 @@ const CategoryPage = () => {
     fetchProducts();
   }, [category]);
 
+  // Sort products based on selected option
+  const sortedProducts = [...products].sort((a, b) => {
+    if (sortOption === "price-low-high") return a.price - b.price;
+    if (sortOption === "price-high-low") return b.price - a.price;
+    if (sortOption === "a-z") return a.name.localeCompare(b.name);
+    return 0; // default
+  });
+
+  // Calculate pagination
+  const totalPages = Math.ceil(sortedProducts.length / PRODUCTS_PER_PAGE);
+  const startIndex = (currentPage - 1) * PRODUCTS_PER_PAGE;
+  const endIndex = startIndex + PRODUCTS_PER_PAGE;
+  const visibleProducts = sortedProducts.slice(startIndex, endIndex);
+
+  const handlePageChange = (page: number) => {
+    if (page < 1 || page > totalPages) return;
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: "smooth" }); // scroll to top on page change
+  };
+
   return (
     <div className="md:w-11/12 w-11/12 pt-10 pb-[56px] mx-auto">
 
       {/* Dynamic Category Title */}
-      <h1 className="text-3xl font-semibold mb-2 capitalize">
-        {title}
-      </h1>
+      <h1 className="text-3xl font-semibold mb-2 capitalize">{title}</h1>
 
       {/* Dynamic Subtitle */}
-      {subtitle && (
-        <p className="text-gray-600 mb-6">{subtitle}</p>
-      )}
+      {subtitle && <p className="text-gray-600 mb-6">{subtitle}</p>}
 
       {loading ? (
         <p>Loading...</p>
       ) : (
+        <div className="flex justify-between gap-4">
 
-        <div className="flex justify-between  gap-4 ">
+          {/* Sidebar Filters */}
           <div className="w-[355px]">
-            <div className="w-full bg-[#f4f4f4] rounded-md shadow p-4 border">
+           <div className="w-full bg-[#f4f4f4] rounded-md shadow p-4 border">
               <div className="flex items-center justify-between mb-3">
                 <h2 className="font-semibold text-[#ff6b01] text-[22px]">Product Filter</h2>
                 <button className="text-orange-500 text-[12px]">Clear all</button>
@@ -92,7 +118,7 @@ const CategoryPage = () => {
               <div className="border-t py-3">
                 <h3 className="font-medium mb-2">Price Range</h3>
 
-                <p className="text-[24px] mb-4 text-center font-medium">
+                <p className="text-[24px] my-4 text-center font-medium">
                   ৳{minPrice} — ৳{maxPrice}
                 </p>
 
@@ -128,7 +154,7 @@ const CategoryPage = () => {
                   )}
                 />
 
-                <div className="flex justify-between gap-5 text-sm mt-2">
+                <div className="flex justify-between gap-5 text-sm mt-4">
                   <span className="w-1/2 py-2 text-center bg-[#e3e3e3]">{minPrice}</span>
                   <span className="w-1/2 py-2 text-center bg-[#e3e3e3]">{maxPrice}</span>
                 </div>
@@ -156,14 +182,79 @@ const CategoryPage = () => {
               </div>
             </div>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 w-[1368px] xl:grid-cols-4 gap-7">
-            {products.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
+
+          {/* Products List */}
+          <div className="w-[1368px]">
+            {/* Showing products */}
+            <div className="flex justify-between rounded-xl bg-[#f4f4f4] p-4 mb-6 items-center">
+              <div className="text-[16px] text-[#626262] font-medium">
+                Showing {visibleProducts.length} out of {totalProducts} Products
+              </div>
+
+              {/* Sort Dropdown */}
+              <select
+                value={sortOption}
+                onChange={(e) => setSortOption(e.target.value)}
+                className="border px-2 py-2 text-[#626262] rounded-md text-sm"
+              >
+                <option value="default">Default</option>
+                <option value="price-low-high">Price: Low to High</option>
+                <option value="price-high-low">Price: High to Low</option>
+                <option value="a-z">A-Z</option>
+              </select>
+            </div>
+
+            <div className="grid w-full grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-7">
+              {visibleProducts.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+
+            {/* Pagination */}
+            <div className="flex justify-center mt-10">
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className={`px-3 py-1.5 border rounded-md text-sm font-medium ${
+                    currentPage === 1
+                      ? "text-gray-400 border-gray-300 cursor-not-allowed"
+                      : "hover:bg-gray-100"
+                  }`}
+                >
+                  &lt; Back
+                </button>
+
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  <button
+                    key={page}
+                    onClick={() => handlePageChange(page)}
+                    className={`px-3 py-1.5 border rounded-md text-sm font-medium ${
+                      currentPage === page
+                        ? "bg-black text-white border-black"
+                        : "hover:bg-gray-100 border-gray-300"
+                    }`}
+                  >
+                    {page}
+                  </button>
+                ))}
+
+                <button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className={`px-3 py-1.5 border rounded-md text-sm font-medium ${
+                    currentPage === totalPages
+                      ? "text-gray-400 border-gray-300 cursor-not-allowed"
+                      : "hover:bg-gray-100"
+                  }`}
+                >
+                  Next &gt;
+                </button>
+              </div>
+            </div>
           </div>
+
         </div>
-
-
       )}
     </div>
   );
