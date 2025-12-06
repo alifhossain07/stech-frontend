@@ -6,38 +6,14 @@ type FAQItem = {
   answer: string;
 };
 
-const FAQ = () => {
+type FAQProps = {
+  faqs: FAQItem[];
+};
+
+const FAQ: React.FC<FAQProps> = ({ faqs }) => {
   const faqLeft = {
     title: "Frequently Asked Questions",
   };
-
-  const faqRight: FAQItem[] = [
-    {
-      question: "What is the price of Pantum P2500 Printer In Bangladesh?",
-      answer:
-        "The price of Pantum P2500 Printer starts from 10,500 . The price may vary due to your customization and product availability. You can buy Pantum P2500 Printer from our website or visit our showrooms nearby. Looking to purchase office, corporate, or institutional equipment? Sannai Computers is here to help. We provide customized solutions tailored to your needs, backed by fast delivery and dependable after-sales service.",
-    },
-    {
-      question: "What is the price of Pantum P2500 Printer In Bangladesh?",
-      answer:
-        "The price of Pantum P2500 Printer starts from 10,500 . The price may vary due to your customization and product availability. You can buy Pantum P2500 Printer from our website or visit our showrooms nearby. Looking to purchase office, corporate, or institutional equipment? Sannai Computers is here to help. We provide customized solutions tailored to your needs, backed by fast delivery and dependable after-sales service.",
-    },
-    {
-      question: "What is the price of Pantum P2500 Printer In Bangladesh?",
-      answer:
-        "The price of Pantum P2500 Printer starts from 10,500 . The price may vary due to your customization and product availability. You can buy Pantum P2500 Printer from our website or visit our showrooms nearby. Looking to purchase office, corporate, or institutional equipment? Sannai Computers is here to help. We provide customized solutions tailored to your needs, backed by fast delivery and dependable after-sales service.",
-    },
-    {
-      question: "What is the price of Pantum P2500 Printer In Bangladesh?",
-      answer:
-        "The price of Pantum P2500 Printer starts from 10,500 . The price may vary due to your customization and product availability. You can buy Pantum P2500 Printer from our website or visit our showrooms nearby. Looking to purchase office, corporate, or institutional equipment? Sannai Computers is here to help. We provide customized solutions tailored to your needs, backed by fast delivery and dependable after-sales service.",
-    },
-    {
-      question: "What is the price of Pantum P2500 Printer In Bangladesh?",
-      answer:
-        "The price of Pantum P2500 Printer starts from 10,500 . The price may vary due to your customization and product availability. You can buy Pantum P2500 Printer from our website or visit our showrooms nearby. Looking to purchase office, corporate, or institutional equipment? Sannai Computers is here to help. We provide customized solutions tailored to your needs, backed by fast delivery and dependable after-sales service.",
-    },
-  ];
 
   const [activeIndex, setActiveIndex] = useState<number | null>(0);
 
@@ -52,11 +28,11 @@ const FAQ = () => {
   return (
     <section className="w-full py-10">
       <h2 className="md:text-2xl text-xl font-semibold mb-4">
-       - {faqLeft.title}
+        - {faqLeft.title}
       </h2>
 
       <div className="flex flex-col gap-3">
-        {faqRight.map((item, index) => (
+        {faqs.map((item, index) => (
           <div
             key={index}
             className="border border-gray-300 rounded-md bg-white"
@@ -66,7 +42,9 @@ const FAQ = () => {
               onClick={() => toggle(index)}
               className="w-full flex justify-between items-center px-4 py-4 text-left hover:bg-gray-100 transition"
             >
-              <span className="text-gray-800 text-sm md:text-lg font-medium">{item.question}</span>
+              <span className="text-gray-800 text-sm md:text-lg font-medium">
+                {item.question}
+              </span>
 
               {activeIndex !== index ? (
                 // Down arrow

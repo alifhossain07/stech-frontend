@@ -17,6 +17,8 @@ import {
 import { IoSearch,IoCartOutline } from "react-icons/io5";
 import CartSidebar from "./CartSidebar";
 import { useCart } from "@/app/context/CartContext";
+import { useAuth } from "@/app/context/AuthContext";
+import { useRouter } from "next/navigation";
 
 // ------------------ TYPES ------------------
 type Subcategory = {
@@ -40,6 +42,7 @@ type Category = {
 };
 
 const Navbar = () => {
+  const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const [open, setOpen] = useState(false);
   const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
@@ -48,9 +51,12 @@ const Navbar = () => {
   const [expandedSubcategory, setExpandedSubcategory] = useState<string | null>(null);
   const [closing, setClosing] = useState(false);
   const { cart } = useCart();
+  const { user, logout } = useAuth();
   
 const [showMobileSearch, setShowMobileSearch] = useState(false);
 const [cartOpen, setCartOpen] = useState(false);
+const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+const [showLogoutSuccess, setShowLogoutSuccess] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const submenuRef = useRef<HTMLUListElement>(null);
 const searchRef = useRef<HTMLDivElement>(null);
@@ -139,6 +145,16 @@ const searchRef = useRef<HTMLDivElement>(null);
   document.addEventListener("mousedown", handleClickOutside);
   return () => document.removeEventListener("mousedown", handleClickOutside);
 }, [showMobileSearch]);
+
+const handleConfirmLogout = () => {
+  logout();
+  setShowLogoutConfirm(false);
+  setShowLogoutSuccess(true);
+
+  setTimeout(() => {
+    setShowLogoutSuccess(false);
+  }, 2000);
+};
 
 
 
@@ -245,16 +261,52 @@ const searchRef = useRef<HTMLDivElement>(null);
               </button>
          
 
-            {/* PROFILE */}
-            <button className="border border-gray-400 px-5 py-2 h-[46px] rounded-md flex items-center gap-1 text-sm">
-              <Link href="/login" className="flex items-center gap-2">
-                <FiUser className="text-2xl" />
-                <div>
-                  <h1 className="text-base">Profile</h1>
-                  <p className="text-xs">Amanullah</p>
-                </div>
-              </Link>
-            </button>
+            {/* PROFILE / AUTH */}
+            {user ? (
+  <div className="relative group">
+    <button
+      className="border border-gray-400 px-5 py-2 h-[46px] rounded-md flex items-center gap-2 text-sm bg-white"
+      onClick={() => router.push("/")} // or another page
+    >
+      <FiUser className="text-2xl" />
+      <div className="text-left">
+        <h1 className="text-base">Hi, {user.name.split(" ")[0]}</h1>
+        <p className="text-xs text-gray-500">
+          {user.phone || user.email || "Customer"}
+        </p>
+      </div>
+    </button>
+
+    {/* Logout dropdown on hover */}
+    <button
+      onClick={() => setShowLogoutConfirm(true)}
+      className="
+        absolute right-0 mt-1
+        w-full
+        text-sm text-red-500
+        border border-red-400
+        bg-white
+        px-3 py-1 rounded-md
+        shadow-lg
+        opacity-0 invisible
+        group-hover:opacity-100 group-hover:visible
+        transition-opacity duration-150
+      "
+    >
+      Logout
+    </button>
+  </div>
+) : (
+  <button className="border border-gray-400 px-5 py-2 h-[46px] rounded-md flex items-center gap-1 text-sm">
+    <Link href="/login" className="flex items-center gap-2">
+      <FiUser className="text-2xl" />
+      <div>
+        <h1 className="text-base">Login</h1>
+       
+      </div>
+    </Link>
+  </button>
+)}
           </div>
         </div>
       
@@ -499,6 +551,42 @@ const searchRef = useRef<HTMLDivElement>(null);
         </>
       )}
       <CartSidebar externalOpen={cartOpen} setExternalOpen={setCartOpen} />
+
+      {/* Logout confirmation modal */}
+{showLogoutConfirm && (
+  <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40">
+    <div className="bg-white rounded-lg shadow-xl px-6 py-5 w-80 max-w-[90%] text-center">
+      <h2 className="text-lg font-semibold mb-2">
+        Are you sure you want to log out?
+      </h2>
+      <p className="text-sm text-gray-600 mb-4">
+        You will need to log in again to access your account.
+      </p>
+      <div className="flex items-center justify-center gap-3">
+        <button
+          onClick={() => setShowLogoutConfirm(false)}
+          className="px-4 py-2 rounded-md border border-gray-300 text-sm text-gray-700 hover:bg-gray-100"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={handleConfirmLogout}
+          className="px-4 py-2 rounded-md bg-red-500 text-white text-sm hover:bg-red-600"
+        >
+          Yes, log out
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+{showLogoutSuccess && (
+  <div className="fixed inset-0 z-[60] flex items-center justify-center pointer-events-none">
+    <div className="bg-green-500 text-white text-sm px-4 py-2 rounded-full shadow-lg">
+      Successfully logged out
+    </div>
+  </div>
+)}
     </>
   );
 };

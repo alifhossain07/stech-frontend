@@ -76,7 +76,7 @@ const NewArrival = () => {
   useEffect(() => {
     if (!loading && products.length > 0) {
       new Glide(".glide-new-arrival", {
-  type: "carousel",
+  type: "slider",
   perView: 5,
   gap: 20, // slightly smaller or dynamic
   bound: false, // ensures slides fit nicely

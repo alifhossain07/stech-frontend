@@ -22,7 +22,7 @@ const PopularCategories = () => {
       try {
         const res = await axios.get("/api/categories");
         if (res.data?.success) {
-          setCategories(res.data.categories);
+          setCategories(res.data.featuredCategories);
         }
       } catch (error) {
         console.log("Category load error:", error);

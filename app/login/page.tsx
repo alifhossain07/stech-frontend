@@ -1,11 +1,43 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import { FcGoogle } from "react-icons/fc";
 import { FaFacebookF } from "react-icons/fa";
-
+import Link from "next/link";
+import { useAuth } from "../context/AuthContext";
+import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 const Page = () => {
+  const { login, loading } = useAuth();
+  const router = useRouter();
+  const [form, setForm] = useState({
+    login_by: "phone" as "phone" | "email",
+    email: "",
+    password: "",
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await login({
+        login_by: form.login_by,
+        email: form.email,
+        password: form.password,
+      });
+      toast.success("Logged in successfully");
+      // optional redirect:
+      router.push("/");
+    } catch (err: any) {
+      toast.error(err?.message || "Login failed");
+    }
+  };
+
   return (
     <div className="flex items-center justify-center py-12 md:py-20  px-4">
       <div className="w-full sm:w-11/12 xl:w-10/12 md:w-[95%] lg:w-8/12 bg-white shadow-2xl rounded-3xl flex flex-col md:flex-row overflow-hidden border border-gray-200">
@@ -21,18 +53,21 @@ const Page = () => {
             </p>
             <div className="w-10/12 md:w-full xl:w-9/12  mx-auto md:mx-0">
               {/* Form */}
-              <form className="space-y-5 sm:space-y-6">
+              <form className="space-y-5 sm:space-y-6" onSubmit={handleSubmit}>
                 {/* Name Field */}
                 <div className="relative">
                   <label
                     htmlFor="name"
                     className="absolute -top-2 left-3 bg-white px-1 text-xs text-gray-500"
                   >
-                    Your Name
+                    Login with mobile number/e-mail
                   </label>
                   <input
                     type="text"
-                    id="name"
+                    id="email"
+                    name="email"
+                    value={form.email}
+                    onChange={handleChange}
                     className="w-full border border-gray-300 rounded-md px-4 py-3 sm:py-4 text-sm focus:border-[#FF6B01] focus:ring-1 focus:ring-[#FF6B01] outline-none"
                   />
                 </div>
@@ -43,11 +78,14 @@ const Page = () => {
                     htmlFor="login"
                     className="absolute -top-2 left-3 bg-white px-1 text-xs text-orange-600"
                   >
-                    Login with mobile number/e-mail
+                   Password
                   </label>
                   <input
                     type="password"
-                    id="login"
+                    id="password"
+                    name="password"
+                    value={form.password}
+                    onChange={handleChange}
                     className="w-full border border-orange-600 rounded-md px-4 py-3 sm:py-4 text-sm focus:border-[#FF6B01] focus:ring-1 focus:ring-[#FF6B01] outline-none"
                   />
                 </div>
@@ -63,10 +101,18 @@ const Page = () => {
 
                 <button
                   type="submit"
-                  className="w-full bg-[#FF6B01] text-white py-2 sm:py-3 rounded-md font-semibold hover:bg-orange-600 transition text-sm sm:text-base"
+                  disabled={loading}
+                  className="w-full bg-[#FF6B01] text-white py-2 sm:py-3 rounded-md font-semibold hover:bg-orange-600 transition text-sm sm:text-base disabled:opacity-60"
                 >
-                  Sign up/Login
+                  {loading ? "Logging in..." : "Login"}
                 </button>
+
+                <p className="mt-3 text-xs sm:text-sm text-center text-gray-500">
+                  Don&apos;t have an account?{" "}
+                  <Link href="/registration" className="text-[#FF6B01] font-medium hover:underline">
+                    Sign In
+                  </Link>
+                </p>
               </form>
 
               {/* Divider */}

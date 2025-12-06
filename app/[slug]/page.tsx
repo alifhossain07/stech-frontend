@@ -1,6 +1,7 @@
 "use client";
 import React, { useRef, useState, useEffect } from "react";
 import { RefObject } from "react";
+import { useCart } from "@/app/context/CartContext";
 import { useParams } from "next/navigation";
 import Image from "next/image";
 import {
@@ -22,6 +23,7 @@ import {
 import YouMayLike from "./YouMayLike";
 import FAQ from "./FAQ";
 import Reviews from "./Reviews";
+import ProductSkeleton from "./ProductSkeleton";
 interface Brand {
   id: number;
   name: string;
@@ -39,12 +41,19 @@ interface ProductType {
   stroked_price: number;
   discount: string;
   brand: Brand;
+   product_compatible: string[];
   description: string;
   photos: { path: string }[];
   colors: string[];
   featured_specs: FeaturedSpec[];
   current_stock: number;
   est_shipping_time: number;
+
+   model_number?: string;
+  connection_type?: string;
+  weight?: number; // in kg, or whatever unit your API provides
+  other_features?: string;
+  faqs?: FAQItem[];
 }
 
 // Optional: Recently Viewed Products
@@ -57,8 +66,13 @@ interface ProductType {
 //   image: string;
 // }
 const Page = () => {
-  const { slug } = useParams(); // <-- grabs slug from URL
+
+
+const { slug } = useParams(); // <-- grabs slug from URL
+const { addToCart, setCartOpen } = useCart();
 const [product, setProduct] = useState<ProductType | null>(null);
+ const [cartLoading, setCartLoading] = useState(false);
+  
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState("spec");
@@ -106,6 +120,70 @@ const [product, setProduct] = useState<ProductType | null>(null);
     });
   };
 
+const shareUrl = typeof window !== 'undefined' ? encodeURIComponent(window.location.href) : '';
+const shareText = encodeURIComponent(`${product?.name || 'Check out this product'}`);
+
+const shareOnPlatform = (platform: string) => {
+  let shareLink = '';
+  
+  switch (platform) {
+    case 'facebook':
+      shareLink = `https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`;
+      break;
+    case 'twitter': // Now X
+      shareLink = `https://x.com/intent/tweet?url=${shareUrl}&text=${shareText}`;
+      break;
+    case 'instagram':
+      // Instagram web doesn't support direct sharing - redirect to mobile app or profile
+      shareLink = `https://www.instagram.com/?url=${shareUrl}`;
+      break;
+    case 'youtube':
+      // YouTube primarily shares videos; use generic share or redirect
+      shareLink = `https://www.youtube.com/?url=${shareUrl}`;
+      break;
+    default:
+      return;
+  }
+  
+  window.open(shareLink, '_blank', 'width=600,height=400,menubar=no,toolbar=no');
+};
+
+  const parsePrice = (priceStr: string | number | null | undefined): number => {
+  if (typeof priceStr === 'number') return priceStr;
+  if (!priceStr) return 0;
+  
+  // Convert to string and clean
+  const cleaned = String(priceStr)
+    .replace(/[^\d.]/g, '')  // Remove all non-digits except decimal
+    .trim();
+  
+  const num = parseFloat(cleaned);
+  return isNaN(num) ? 0 : num;
+};
+
+const handleAdd = () => {
+  if (!product) return;
+
+  setCartLoading(true);
+  setTimeout(() => {
+    if (!slug || Array.isArray(slug)) return;
+    
+    addToCart({
+      id: product.id.toString(),
+      slug: slug,
+      name: product.name,
+      price: parsePrice(product.main_price),      // ✅ Safe parsing
+      oldPrice: parsePrice(product.stroked_price), // ✅ Safe parsing
+      img: product.photos[0]?.path || "/images/placeholder.png",
+      qty: quantity,
+    });
+
+    setCartOpen(true);
+    setCartLoading(false);
+  }, 700);
+};
+  
+
   const tabs = [
     { id: "spec", label: "Specification" },
     { id: "details", label: "Product Details" },
@@ -150,7 +228,7 @@ const [product, setProduct] = useState<ProductType | null>(null);
 
 
 
-  if (loading) return <p className="text-center mt-10">Loading...</p>;
+  if (loading) return <ProductSkeleton />;
   if (error) return <p className="text-center mt-10 text-red-500">{error}</p>;
   if (!product) return <p className="text-center mt-10">No product found</p>;
 const images = product.photos.map((photo) => photo.path);
@@ -423,25 +501,25 @@ const colors = product.colors;
           {/* Product Compatible */}
 
           <div className="bg-[#f4f4f4] rounded-xl p-4 mt-2">
-            <h1 className="tracking-wide text-[14px] font-medium mb-2">
-              Product Compatible
-            </h1>
+  <h1 className="tracking-wide text-[14px] font-medium mb-2">
+    Product Compatible
+  </h1>
 
-            <div className="flex flex-wrap gap-2 md:gap-4">
-              {["Samsung", "Vivo", "Oppo", "Redmi", "Apple"].map((brand) => (
-                <button
-                  key={brand}
-                  className="
+  <div className="flex flex-wrap gap-2 md:gap-4">
+    {product?.product_compatible?.map((brand) => (
+      <button
+        key={brand}
+        className="
           bg-black text-white rounded-full 
           px-3 py-[4px] text-[12px]       /* mobile */
           md:px-4 md:py-1 md:text-[16px]  /* md and up */
         "
-                >
-                  {brand}
-                </button>
-              ))}
-            </div>
-          </div>
+      >
+        {brand}
+      </button>
+    ))}
+  </div>
+</div>
 
           <div className="bg-gray-50 px-4 py-3 rounded-lg flex flex-wrap items-center justify-between gap-4 mt-3">
             {/* Variants */}
@@ -543,6 +621,8 @@ const colors = product.colors;
 
               {/* Add to Cart */}
               <button
+                onClick={handleAdd}
+  disabled={cartLoading}
                 className="
       flex items-center justify-center w-1/2
       border border-gray-400 hover:border-gray-600 text-gray-800 font-medium
@@ -566,11 +646,23 @@ const colors = product.colors;
                     Share :
                   </span>
                   <div className="flex items-center gap-3 text-[22px] text-gray-800">
-                    <FaFacebookF className="cursor-pointer hover:text-orange-500 transition-all" />
-                    <FaInstagram className="cursor-pointer hover:text-orange-500 transition-all" />
-                    <FaTwitter className="cursor-pointer hover:text-orange-500 transition-all" />
-                    <FaYoutube className="cursor-pointer hover:text-orange-500 transition-all" />
-                  </div>
+  <FaFacebookF 
+    className="cursor-pointer hover:text-orange-500 transition-all" 
+    onClick={() => shareOnPlatform('facebook')}
+  />
+  <FaInstagram 
+    className="cursor-pointer hover:text-orange-500 transition-all" 
+    onClick={() => shareOnPlatform('instagram')}
+  />
+  <FaTwitter 
+    className="cursor-pointer hover:text-orange-500 transition-all" 
+    onClick={() => shareOnPlatform('twitter')}
+  />
+  <FaYoutube 
+    className="cursor-pointer hover:text-orange-500 transition-all" 
+    onClick={() => shareOnPlatform('youtube')}
+  />
+</div>
                 </div>
 
                 {/* WhatsApp Button */}
@@ -675,27 +767,26 @@ const colors = product.colors;
                         <td className="py-5 px-4 font-medium text-gray-800">
                           Model
                         </td>
-                        <td className="py-3 px-4 text-gray-700">Tune 500V</td>
+                        <td className="py-3 px-4 text-gray-700">{product.model_number}</td>
                       </tr>
                       <tr className="border-b">
                         <td className="py-5 px-4 font-medium text-gray-800">
                           Connection Type
                         </td>
-                        <td className="py-3 px-4 text-gray-700">Wired</td>
+                        <td className="py-3 px-4 text-gray-700">{product.connection_type}</td>
                       </tr>
                       <tr className="border-b">
                         <td className="py-5 px-4 font-medium text-gray-800">
                           Weight
                         </td>
-                        <td className="py-3 px-4 text-gray-700">600gm</td>
+                        <td className="py-3 px-4 text-gray-700">{product.weight * 1000} g</td>
                       </tr>
                       <tr>
                         <td className="py-5 px-4 font-medium text-gray-800">
                           Other Features
                         </td>
                         <td className="py-3 px-4 text-gray-700">
-                          Driver Sensitivity: 1kHz/1mW: 24dBV/Pa | Impedance: 32
-                          ohms | Flat-Fold Design | Built-in Microphone
+                          {product.other_features}
                         </td>
                       </tr>
                     </tbody>
@@ -742,9 +833,15 @@ const colors = product.colors;
             
             
             
-            <div className="scroll-mt-36" ref={faqRef}>
-              <FAQ />
-            </div>
+           <div className="scroll-mt-36" ref={faqRef}>
+  {product.faqs && product.faqs.length > 0 ? (
+    <FAQ faqs={product.faqs} />
+  ) : (
+    <p className="text-gray-500 text-center py-5">
+      No FAQs available for this product.
+    </p>
+  )}
+</div>
             <div className="scroll-mt-36" ref={reviewRef}>
               <Reviews />
             </div>

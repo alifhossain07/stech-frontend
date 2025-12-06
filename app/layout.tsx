@@ -6,6 +6,8 @@ import Footer from "@/components/layout/Footer";
 import { Toaster } from "react-hot-toast";
 import ClientLayoutWrapper from "@/components/layout/ClientLayoutWrapper";
 import { CartProvider } from "./context/CartContext";
+import { AuthProvider } from "./context/AuthContext";
+
 
 
 const poppins = Poppins({
@@ -28,11 +30,14 @@ export default function RootLayout({
     <html lang="en" data-theme="light" suppressHydrationWarning>
       {/* Add the font variable to <html> */}
       <body className={`${poppins.variable} antialiased`}>
+         <AuthProvider>
         <CartProvider>
      <Navbar />
+ 
      <ClientLayoutWrapper>
         {children}
         </ClientLayoutWrapper>
+        
         <Footer/>
             <Toaster
     position="top-right"
@@ -47,6 +52,7 @@ export default function RootLayout({
     }}
   />
         </CartProvider>
+        </AuthProvider>
       </body>
     </html>
   );
