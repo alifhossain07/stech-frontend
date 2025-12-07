@@ -116,7 +116,7 @@ export default function ProductCard({ product }: { product: Product }) {
           </div>
 
           {/* FIXED HEIGHT BUTTON ROW */}
-          <div className="flex gap-2  h-[42px]">
+          <div className="flex gap-2 h-[30px]  md:h-[42px]">
             {/* Buy Now */}
             <button className="flex items-center justify-center w-1/2 rounded-md text-white md:text-sm text-xs bg-[#FF6B01] md:py-1 hover:opacity-90 transition hover:bg-white hover:text-orange-500 hover:border hover:border-orange-500">
               <span className="block xl:hidden text-xs">

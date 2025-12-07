@@ -22,16 +22,26 @@ import { useAuth } from "@/app/context/AuthContext";
 // import { useRouter } from "next/navigation";
 
 // ------------------ TYPES ------------------
-type Subcategory = {
-  name: string;
-  children: string[];
-};
+// type Subcategory = {
+//   name: string;
+//   children: string[];
+// };
 
-type NavbarCategoryAPI = {
+// type NavbarCategoryAPI = {
+//   id: number;
+//   name: string;
+//   slug: string;
+//   banner?: string;
+// };
+
+type APICategory = {
   id: number;
   name: string;
   slug: string;
-  banner?: string;
+  banner: string;
+  cover_image: string;
+  icon: string;
+  children: APICategory[];
 };
 
 type Category = {
@@ -39,7 +49,18 @@ type Category = {
   name: string;
   slug: string;
   banner?: string;
-  subcategories: Subcategory[];
+  subcategories: {
+    id: number;
+    name: string;
+    slug: string;
+    banner?: string;
+    children: {
+      id: number;
+      name: string;
+      slug: string;
+      banner?: string;
+    }[];
+  }[];
 };
 
 const Navbar = () => {
@@ -57,6 +78,7 @@ const Navbar = () => {
 const [showMobileSearch, setShowMobileSearch] = useState(false);
 const [cartOpen, setCartOpen] = useState(false);
 const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+const [logoUrl, setLogoUrl] = useState<string | null>(null);
 
 const [showDesktopLogout, setShowDesktopLogout] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -85,26 +107,28 @@ const profileRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
   async function fetchCategories() {
     try {
-      const res = await fetch("/api/navbarCategories");
-      const data = await res.json();
+      const res = await fetch("/api/navbarCategories", { cache: "no-store" });
+      const json = await res.json();
 
-      // Format backend → frontend
-      const formatted = data.data.map((cat: NavbarCategoryAPI) => ({
+      const apiCategories: APICategory[] = json.data || [];
+
+      const formatted: Category[] = apiCategories.map((cat) => ({
         id: cat.id,
         name: cat.name,
         slug: cat.slug,
         banner: cat.banner,
-        subcategories: [
-          // DEMO SUBCATEGORIES
-          {
-            name: "Subcategory 1",
-            children: ["Child 1", "Child 2"] 
-          },
-          {
-            name: "Subcategory 2",
-           children: ["Child A", "Child B", "Child C"] 
-          }
-        ].map(sub => ({ ...sub, children: sub.children || [] }))
+        subcategories: (cat.children || []).map((sub) => ({
+          id: sub.id,
+          name: sub.name,
+          slug: sub.slug,
+          banner: sub.banner,
+          children: (sub.children || []).map((child) => ({
+            id: child.id,
+            name: child.name,
+            slug: child.slug,
+            banner: child.banner,
+          })),
+        })),
       }));
 
       setCategories(formatted);
@@ -116,7 +140,25 @@ const profileRef = useRef<HTMLDivElement | null>(null);
   fetchCategories();
 }, []);
 
+useEffect(() => {
+  async function fetchLogo() {
+    try {
+      const res = await fetch("/api/header", { cache: "no-store" });
+      const json = await res.json();
+      // Expecting shape: { data: { url: string, ... }, success: true, status: 200 }
+      const url = json?.data?.url as string | undefined;
+      if (url) {
+        setLogoUrl(url);
+      } else {
+        console.error("Logo URL missing in /api/header response", json);
+      }
+    } catch (err) {
+      console.error("Failed to fetch header logo:", err);
+    }
+  }
 
+  fetchLogo();
+}, []);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -188,13 +230,12 @@ const handleConfirmLogout = () => {
               <FiMenu />
             </button>
             <Link href="/">
-              <Image
-                src="/images/sannailogo.png"
-                alt="Sannai Technology Logo"
-                width={140}
-                height={140}
-                className="object-contain w-[90px] sm:w-32 md:w-28 xl:w-32 2xl:w-36 h-auto"
-              />
+             <Image
+  src={logoUrl || "/images/sannailogo.png"}
+  width={120}
+  height={120}
+  alt="Logo"
+/>
             </Link>
 
             <div className="flex lg:hidden items-center text-orange-500 gap-4"> 
@@ -347,9 +388,9 @@ const handleConfirmLogout = () => {
                       }`}
                     >
                       <ul className="min-w-[180px] py-2 relative">
-                       {category.subcategories.map((sub, idx) => (
+                       {category.subcategories.map((sub) => (
   <li
-    key={idx}
+    key={sub.id}
     className="px-4 py-2 hover:bg-gray-100 text-sm flex justify-between items-center"
     onMouseEnter={() => setHoveredSubcategory(sub.name)}
     onMouseLeave={() => setHoveredSubcategory(null)}
@@ -366,9 +407,9 @@ const handleConfirmLogout = () => {
         }`}
       >
         <ul className="min-w-[160px] py-2">
-          {sub.children?.map((child, cidx) => (
-            <li key={cidx} className="px-4 py-2 hover:bg-gray-100 text-sm">
-              {child}
+          {sub.children?.map((child) => (
+            <li key={child.id} className="px-4 py-2 hover:bg-gray-100 text-sm">
+              {child.name}
             </li>
           ))}
         </ul>
@@ -432,10 +473,10 @@ const handleConfirmLogout = () => {
           Offers
         </Link>
 
-        <Link href="/checkout" className="flex flex-col items-center text-xs">
+        <button onClick={() => setCartOpen(true)}  className="flex flex-col items-center text-xs">
           <FiShoppingCart className="text-lg" />
           Cart
-        </Link>
+        </button>
 
         <Link href="/login" className="flex flex-col items-center text-xs">
           <FiUser className="text-lg" />
@@ -528,7 +569,7 @@ const handleConfirmLogout = () => {
                             <ul className="space-y-1">
                               {sub.children?.map((child, cidx) => (
                                 <li key={cidx} className="py-1 text-sm text-gray-600">
-                                  {child}
+                                  {child.name}
                                 </li>
                               ))}
                             </ul>

@@ -1,36 +1,44 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     const apiBase = process.env.API_BASE;
     const systemKey = process.env.SYSTEM_KEY;
 
     if (!apiBase || !systemKey) {
-      throw new Error("API_BASE or SYSTEM_KEY is not defined in environment variables");
+      return NextResponse.json(
+        { error: "API_BASE or SYSTEM_KEY is missing" },
+        { status: 500 }
+      );
     }
 
-    // Fetch logo from external API
-    const res = await fetch(`${apiBase}/header/logo`, {
+    const response = await fetch(`${apiBase}/header/logo`, {
+      method: "GET",
       headers: {
-        "Authorization": `Bearer ${systemKey}`, // API expects SYSTEM_KEY
         "Content-Type": "application/json",
+        "System-Key": systemKey, // REQUIRED
       },
+      cache: "no-store",
     });
 
-    if (!res.ok) throw new Error("Failed to fetch logo");
+    if (!response.ok) {
+      return NextResponse.json(
+        { error: "Failed to fetch logo", status: response.status },
+        { status: response.status }
+      );
+    }
 
-    const data = await res.json();
+    const data = await response.json();
 
-    // Extract full URL from the response
-    const fullUrl = data?.data?.url;
+    // 🔥 Return EXACT response, unchanged
+    return NextResponse.json(data, { status: 200 });
 
-    return NextResponse.json({
-      logoUrl: fullUrl || "/images/placeholder.png", // fallback
-    });
-  } catch (err) {
-    console.error("Error fetching logo:", err);
-    return NextResponse.json({
-      logoUrl: "/images/placeholder.png",
-    });
+  } catch (error) {
+    console.error("Error:", error);
+
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
   }
 }

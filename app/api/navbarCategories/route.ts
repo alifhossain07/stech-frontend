@@ -2,31 +2,37 @@ import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
-    const baseUrl = process.env.API_BASE; // http://sannai.test/api/v2
-    const systemKey = process.env.SYSTEM_KEY;
+    const apiBase = process.env.API_BASE;
 
-    if (!baseUrl || !systemKey) {
+    if (!apiBase) {
       return NextResponse.json(
-        { error: "Missing API_BASE or SYSTEM_KEY in environment variables" },
+        { error: "API_BASE is missing in environment variables" },
         { status: 500 }
       );
     }
 
-    const response = await fetch(`${baseUrl}/categories`, {
+    const response = await fetch(`${apiBase}/categories/menu`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        "System-Key": systemKey, // if backend requires it
+        "System-Key": process.env.SYSTEM_KEY ?? "",
       },
       cache: "no-store",
     });
 
-    const data = await response.json();
+    if (!response.ok) {
+      return NextResponse.json(
+        { error: "Failed to fetch Categories of Navbar", status: response.status },
+        { status: response.status }
+      );
+    }
 
-    return NextResponse.json(data);
+    const data = await response.json();
+    return NextResponse.json(data, { status: 200 });
   } catch (error) {
+    console.error("Error fetching Categories of Navbar:", error);
     return NextResponse.json(
-      { error: "Failed to fetch categories", details: error },
+      { error: "Internal Server Error" },
       { status: 500 }
     );
   }

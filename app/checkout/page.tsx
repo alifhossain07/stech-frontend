@@ -447,7 +447,7 @@ const CheckoutPage: React.FC = () => {
                       checked={field.value === "inside"}
                       onChange={() => field.onChange("inside")}
                     />
-                    Inside Dhaka - 2/4 Days ৳ 70
+                    Inside Dhaka - 2/4 Days ৳ 60
                   </label>
                   <label className="flex items-center gap-2">
                     <input
