@@ -42,7 +42,11 @@ type ProductType = {
     icon: string;
   }[]; // ⭐ NEW
 };
-
+type CategoryType = {
+  id: number;
+  name: string;
+  slug: string;
+};
 type PowerBankResponse = {
   title: string;
   subtitle: string;
@@ -53,31 +57,49 @@ type PowerBankResponse = {
 
 const PowerBankProducts = () => {
   const [products, setProducts] = useState<ProductType[]>([]);
- const [banner, setBanner] = useState<string>("");
- const [title, setTitle] = useState<string>("Powerbank Products"); // NEW
- const [subtitle, setSubtitle] = useState<string>(
-   "Discover Our Latest Arrivals Designed to Inspire and Impress"
- ); // NEW
- const [link, setLink] = useState<string>("#"); // NEW
- const [loading, setLoading] = useState(true);
+  const [banner, setBanner] = useState<string>("");
+  const [title, setTitle] = useState<string>("Powerbank Products");
+  const [subtitle, setSubtitle] = useState<string>(
+    "Discover Our Latest Arrivals Designed to Inspire and Impress"
+  );
+  const [categorySlug, setCategorySlug] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchEarbuds = async () => {
+    const fetchPowerBanks = async () => {
       try {
-        const res = await axios.get<PowerBankResponse>("/api/products/powerbanks");
-        setProducts(res.data.products);
-        setBanner(res.data.banner);
-        setTitle(res.data.title || "Powerbank Products");
-setSubtitle(res.data.subtitle || "Discover Our Latest Arrivals Designed to Inspire and Impress");
-setLink(res.data.link || "#");
+        const [powerBankRes, categoriesRes] = await Promise.all([
+          axios.get<PowerBankResponse>("/api/products/powerbanks"),
+          axios.get("/api/categories"),
+        ]);
+
+        const pbData = powerBankRes.data;
+        setProducts(pbData.products);
+        setBanner(pbData.banner);
+        setTitle(pbData.title || "Powerbank Products");
+        setSubtitle(
+          pbData.subtitle ||
+            "Discover Our Latest Arrivals Designed to Inspire and Impress"
+        );
+
+        const allCategories: CategoryType[] = categoriesRes.data.categories ?? [];
+
+        // IMPORTANT: match this to whatever your backend name is
+        const powerBankCategory = allCategories.find(
+          (c) => c.name?.toLowerCase() === "power bank"
+        );
+
+        if (powerBankCategory?.slug) {
+          setCategorySlug(powerBankCategory.slug);
+        }
       } catch (err) {
-        console.error("Error fetching earbuds products:", err);
+        console.error("Error fetching power bank products or categories:", err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchEarbuds();
+    fetchPowerBanks();
   }, []);
 
   return (
@@ -93,8 +115,8 @@ setLink(res.data.link || "#");
           </p>
         </div>
 
-        <Link
-  href={link} // categoryName comes from API
+       <Link
+  href={categorySlug ? `/products/${categorySlug}` : "#"}
   className="bg-black hidden md:flex items-center justify-center gap-2 text-white px-3.5 py-2 rounded-xl hover:text-black hover:bg-gray-200 duration-300 transition whitespace-nowrap"
 >
   See More <FiChevronRight className="text-sm sm:text-base md:text-xl" />
@@ -179,11 +201,14 @@ setLink(res.data.link || "#");
 
       {/* Mobile See More */}
       <div className="flex items-center justify-center md:hidden pt-[44px]">
-        <button className="bg-black text-xs sm:text-sm md:text-sm flex items-center justify-center gap-2 text-white px-3.5 py-2 rounded-xl hover:text-black hover:bg-gray-200 duration-300 transition whitespace-nowrap">
-          See More
-          <FiChevronRight className="text-sm sm:text-base md:text-xl" />
-        </button>
-      </div>
+  <Link
+    href={categorySlug ? `/products/${categorySlug}` : "#"}
+    className="bg-black text-xs sm:text-sm md:text-sm flex items-center justify-center gap-2 text-white px-3.5 py-2 rounded-xl hover:text-black hover:bg-gray-200 duration-300 transition whitespace-nowrap"
+  >
+    See More
+    <FiChevronRight className="text-sm sm:text-base md:text-xl" />
+  </Link>
+</div>
     </div>
   );
 };

@@ -34,6 +34,19 @@ interface FeaturedSpec {
   text: string;
 }
 
+interface ProductVariant {
+  variant: string;
+  price: number;
+  sku: string;
+  qty: number;
+  image: string | null;
+}
+
+interface FAQItem {
+  question: string;
+  answer: string;
+}
+
 interface ProductType {
   id: number;
   name: string;
@@ -51,9 +64,11 @@ interface ProductType {
 
    model_number?: string;
   connection_type?: string;
-  weight?: number; // in kg, or whatever unit your API provides
+  weight: number; 
   other_features?: string;
   faqs?: FAQItem[];
+  variants: ProductVariant[];
+  thumbnail_image?: string; 
 }
 
 // Optional: Recently Viewed Products
@@ -81,12 +96,12 @@ const [product, setProduct] = useState<ProductType | null>(null);
   const reviewRef = useRef<HTMLDivElement | null>(null);
   const faqRef = useRef<HTMLDivElement | null>(null);
   const [selectedImage, setSelectedImage] = useState(0);
-  const [selectedVariant, setSelectedVariant] = useState("Type-C");
+  const [selectedVariant, setSelectedVariant] = useState("");
   const [selectedColor, setSelectedColor] = useState("gray");
   const [quantity, setQuantity] = useState(1);
   const increase = () => setQuantity((prev) => prev + 1);
   const decrease = () => setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
-  const variants = ["Type-C", "Type-B"];
+ 
  
 
   useEffect(() => {
@@ -100,6 +115,9 @@ const [product, setProduct] = useState<ProductType | null>(null);
 
     const data: ProductType = await res.json(); // <-- explicitly typed
     setProduct(data);
+    if (data.variants && data.variants.length > 0) {
+  setSelectedVariant(data.variants[0].variant);
+}
   } catch (err: unknown) {   // <-- avoid 'any' here too
     if (err instanceof Error) {
       setError(err.message);
@@ -163,24 +181,39 @@ const shareOnPlatform = (platform: string) => {
 
 const handleAdd = () => {
   if (!product) return;
+  if (!slug || Array.isArray(slug)) return;
+  if (cartLoading) return; // prevent double click while loading
 
   setCartLoading(true);
+
+  const effectivePrice = parsePrice(
+    selectedVariant
+      ? product.variants.find((v) => v.variant === selectedVariant)?.price ??
+          product.main_price
+      : product.main_price
+  );
+
+  const image =
+    product.thumbnail_image ||
+    product.photos[0]?.path ||
+    "/images/placeholder.png";
+
   setTimeout(() => {
-    if (!slug || Array.isArray(slug)) return;
-    
     addToCart({
       id: product.id.toString(),
-      slug: slug,
+      slug: String(slug),
       name: product.name,
-      price: parsePrice(product.main_price),      // ✅ Safe parsing
-      oldPrice: parsePrice(product.stroked_price), // ✅ Safe parsing
-      img: product.photos[0]?.path || "/images/placeholder.png",
+      price: effectivePrice,
+      oldPrice: parsePrice(product.stroked_price),
+      img: image,
       qty: quantity,
+      variant: selectedVariant || undefined,
+      variantImage: image,
     });
 
     setCartOpen(true);
     setCartLoading(false);
-  }, 700);
+  }, 1500); // 2 seconds
 };
   
 
@@ -521,28 +554,50 @@ const colors = product.colors;
   </div>
 </div>
 
-          <div className="bg-gray-50 px-4 py-3 rounded-lg flex flex-wrap items-center justify-between gap-4 mt-3">
-            {/* Variants */}
-            <div className="flex items-center gap-3 ">
-              <span className="text-[14px] font-medium text-gray-700">
-                Variants :
-              </span>
-              <div className="flex items-center gap-2">
-                {variants.map((variant) => (
-                  <button
-                    key={variant}
-                    onClick={() => setSelectedVariant(variant)}
-                    className={`px-3 py-[4px] rounded-full text-[13px] font-medium border transition-all duration-200 ${
-                      selectedVariant === variant
-                        ? "bg-gray-200 text-orange-500 border-orange-400"
-                        : "bg-gray-100 text-gray-700 border-transparent hover:border-gray-300"
-                    }`}
-                  >
-                    {variant}
-                  </button>
-                ))}
-              </div>
-            </div>
+          <div className="bg-gray-50 px-4 py-3 rounded-lg flex flex-wrap items-start justify-between gap-4 mt-3">
+  {/* Variants */}
+  <div className="flex items-start gap-3">
+    <span className="text-[14px] font-medium text-gray-700 mt-1 shrink-0">
+      Variants :
+    </span>
+    <div
+      className="
+        flex gap-2 py-1
+        overflow-x-auto whitespace-nowrap
+        md:overflow-visible md:whitespace-normal md:flex-wrap
+      "
+    >
+      {product.variants?.map((v) => (
+  <div key={v.sku || v.variant} className="relative group">
+    <button
+      onClick={() => setSelectedVariant(v.variant)}
+      className={`
+        px-3 py-[4px] rounded-full text-[13px] font-medium border transition-all duration-200
+        md:max-w-[140px] md:truncate
+        ${
+          selectedVariant === v.variant
+            ? "bg-gray-200 text-orange-500 border-orange-400"
+            : "bg-gray-100 text-gray-700 border-transparent hover:border-gray-300"
+        }
+      `}
+    >
+      {v.variant}
+    </button>
+
+    {/* Tooltip */}
+    <div
+      className="
+        pointer-events-none absolute left-1/2 top-full z-20 mt-1 -translate-x-1/2
+        hidden whitespace-nowrap rounded-md bg-black px-2 py-1 text-xs text-white shadow-md
+        group-hover:block
+      "
+    >
+      {v.variant}
+    </div>
+  </div>
+))}
+    </div>
+  </div>
 
             {/* Colors */}
             <div className="flex items-center gap-3 ">
@@ -620,21 +675,30 @@ const colors = product.colors;
               </button>
 
               {/* Add to Cart */}
-              <button
-                onClick={handleAdd}
+             <button
+  onClick={handleAdd}
   disabled={cartLoading}
-                className="
-      flex items-center justify-center w-1/2
-      border border-gray-400 hover:border-gray-600 text-gray-800 font-medium
-      gap-2 rounded-full transition-all
-
-      px-4 py-2 text-[13px]        /* mobile */
-      md:px-10 md:py-4 md:text-[15px] /* md+ */
-    "
-              >
-                <FiPlus className="text-sm md:text-lg" />
-                Add to Cart
-              </button>
+  className={`
+    flex items-center justify-center w-1/2
+    border border-gray-400 hover:border-gray-600 text-gray-800 font-medium
+    gap-2 rounded-full transition-all
+    px-4 py-2 text-[13px]
+    md:px-10 md:py-4 md:text-[15px]
+    ${cartLoading ? "opacity-70 cursor-not-allowed" : ""}
+  `}
+>
+  {cartLoading ? (
+    <>
+      <span className="w-4 h-4 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
+      <span>Adding...</span>
+    </>
+  ) : (
+    <>
+      <FiPlus className="text-sm md:text-lg" />
+      <span>Add to Cart</span>
+    </>
+  )}
+</button>
             </div>
 
             <div className="mt-8 space-y-6">
@@ -719,7 +783,7 @@ const colors = product.colors;
       </div>
 
       {/* Specs Container */}
-      <div className=" mt-10 flex flex-col xl:flex-row gap-6 w-full ">
+      <div className=" mt-24 flex flex-col xl:flex-row gap-6 w-full ">
         <div className="xl:w-[80%] w-full ">
           <div className="w-full bg-white rounded-xl">
             {/* --- Tabs --- */}

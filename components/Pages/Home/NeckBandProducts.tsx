@@ -43,6 +43,12 @@ type ProductType = {
   }[]; // ⭐ NEW
 };
 
+type CategoryType = {
+  id: number;
+  name: string;
+  slug: string;
+};
+
 type NeckbandResponse = {
   title: string;
   subtitle: string;
@@ -58,27 +64,46 @@ const NeckBandProducts = () => {
   const [subtitle, setSubtitle] = useState<string>(
     "Discover Our Latest Arrivals Designed to Inspire and Impress"
   ); // NEW
-  const [link, setLink] = useState<string>("#"); // NEW
+ const [categorySlug, setCategorySlug] = useState<string | null>(null); // NEW
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchEarbuds = async () => {
-      try {
-        const res = await axios.get<NeckbandResponse>("/api/products/neckbands");
-        setProducts(res.data.products);
-        setBanner(res.data.banner);
-        setTitle(res.data.title || "Neckband Products");
-setSubtitle(res.data.subtitle || "Discover Our Latest Arrivals Designed to Inspire and Impress");
-setLink(res.data.link || "#");
-      } catch (err) {
-        console.error("Error fetching earbuds products:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchNeckbands = async () => {
+    try {
+      const [neckbandRes, categoriesRes] = await Promise.all([
+        axios.get<NeckbandResponse>("/api/products/neckbands"),
+        axios.get("/api/categories"),
+      ]);
 
-    fetchEarbuds();
-  }, []);
+      const neckbandData = neckbandRes.data;
+
+      setProducts(neckbandData.products);
+      setBanner(neckbandData.banner);
+      setTitle(neckbandData.title || "Neckband Products");
+      setSubtitle(
+        neckbandData.subtitle ||
+          "Discover Our Latest Arrivals Designed to Inspire and Impress"
+      );
+
+      const allCategories:  CategoryType[] = categoriesRes.data.categories ?? [];
+
+      // Adjust this name check if your category name is slightly different
+      const neckbandCategory = allCategories.find(
+        (c) => c.name?.toLowerCase() === "neckband"
+      );
+
+      if (neckbandCategory?.slug) {
+        setCategorySlug(neckbandCategory.slug);
+      }
+    } catch (err) {
+      console.error("Error fetching neckband products or categories:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchNeckbands();
+}, []);
 
   return (
     <div className="md:w-11/12 w-11/12 pb-[56px] mx-auto">
@@ -93,8 +118,8 @@ setLink(res.data.link || "#");
           </p>
         </div>
 
-       <Link
-  href={link} // categoryName comes from API
+      <Link
+  href={categorySlug ? `/products/${categorySlug}` : "#"}
   className="bg-black hidden md:flex items-center justify-center gap-2 text-white px-3.5 py-2 rounded-xl hover:text-black hover:bg-gray-200 duration-300 transition whitespace-nowrap"
 >
   See More <FiChevronRight className="text-sm sm:text-base md:text-xl" />
@@ -178,12 +203,15 @@ setLink(res.data.link || "#");
       </div>
 
       {/* Mobile See More */}
-      <div className="flex items-center justify-center md:hidden pt-[44px]">
-        <button className="bg-black text-xs sm:text-sm md:text-sm flex items-center justify-center gap-2 text-white px-3.5 py-2 rounded-xl hover:text-black hover:bg-gray-200 duration-300 transition whitespace-nowrap">
-          See More
-          <FiChevronRight className="text-sm sm:text-base md:text-xl" />
-        </button>
-      </div>
+     <div className="flex items-center justify-center md:hidden pt-[44px]">
+  <Link
+    href={categorySlug ? `/products/${categorySlug}` : "#"}
+    className="bg-black text-xs sm:text-sm md:text-sm flex items-center justify-center gap-2 text-white px-3.5 py-2 rounded-xl hover:text-black hover:bg-gray-200 duration-300 transition whitespace-nowrap"
+  >
+    See More
+    <FiChevronRight className="text-sm sm:text-base md:text-xl" />
+  </Link>
+</div>
     </div>
   );
 };

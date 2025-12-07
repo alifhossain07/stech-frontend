@@ -44,6 +44,12 @@ type ProductType = {
   }[]; // ⭐ NEW
 };
 
+type CategoryType = {
+  id: number;
+  name: string;
+  slug: string;
+};
+
 type EarbudsResponse = {
   title: string;
   subtitle: string;
@@ -59,26 +65,51 @@ const [title, setTitle] = useState<string>("Earbud Products"); // NEW
 const [subtitle, setSubtitle] = useState<string>(
   "Discover Our Latest Arrivals Designed to Inspire and Impress"
 ); // NEW
-const [link, setLink] = useState<string>("#"); // NEW
+const [categorySlug, setCategorySlug] = useState<string | null>(null);
 const [loading, setLoading] = useState(true);
   useEffect(() => {
-    const fetchEarbuds = async () => {
-      try {
-        const res = await axios.get<EarbudsResponse>("/api/products/earbuds");
-        setProducts(res.data.products);
-        setBanner(res.data.banner);
-        setTitle(res.data.title || "Earbud Products");
-setSubtitle(res.data.subtitle || "Discover Our Latest Arrivals Designed to Inspire and Impress");
-setLink(res.data.link || "#");
-      } catch (err) {
-        console.error("Error fetching earbuds products:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchEarbuds = async () => {
+    try {
+      // fetch earbuds section + categories in parallel
+      const [earbudsRes, categoriesRes] = await Promise.all([
+        axios.get<EarbudsResponse>("/api/products/earbuds"),
+        axios.get("/api/categories"),
+      ]);
 
-    fetchEarbuds();
-  }, []);
+      const earbudsData = earbudsRes.data;
+
+      setProducts(earbudsData.products);
+      setBanner(earbudsData.banner);
+      setTitle(earbudsData.title || "Earbud Products");
+      setSubtitle(
+        earbudsData.subtitle ||
+          "Discover Our Latest Arrivals Designed to Inspire and Impress"
+      );
+
+      // categories API returns the same data you showed:
+      // { id, slug, name, ... }
+      const allCategories: CategoryType[] = categoriesRes.data.categories ?? [];
+
+      // Decide how to match this section to a category.
+      // For Earbuds, in your API sample, category for TWS is:
+      // { id: 3, slug: "tws-bc3u6", name: "TWS", ... }
+      // Adjust this condition if your earbuds category name is different.
+      const earbudsCategory = allCategories.find(
+        (c) => c.name?.toLowerCase() === "tws" // or "earbuds" etc.
+      );
+
+      if (earbudsCategory?.slug) {
+        setCategorySlug(earbudsCategory.slug);
+      }
+    } catch (err) {
+      console.error("Error fetching earbuds products or categories:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchEarbuds();
+}, []);
 
   return (
     <div className="md:w-11/12 w-11/12 pb-[56px] mx-auto">
@@ -94,7 +125,7 @@ setLink(res.data.link || "#");
         </div>
 
      <Link
-  href={link} // categoryName comes from API
+  href={categorySlug ? `/products/${categorySlug}` : "#"}
   className="bg-black hidden md:flex items-center justify-center gap-2 text-white px-3.5 py-2 rounded-xl hover:text-black hover:bg-gray-200 duration-300 transition whitespace-nowrap"
 >
   See More <FiChevronRight className="text-sm sm:text-base md:text-xl" />

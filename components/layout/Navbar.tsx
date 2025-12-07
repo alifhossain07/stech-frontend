@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import React, { useState, useEffect, useRef } from "react";
 import { FaMapMarkerAlt } from "react-icons/fa";
+import { toast } from "react-hot-toast";
 import {
   FiChevronDown,
   FiSearch,
@@ -18,7 +19,7 @@ import { IoSearch,IoCartOutline } from "react-icons/io5";
 import CartSidebar from "./CartSidebar";
 import { useCart } from "@/app/context/CartContext";
 import { useAuth } from "@/app/context/AuthContext";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 
 // ------------------ TYPES ------------------
 type Subcategory = {
@@ -42,7 +43,7 @@ type Category = {
 };
 
 const Navbar = () => {
-  const router = useRouter();
+  // const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const [open, setOpen] = useState(false);
   const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
@@ -56,10 +57,12 @@ const Navbar = () => {
 const [showMobileSearch, setShowMobileSearch] = useState(false);
 const [cartOpen, setCartOpen] = useState(false);
 const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
-const [showLogoutSuccess, setShowLogoutSuccess] = useState(false);
+
+const [showDesktopLogout, setShowDesktopLogout] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const submenuRef = useRef<HTMLUListElement>(null);
 const searchRef = useRef<HTMLDivElement>(null);
+const profileRef = useRef<HTMLDivElement | null>(null);
   const handleCloseMenu = () => {
     setClosing(true);
     setTimeout(() => {
@@ -126,6 +129,12 @@ const searchRef = useRef<HTMLDivElement>(null);
         setExpandedCategory(null);
         setExpandedSubcategory(null);
       }
+      if (
+        profileRef.current &&
+        !profileRef.current.contains(event.target as Node)
+      ) {
+        setShowDesktopLogout(false);
+      }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
@@ -149,13 +158,8 @@ const searchRef = useRef<HTMLDivElement>(null);
 const handleConfirmLogout = () => {
   logout();
   setShowLogoutConfirm(false);
-  setShowLogoutSuccess(true);
-
-  setTimeout(() => {
-    setShowLogoutSuccess(false);
-  }, 2000);
+  toast.success("Successfully logged out");
 };
-
 
 
   return (
@@ -263,10 +267,10 @@ const handleConfirmLogout = () => {
 
             {/* PROFILE / AUTH */}
             {user ? (
-  <div className="relative group">
+  <div className="relative" ref={profileRef}>
     <button
       className="border border-gray-400 px-5 py-2 h-[46px] rounded-md flex items-center gap-2 text-sm bg-white"
-      onClick={() => router.push("/")} // or another page
+      onClick={() => setShowDesktopLogout(prev => !prev)}
     >
       <FiUser className="text-2xl" />
       <div className="text-left">
@@ -277,24 +281,26 @@ const handleConfirmLogout = () => {
       </div>
     </button>
 
-    {/* Logout dropdown on hover */}
-    <button
-      onClick={() => setShowLogoutConfirm(true)}
-      className="
-        absolute right-0 mt-1
-        w-full
-        text-sm text-red-500
-        border border-red-400
-        bg-white
-        px-3 py-1 rounded-md
-        shadow-lg
-        opacity-0 invisible
-        group-hover:opacity-100 group-hover:visible
-        transition-opacity duration-150
-      "
-    >
-      Logout
-    </button>
+    {showDesktopLogout && (
+      <button
+        onClick={() => setShowLogoutConfirm(true)}
+        className="
+          absolute right-0 mt-1
+          w-full
+          text-sm text-red-500
+          border border-red-400
+          bg-white
+          px-3 py-2 rounded-md
+          shadow-lg
+          transform origin-top
+          animate-[fadeInDown_0.18s_ease-out]
+          hover:bg-red-50 hover:shadow-xl
+          transition
+        "
+      >
+        Logout
+      </button>
+    )}
   </div>
 ) : (
   <button className="border border-gray-400 px-5 py-2 h-[46px] rounded-md flex items-center gap-1 text-sm">
@@ -554,8 +560,8 @@ const handleConfirmLogout = () => {
 
       {/* Logout confirmation modal */}
 {showLogoutConfirm && (
-  <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40">
-    <div className="bg-white rounded-lg shadow-xl px-6 py-5 w-80 max-w-[90%] text-center">
+  <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 backdrop-blur-[1px] animate-[fadeIn_0.18s_ease-out]">
+    <div className="bg-white rounded-lg shadow-xl px-6 py-5 w-80 max-w-[90%] text-center transform animate-[scaleIn_0.18s_ease-out]">
       <h2 className="text-lg font-semibold mb-2">
         Are you sure you want to log out?
       </h2>
@@ -580,13 +586,7 @@ const handleConfirmLogout = () => {
   </div>
 )}
 
-{showLogoutSuccess && (
-  <div className="fixed inset-0 z-[60] flex items-center justify-center pointer-events-none">
-    <div className="bg-green-500 text-white text-sm px-4 py-2 rounded-full shadow-lg">
-      Successfully logged out
-    </div>
-  </div>
-)}
+
     </>
   );
 };

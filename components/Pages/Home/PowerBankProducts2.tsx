@@ -43,6 +43,12 @@ type ProductType = {
   }[]; // ⭐ NEW
 };
 
+type CategoryType = {
+  id: number;
+  name: string;
+  slug: string;
+};
+
 type FastCableResponse = {
  title: string;
   subtitle: string;
@@ -58,27 +64,47 @@ const FastCableProducts = () => {
   const [subtitle, setSubtitle] = useState<string>(
     "Discover Our Latest Arrivals Designed to Inspire and Impress"
   ); // NEW
-  const [link, setLink] = useState<string>("#"); // NEW
+ const [categorySlug, setCategorySlug] = useState<string | null>(null); // NEW
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchEarbuds = async () => {
-      try {
-        const res = await axios.get<FastCableResponse>("/api/products/fastcable");
-        setProducts(res.data.products);
-        setBanner(res.data.banner);
-        setTitle(res.data.title || "Fast Cable Products");
-setSubtitle(res.data.subtitle || "Discover Our Latest Arrivals Designed to Inspire and Impress");
-setLink(res.data.link || "#");
-      } catch (err) {
-        console.error("Error fetching earbuds products:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchFastCableAndCategory = async () => {
+    try {
+      const [fastCableRes, categoriesRes] = await Promise.all([
+        axios.get<FastCableResponse>("/api/products/fastcable"),
+        axios.get("/api/categories"),
+      ]);
 
-    fetchEarbuds();
-  }, []);
+      const fastData = fastCableRes.data;
+
+      setProducts(fastData.products);
+      setBanner(fastData.banner);
+      setTitle(fastData.title || "Fast Cable Products");
+      setSubtitle(
+        fastData.subtitle ||
+          "Discover Our Latest Arrivals Designed to Inspire and Impress"
+      );
+      // setLink(fastData.link || "#");  // no longer needed
+
+      const allCategories: CategoryType[] = categoriesRes.data.categories ?? [];
+
+      // Adjust this name to match your power bank category name
+      const powerBankCategory = allCategories.find(
+        (c) => c.name?.toLowerCase() === "fast cable"
+      );
+
+      if (powerBankCategory?.slug) {
+        setCategorySlug(powerBankCategory.slug);
+      }
+    } catch (err) {
+      console.error("Error fetching fast cable products or categories:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchFastCableAndCategory();
+}, []);
 
   return (
     <div className="md:w-11/12 w-11/12 pb-[56px] mx-auto">
@@ -93,8 +119,8 @@ setLink(res.data.link || "#");
           </p>
         </div>
 
-        <Link
-  href={link} // categoryName comes from API
+       <Link
+  href={categorySlug ? `/products/${categorySlug}` : "#"}
   className="bg-black hidden md:flex items-center justify-center gap-2 text-white px-3.5 py-2 rounded-xl hover:text-black hover:bg-gray-200 duration-300 transition whitespace-nowrap"
 >
   See More <FiChevronRight className="text-sm sm:text-base md:text-xl" />
@@ -179,10 +205,13 @@ setLink(res.data.link || "#");
 
       {/* Mobile See More */}
       <div className="flex items-center justify-center md:hidden pt-[44px]">
-        <button className="bg-black text-xs sm:text-sm md:text-sm flex items-center justify-center gap-2 text-white px-3.5 py-2 rounded-xl hover:text-black hover:bg-gray-200 duration-300 transition whitespace-nowrap">
+        <Link
+          href={categorySlug ? `/products/${categorySlug}` : "#"}
+          className="bg-black text-xs sm:text-sm md:text-sm flex items-center justify-center gap-2 text-white px-3.5 py-2 rounded-xl hover:text-black hover:bg-gray-200 duration-300 transition whitespace-nowrap"
+        >
           See More
           <FiChevronRight className="text-sm sm:text-base md:text-xl" />
-        </button>
+        </Link>
       </div>
     </div>
   );

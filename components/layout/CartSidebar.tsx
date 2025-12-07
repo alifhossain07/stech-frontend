@@ -18,6 +18,8 @@ interface CartItem {
   price: number;
   oldPrice: number;
   qty: number;
+  variant?: string;
+  variantImage?: string;
 }
 
 export default function CartSidebar({ externalOpen, setExternalOpen }: CartSidebarProps) {
@@ -117,12 +119,20 @@ export default function CartSidebar({ externalOpen, setExternalOpen }: CartSideb
               </button>
 
               <div className="min-w-[70px] w-20 aspect-square bg-gray-100 rounded-lg flex items-center justify-center">
-                <Image src={item.img} alt={item.name} width={70} height={70} className="object-contain" />
+                <Image
+    src={item.variantImage || item.img}
+    alt={item.name}
+    width={70}
+    height={70}
+    className="object-contain"
+  />
               </div>
 
               <div className="flex-1">
                 <h3 className="text-sm font-medium truncate">{item.name}</h3>
-                <p className="text-xs text-gray-500">Black & Orange</p>
+             <p className="text-xs text-gray-500">
+    {item.variant ? item.variant : ""}
+  </p>
                 <div className="flex items-center gap-2 mt-1">
                   <span className="text-orange-600 font-semibold">
                     {mounted ? `৳${item.price * item.qty}` : "৳0"}

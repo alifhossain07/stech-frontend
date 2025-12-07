@@ -42,6 +42,12 @@ type ProductType = {
   }[]; // ⭐ NEW
 };
 
+type CategoryType = {
+  id: number;
+  name: string;
+  slug: string;
+};
+
 type EarphoneResponse = {
   title: string;
   subtitle: string;
@@ -57,27 +63,47 @@ const EarphoneProducts = () => {
  const [subtitle, setSubtitle] = useState<string>(
    "Discover Our Latest Arrivals Designed to Inspire and Impress"
  ); // NEW
- const [link, setLink] = useState<string>("#"); // NEW
+const [categorySlug, setCategorySlug] = useState<string | null>(null); // NEW
  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchEarbuds = async () => {
-      try {
-        const res = await axios.get<EarphoneResponse>("/api/products/earphones");
-        setProducts(res.data.products);
-        setBanner(res.data.banner);
-         setTitle(res.data.title || "Earphone Products");
-setSubtitle(res.data.subtitle || "Discover Our Latest Arrivals Designed to Inspire and Impress");
-setLink(res.data.link || "#");
-      } catch (err) {
-        console.error("Error fetching earbuds products:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchEarphones = async () => {
+    try {
+      const [earphonesRes, categoriesRes] = await Promise.all([
+        axios.get<EarphoneResponse>("/api/products/earphones"),
+        axios.get("/api/categories"),
+      ]);
 
-    fetchEarbuds();
-  }, []);
+      const earphonesData = earphonesRes.data;
+
+      setProducts(earphonesData.products);
+      setBanner(earphonesData.banner);
+      setTitle(earphonesData.title || "Earphone Products");
+      setSubtitle(
+        earphonesData.subtitle ||
+          "Discover Our Latest Arrivals Designed to Inspire and Impress"
+      );
+      // setLink(earphonesData.link || "#"); // no longer needed
+
+      const allCategories: CategoryType[] = categoriesRes.data.categories ?? [];
+
+      // Adjust the name check to match your neckband/earphone category name
+      const earphoneCategory = allCategories.find(
+        (c) => c.name?.toLowerCase() === "earphones" // or "neckband" if that's the name
+      );
+
+      if (earphoneCategory?.slug) {
+        setCategorySlug(earphoneCategory.slug);
+      }
+    } catch (err) {
+      console.error("Error fetching earphones products or categories:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchEarphones();
+}, []);
 
   return (
     <div className="md:w-11/12 w-11/12 pb-[56px] mx-auto">
@@ -92,8 +118,8 @@ setLink(res.data.link || "#");
           </p>
         </div>
 
-      <Link
-  href={link} // categoryName comes from API
+     <Link
+  href={categorySlug ? `/products/${categorySlug}` : "#"}
   className="bg-black hidden md:flex items-center justify-center gap-2 text-white px-3.5 py-2 rounded-xl hover:text-black hover:bg-gray-200 duration-300 transition whitespace-nowrap"
 >
   See More <FiChevronRight className="text-sm sm:text-base md:text-xl" />
@@ -178,10 +204,13 @@ setLink(res.data.link || "#");
 
       {/* Mobile See More */}
       <div className="flex items-center justify-center md:hidden pt-[44px]">
-        <button className="bg-black text-xs sm:text-sm md:text-sm flex items-center justify-center gap-2 text-white px-3.5 py-2 rounded-xl hover:text-black hover:bg-gray-200 duration-300 transition whitespace-nowrap">
+        <Link
+          href={categorySlug ? `/products/${categorySlug}` : "#"}
+          className="bg-black text-xs sm:text-sm md:text-sm flex items-center justify-center gap-2 text-white px-3.5 py-2 rounded-xl hover:text-black hover:bg-gray-200 duration-300 transition whitespace-nowrap"
+        >
           See More
           <FiChevronRight className="text-sm sm:text-base md:text-xl" />
-        </button>
+        </Link>
       </div>
     </div>
   );

@@ -11,6 +11,8 @@ export type CartItem = {
   oldPrice: number;
   img: string;
   qty: number;
+  variant?: string;          // NEW
+  variantImage?: string;
 };
 
 type CartContextType = {

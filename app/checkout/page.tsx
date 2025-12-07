@@ -18,6 +18,8 @@ interface CartItem {
   price: number;
   oldPrice: number;
   qty: number;
+  variant?: string;
+  variantImage?: string;
 }
 
 interface CheckoutFormData {
@@ -108,7 +110,7 @@ const CheckoutPage: React.FC = () => {
 
   // Shipping charges
   let deliveryCharge = 0;
-  if (shippingMethod === "inside") deliveryCharge = 70;
+  if (shippingMethod === "inside") deliveryCharge = 60;
   else if (shippingMethod === "outside") deliveryCharge = 140;
   else if (shippingMethod === "free") deliveryCharge = 0;
 
@@ -255,8 +257,8 @@ const CheckoutPage: React.FC = () => {
       items: selectedCart.map((item) => ({
         id: Number(item.id),
         qty: Number(item.qty),
-        variant: null,
-        variation: null,
+        variant:  item.variant || null,
+        variation: item.variant || null,
         referral_code: null,
       })),
       shipping_method:
@@ -347,6 +349,11 @@ const CheckoutPage: React.FC = () => {
                 </div>
                 <div className="flex-1 space-y-1">
                   <h3 className="text-sm md:text-lg">{item.name}</h3>
+                  {item.variant && (
+  <p className="text-xs text-gray-500 mt-1">
+    {item.variant}
+  </p>
+)}
                   <div className="font-semibold text-orange-600 text-sm md:text-lg mt-1">
                     ৳{item.price}
                     <span className="line-through text-gray-400 ml-2 text-xs">৳{item.oldPrice}</span>
@@ -489,37 +496,39 @@ const CheckoutPage: React.FC = () => {
                     />
                     Online Payment*
                   </label>
-                  <div className="flex gap-2 mb-5 items-center">
-                    <h1 className="text-[#8f8f8f] text-sm">We Accept</h1>
-                    <Image
-                      src="/images/visa.png"
-                      alt="Visa"
-                      width={40}
-                      height={24}
-                      className="w-full h-full object-contain"
-                    />
-                    <Image
-                      src="/images/mastercard.png"
-                      alt="Mastercard"
-                      width={40}
-                      height={24}
-                      className="w-full h-full object-contain"
-                    />
-                    <Image
-                      src="/images/bkash.png"
-                      alt="bKash"
-                      width={40}
-                      height={24}
-                      className="w-full h-full object-contain"
-                    />
-                    <Image
-                      src="/images/nagad.png"
-                      alt="Nagad"
-                      width={40}
-                      height={24}
-                      className="w-full h-full object-contain"
-                    />
-                  </div>
+                <div className="flex gap-2 mb-5 items-center">
+  <h1 className="text-[#8f8f8f] text-sm">We Accept</h1>
+  <div className="flex items-center gap-2">
+    <Image
+      src="/images/visa.png"
+      alt="Visa"
+      width={32}
+      height={20}
+      className="w-12 h-10 md:w-16 md:h-12 object-contain"
+    />
+    <Image
+      src="/images/mastercard.png"
+      alt="Mastercard"
+      width={32}
+      height={20}
+      className="w-12 h-10 md:w-16 md:h-12 object-contain"
+    />
+    <Image
+      src="/images/bkash.png"
+      alt="bKash"
+      width={32}
+      height={20}
+      className="w-12 h-10 md:w-16 md:h-12 object-contain"
+    />
+    <Image
+      src="/images/nagad.png"
+      alt="Nagad"
+      width={32}
+      height={20}
+      className="w-12 h-10 md:w-16 md:h-12 object-contain"
+    />
+  </div>
+</div>
                   <label className="flex items-center gap-2 text-lg mb-6">
                     <input
                       type="radio"
