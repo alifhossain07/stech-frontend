@@ -22,7 +22,7 @@ const Page = () => {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       await login({
@@ -31,13 +31,13 @@ const Page = () => {
         password: form.password,
       });
       toast.success("Logged in successfully");
-      // optional redirect:
       router.push("/");
-    } catch (err: any) {
-      toast.error(err?.message || "Login failed");
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : "Login failed";
+      toast.error(message);
     }
   };
-
   return (
     <div className="flex items-center justify-center py-12 md:py-20  px-4">
       <div className="w-full sm:w-11/12 xl:w-10/12 md:w-[95%] lg:w-8/12 bg-white shadow-2xl rounded-3xl flex flex-col md:flex-row overflow-hidden border border-gray-200">

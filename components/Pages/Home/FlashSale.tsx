@@ -36,51 +36,38 @@ const FlashSale = () => {
   const [banner, setBanner] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-  const [endTime, setEndTime] = useState<number>(0); // Store the end time in Unix timestamp format
+  // const [endTime, setEndTime] = useState<number>(0); // Store the end time in Unix timestamp format
 
   useEffect(() => {
-    const fetchFlashSale = async () => {
-      try {
-        const res = await axios.get("/api/products/flashsale"); // Correct API route
-        setBanner(res.data.banner); // Set the dynamic banner image
+  const fetchFlashSale = async () => {
+    let interval: NodeJS.Timeout | null = null;
+    try {
+      const res = await axios.get("/api/products/flashsale");
+      setBanner(res.data.banner);
 
-        // Map the API data to match the Product interface
-        const mappedProducts : Product[] = res.data.products.map((product: BackendProduct) => ({
-          id: product.id,
-          name: product.name,
-          slug: product.slug, 
-          price: parseFloat(product.main_price.replace('৳', '').replace(',', '')), // Convert string to number
-          oldPrice: parseFloat(product.stroked_price.replace('৳', '').replace(',', '')),
-          discount: product.discount,
-          rating: parseFloat(product.rating),  // Convert string to number for rating
-          reviews: 0, // Assuming you have a reviews field or you can map it if available
-          image: product.thumbnail_image,  // Map to image from thumbnail_image
-        }));
+      const mappedProducts: Product[] = res.data.products.map((product: BackendProduct) => ({
+        id: product.id,
+        name: product.name,
+        slug: product.slug,
+        price: parseFloat(product.main_price.replace("৳", "").replace(",", "")),
+        oldPrice: parseFloat(product.stroked_price.replace("৳", "").replace(",", "")),
+        discount: product.discount,
+        rating: parseFloat(product.rating),
+        reviews: 0,
+        image: product.thumbnail_image,
+      }));
 
-        setProducts(mappedProducts); // Set the dynamic product list
+      setProducts(mappedProducts);
 
-        // Set the end time from the API date (convert it from Unix timestamp)
-        const apiEndTime = res.data.date * 1000; // Convert to milliseconds
-        setEndTime(apiEndTime);
-        console.log(endTime);
+      const apiEndTime = res.data.date * 1000; // ms
 
-        // Start the countdown
-        startCountdown(apiEndTime);
-      } catch (error) {
-        console.error("Error fetching Flash Sale products:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    // Function to start the countdown
-    const startCountdown = (endTime: number) => {
-      const interval = setInterval(() => {
-        const currentTime = new Date().getTime();
-        const timeRemaining = endTime - currentTime;
+      interval = setInterval(() => {
+        const currentTime = Date.now();
+        const timeRemaining = apiEndTime - currentTime;
 
         if (timeRemaining <= 0) {
-          clearInterval(interval); // Stop the countdown when time reaches zero
+          clearInterval(interval!);
+          setCountdown({ days: 0, hours: 0, minutes: 0, seconds: 0 });
         } else {
           const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
           const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
@@ -90,10 +77,20 @@ const FlashSale = () => {
           setCountdown({ days, hours, minutes, seconds });
         }
       }, 1000);
-    };
+    } catch (error) {
+      console.error("Error fetching Flash Sale products:", error);
+    } finally {
+      setLoading(false);
+    }
 
-    fetchFlashSale();
-  }, []);
+    // cleanup on unmount
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  };
+
+  fetchFlashSale();
+}, []);
 
   return (
     <div className="md:w-11/12 w-11/12 mx-auto pb-[56px]">

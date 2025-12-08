@@ -27,7 +27,7 @@ const Page = () => {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (form.password !== form.password_confirmation) {
       toast.error("Passwords do not match");
@@ -43,8 +43,10 @@ const Page = () => {
       });
       toast.success("Account created & logged in");
       router.push("/");
-    } catch (err: any) {
-      toast.error(err?.message || "Signup failed");
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : "Signup failed";
+      toast.error(message);
     }
   };
 

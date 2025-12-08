@@ -3,7 +3,18 @@ import { NextResponse } from "next/server";
 
 const API_BASE = process.env.API_BASE!;      // "http://sannai.test/api/v2"
 const SYSTEM_KEY = process.env.SYSTEM_KEY!;  // if your backend needs it
-
+type ProductApi = {
+  id: number | string;
+  name: string;
+  slug: string;
+  main_price: string | number | null;
+  stroked_price: string | number | null;
+  discount?: string | number | null;
+  rating?: string | number | null;
+  sales?: string | number | null;
+  thumbnail_image: string;
+  featured_specs?: unknown[];
+};
 export async function GET(
   _req: Request,
   { params }: { params: { category: string } }
@@ -32,10 +43,10 @@ export async function GET(
 
     const backendJson = await backendRes.json();
 
-    const productsRaw = backendJson.data ?? [];
+    const productsRaw: ProductApi[] = backendJson.data ?? [];
     const meta = backendJson.meta ?? {};
 
-    const products = productsRaw.map((p: any) => ({
+    const products = productsRaw.map((p) => ({
       id: p.id,
       name: p.name,
       slug: p.slug,
