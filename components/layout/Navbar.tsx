@@ -19,7 +19,7 @@ import { IoSearch,IoCartOutline } from "react-icons/io5";
 import CartSidebar from "./CartSidebar";
 import { useCart } from "@/app/context/CartContext";
 import { useAuth } from "@/app/context/AuthContext";
-// import { useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 // ------------------ TYPES ------------------
 // type Subcategory = {
@@ -64,7 +64,7 @@ type Category = {
 };
 
 const Navbar = () => {
-  // const router = useRouter();
+  const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const [open, setOpen] = useState(false);
   const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
@@ -373,10 +373,13 @@ const handleConfirmLogout = () => {
                     setHoveredSubcategory(null);
                   }}
                 >
-                  <div className="flex items-center gap-1 hover:text-gray-300">
-                    {category.name}
-                    {category.subcategories.length > 0 && <FiChevronDown className="text-white text-sm" />}
-                  </div>
+                  <div
+  className="flex items-center gap-1 hover:text-gray-300"
+  onClick={() => router.push(`/products/${category.slug}`)}
+>
+  {category.name}
+  {category.subcategories.length > 0 && <FiChevronDown className="text-white text-sm" />}
+</div>
 
                   {/* FIRST LEVEL DROPDOWN */}
                   {category.subcategories.length > 0 && (
@@ -515,20 +518,29 @@ const handleConfirmLogout = () => {
               {categories.map((cat, index) => (
                 <li key={index}>
                   <button
-                    className="flex justify-between w-full items-center py-2 text-left"
-                    onClick={() =>
-                      setExpandedCategory(expandedCategory === cat.name ? null : cat.name)
-                    }
-                  >
-                    {cat.name}
-                    {cat.subcategories.length > 0 && (
-                      <FiChevronDown
-                        className={`transition-transform ${
-                          expandedCategory === cat.name ? "rotate-180" : ""
-                        }`}
-                      />
-                    )}
-                  </button>
+  className="flex justify-between w-full items-center py-2 text-left"
+>
+  <span
+    onClick={() => {
+      router.push(`/products/${cat.slug}`);
+      handleCloseMenu();
+    }}
+  >
+    {cat.name}
+  </span>
+
+  {cat.subcategories.length > 0 && (
+    <FiChevronDown
+      onClick={(e) => {
+        e.stopPropagation();
+        setExpandedCategory(expandedCategory === cat.name ? null : cat.name);
+      }}
+      className={`transition-transform ${
+        expandedCategory === cat.name ? "rotate-180" : ""
+      }`}
+    />
+  )}
+</button>
 
                   {/* FIRST LEVEL */}
                   <div
