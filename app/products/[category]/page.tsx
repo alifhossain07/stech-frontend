@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import axios from "axios";
 import ProductCard from "@/components/ui/ProductCard";
 import { Range } from "react-range";
@@ -18,6 +18,8 @@ type ProductType = {
   reviews: string;
   image: string;
   featured_specs?: { text: string; icon: string }[];
+   current_stock: number;
+  product_compatible?: string[]; 
 };
 
 const PRODUCTS_PER_PAGE = 12;
@@ -25,11 +27,15 @@ const PRODUCTS_PER_PAGE = 12;
 const CategoryPage = () => {
   const params = useParams();
   const category = params.category;
-
+const searchParams = useSearchParams();
+const searchQuery = typeof category === "string" && category === "search"
+  ? searchParams.get("q") || ""
+  : "";
+const isSearchMode = category === "search";
   const [products, setProducts] = useState<ProductType[]>([]);
   const [subtitle, setSubtitle] = useState<string>("");
-  const [title, setTitle] = useState<string>("");
-  const [totalProducts, setTotalProducts] = useState(0);
+  // const [title, setTitle] = useState<string>("");
+  // const [totalProducts, setTotalProducts] = useState(0);
   const [loading, setLoading] = useState(true);
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -40,31 +46,90 @@ const CategoryPage = () => {
   const [maxPrice, setMaxPrice] = useState(12000);
 
   const [sortOption, setSortOption] = useState("default");
-  const [isFilterOpen, setIsFilterOpen] = useState(false); // mobile filter
+  
 
+  const [isFilterOpen, setIsFilterOpen] = useState(false); // mobile filter
+type AvailabilityStatus = "inStock" | "outOfStock" | "preOrder" | "upcoming" | null;
+
+const [availabilityFilter, setAvailabilityFilter] = useState<AvailabilityStatus>(null);
+
+// e.g. "I Phone", "Oppo", "Samsung", "Redmi"
+type DeviceFilter = "I Phone" | "Oppo" | "Samsung" | "Redmi" | null;
+const [deviceFilter, setDeviceFilter] = useState<DeviceFilter>(null);
+
+const toggleDevice = (device: Exclude<DeviceFilter, null>) => {
+  setDeviceFilter((prev) => (prev === device ? null : device));
+};
+
+const toggleAvailability = (key: Exclude<AvailabilityStatus, null>) => {
+  setAvailabilityFilter((prev) => (prev === key ? null : key));
+};
   // Fetch products from API
   useEffect(() => {
-    const fetchProducts = async () => {
-      setLoading(true);
-      try {
-        const res = await axios.get(`/api/products/category/${category}`);
-        setProducts(res.data.products);
-        setTotalProducts(res.data.total || res.data.products.length);
-        setSubtitle(res.data.subtitle);
-        setTitle(res.data.title);
-        setCurrentPage(1); // reset to first page on category change
-      } catch (err) {
-        console.error("Error fetching category products:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchProducts = async () => {
+    setLoading(true);
+    try {
+      let url: string;
 
-    fetchProducts();
-  }, [category]);
+      if (isSearchMode) {
+        // search mode: /products/search?q=Remax hits this
+        url = `/api/products/search?name=${encodeURIComponent(searchQuery)}`;
+      } else {
+        // category mode
+        url = `/api/products/category/${category}`;
+      }
+
+      const res = await axios.get(url);
+      setProducts(res.data.products || []);
+      // setTotalProducts(res.data.total || (res.data.products?.length ?? 0));
+      setSubtitle(res.data.subtitle || "");
+      // setTitle(res.data.title || (isSearchMode && searchQuery ? `Search: ${searchQuery}` : String(category)));
+      setCurrentPage(1);
+    } catch (err) {
+      console.error("Error fetching products:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchProducts();
+}, [category, isSearchMode, searchQuery]);
+
+const filteredProducts = products.filter((p) => {
+  // 1) Price filter
+  if (p.price < minPrice || p.price > maxPrice) return false;
+
+  // 2) Availability filter (using current_stock)
+  if (availabilityFilter) {
+    const isInStock = p.current_stock > 0;
+    const isOutOfStock = p.current_stock === 0;
+
+    if (availabilityFilter === "inStock" && !isInStock) return false;
+    if (availabilityFilter === "outOfStock" && !isOutOfStock) return false;
+
+    if (availabilityFilter === "preOrder") {
+      // Hook real pre-order logic here later
+      return false;
+    }
+    if (availabilityFilter === "upcoming") {
+      // Hook real upcoming logic here later
+      return false;
+    }
+  }
+
+  // 3) Device compatibility filter
+  if (deviceFilter) {
+    const compatList = p.product_compatible ?? [];
+    // simple contains check; you can normalize case if needed
+    const matches = compatList.includes(deviceFilter);
+    if (!matches) return false;
+  }
+
+  return true;
+});
 
   // Sort products based on selected option
-  const sortedProducts = [...products].sort((a, b) => {
+    const sortedProducts = [...filteredProducts].sort((a, b) => {
     if (sortOption === "price-low-high") return a.price - b.price;
     if (sortOption === "price-high-low") return b.price - a.price;
     if (sortOption === "a-z") return a.name.localeCompare(b.name);
@@ -89,32 +154,63 @@ const CategoryPage = () => {
         <h2 className="font-semibold text-[#ff6b01] text-lg md:text-[22px]">
           Product Filter
         </h2>
-        <button className="text-orange-500 text-xs md:text-[12px]">
-          Clear all
-        </button>
+        <button
+  className="text-orange-500 text-xs md:text-[12px]"
+  onClick={() => {
+  setMinPrice(MIN);
+  setMaxPrice(MAX);
+  setAvailabilityFilter(null);
+  setDeviceFilter(null);
+}}
+>
+  Clear all
+</button>
       </div>
 
       {/* Availability */}
       <div className="border-t py-3">
-        <h3 className="font-medium text-base md:text-[18px] mb-2">
-          Availability
-        </h3>
-        <div className="space-y-1 text-[#626262] text-sm md:text-[16px]">
-          <label className="flex gap-2 items-center">
-            <input className="accent-orange-500" type="checkbox" /> In Stock
-          </label>
-          <label className="flex gap-2 items-center">
-            <input className="accent-orange-500" type="checkbox" /> Out of
-            Stock
-          </label>
-          <label className="flex gap-2 items-center">
-            <input className="accent-orange-500" type="checkbox" /> Pre-Order
-          </label>
-          <label className="flex gap-2 items-center">
-            <input className="accent-orange-500" type="checkbox" /> Up Coming
-          </label>
-        </div>
-      </div>
+  <h3 className="font-medium text-base md:text-[18px] mb-2">
+    Availability
+  </h3>
+  <div className="space-y-1 text-[#626262] text-sm md:text-[16px]">
+    <label className="flex gap-2 items-center">
+      <input
+  className="accent-orange-500"
+  type="checkbox"
+  checked={availabilityFilter === "inStock"}
+  onChange={() => toggleAvailability("inStock")}
+/>{" "}
+      In Stock
+    </label>
+    <label className="flex gap-2 items-center">
+      <input
+  className="accent-orange-500"
+  type="checkbox"
+  checked={availabilityFilter === "outOfStock"}
+  onChange={() => toggleAvailability("outOfStock")}
+/>{" "}
+      Out of Stock
+    </label>
+    <label className="flex gap-2 items-center">
+      <input
+  className="accent-orange-500"
+  type="checkbox"
+  checked={availabilityFilter === "preOrder"}
+  onChange={() => toggleAvailability("preOrder")}
+/>{" "}
+      Pre-Order
+    </label>
+    <label className="flex gap-2 items-center">
+      <input
+  className="accent-orange-500"
+  type="checkbox"
+  checked={availabilityFilter === "upcoming"}
+  onChange={() => toggleAvailability("upcoming")}
+/>{" "}
+      Up Coming
+    </label>
+  </div>
+</div>
 
       {/* Price Range */}
       <div className="border-t py-3">
@@ -169,56 +265,81 @@ const CategoryPage = () => {
       </div>
 
       {/* Device List */}
-      <div className="border-t py-3">
-        <h3 className="font-medium text-base md:text-[18px] mb-2">
-          Device List
-        </h3>
-        <div className="space-y-1 text-sm md:text-[16px] text-[#626262]">
-          <label className="flex gap-2 items-center">
-            <input className="accent-orange-500" type="checkbox" /> I Phone
-          </label>
-          <label className="flex gap-2 items-center">
-            <input className="accent-orange-500" type="checkbox" /> Oppo
-          </label>
-          <label className="flex gap-2 items-center">
-            <input className="accent-orange-500" type="checkbox" /> Samsung
-          </label>
-          <label className="flex gap-2 items-center">
-            <input className="accent-orange-500" type="checkbox" /> Redmi
-          </label>
-        </div>
-      </div>
+      <div className="space-y-1 text-sm md:text-[16px] text-[#626262]">
+         <h3 className="font-semibold text-black text-base md:text-[18px] mb-2">
+    Device List
+  </h3>
+  <label className="flex gap-2 items-center">
+    <input
+      className="accent-orange-500"
+      type="checkbox"
+      checked={deviceFilter === "I Phone"}
+      onChange={() => toggleDevice("I Phone")}
+    />{" "}
+    I Phone
+  </label>
+  <label className="flex gap-2 items-center">
+    <input
+      className="accent-orange-500"
+      type="checkbox"
+      checked={deviceFilter === "Oppo"}
+      onChange={() => toggleDevice("Oppo")}
+    />{" "}
+    Oppo
+  </label>
+  <label className="flex gap-2 items-center">
+    <input
+      className="accent-orange-500"
+      type="checkbox"
+      checked={deviceFilter === "Samsung"}
+      onChange={() => toggleDevice("Samsung")}
+    />{" "}
+    Samsung
+  </label>
+  <label className="flex gap-2 items-center">
+    <input
+      className="accent-orange-500"
+      type="checkbox"
+      checked={deviceFilter === "Redmi"}
+      onChange={() => toggleDevice("Redmi")}
+    />{" "}
+    Redmi
+  </label>
+</div>
 
-      {/* Best Selling */}
-      <div className="border-t py-3">
-        <h3 className="font-medium text-base md:text-[18px] mb-2">
-          Best Selling
-        </h3>
-        <div className="space-y-1 text-sm md:text-[16px] text-[#626262]">
-          <label className="flex gap-2 items-center">
-            <input className="accent-orange-500" type="checkbox" /> Power Bank
-          </label>
-          <label className="flex gap-2 items-center">
-            <input className="accent-orange-500" type="checkbox" /> Phone
-            Charger
-          </label>
-          <label className="flex gap-2 items-center">
-            <input className="accent-orange-500" type="checkbox" /> Adapter
-          </label>
-          <label className="flex gap-2 items-center">
-            <input className="accent-orange-500" type="checkbox" /> Cover
-          </label>
+     
+       {/* Best Selling */}
+      {isSearchMode && (
+        <div className="border-t py-3">
+          <h3 className="font-medium text-base md:text-[18px] mb-2">
+            Best Selling
+          </h3>
+          <div className="space-y-1 text-sm md:text-[16px] text-[#626262]">
+            <label className="flex gap-2 items-center">
+              <input className="accent-orange-500" type="checkbox" /> Power Bank
+            </label>
+            <label className="flex gap-2 items-center">
+              <input className="accent-orange-500" type="checkbox" /> Phone
+              Charger
+            </label>
+            <label className="flex gap-2 items-center">
+              <input className="accent-orange-500" type="checkbox" /> Adapter
+            </label>
+            <label className="flex gap-2 items-center">
+              <input className="accent-orange-500" type="checkbox" /> Cover
+            </label>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 
   return (
     <div className="w-11/12 pt-6 md:pt-10 pb-[56px] mx-auto">
       {/* Dynamic Category Title */}
-      <h1 className="text-2xl md:text-3xl font-semibold mb-2 capitalize">
+      {/* <h1 className="text-2xl md:text-3xl font-semibold mb-2 capitalize">
         {title}
-      </h1>
+      </h1> */}
 
       {/* Dynamic Subtitle */}
       {subtitle && (
@@ -291,8 +412,8 @@ const CategoryPage = () => {
               {/* Showing products + Sort (Desktop/Laptop) */}
               <div className="hidden xl:flex justify-between rounded-xl bg-[#f4f4f4] p-4 mb-6 items-center">
                 <div className="text-[16px] text-[#626262] font-medium">
-                  Showing {visibleProducts.length} out of {totalProducts}{" "}
-                  Products
+                Showing {visibleProducts.length} out of {sortedProducts.length} Products
+                  
                 </div>
 
                 <select
@@ -309,7 +430,7 @@ const CategoryPage = () => {
 
               {/* Showing products (Mobile/LG) text only */}
               <div className="xl:hidden mb-3 text-xs text-[#626262]">
-                Showing {visibleProducts.length} out of {totalProducts} Products
+       Showing {visibleProducts.length} out of {sortedProducts.length} Products
               </div>
 
               <div className="grid w-full grid-cols-2 md:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-4 md:gap-6 xl:gap-7">

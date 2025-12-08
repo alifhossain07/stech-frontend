@@ -105,7 +105,10 @@ export default function CartSidebar({ externalOpen, setExternalOpen }: CartSideb
 
         <div className="p-4 overflow-y-auto" style={{ height: "calc(100vh - 260px)" }}>
           {typedCart.map((item) => (
-            <div key={item.id} className="flex gap-3 p-3 mb-3 items-center">
+            <div
+  key={item.id}
+  className="flex gap-3 p-3 mb-3 items-center"
+>
               {/* Checkbox */}
               <button
                 onClick={() => toggleSelect(item.id)}
@@ -128,11 +131,14 @@ export default function CartSidebar({ externalOpen, setExternalOpen }: CartSideb
   />
               </div>
 
-              <div className="flex-1">
-                <h3 className="text-sm font-medium truncate">{item.name}</h3>
-             <p className="text-xs text-gray-500">
-    {item.variant ? item.variant : ""}
-  </p>
+              <div className="flex-1 min-w-0 flex flex-col">
+                <h3 className="text-sm font-medium truncate">
+                  {item.name}
+                </h3>
+                <p className="text-xs text-gray-500 line-clamp-1">
+                  {item.variant ? item.variant : ""}
+                </p>
+
                 <div className="flex items-center gap-2 mt-1">
                   <span className="text-orange-600 font-semibold">
                     {mounted ? `৳${item.price * item.qty}` : "৳0"}
@@ -142,7 +148,7 @@ export default function CartSidebar({ externalOpen, setExternalOpen }: CartSideb
                   </span>
                 </div>
 
-                <div className="flex justify-between items-center mt-2">
+                <div className="flex justify-between items-center mt-2 gap-2">
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-medium text-gray-600">QTY :</span>
                     <button

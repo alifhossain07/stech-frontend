@@ -3,48 +3,49 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import axios from "axios";
+// import axios from "axios";
 
-interface Product {
-  id: string | number;
-  name: string;
-  qty: number;
-  price: number;
-}
+// interface Product {
+//   id: string | number;
+//   name: string;
+//   qty: number;
+//   price: number;
+// }
 
-interface Order {
-  id: number;
-  customer: {
-    name: string;
-    mobile: string;
-    email?: string;
-    address: string;
-  };
-  items: Product[];
-  totalAmount: number;
-}
+// interface Order {
+//   id: number;
+//   customer: {
+//     name: string;
+//     mobile: string;
+//     email?: string;
+//     address: string;
+//   };
+//   items: Product[];
+//   totalAmount: number;
+// }
 
 export default function OrderComplete() {
-  const [order, setOrder] = useState<Order | null>(null);
+  // const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const searchParams = useSearchParams();
   const orderId = searchParams.get("orderId");
 
   useEffect(() => {
-    if (!orderId) return;
+    // if (!orderId) return;
 
-    const fetchOrder = async () => {
-      try {
-        const response = await axios.get(`/api/orders/${orderId}`);
-        setOrder(response.data);
-      } catch (error) {
-        console.error("Failed to fetch order:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+    // const fetchOrder = async () => {
+    //   try {
+    //     const response = await axios.get(`/api/orders/${orderId}`);
+    //     setOrder(response.data);
+    //   } catch (error) {
+    //     console.error("Failed to fetch order:", error);
+    //   } finally {
+    //     setLoading(false);
+    //   }
+    // };
 
-    fetchOrder();
+    // fetchOrder();
+    setLoading(false);
   }, [orderId]);
 
   return (
@@ -59,7 +60,7 @@ export default function OrderComplete() {
         )}
 
         {/* Hidden usage to avoid unused variable warning */}
-        {order && <span className="hidden">{order.id}</span>}
+        {/* {order && <span className="hidden">{order.id}</span>} */}
 
         {/* Tick Icon */}
         {!loading && (

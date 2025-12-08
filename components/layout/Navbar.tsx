@@ -15,7 +15,7 @@ import {
   FiHome,
   FiChevronRight,
 } from "react-icons/fi";
-import { IoSearch,IoCartOutline } from "react-icons/io5";
+import { IoSearch, IoCartOutline } from "react-icons/io5";
 import CartSidebar from "./CartSidebar";
 import { useCart } from "@/app/context/CartContext";
 import { useAuth } from "@/app/context/AuthContext";
@@ -42,6 +42,24 @@ type APICategory = {
   cover_image: string;
   icon: string;
   children: APICategory[];
+};
+
+type SuggestionItem = {
+  name?: string;
+  title?: string;
+  query?: string;
+  slug?: string;
+  image?: string;
+  thumbnail?: string;
+  cover_image?: string;
+  price?: number | string;
+  sale_price?: number | string;
+  offer_price?: number | string;
+  meta?: {
+    price?: number | string;
+    [key: string]: unknown;
+  };
+  [key: string]: unknown;
 };
 
 type Category = {
@@ -74,17 +92,22 @@ const Navbar = () => {
   const [closing, setClosing] = useState(false);
   const { cart } = useCart();
   const { user, logout } = useAuth();
-  
-const [showMobileSearch, setShowMobileSearch] = useState(false);
-const [cartOpen, setCartOpen] = useState(false);
-const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
-const [logoUrl, setLogoUrl] = useState<string | null>(null);
-
-const [showDesktopLogout, setShowDesktopLogout] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [mobileSearchTerm, setMobileSearchTerm] = useState("");
+  const [showMobileSearch, setShowMobileSearch] = useState(false);
+  const [cartOpen, setCartOpen] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const [suggestions, setSuggestions] = useState<SuggestionItem[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [isSuggestLoading, setIsSuggestLoading] = useState(false);
+  // let suggestTimeout: NodeJS.Timeout;
+  const suggestTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [showDesktopLogout, setShowDesktopLogout] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const submenuRef = useRef<HTMLUListElement>(null);
-const searchRef = useRef<HTMLDivElement>(null);
-const profileRef = useRef<HTMLDivElement | null>(null);
+  const searchRef = useRef<HTMLDivElement>(null);
+  const profileRef = useRef<HTMLDivElement | null>(null);
   const handleCloseMenu = () => {
     setClosing(true);
     setTimeout(() => {
@@ -94,7 +117,7 @@ const profileRef = useRef<HTMLDivElement | null>(null);
   };
 
   // ✅ REAL CATEGORIES (ONLY THOSE WITH DROPDOWNS)
- const [categories, setCategories] = useState<Category[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
 
   // ✅ SIMPLE LINKS (NOT CATEGORIES)
   const simplePages = [
@@ -105,60 +128,68 @@ const profileRef = useRef<HTMLDivElement | null>(null);
   ];
 
   useEffect(() => {
-  async function fetchCategories() {
-    try {
-      const res = await fetch("/api/navbarCategories", { cache: "no-store" });
-      const json = await res.json();
+    async function fetchCategories() {
+      try {
+        const res = await fetch("/api/navbarCategories", { cache: "no-store" });
+        const json = await res.json();
 
-      const apiCategories: APICategory[] = json.data || [];
+        const apiCategories: APICategory[] = json.data || [];
 
-      const formatted: Category[] = apiCategories.map((cat) => ({
-        id: cat.id,
-        name: cat.name,
-        slug: cat.slug,
-        banner: cat.banner,
-        subcategories: (cat.children || []).map((sub) => ({
-          id: sub.id,
-          name: sub.name,
-          slug: sub.slug,
-          banner: sub.banner,
-          children: (sub.children || []).map((child) => ({
-            id: child.id,
-            name: child.name,
-            slug: child.slug,
-            banner: child.banner,
+        const formatted: Category[] = apiCategories.map((cat) => ({
+          id: cat.id,
+          name: cat.name,
+          slug: cat.slug,
+          banner: cat.banner,
+          subcategories: (cat.children || []).map((sub) => ({
+            id: sub.id,
+            name: sub.name,
+            slug: sub.slug,
+            banner: sub.banner,
+            children: (sub.children || []).map((child) => ({
+              id: child.id,
+              name: child.name,
+              slug: child.slug,
+              banner: child.banner,
+            })),
           })),
-        })),
-      }));
+        }));
 
-      setCategories(formatted);
-    } catch (error) {
-      console.error("Navbar category error:", error);
-    }
-  }
-
-  fetchCategories();
-}, []);
-
-useEffect(() => {
-  async function fetchLogo() {
-    try {
-      const res = await fetch("/api/header", { cache: "no-store" });
-      const json = await res.json();
-      // Expecting shape: { data: { url: string, ... }, success: true, status: 200 }
-      const url = json?.data?.url as string | undefined;
-      if (url) {
-        setLogoUrl(url);
-      } else {
-        console.error("Logo URL missing in /api/header response", json);
+        setCategories(formatted);
+      } catch (error) {
+        console.error("Navbar category error:", error);
       }
-    } catch (err) {
-      console.error("Failed to fetch header logo:", err);
     }
-  }
 
-  fetchLogo();
-}, []);
+    fetchCategories();
+  }, []);
+
+  const handleSearchSubmit = (query: string) => {
+    const trimmed = query.trim();
+    if (!trimmed) return;
+    // Use a special "search" category with q param
+    router.push(`/products/search?q=${encodeURIComponent(trimmed)}`);
+    setShowMobileSearch(false);
+  };
+
+  useEffect(() => {
+    async function fetchLogo() {
+      try {
+        const res = await fetch("/api/header", { cache: "no-store" });
+        const json = await res.json();
+        // Expecting shape: { data: { url: string, ... }, success: true, status: 200 }
+        const url = json?.data?.url as string | undefined;
+        if (url) {
+          setLogoUrl(url);
+        } else {
+          console.error("Logo URL missing in /api/header response", json);
+        }
+      } catch (err) {
+        console.error("Failed to fetch header logo:", err);
+      }
+    }
+
+    fetchLogo();
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -183,25 +214,25 @@ useEffect(() => {
   }, []);
 
   useEffect(() => {
-  function handleClickOutside(e: MouseEvent) {
-    if (
-      showMobileSearch &&
-      searchRef.current &&
-      !searchRef.current.contains(e.target as Node)
-    ) {
-      setShowMobileSearch(false);
+    function handleClickOutside(e: MouseEvent) {
+      if (
+        showMobileSearch &&
+        searchRef.current &&
+        !searchRef.current.contains(e.target as Node)
+      ) {
+        setShowMobileSearch(false);
+      }
     }
-  }
 
-  document.addEventListener("mousedown", handleClickOutside);
-  return () => document.removeEventListener("mousedown", handleClickOutside);
-}, [showMobileSearch]);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [showMobileSearch]);
 
-const handleConfirmLogout = () => {
-  logout();
-  setShowLogoutConfirm(false);
-  toast.success("Successfully logged out");
-};
+  const handleConfirmLogout = () => {
+    logout();
+    setShowLogoutConfirm(false);
+    toast.success("Successfully logged out");
+  };
 
 
   return (
@@ -230,29 +261,29 @@ const handleConfirmLogout = () => {
               <FiMenu />
             </button>
             <Link href="/">
-             <Image
-  src={logoUrl || "/images/sannailogo.png"}
-  width={120}
-  height={120}
-  alt="Logo"
-/>
+              <Image
+                src={logoUrl || "/images/sannailogo.png"}
+                width={120}
+                height={120}
+                alt="Logo"
+              />
             </Link>
 
-            <div className="flex lg:hidden items-center text-orange-500 gap-4"> 
-  {/* SEARCH ICON */}
-  <button onClick={() => setShowMobileSearch(!showMobileSearch)}>
-    <IoSearch className="text-2xl" />
-  </button>
+            <div className="flex lg:hidden items-center text-orange-500 gap-4">
+              {/* SEARCH ICON */}
+              <button onClick={() => setShowMobileSearch(!showMobileSearch)}>
+                <IoSearch className="text-2xl" />
+              </button>
 
-  {/* CART ICON */}
-  <button onClick={() => setCartOpen(true)}>
-    <IoCartOutline className="text-2xl" />
-  </button>
-</div>
+              {/* CART ICON */}
+              <button onClick={() => setCartOpen(true)}>
+                <IoCartOutline className="text-2xl" />
+              </button>
+            </div>
 
-            
+
           </div>
-          
+
 
           {/* DESKTOP BUTTONS */}
           <div className="hidden lg:flex items-center gap-3">
@@ -260,12 +291,128 @@ const handleConfirmLogout = () => {
             <div className="relative w-full md:w-96 2xl:w-[550px] mr-6">
               <input
                 type="text"
+                value={searchTerm}
+                onChange={(e) => {
+  const value = e.target.value;
+  setSearchTerm(value);
+
+  if (suggestTimeoutRef.current) {
+    clearTimeout(suggestTimeoutRef.current);
+  }
+
+  if (!value.trim()) {
+    setSuggestions([]);
+    setShowSuggestions(false);
+    return;
+  }
+
+  setIsSuggestLoading(true);
+  suggestTimeoutRef.current = setTimeout(async () => {
+    try {
+      const res = await fetch(
+        `/api/products/search?suggest=1&query_key=${encodeURIComponent(
+          value
+        )}&type=product`
+      );
+      const json = await res.json();
+
+      let items: SuggestionItem[] = [];
+      if (Array.isArray(json.data)) {
+        items = json.data;
+      } else if (json.data && Array.isArray(json.data.items)) {
+        items = json.data.items;
+      } else if (json.data && Array.isArray(json.data.suggestions)) {
+        items = json.data.suggestions;
+      } else if (json.data && Array.isArray(json.data.data)) {
+        items = json.data.data;
+      }
+
+      setSuggestions(items);
+      setShowSuggestions(items.length > 0);
+    } catch (err) {
+      console.error("Suggestion fetch error:", err);
+    } finally {
+      setIsSuggestLoading(false);
+    }
+  }, 300);
+}}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleSearchSubmit(searchTerm);
+                  }
+                }}
                 placeholder="Search your Favourite Accessories."
                 className="w-full text-white bg-black border border-black rounded-full py-2 px-4"
               />
-              <button className="absolute top-1/2 right-2 transform -translate-y-1/2 bg-orange-500 text-white p-2 rounded-full">
+              <button
+                type="button"
+                onClick={() => handleSearchSubmit(searchTerm)}
+                className="absolute top-1/2 right-2 transform -translate-y-1/2 bg-orange-500 text-white p-2 rounded-full"
+              >
                 <FiSearch />
               </button>
+             {showSuggestions && suggestions.length > 0 && (
+  <div
+    className="
+      absolute left-0 right-0 mt-1
+      bg-white border border-gray-200 rounded-md shadow-lg
+      max-h-64 overflow-y-auto z-50
+    "
+  >
+    {suggestions.map((item: SuggestionItem, idx: number) => {
+      const label = item.name || item.title || item.query || "";
+      const slug = item.slug;
+      const image = item.image || item.thumbnail || item.cover_image || null;
+      const price =
+        item.price ||
+        item.sale_price ||
+        item.offer_price ||
+        (item.meta && item.meta.price) ||
+        null;
+
+      return (
+        <button
+          key={idx}
+          type="button"
+          onClick={() => {
+            if (slug) {
+              router.push(`/${slug}`);
+            } else if (label) {
+              handleSearchSubmit(label);
+            }
+            setShowSuggestions(false);
+            setShowMobileSearch(false);
+          }}
+          className="w-full flex items-center gap-3 px-3 py-2 text-sm hover:bg-gray-100"
+        >
+          {image && (
+            <div className="relative w-10 h-10 flex-shrink-0">
+              {/* if these are absolute URLs use unoptimized <img>; if local, use <Image> */}
+              <Image
+                src={image}
+                alt={label}
+                fill
+                sizes="40px"
+                className="object-contain rounded"
+              />
+            </div>
+          )}
+          <div className="flex-1 flex flex-col items-start">
+            <span className="text-gray-800 line-clamp-1">{label}</span>
+            {price && (
+              <span className="text-xs text-orange-600 font-semibold">
+                ৳{price}
+              </span>
+            )}
+          </div>
+        </button>
+      );
+    })}
+    {isSuggestLoading && (
+      <div className="px-3 py-2 text-xs text-gray-500">Loading…</div>
+    )}
+  </div>
+)}
             </div>
 
             <Link href="/offers"
@@ -286,9 +433,8 @@ const handleConfirmLogout = () => {
               </button>
 
               <div
-                className={`absolute left-0 top-full mt-2 bg-white border border-gray-300 rounded-md shadow-md w-32 z-50 transition-all ${
-                  open ? "opacity-100 visible" : "opacity-0 invisible"
-                }`}
+                className={`absolute left-0 top-full mt-2 bg-white border border-gray-300 rounded-md shadow-md w-32 z-50 transition-all ${open ? "opacity-100 visible" : "opacity-0 invisible"
+                  }`}
               >
                 <button className="block w-full text-left px-4 py-2 hover:bg-gray-100">English</button>
                 <button className="block w-full text-left px-4 py-2 hover:bg-gray-100">Bangla</button>
@@ -296,36 +442,36 @@ const handleConfirmLogout = () => {
             </div>
 
             {/* CART */}
-           
-              <button onClick={() => setCartOpen(true)} className="border border-gray-400 px-5 py-2 h-[46px] rounded-md flex items-center gap-3 text-sm">
-                <FiShoppingCart className="text-2xl" />
-                <div>
-                  <h1 className="text-base">Cart</h1>
-                  <span className="text-xs mt-2">*{cart.length.toString().padStart(2, "0")} Items</span>
-                </div>
-              </button>
-         
+
+            <button onClick={() => setCartOpen(true)} className="border border-gray-400 px-5 py-2 h-[46px] rounded-md flex items-center gap-3 text-sm">
+              <FiShoppingCart className="text-2xl" />
+              <div>
+                <h1 className="text-base">Cart</h1>
+                <span className="text-xs mt-2">*{cart.length.toString().padStart(2, "0")} Items</span>
+              </div>
+            </button>
+
 
             {/* PROFILE / AUTH */}
             {user ? (
-  <div className="relative" ref={profileRef}>
-    <button
-      className="border border-gray-400 px-5 py-2 h-[46px] rounded-md flex items-center gap-2 text-sm bg-white"
-      onClick={() => setShowDesktopLogout(prev => !prev)}
-    >
-      <FiUser className="text-2xl" />
-      <div className="text-left">
-        <h1 className="text-base">Hi, {user.name.split(" ")[0]}</h1>
-        <p className="text-xs text-gray-500">
-          {user.phone || user.email || "Customer"}
-        </p>
-      </div>
-    </button>
+              <div className="relative" ref={profileRef}>
+                <button
+                  className="border border-gray-400 px-5 py-2 h-[46px] rounded-md flex items-center gap-2 text-sm bg-white"
+                  onClick={() => setShowDesktopLogout(prev => !prev)}
+                >
+                  <FiUser className="text-2xl" />
+                  <div className="text-left">
+                    <h1 className="text-base">Hi, {user.name.split(" ")[0]}</h1>
+                    <p className="text-xs text-gray-500">
+                      {user.phone || user.email || "Customer"}
+                    </p>
+                  </div>
+                </button>
 
-    {showDesktopLogout && (
-      <button
-        onClick={() => setShowLogoutConfirm(true)}
-        className="
+                {showDesktopLogout && (
+                  <button
+                    onClick={() => setShowLogoutConfirm(true)}
+                    className="
           absolute right-0 mt-1
           w-full
           text-sm text-red-500
@@ -338,25 +484,25 @@ const handleConfirmLogout = () => {
           hover:bg-red-50 hover:shadow-xl
           transition
         "
-      >
-        Logout
-      </button>
-    )}
-  </div>
-) : (
-  <button className="border border-gray-400 px-5 py-2 h-[46px] rounded-md flex items-center gap-1 text-sm">
-    <Link href="/login" className="flex items-center gap-2">
-      <FiUser className="text-2xl" />
-      <div>
-        <h1 className="text-base">Login</h1>
-       
-      </div>
-    </Link>
-  </button>
-)}
+                  >
+                    Logout
+                  </button>
+                )}
+              </div>
+            ) : (
+              <button className="border border-gray-400 px-5 py-2 h-[46px] rounded-md flex items-center gap-1 text-sm">
+                <Link href="/login" className="flex items-center gap-2">
+                  <FiUser className="text-2xl" />
+                  <div>
+                    <h1 className="text-base">Login</h1>
+
+                  </div>
+                </Link>
+              </button>
+            )}
           </div>
         </div>
-      
+
 
         {/* ========= DESKTOP NAV ========= */}
         <div className="bg-orange-500 hidden lg:block">
@@ -374,52 +520,50 @@ const handleConfirmLogout = () => {
                   }}
                 >
                   <div
-  className="flex items-center gap-1 hover:text-gray-300"
-  onClick={() => router.push(`/products/${category.slug}`)}
->
-  {category.name}
-  {category.subcategories.length > 0 && <FiChevronDown className="text-white text-sm" />}
-</div>
+                    className="flex items-center gap-1 hover:text-gray-300"
+                    onClick={() => router.push(`/products/${category.slug}`)}
+                  >
+                    {category.name}
+                    {category.subcategories.length > 0 && <FiChevronDown className="text-white text-sm" />}
+                  </div>
 
                   {/* FIRST LEVEL DROPDOWN */}
                   {category.subcategories.length > 0 && (
                     <div
-                      className={`absolute left-0 top-full mt-2 bg-white text-black rounded-md shadow-lg transition-all ${
-                        hoveredCategory === category.name
+                      className={`absolute left-0 top-full mt-2 bg-white text-black rounded-md shadow-lg transition-all ${hoveredCategory === category.name
                           ? "opacity-100 visible"
                           : "opacity-0 invisible"
-                      }`}
+                        }`}
                     >
                       <ul className="min-w-[180px] py-2 relative">
-                       {category.subcategories.map((sub) => (
-  <li
-    key={sub.id}
-    className="px-4 py-2 hover:bg-gray-100 text-sm flex justify-between items-center"
-    onMouseEnter={() => setHoveredSubcategory(sub.name)}
-    onMouseLeave={() => setHoveredSubcategory(null)}
-  >
-    {sub.name}
+                        {category.subcategories.map((sub) => (
+                          <li
+                            key={sub.id}
+                            className="px-4 py-2 hover:bg-gray-100 text-sm flex justify-between items-center"
+                            onMouseEnter={() => setHoveredSubcategory(sub.name)}
+                            onMouseLeave={() => setHoveredSubcategory(null)}
+                          >
+                            {sub.name}
 
-    {sub.children?.length > 0 && <FiChevronRight className="text-gray-500 text-xs" />}
+                            {sub.children?.length > 0 && <FiChevronRight className="text-gray-500 text-xs" />}
 
-    {/* SECOND LEVEL DROPDOWN */}
-    {sub.children?.length > 0 && (
-      <div
-        className={`absolute left-full top-3 ml-1 bg-white rounded-md shadow-lg transition-all ${
-          hoveredSubcategory === sub.name ? "opacity-100 visible" : "opacity-0 invisible"
-        }`}
-      >
-        <ul className="min-w-[160px] py-2">
-          {sub.children?.map((child) => (
-            <li key={child.id} className="px-4 py-2 hover:bg-gray-100 text-sm">
-              {child.name}
-            </li>
-          ))}
-        </ul>
-      </div>
-    )}
-  </li>
-))}
+                            {/* SECOND LEVEL DROPDOWN */}
+                            {sub.children?.length > 0 && (
+                              <div
+                                className={`absolute left-full top-3 ml-1 bg-white rounded-md shadow-lg transition-all ${hoveredSubcategory === sub.name ? "opacity-100 visible" : "opacity-0 invisible"
+                                  }`}
+                              >
+                                <ul className="min-w-[160px] py-2">
+                                  {sub.children?.map((child) => (
+                                    <li key={child.id} className="px-4 py-2 hover:bg-gray-100 text-sm">
+                                      {child.name}
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                          </li>
+                        ))}
 
                       </ul>
                     </div>
@@ -440,26 +584,127 @@ const handleConfirmLogout = () => {
         </div>
       </header>
       {showMobileSearch && (
-  <div ref={searchRef} className="fixed top-[70px] left-0 w-full z-40 lg:hidden animate-[fadeDown_0.25s_ease-out]">
-    <div className=" ">
+  <div
+    ref={searchRef}
+    className="fixed top-[70px] left-0 w-full z-40 lg:hidden animate-[fadeDown_0.25s_ease-out]"
+  >
+    <div className="relative w-full ">
       <input
         type="text"
+        value={mobileSearchTerm}
+        onChange={(e) => {
+          const value = e.target.value;
+          setMobileSearchTerm(value);
+
+          if (suggestTimeoutRef.current) {
+            clearTimeout(suggestTimeoutRef.current);
+          }
+
+          if (!value.trim()) {
+            setSuggestions([]);
+            setShowSuggestions(false);
+            return;
+          }
+
+          setIsSuggestLoading(true);
+          suggestTimeoutRef.current = setTimeout(async () => {
+            try {
+              const res = await fetch(
+                `/api/products/search?suggest=1&query_key=${encodeURIComponent(
+                  value
+                )}&type=product`
+              );
+              const json = await res.json();
+
+              let items:SuggestionItem[] = [];
+              if (Array.isArray(json.data)) {
+                items = json.data;
+              } else if (json.data && Array.isArray(json.data.items)) {
+                items = json.data.items;
+              } else if (json.data && Array.isArray(json.data.suggestions)) {
+                items = json.data.suggestions;
+              } else if (json.data && Array.isArray(json.data.data)) {
+                items = json.data.data;
+              }
+
+              setSuggestions(items);
+              setShowSuggestions(items.length > 0);
+            } catch (err) {
+              console.error("Mobile suggestion fetch error:", err);
+            } finally {
+              setIsSuggestLoading(false);
+            }
+          }, 300);
+        }}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            handleSearchSubmit(mobileSearchTerm);
+          }
+        }}
         placeholder="Search your Favourite Accessories..."
-        className="
-          w-full
-          bg-white
-          text-black
-          py-3 px-4
-          rounded-md
-          shadow-lg
-          outline-none
-          caret-black
-          placeholder:text-gray-500
-        "
+        className="w-full bg-white text-black py-3 px-4 rounded-md shadow-lg outline-none caret-black placeholder:text-gray-500"
       />
+
+      {/* 🔥 Suggestions Dropdown */}
+      {showSuggestions && suggestions.length > 0 && (
+        <div className="absolute left-0 right-0  bg-white border border-gray-200 rounded-md shadow-lg max-h-64 overflow-y-auto z-50">
+          {suggestions.map((item: SuggestionItem, idx: number) => {
+            const label = item.name || item.title || item.query || "";
+            const slug = item.slug;
+            const image = item.image || item.thumbnail || item.cover_image || null;
+            const price =
+              item.price ||
+              item.sale_price ||
+              item.offer_price ||
+              (item.meta && item.meta.price) ||
+              null;
+
+            return (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => {
+                  if (slug) {
+                    router.push(`/${slug}`);
+                  } else if (label) {
+                    handleSearchSubmit(label);
+                  }
+                  setShowSuggestions(false);
+                  setShowMobileSearch(false);
+                }}
+                className="w-full flex items-center gap-3 px-3 py-2 text-sm hover:bg-gray-100"
+              >
+                {image && (
+                  <div className="relative w-10 h-10 flex-shrink-0">
+                    <Image
+                      src={image}
+                      alt={label}
+                      fill
+                      sizes="40px"
+                      className="object-contain rounded"
+                    />
+                  </div>
+                )}
+                <div className="flex-1 flex flex-col items-start">
+                  <span className="text-gray-800 line-clamp-1">{label}</span>
+                  {price && (
+                    <span className="text-xs text-orange-600 font-semibold">
+                      ৳{price}
+                    </span>
+                  )}
+                </div>
+              </button>
+            );
+          })}
+          {isSuggestLoading && (
+            <div className="px-3 py-2 text-xs text-gray-500">Loading…</div>
+          )}
+        </div>
+      )}
     </div>
   </div>
 )}
+
 
       {/* Prevent overlap */}
       <div className="pt-[70px] xl:pt-[150px]"></div>
@@ -476,7 +721,7 @@ const handleConfirmLogout = () => {
           Offers
         </Link>
 
-        <button onClick={() => setCartOpen(true)}  className="flex flex-col items-center text-xs">
+        <button onClick={() => setCartOpen(true)} className="flex flex-col items-center text-xs">
           <FiShoppingCart className="text-lg" />
           Cart
         </button>
@@ -498,9 +743,8 @@ const handleConfirmLogout = () => {
 
           {/* SIDEBAR */}
           <div
-            className={`fixed left-0 top-0 w-72 sm:w-80 h-full bg-white shadow-lg z-50 overflow-y-auto ${
-              closing ? "animate-slideOut" : "animate-slideIn"
-            }`}
+            className={`fixed left-0 top-0 w-72 sm:w-80 h-full bg-white shadow-lg z-50 overflow-y-auto ${closing ? "animate-slideOut" : "animate-slideIn"
+              }`}
           >
             <div className="flex justify-between items-center px-5 py-4 border-b">
               <Image src="/images/sannailogo.png" width={120} height={120} alt="Logo" />
@@ -518,35 +762,33 @@ const handleConfirmLogout = () => {
               {categories.map((cat, index) => (
                 <li key={index}>
                   <button
-  className="flex justify-between w-full items-center py-2 text-left"
->
-  <span
-    onClick={() => {
-      router.push(`/products/${cat.slug}`);
-      handleCloseMenu();
-    }}
-  >
-    {cat.name}
-  </span>
+                    className="flex justify-between w-full items-center py-2 text-left"
+                  >
+                    <span
+                      onClick={() => {
+                        router.push(`/products/${cat.slug}`);
+                        handleCloseMenu();
+                      }}
+                    >
+                      {cat.name}
+                    </span>
 
-  {cat.subcategories.length > 0 && (
-    <FiChevronDown
-      onClick={(e) => {
-        e.stopPropagation();
-        setExpandedCategory(expandedCategory === cat.name ? null : cat.name);
-      }}
-      className={`transition-transform ${
-        expandedCategory === cat.name ? "rotate-180" : ""
-      }`}
-    />
-  )}
-</button>
+                    {cat.subcategories.length > 0 && (
+                      <FiChevronDown
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setExpandedCategory(expandedCategory === cat.name ? null : cat.name);
+                        }}
+                        className={`transition-transform ${expandedCategory === cat.name ? "rotate-180" : ""
+                          }`}
+                      />
+                    )}
+                  </button>
 
                   {/* FIRST LEVEL */}
                   <div
-                    className={`ml-4 border-l border-gray-200 pl-3 overflow-hidden transition-all ${
-                      expandedCategory === cat.name ? "max-h-60 opacity-100" : "max-h-0 opacity-0"
-                    }`}
+                    className={`ml-4 border-l border-gray-200 pl-3 overflow-hidden transition-all ${expandedCategory === cat.name ? "max-h-60 opacity-100" : "max-h-0 opacity-0"
+                      }`}
                   >
                     <ul className="space-y-1">
                       {cat.subcategories.map((sub, subIndex) => (
@@ -563,20 +805,18 @@ const handleConfirmLogout = () => {
 
                             {sub.children?.length > 0 && (
                               <FiChevronDown
-                                className={`transition-transform ${
-                                  expandedSubcategory === sub.name ? "rotate-180" : ""
-                                }`}
+                                className={`transition-transform ${expandedSubcategory === sub.name ? "rotate-180" : ""
+                                  }`}
                               />
                             )}
                           </button>
 
                           {/* SECOND LEVEL */}
                           <div
-                            className={`ml-4 border-l border-gray-200 pl-3 overflow-hidden transition-all ${
-                              expandedSubcategory === sub.name
+                            className={`ml-4 border-l border-gray-200 pl-3 overflow-hidden transition-all ${expandedSubcategory === sub.name
                                 ? "max-h-40 opacity-100"
                                 : "max-h-0 opacity-0"
-                            }`}
+                              }`}
                           >
                             <ul className="space-y-1">
                               {sub.children?.map((child, cidx) => (
@@ -612,34 +852,34 @@ const handleConfirmLogout = () => {
       <CartSidebar externalOpen={cartOpen} setExternalOpen={setCartOpen} />
 
       {/* Logout confirmation modal */}
-{showLogoutConfirm && (
-  <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 backdrop-blur-[1px] animate-[fadeIn_0.18s_ease-out]">
-    <div className="bg-white rounded-lg shadow-xl px-6 py-5 w-80 max-w-[90%] text-center transform animate-[scaleIn_0.18s_ease-out]">
-      <h2 className="text-lg font-semibold mb-2">
-        Are you sure you want to log out?
-      </h2>
-      <p className="text-sm text-gray-600 mb-4">
-        You will need to log in again to access your account.
-      </p>
-      <div className="flex items-center justify-center gap-3">
-        <button
-          onClick={() => setShowLogoutConfirm(false)}
-          className="px-4 py-2 rounded-md border border-gray-300 text-sm text-gray-700 hover:bg-gray-100"
-        >
-          Cancel
-        </button>
-        <button
-          onClick={handleConfirmLogout}
-          className="px-4 py-2 rounded-md bg-red-500 text-white text-sm hover:bg-red-600"
-        >
-          Yes, log out
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+      {showLogoutConfirm && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 backdrop-blur-[1px] animate-[fadeIn_0.18s_ease-out]">
+          <div className="bg-white rounded-lg shadow-xl px-6 py-5 w-80 max-w-[90%] text-center transform animate-[scaleIn_0.18s_ease-out]">
+            <h2 className="text-lg font-semibold mb-2">
+              Are you sure you want to log out?
+            </h2>
+            <p className="text-sm text-gray-600 mb-4">
+              You will need to log in again to access your account.
+            </p>
+            <div className="flex items-center justify-center gap-3">
+              <button
+                onClick={() => setShowLogoutConfirm(false)}
+                className="px-4 py-2 rounded-md border border-gray-300 text-sm text-gray-700 hover:bg-gray-100"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmLogout}
+                className="px-4 py-2 rounded-md bg-red-500 text-white text-sm hover:bg-red-600"
+              >
+                Yes, log out
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
-
+      
     </>
   );
 };
