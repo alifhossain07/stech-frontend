@@ -268,12 +268,12 @@ const handleConfirmLogout = () => {
               </button>
             </div>
 
-            <button
+            <Link href="/offers"
               className="flex items-center gap-1 text-white px-5 mr-5 py-2 rounded-xl text-sm"
               style={{ background: "linear-gradient(to bottom, #FFD522, #FF6B01)" }}
             >
               <FiGift className="text-base mr-1 animate-pulseScaleColor" /> Offers
-            </button>
+            </Link>
 
             {/* LANGUAGE DROPDOWN */}
             <div className="relative inline-block" ref={dropdownRef}>
@@ -471,7 +471,7 @@ const handleConfirmLogout = () => {
           Home
         </Link>
 
-        <Link href="/checkout" className="flex flex-col items-center text-xs">
+        <Link href="/offers" className="flex flex-col items-center text-xs">
           <FiGift className="text-lg" />
           Offers
         </Link>
