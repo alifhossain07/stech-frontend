@@ -1,5 +1,7 @@
 "use client";
+
 import React, { useEffect, useState } from "react";
+import { Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -49,6 +51,7 @@ export default function OrderComplete() {
   }, [orderId]);
 
   return (
+      <Suspense fallback={<div className="w-full py-10 text-center">Loading...</div>}>
     <div className="w-full flex justify-center py-10 px-4">
       <div className="w-full max-w-4xl border rounded-2xl p-8 md:p-12 bg-white shadow-sm text-center">
 
@@ -109,5 +112,6 @@ export default function OrderComplete() {
 
       </div>
     </div>
+    </Suspense>
   );
 }
