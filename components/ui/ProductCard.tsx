@@ -1,6 +1,8 @@
 "use client";
 
-// import { useCart } from "@/app/context/CartContext";
+
+import { useCart } from "@/app/context/CartContext";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useState } from "react";
 import { FaCartPlus } from "react-icons/fa";
@@ -28,6 +30,8 @@ type Product = {
 export default function ProductCard({ product }: { product: Product }) {
   // const { addToCart, setCartOpen } = useCart();
   // const [loading, setLoading] = useState(false);
+    const { addToCart, setSelectedItems } = useCart();
+    const router = useRouter();
   const [optionsOpen, setOptionsOpen] = useState(false);
 
   // const handleAdd = () => {
@@ -48,6 +52,26 @@ export default function ProductCard({ product }: { product: Product }) {
   //     setLoading(false);
   //   }, 700);
   // };
+
+  const handleBuyNow = () => {
+    const id = product.id; // or product.id.toString() if you use strings elsewhere
+
+    addToCart({
+      id,
+      slug: product.slug,
+      name: product.name,
+      price: product.price,
+      oldPrice: product.oldPrice,
+      img: product.image,
+      qty: 1,
+    });
+
+    // Make only this item selected for checkout
+    setSelectedItems([id]);
+
+    // Go straight to checkout
+    router.push("/checkout");
+  };
 
   const fallbackSpecs = [
     { icon: "/images/watt.png", text: "25 Watts of Power " },
@@ -118,7 +142,7 @@ export default function ProductCard({ product }: { product: Product }) {
           {/* FIXED HEIGHT BUTTON ROW */}
           <div className="flex gap-2 h-[30px]  md:h-[42px]">
             {/* Buy Now */}
-            <button className="flex items-center justify-center w-1/2 rounded-md text-white md:text-sm text-xs bg-[#FF6B01] md:py-1 hover:opacity-90 transition hover:bg-white hover:text-orange-500 hover:border hover:border-orange-500">
+            <button  onClick={handleBuyNow} className="flex items-center justify-center w-1/2 rounded-md text-white md:text-sm text-xs bg-[#FF6B01] md:py-1 hover:opacity-90 transition hover:bg-white hover:text-orange-500 hover:border hover:border-orange-500">
               <span className="block xl:hidden text-xs">
                 <LuShoppingBag />
               </span>

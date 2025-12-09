@@ -2,7 +2,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import { RefObject } from "react";
 import { useCart } from "@/app/context/CartContext";
-import { useParams } from "next/navigation";
+import { useParams,useRouter } from "next/navigation";
 import Image from "next/image";
 import {
   FiChevronLeft,
@@ -84,7 +84,8 @@ const Page = () => {
 
 
 const { slug } = useParams(); // <-- grabs slug from URL
-const { addToCart, setCartOpen } = useCart();
+const router = useRouter();
+const { addToCart, setCartOpen,setSelectedItems } = useCart();
 const [product, setProduct] = useState<ProductType | null>(null);
  const [cartLoading, setCartLoading] = useState(false);
   
@@ -215,6 +216,43 @@ const handleAdd = () => {
     setCartLoading(false);
   }, 1500); // 2 seconds
 };
+
+const handleBuyNow = () => {
+  if (!product) return;
+  if (!slug || Array.isArray(slug)) return;
+
+  const effectivePrice = parsePrice(
+    selectedVariant
+      ? product.variants.find((v) => v.variant === selectedVariant)?.price ??
+          product.main_price
+      : product.main_price
+  );
+
+  const image =
+    product.thumbnail_image ||
+    product.photos[0]?.path ||
+    "/images/placeholder.png";
+
+  const id = product.id.toString();
+
+  addToCart({
+    id,
+    slug: String(slug),
+    name: product.name,
+    price: effectivePrice,
+    oldPrice: parsePrice(product.stroked_price),
+    img: image,
+    qty: quantity,
+    variant: selectedVariant || undefined,
+    variantImage: image,
+  });
+
+  // Only this item should be checked at checkout
+  setSelectedItems([id]);
+
+  // Go straight to checkout page
+  router.push("/checkout");
+};
   
 
   const tabs = [
@@ -264,8 +302,15 @@ const handleAdd = () => {
   if (loading) return <ProductSkeleton />;
   if (error) return <p className="text-center mt-10 text-red-500">{error}</p>;
   if (!product) return <p className="text-center mt-10">No product found</p>;
-const images = product.photos.map((photo) => photo.path);
-const colors = product.colors;
+let images = (product.photos || [])
+  .map((photo) => photo?.path)
+  .filter((p): p is string => !!p);
+
+if (images.length === 0) {
+  images = [product.thumbnail_image || "/images/placeholder.png"];
+}
+
+const colors = product.colors || [];
   return (
     <div className="md:mt-10 mt-5 w-11/12 mx-auto">
       {/* Product Details Container */}
@@ -506,27 +551,31 @@ const colors = product.colors;
             </p>
             <div className="space-y-2">
               {/* Item 1 */}
-             {product.featured_specs.slice(0, 5).map((item, index) => (
-          <div
-            key={index}
-            className="flex items-center gap-3 bg-[#f4f4f4] rounded-md 2xl:px-4 2xl:py-3 xl:px-4 xl:py-2 py-1"
-          >
-            <Image
-              src={item.icon}
-              alt={item.text}
-              width={20}
-              height={20}
-              className="object-contain"
-            />
-            <span
-              className={`md:text-[16px] text-[12px] text-black ${
-                index === 4 ? "underline" : ""
-              }`}
-            >
-              {item.text}
-            </span>
-          </div>
-        ))}
+             {(product.featured_specs || []).slice(0, 5).map((item, index) => {
+  const iconSrc = item.icon || "/images/placeholder.png"; // or any default icon
+
+  return (
+    <div
+      key={index}
+      className="flex items-center gap-3 bg-[#f4f4f4] rounded-md 2xl:px-4 2xl:py-3 xl:px-4 xl:py-2 py-1"
+    >
+      <Image
+        src={iconSrc}
+        alt={item.text}
+        width={20}
+        height={20}
+        className="object-contain"
+      />
+      <span
+        className={`md:text-[16px] text-[12px] text-black ${
+          index === 4 ? "underline" : ""
+        }`}
+      >
+        {item.text}
+      </span>
+    </div>
+  );
+})}
 
             </div>
           </div>
@@ -661,6 +710,7 @@ const colors = product.colors;
             <div className="flex items-center gap-3 md:gap-4">
               {/* Buy Now */}
               <button
+              onClick={handleBuyNow}
                 className="
       flex items-center justify-center w-1/2
       bg-orange-500 hover:bg-orange-600 text-white font-medium

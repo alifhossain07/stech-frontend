@@ -43,7 +43,7 @@ export async function GET() {
       rating: p.rating,
       reviews: p.sales,
 
-      image: p.thumbnail_image,
+      image: p.thumbnail_image || "/images/placeholder.png",
 
       // ⭐ Include featured_specs
       featured_specs: p.featured_specs || [],
