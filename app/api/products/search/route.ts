@@ -118,8 +118,15 @@ export async function GET(req: Request) {
     }
 
     const backendJson = await backendRes.json();
-    const productsRaw: ProductApi[] = backendJson.data ?? [];
+    let productsRaw: ProductApi[] = backendJson.data ?? [];
     const meta = backendJson.meta ?? {};
+
+    const normalizedName = name.trim().toLowerCase();
+    if (normalizedName) {
+      productsRaw = productsRaw.filter((p) =>
+        p.name.toLowerCase().includes(normalizedName)
+      );
+    }
 
     const products = productsRaw.map((p) => ({
       id: p.id,

@@ -74,10 +74,15 @@ const CategoryPage = () => {
     return devices ? (devices.split(",") as DeviceType[]) : [];
   });
 
-  // Update URL with current filters
+  // Update URL with current filters - FIXED to preserve search query
   const updateURL = useCallback((updates: Record<string, string | number | null>) => {
     const params = new URLSearchParams(searchParams.toString());
-    
+
+    // Always preserve the search query in search mode
+    if (isSearchMode && searchQuery && !params.has("q")) {
+      params.set("q", searchQuery);
+    }
+
     Object.entries(updates).forEach(([key, value]) => {
       if (value === null || value === "" || value === "default") {
         params.delete(key);
@@ -88,7 +93,7 @@ const CategoryPage = () => {
 
     const newUrl = `${window.location.pathname}?${params.toString()}`;
     router.push(newUrl, { scroll: false });
-  }, [searchParams, router]);
+  }, [searchParams, router, isSearchMode, searchQuery]);
 
   const isFirstLoad = useRef(true);
 
@@ -107,7 +112,7 @@ const CategoryPage = () => {
         const params = new URLSearchParams();
 
         if (isSearchMode) {
-          // Search mode
+          // Search mode - ALWAYS include the search query
           if (searchQuery) params.set("name", searchQuery);
         }
 
@@ -225,13 +230,12 @@ const CategoryPage = () => {
     setSortOption("default");
     setCurrentPage(1);
     
-    const params = new URLSearchParams(searchParams.toString());
-    params.delete("min");
-    params.delete("max");
-    params.delete("availability");
-    params.delete("devices");
-    params.delete("sort");
-    params.delete("page");
+    const params = new URLSearchParams();
+    
+    // CRITICAL FIX: Preserve search query when clearing filters
+    if (isSearchMode && searchQuery) {
+      params.set("q", searchQuery);
+    }
     
     const newUrl = `${window.location.pathname}?${params.toString()}`;
     router.push(newUrl, { scroll: false });
@@ -425,6 +429,13 @@ const CategoryPage = () => {
 
   return (
     <div className="w-11/12 pt-6 md:pt-10 pb-[56px] mx-auto">
+      {/* Display search query if in search mode */}
+      {isSearchMode && searchQuery && (
+        <h1 className="text-xl md:text-2xl font-semibold mb-2">
+          Search results for &quot;{searchQuery}&quot;
+        </h1>
+      )}
+      
       {subtitle && (
         <p className="text-gray-600 mb-4 md:mb-6 text-sm md:text-base">
           {subtitle}
