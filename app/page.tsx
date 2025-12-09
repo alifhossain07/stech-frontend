@@ -2,7 +2,7 @@ import AboutSection from "@/components/Pages/Home/AboutSection";
 import EarbudsProducts from "@/components/Pages/Home/EarbudsProducts";
 import FastChargerProduct from "@/components/Pages/Home/FastChargerProducts";
 import FeatureProducts from "@/components/Pages/Home/FeatureProducts";
-// import FlashSale from "@/components/Pages/Home/FlashSale";
+import FlashSale from "@/components/Pages/Home/FlashSale";
 import HomeBannerSection from "@/components/Pages/Home/HomeBannerSection";
 import HomeBannerSection2 from "@/components/Pages/Home/HomeBannerSection2";
 import NeckBandProducts from "@/components/Pages/Home/NeckBandProducts";
@@ -22,7 +22,7 @@ export default function Home() {
       <PopularCategories />
       <NewArrival/>
       <EarbudsProducts/>
-      {/* <FlashSale/> */}
+      <FlashSale/>
       <FastChargerProduct/>
       <HomeBannerSection/>
       <PowerBankProducts/>
