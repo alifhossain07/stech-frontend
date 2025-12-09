@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import Image from "next/image";
 import { FiPlus, FiMinus } from "react-icons/fi";
 import { useCart } from "@/app/context/CartContext";
@@ -77,6 +78,11 @@ export default function ProductOptionsModal({ slug, open, onClose }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [selectedVariant, setSelectedVariant] = useState<string>("");
   const [quantity, setQuantity] = useState<number>(1);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Fetch product details when opened
   useEffect(() => {
@@ -142,9 +148,9 @@ export default function ProductOptionsModal({ slug, open, onClose }: Props) {
     }, 500);
   };
 
-  if (!open) return null;
+  if (!open || !mounted) return null;
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-[20000] flex items-center justify-center">
       {/* Backdrop */}
       <div
@@ -312,6 +318,7 @@ export default function ProductOptionsModal({ slug, open, onClose }: Props) {
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

@@ -4,8 +4,6 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import ProductCard from "@/components/ui/ProductCard";
 import { FiChevronRight, FiChevronLeft } from "react-icons/fi";
-import Glide from "@glidejs/glide";
-// import Link from "next/link";
 
 interface Product {
   id: number;
@@ -17,49 +15,23 @@ interface Product {
   reviews: number;
   image: string;
   slug: string;
-
 }
 
-// ⭐ Product Skeleton
-const ProductSkeleton = () => (
-  <div className="w-full max-w-[320px] rounded-lg shadow-md border border-gray-200 p-0 animate-pulse">
-    <div className="flex items-center justify-center bg-gray-100 md:p-14 p-8 rounded-md">
-      <div className="md:w-[100px] w-[40px] h-[40px] md:h-[100px] bg-gray-300 rounded-md"></div>
-    </div>
-
-    <div className="p-3 space-y-3">
-      <div className="h-4 w-3/4 bg-gray-300 rounded"></div>
-      <div className="h-4 w-2/4 bg-gray-300 rounded"></div>
-
-      <div className="flex gap-2 p-2 bg-gray-200 rounded-md items-center">
-        <div className="w-5 h-5 bg-gray-300 rounded"></div>
-        <div className="h-3 w-24 bg-gray-300 rounded"></div>
-      </div>
-
-      <div className="flex gap-2 p-2 bg-gray-200 rounded-md items-center">
-        <div className="w-5 h-5 bg-gray-300 rounded"></div>
-        <div className="h-3 w-28 bg-gray-300 rounded"></div>
-      </div>
-
-      <div className="flex gap-3 items-center">
-        <div className="h-4 w-16 bg-gray-300 rounded"></div>
-        <div className="h-4 w-12 bg-gray-300 rounded"></div>
-        <div className="h-4 w-10 bg-gray-300 rounded"></div>
-      </div>
-
-      <div className="flex  gap-2 mt-3">
-        <div className="w-1/2 h-10 bg-gray-300 rounded-md"></div>
-        <div className="w-1/2 h-10 bg-gray-300 rounded-md"></div>
-      </div>
-    </div>
-  </div>
-);
-
+const VISIBLE_CONFIG = {
+  xl: 6,
+  lg: 4,
+  md: 3,
+  sm: 2,
+  xs: 1,
+};
 
 const NewArrival = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [visibleCount, setVisibleCount] = useState(6);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
+  // Fetch products
   useEffect(() => {
     const load = async () => {
       try {
@@ -72,91 +44,100 @@ const NewArrival = () => {
     load();
   }, []);
 
-  // ⭐ GLIDE INIT — FIXED FOR TRUE INFINITE LOOP
+  // Calculate visible count based on window size
   useEffect(() => {
-    if (!loading && products.length > 0) {
-      new Glide(".glide-new-arrival", {
-  type: "slider",
-  perView: 5,
-  gap: 20, // slightly smaller or dynamic
-  bound: false, // ensures slides fit nicely
-  animationDuration: 500,
-  breakpoints: {
-    1536: { perView: 5, gap: 2 },
-    1280: { perView: 4, gap: 2 },
-    1024: { perView: 3, gap: 12 },
-    768: { perView: 2, gap: 12 },
-    480: { perView: 2, gap: 10 },
-  },
-}).mount();
-    }
-  }, [loading, products]);
+    const updateVisible = () => {
+      const w = window.innerWidth;
+
+      if (w >= 1280) setVisibleCount(VISIBLE_CONFIG.xl);
+      else if (w >= 1024) setVisibleCount(VISIBLE_CONFIG.lg);
+      else if (w >= 768) setVisibleCount(VISIBLE_CONFIG.md);
+      else if (w >= 480) setVisibleCount(VISIBLE_CONFIG.sm);
+      else setVisibleCount(VISIBLE_CONFIG.xs);
+    };
+
+    updateVisible();
+    window.addEventListener("resize", updateVisible);
+    return () => window.removeEventListener("resize", updateVisible);
+  }, []);
+
+  const maxIndex = Math.max(0, products.length - visibleCount);
+
+  const handleNext = () =>
+    setCurrentIndex((prev) => Math.min(prev + 1, maxIndex));
+
+  const handlePrev = () =>
+    setCurrentIndex((prev) => Math.max(prev - 1, 0));
 
   return (
     <div className="w-11/12 mx-auto pb-[56px]">
-
       {/* HEADER */}
       <div className="flex flex-col sm:flex-row justify-between items-center mb-7">
         <div>
-          <h1 className="xl:text-4xl text-2xl text-center md:text-left font-semibold">
+          <h1 className="xl:text-4xl text-2xl font-semibold">
             New Arrival Products
           </h1>
-          <p className="text-gray-600 text-center xl:text-left text-sm xl:text-lg">
-            Discover Our Latest Arrivals Designed to Inspire and Impress
+          <p className="text-gray-600 text-sm xl:text-lg">
+            Discover our latest arrivals
           </p>
         </div>
 
-        <button className="hidden md:flex bg-black text-white px-4 py-2 items-center rounded-xl">
+        <button className="hidden md:flex bg-black text-white px-4 py-2 rounded-xl items-center">
           See More <FiChevronRight />
         </button>
       </div>
 
-      {/* ⭐ LOADING SKELETON */}
+      {/* LOADING SKELETON */}
       {loading ? (
-        <div
-          className="
-            grid gap-5
-            grid-cols-2
-            md:grid-cols-3
-            xl:grid-cols-5
-          "
-        >
+        <div className="grid gap-5 grid-cols-2 md:grid-cols-3 xl:grid-cols-5">
           {Array.from({ length: 5 }).map((_, i) => (
-            <ProductSkeleton key={i} />
+            <div key={i} className="w-full h-60 bg-gray-200 animate-pulse rounded-xl" />
           ))}
         </div>
       ) : (
-        <div className="glide-new-arrival relative">
-
-          {/* ⭐ GLIDE TRACK — FIXED */}
-          <div data-glide-el="track" className="overflow-hidden ml-3 md:ml-6 ">
-            <ul className="glide__slides">
+        <div className="relative">
+          {/* SLIDER VIEWPORT */}
+          <div className="overflow-hidden">
+            <div
+              className="flex transition-transform duration-500 ease-out"
+              style={{
+                transform: `translateX(-${
+                  (currentIndex * 100) / visibleCount
+                }%)`,
+              }}
+            >
               {products.map((p) => (
-                <li key={p.id} className="glide__slide flex  ">
-                
-                    <ProductCard product={p} />
-                 
-                </li>
+                <div
+                  key={p.id}
+                  className="px-2 flex-shrink-0"
+                  style={{ width: `${100 / visibleCount}%` }}
+                >
+                  <ProductCard product={p} />
+                </div>
               ))}
-            </ul>
+            </div>
           </div>
 
-          {/* ⭐ ARROWS */}
-          <div data-glide-el="controls">
-            <button
-              data-glide-dir="<"
-              className="absolute xl:-left-5 -left-4 top-1/2 -translate-y-1/2 z-20 bg-white shadow-md xl:px-3 xl:py-1 px-2 py-1 "
-            >
-              <FiChevronLeft className="md:text-2xl text-lg" />
-            </button>
+          {/* ARROWS */}
+          {products.length > visibleCount && (
+            <>
+              <button
+                onClick={handlePrev}
+                disabled={currentIndex === 0}
+                className="absolute xl:-left-6 -left-3 top-1/2 -translate-y-1/2 bg-white shadow-md px-3 py-2 rounded-full disabled:opacity-40"
+              >
+                <FiChevronLeft className="text-xl" />
+              </button>
 
-            <button
-              data-glide-dir=">"
-              className="absolute -right-3 top-1/2 -translate-y-1/2 z-20 bg-white shadow-md  xl:px-3 xl:py-1 px-2 py-1"
-            >
-              <FiChevronRight className="md:text-2xl text-lg" />
-            </button>
-          </div>
+              <button
+                onClick={handleNext}
+                disabled={currentIndex === maxIndex}
+                className="absolute xl:-right-6 -right-3 top-1/2 -translate-y-1/2 bg-white shadow-md px-3 py-2 rounded-full disabled:opacity-40"
+              >
+                <FiChevronRight className="text-xl" />
+              </button>
+            </>
+          )}
         </div>
       )}
     </div>
