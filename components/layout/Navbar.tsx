@@ -104,6 +104,7 @@ const Navbar = () => {
   // let suggestTimeout: NodeJS.Timeout;
   const suggestTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [showDesktopLogout, setShowDesktopLogout] = useState(false);
+  const desktopSearchRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const submenuRef = useRef<HTMLUListElement>(null);
   const searchRef = useRef<HTMLDivElement>(null);
@@ -164,12 +165,16 @@ const Navbar = () => {
   }, []);
 
   const handleSearchSubmit = (query: string) => {
-    const trimmed = query.trim();
-    if (!trimmed) return;
-    // Use a special "search" category with q param
-    router.push(`/products/search?q=${encodeURIComponent(trimmed)}`);
-    setShowMobileSearch(false);
-  };
+  const trimmed = query.trim();
+  if (!trimmed) return;
+  // Close suggestions and clear search
+  setShowSuggestions(false);
+  setSuggestions([]);
+ 
+  setShowMobileSearch(false);
+  // Navigate to search page
+  router.push(`/products/search?q=${encodeURIComponent(trimmed)}`);
+};
 
   useEffect(() => {
     async function fetchLogo() {
@@ -207,6 +212,13 @@ const Navbar = () => {
         !profileRef.current.contains(event.target as Node)
       ) {
         setShowDesktopLogout(false);
+      }
+      // Add desktop search suggestions close logic
+      if (
+        desktopSearchRef.current &&
+        !desktopSearchRef.current.contains(event.target as Node)
+      ) {
+        setShowSuggestions(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -288,54 +300,54 @@ const Navbar = () => {
           {/* DESKTOP BUTTONS */}
           <div className="hidden lg:flex items-center gap-3">
             {/* SEARCH */}
-            <div className="relative w-full md:w-96 2xl:w-[550px] mr-6">
+            <div ref={desktopSearchRef} className="relative w-full md:w-96 2xl:w-[550px] mr-6">
               <input
                 type="text"
                 value={searchTerm}
                 onChange={(e) => {
-  const value = e.target.value;
-  setSearchTerm(value);
+                  const value = e.target.value;
+                  setSearchTerm(value);
 
-  if (suggestTimeoutRef.current) {
-    clearTimeout(suggestTimeoutRef.current);
-  }
+                  if (suggestTimeoutRef.current) {
+                    clearTimeout(suggestTimeoutRef.current);
+                  }
 
-  if (!value.trim()) {
-    setSuggestions([]);
-    setShowSuggestions(false);
-    return;
-  }
+                  if (!value.trim()) {
+                    setSuggestions([]);
+                    setShowSuggestions(false);
+                    return;
+                  }
 
-  setIsSuggestLoading(true);
-  suggestTimeoutRef.current = setTimeout(async () => {
-    try {
-      const res = await fetch(
-        `/api/products/search?suggest=1&query_key=${encodeURIComponent(
-          value
-        )}&type=product`
-      );
-      const json = await res.json();
+                  setIsSuggestLoading(true);
+                  suggestTimeoutRef.current = setTimeout(async () => {
+                    try {
+                      const res = await fetch(
+                        `/api/products/search?suggest=1&query_key=${encodeURIComponent(
+                          value
+                        )}&type=product`
+                      );
+                      const json = await res.json();
 
-      let items: SuggestionItem[] = [];
-      if (Array.isArray(json.data)) {
-        items = json.data;
-      } else if (json.data && Array.isArray(json.data.items)) {
-        items = json.data.items;
-      } else if (json.data && Array.isArray(json.data.suggestions)) {
-        items = json.data.suggestions;
-      } else if (json.data && Array.isArray(json.data.data)) {
-        items = json.data.data;
-      }
+                      let items: SuggestionItem[] = [];
+                      if (Array.isArray(json.data)) {
+                        items = json.data;
+                      } else if (json.data && Array.isArray(json.data.items)) {
+                        items = json.data.items;
+                      } else if (json.data && Array.isArray(json.data.suggestions)) {
+                        items = json.data.suggestions;
+                      } else if (json.data && Array.isArray(json.data.data)) {
+                        items = json.data.data;
+                      }
 
-      setSuggestions(items);
-      setShowSuggestions(items.length > 0);
-    } catch (err) {
-      console.error("Suggestion fetch error:", err);
-    } finally {
-      setIsSuggestLoading(false);
-    }
-  }, 300);
-}}
+                      setSuggestions(items);
+                      setShowSuggestions(items.length > 0);
+                    } catch (err) {
+                      console.error("Desktop suggestion fetch error:", err);
+                    } finally {
+                      setIsSuggestLoading(false);
+                    }
+                  }, 300);
+                }}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     handleSearchSubmit(searchTerm);
@@ -351,68 +363,63 @@ const Navbar = () => {
               >
                 <FiSearch />
               </button>
-             {showSuggestions && suggestions.length > 0 && (
-  <div
-    className="
-      absolute left-0 right-0 mt-1
-      bg-white border border-gray-200 rounded-md shadow-lg
-      max-h-64 overflow-y-auto z-50
-    "
-  >
-    {suggestions.map((item: SuggestionItem, idx: number) => {
-      const label = item.name || item.title || item.query || "";
-      const slug = item.slug;
-      const image = item.image || item.thumbnail || item.cover_image || null;
-      const price =
-        item.price ||
-        item.sale_price ||
-        item.offer_price ||
-        (item.meta && item.meta.price) ||
-        null;
+              {showSuggestions && suggestions.length > 0 && (
+                <div className="absolute left-0 right-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-64 overflow-y-auto z-50">
+                  {suggestions.map((item: SuggestionItem, idx: number) => {
+                    const label = item.name || item.title || item.query || "";
+                    const slug = item.slug;
+                    const image = item.image || item.thumbnail || item.cover_image || null;
+                    const price =
+                      item.price ||
+                      item.sale_price ||
+                      item.offer_price ||
+                      (item.meta && item.meta.price) ||
+                      null;
 
-      return (
-        <button
-          key={idx}
-          type="button"
-          onClick={() => {
-            if (slug) {
-              router.push(`/${slug}`);
-            } else if (label) {
-              handleSearchSubmit(label);
-            }
-            setShowSuggestions(false);
-            setShowMobileSearch(false);
-          }}
-          className="w-full flex items-center gap-3 px-3 py-2 text-sm hover:bg-gray-100"
-        >
-          {image && (
-            <div className="relative w-10 h-10 flex-shrink-0">
-              {/* if these are absolute URLs use unoptimized <img>; if local, use <Image> */}
-              <Image
-                src={image}
-                alt={label}
-                fill
-                sizes="40px"
-                className="object-contain rounded"
-              />
-            </div>
-          )}
-          <div className="flex-1 flex flex-col items-start">
-            <span className="text-gray-800 line-clamp-1">{label}</span>
-            {price && (
-              <span className="text-xs text-orange-600 font-semibold">
-                ৳{price}
-              </span>
-            )}
-          </div>
-        </button>
-      );
-    })}
-    {isSuggestLoading && (
-      <div className="px-3 py-2 text-xs text-gray-500">Loading…</div>
-    )}
-  </div>
-)}
+                    return (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => {
+                          if (slug) {
+                            setShowSuggestions(false);
+                            setSuggestions([]);
+                            setSearchTerm("");
+                            router.push(`/${slug}`);
+                          } else if (label) {
+                            setSearchTerm(label);
+                            handleSearchSubmit(label);
+                          }
+                        }}
+                        className="w-full flex items-center gap-3 px-3 py-2 text-sm hover:bg-gray-100"
+                      >
+                        {image && (
+                          <div className="relative w-10 h-10 flex-shrink-0">
+                            <Image
+                              src={image}
+                              alt={label}
+                              fill
+                              sizes="40px"
+                              className="object-contain rounded"
+                            />
+                          </div>
+                        )}
+                        <div className="flex-1 flex flex-col items-start">
+                          <span className="text-gray-800 line-clamp-1">{label}</span>
+                          {price && (
+                            <span className="text-xs text-orange-600 font-semibold">
+                              ৳{price}
+                            </span>
+                          )}
+                        </div>
+                      </button>
+                    );
+                  })}
+                  {isSuggestLoading && (
+                    <div className="px-3 py-2 text-xs text-gray-500">Loading…</div>
+                  )}
+                </div>
+              )}
             </div>
 
             <Link href="/offers"

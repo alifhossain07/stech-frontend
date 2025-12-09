@@ -80,34 +80,25 @@ export async function GET(req: Request) {
 
   // ---------- NORMAL PRODUCT SEARCH MODE ----------
   const name = searchParams.get("name") || "";
-
-  if (!name.trim()) {
-    return NextResponse.json({
-      success: true,
-      title: "All Products",
-      subtitle: "",
-      total: 0,
-      products: [],
-    });
-  }
-
-  // Mirror Laravel search parameters
-  const categories = searchParams.get("categories") || ""; // "1,2,3"
-  const brands = searchParams.get("brands") || "";         // "10,11"
-  const min = searchParams.get("min") || "";               // min price
-  const max = searchParams.get("max") || "";               // max price
-  const sort_key = searchParams.get("sort_key") || "";     // price_low_to_high, etc.
-  const digital = searchParams.get("digital") || "";       // "1" or "0"
+  const categories = searchParams.get("categories") || "";
+  const brands = searchParams.get("brands") || "";
+  const min = searchParams.get("min") || "";
+  const max = searchParams.get("max") || "";
+  const sort_key = searchParams.get("sort_key") || "";
+  const digital = searchParams.get("digital") || "";
+  const page = searchParams.get("page") || "1";
 
   // Build query string for backend
   const backendUrl = new URL(`${API_BASE}/products/search`);
-  backendUrl.searchParams.set("name", name);
+  
+  if (name) backendUrl.searchParams.set("name", name);
   if (categories) backendUrl.searchParams.set("categories", categories);
   if (brands) backendUrl.searchParams.set("brands", brands);
   if (min) backendUrl.searchParams.set("min", min);
   if (max) backendUrl.searchParams.set("max", max);
   if (sort_key) backendUrl.searchParams.set("sort_key", sort_key);
   if (digital) backendUrl.searchParams.set("digital", digital);
+  if (page) backendUrl.searchParams.set("page", page);
 
   try {
     const backendRes = await fetch(backendUrl.toString(), {
@@ -147,13 +138,14 @@ export async function GET(req: Request) {
 
     return NextResponse.json({
       success: true,
-      title: `Search results for "${name}"`,
+      title: name ? `Search results for "${name}"` : "All Products",
       subtitle:
         products.length === 0
-          ? "No products found. Please try another keyword."
+          ? "No products found. Please try another keyword or adjust filters."
           : "",
       total: meta.total ?? products.length,
       products,
+      meta,
     });
   } catch (error) {
     console.error("Search products API error:", error);
