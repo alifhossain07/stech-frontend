@@ -22,7 +22,7 @@ import {
 
 import YouMayLike from "./YouMayLike";
 import FAQ from "./FAQ";
-import Reviews from "./Reviews";
+// import Reviews from "./Reviews";
 import ProductSkeleton from "./ProductSkeleton";
 interface Brand {
   id: number;
@@ -906,9 +906,9 @@ const colors = product.colors;
     </p>
   )}
 </div>
-            <div className="scroll-mt-36" ref={reviewRef}>
+            {/* <div className="scroll-mt-36" ref={reviewRef}>
               <Reviews />
-            </div>
+            </div> */}
           </div>
         </div>
 
