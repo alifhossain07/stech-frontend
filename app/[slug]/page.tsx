@@ -246,6 +246,34 @@ const handleAdd = () => {
       variantImage: image,
     });
 
+     if (typeof window !== "undefined") {
+    const variantObj = selectedVariant
+      ? product.variants.find((v) => v.variant === selectedVariant)
+      : undefined;
+
+    const item = {
+      item_id: product.id.toString(),
+      item_name: product.name,
+      item_brand: product.brand?.name || "",
+      item_category: "",
+      price: effectivePrice,
+      quantity,
+      item_variant: variantObj?.variant || "",
+      item_sku: variantObj?.sku || "",
+    };
+
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: "add_to_cart",
+      ecommerce: {
+        currency: "BDT",
+        value: effectivePrice * quantity,
+        items: [item],
+      },
+    });
+  }
+
+
     setCartOpen(true);
     setCartLoading(false);
   }, 1500);

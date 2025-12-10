@@ -68,6 +68,29 @@ export default function ProductCard({ product }: { product: Product }) {
 
     // Make only this item selected for checkout
     setSelectedItems([id]);
+    if (typeof window !== "undefined") {
+    const item = {
+      item_id: id.toString(),
+      item_name: product.name,
+      item_brand: "",
+      item_category: "",
+      price: product.price,
+      quantity: 1,
+      item_variant: "",
+      item_sku: "",
+    };
+
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: "add_to_cart",
+      ecommerce: {
+        currency: "BDT",
+        value: product.price,
+        items: [item],
+      },
+    });
+  }
+
 
     // Go straight to checkout
     router.push("/checkout");
