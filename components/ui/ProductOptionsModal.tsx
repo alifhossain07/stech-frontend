@@ -124,23 +124,58 @@ export default function ProductOptionsModal({ slug, open, onClose }: Props) {
 
     setAdding(true);
     setTimeout(() => {
+      if (!product) {
+        setAdding(false);
+        return;
+      }
+
+      const variantObj = selectedVariant
+        ? product.variants.find((v) => v.variant === selectedVariant)
+        : undefined;
+
+      const price = parsePrice(
+        variantObj?.price ?? product.main_price
+      );
+
+      const image =
+        product.thumbnail_image ||
+        product.photos[0]?.path ||
+        "/images/placeholder.png";
+
       addToCart({
-  id: product.id.toString(),
-  slug,
-  name: product.name,
-  price: parsePrice(
-    selectedVariant
-      ? product.variants.find((v) => v.variant === selectedVariant)?.price ??
-          product.main_price
-      : product.main_price
-  ),
-  oldPrice: parsePrice(product.stroked_price),
-  img: product.thumbnail_image || product.photos[0]?.path || "/images/placeholder.png",
-  qty: quantity,
-  variant: selectedVariant || undefined,
-  variantImage:
-    product.thumbnail_image || product.photos[0]?.path || "/images/placeholder.png",
-});
+        id: product.id.toString(),
+        slug,
+        name: product.name,
+        price,
+        oldPrice: parsePrice(product.stroked_price),
+        img: image,
+        qty: quantity,
+        variant: selectedVariant || undefined,
+        variantImage: image,
+      });
+
+      if (typeof window !== "undefined") {
+        const item = {
+          item_id: product.id.toString(),
+          item_name: product.name,
+          item_brand: product.brand?.name || "",
+          item_category: "",
+          price,
+          quantity,
+          item_variant: variantObj?.variant || "",
+          item_sku: variantObj?.sku || "",
+        };
+
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({
+          event: "add_to_cart",
+          ecommerce: {
+            currency: "BDT",
+            value: price * quantity,
+            items: [item],
+          },
+        });
+      }
 
       setCartOpen(true);
       setAdding(false);

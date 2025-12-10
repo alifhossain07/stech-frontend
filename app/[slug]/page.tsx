@@ -24,6 +24,8 @@ import YouMayLike from "./YouMayLike";
 import FAQ from "./FAQ";
 // import Reviews from "./Reviews";
 import ProductSkeleton from "./ProductSkeleton";
+
+
 interface Brand {
   id: number;
   name: string;
@@ -139,6 +141,38 @@ const [product, setProduct] = useState<ProductType | null>(null);
     });
   };
 
+    useEffect(() => {
+    if (!product) return;
+
+    const variantObj = selectedVariant
+      ? product.variants.find((v) => v.variant === selectedVariant)
+      : product.variants?.[0];
+
+    const price = parsePrice(variantObj?.price ?? product.main_price);
+    const item = {
+      item_id: product.id.toString(),
+      item_name: product.name,
+      item_brand: product.brand?.name || "",
+      item_category: "", // fill when you have category info
+      price,
+      quantity: 1,
+      item_variant: variantObj?.variant || "",
+      item_sku: variantObj?.sku || "",
+    };
+
+    if (typeof window !== "undefined") {
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        event: "view_item",
+        ecommerce: {
+          currency: "BDT",
+          value: price,
+          items: [item],
+        },
+      });
+    }
+  }, [product, selectedVariant]);
+
 const shareUrl = typeof window !== 'undefined' ? encodeURIComponent(window.location.href) : '';
 const shareText = encodeURIComponent(`${product?.name || 'Check out this product'}`);
 
@@ -214,7 +248,9 @@ const handleAdd = () => {
 
     setCartOpen(true);
     setCartLoading(false);
-  }, 1500); // 2 seconds
+  }, 1500);
+  
+ 
 };
 
 const handleBuyNow = () => {
@@ -250,7 +286,33 @@ const handleBuyNow = () => {
   // Only this item should be checked at checkout
   setSelectedItems([id]);
 
-  // Go straight to checkout page
+  if (typeof window !== "undefined") {
+    const variantObj = selectedVariant
+      ? product.variants.find((v) => v.variant === selectedVariant)
+      : undefined;
+
+    const item = {
+      item_id: product.id.toString(),
+      item_name: product.name,
+      item_brand: product.brand?.name || "",
+      item_category: "",
+      price: effectivePrice,
+      quantity,
+      item_variant: variantObj?.variant || "",
+      item_sku: variantObj?.sku || "",
+    };
+
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: "add_to_cart",
+      ecommerce: {
+        currency: "BDT",
+        value: effectivePrice * quantity,
+        items: [item],
+      },
+    });
+  }
+
   router.push("/checkout");
 };
   

@@ -10,7 +10,8 @@ import { Toaster } from "react-hot-toast";
 import ClientLayoutWrapper from "@/components/layout/ClientLayoutWrapper";
 import { CartProvider } from "./context/CartContext";
 import { AuthProvider } from "./context/AuthContext";
-
+import GoogleAnalytics from "@/components/layout/GoogleAnalytics";
+import GTM from "@/components/layout/GTM";
 
 
 const poppins = Poppins({
@@ -33,6 +34,8 @@ export default function RootLayout({
     <html lang="en" data-theme="light" suppressHydrationWarning>
       {/* Add the font variable to <html> */}
       <body className={`${poppins.variable} antialiased`}>
+        <GoogleAnalytics id="G-S4ED028867" />
+        <GTM />
          <AuthProvider>
         <CartProvider>
      <Navbar />

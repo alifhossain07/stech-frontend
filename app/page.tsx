@@ -1,3 +1,4 @@
+import Script from "next/script";
 import AboutSection from "@/components/Pages/Home/AboutSection";
 import EarbudsProducts from "@/components/Pages/Home/EarbudsProducts";
 import FastChargerProduct from "@/components/Pages/Home/FastChargerProducts";
@@ -18,6 +19,17 @@ import HeroSlider from "@/components/ui/HeroSlider";
 export default function Home() {
   return (
     <div >
+
+      <Script id="homepage-data-layer" strategy="afterInteractive">
+        {`
+          window.dataLayer = window.dataLayer || [];
+          window.dataLayer.push({
+            event: 'page_view',
+            page_type: 'home',
+            timestamp: new Date().toISOString()
+          });
+        `}
+      </Script>
       <HeroSlider /> 
       <PopularCategories />
       <NewArrival/>

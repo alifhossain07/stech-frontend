@@ -281,6 +281,46 @@ const CheckoutPage: React.FC = () => {
 
       if (response.data.success && response.data.data?.result) {
         toast.success(response.data.data.message || "Order placed successfully! 🎉");
+        try {
+          if (typeof window !== "undefined") {
+            const backendData = response.data.data;
+            const transactionId =
+              backendData?.order?.code ||
+              backendData?.order_code ||
+              backendData?.code ||
+              "";
+
+            const itemsForAnalytics = selectedCart.map((item) => ({
+              item_id: String(item.id),
+              item_name: item.name,
+              price: item.price,
+              quantity: item.qty,
+              item_variant: item.variant || "",
+              item_brand: "",
+              item_category: "",
+            }));
+
+            const shipping = effectiveDelivery;
+            const value = subtotal - discount - promoDiscount + shipping;
+
+           window.dataLayer = window.dataLayer || [];
+window.dataLayer.push({
+  event: "purchase",
+  ecommerce: {
+    transaction_id: transactionId,
+    affiliation: "Online Store",
+    value,
+    tax: 0,
+    shipping,
+    currency: "BDT",
+    coupon: appliedPromo || "",
+    items: itemsForAnalytics,
+  },
+});
+          }
+        } catch (e) {
+          console.error("Failed to push purchase event", e);
+        }
         clearCart();
         setShowPaymentModal(false);
         router.push("/checkout/ordercomplete");
