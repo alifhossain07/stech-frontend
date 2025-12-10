@@ -56,6 +56,7 @@ export default function RootLayout({
   />
         </CartProvider>
         </AuthProvider>
+        
       </body>
     </html>
   );
