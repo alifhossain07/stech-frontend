@@ -15,15 +15,12 @@ interface LaravelProduct {
 
 export async function GET() {
   try {
-    const url = `${process.env.API_BASE}/products/new-arrivals`;
-
-    const res = await fetch(url, {
+    const res = await fetch(`${process.env.API_BASE}/products/new-arrivals`, {
       headers: {
         "System-Key": process.env.SYSTEM_KEY!,
         Accept: "application/json",
       },
       cache: "no-cache",
-    
     });
 
     const json = await res.json();
