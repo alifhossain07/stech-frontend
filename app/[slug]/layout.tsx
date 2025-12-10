@@ -5,6 +5,7 @@ import React from "react";
 
 const API_BASE = process.env.API_BASE!;
 const SYSTEM_KEY = process.env.SYSTEM_KEY!;
+const SITE_URL = "https://sannai.com.bd";
 
 type ProductSEO = {
   meta_title?: string | null;
@@ -21,7 +22,17 @@ type Product = {
   thumbnail_image?: string | null;
   photos?: { path: string }[];
   seo?: ProductSEO | null;
+
+  // extra fields used in schema (all optional to be safe)
+  main_price?: number | string | null;
+  brand?: { name?: string | null } | null;
+  current_stock?: number | null;
+  slug?: string | null;
 };
+
+function stripHtml(html: string): string {
+  return html.replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim();
+}
 
 // Fetch a single product by slug directly from your main API
 async function getProduct(slug: string): Promise<Product | null> {
@@ -68,11 +79,7 @@ export async function generateMetadata(
   const rawDescription =
     seo.meta_description ||
     (typeof product.description === "string" ? product.description : "");
-  const description = rawDescription
-    .replace(/<[^>]+>/g, "") // remove HTML tags
-    .replace(/\s+/g, " ")
-    .trim()
-    .slice(0, 160);
+  const description = stripHtml(rawDescription).slice(0, 160);
 
   const image =
     seo.meta_image ||
@@ -89,8 +96,7 @@ export async function generateMetadata(
       : undefined;
 
   const urlSlug = seo.slug || params.slug;
-  const siteUrl = "https://sannai.com.bd"; // <-- change to your real domain
-  const url = `${siteUrl}/${urlSlug}`;
+  const url = `${SITE_URL}/${urlSlug}`;
 
   return {
     title,
@@ -115,11 +121,93 @@ export async function generateMetadata(
   };
 }
 
-// Standard layout wrapper – keeps your existing client page working
-export default function ProductLayout({
+// Layout + JSON-LD Product schema
+export default async function ProductLayout({
   children,
+  params,
 }: {
   children: React.ReactNode;
+  params: { slug: string };
 }) {
-  return <>{children}</>;
+  const product = await getProduct(params.slug);
+
+  // If product not found, just render children without schema
+  if (!product) {
+    return <>{children}</>;
+  }
+
+  const seo = product.seo ?? {};
+
+  const rawDescription =
+    seo.meta_description ||
+    (typeof product.description === "string" ? product.description : "");
+  const plainDescription = stripHtml(rawDescription).slice(0, 160);
+
+  // Build image list (thumbnail + gallery)
+  const imageUrls: string[] = [];
+  if (product.thumbnail_image) imageUrls.push(product.thumbnail_image);
+  if (product.photos && product.photos.length > 0) {
+    imageUrls.push(
+      ...product.photos
+        .map((p) => p?.path)
+        .filter((p): p is string => !!p)
+    );
+  }
+  const uniqueImages = Array.from(new Set(imageUrls));
+
+  const urlSlug = seo.slug || product.slug || params.slug;
+  const url = `${SITE_URL}/${urlSlug}`;
+
+  // Basic price parsing so schema always gets a number
+  const rawPrice = product.main_price;
+  const price =
+    typeof rawPrice === "number"
+      ? rawPrice
+      : rawPrice
+      ? Number(
+          String(rawPrice)
+            .replace(/[^\d.]/g, "")
+            .trim()
+        ) || undefined
+      : undefined;
+
+  const productJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    description: plainDescription,
+    image: uniqueImages,
+    sku: String(product.id),
+    brand: product.brand?.name
+      ? {
+          "@type": "Brand",
+          name: product.brand.name,
+        }
+      : undefined,
+    offers: price
+      ? {
+          "@type": "Offer",
+          url,
+          priceCurrency: "BDT",
+          price,
+          availability:
+            (product.current_stock ?? 0) > 0
+              ? "https://schema.org/InStock"
+              : "https://schema.org/OutOfStock",
+        }
+      : undefined,
+  };
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        // NOTE: must be a JSON string, not an object
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(productJsonLd),
+        }}
+      />
+      {children}
+    </>
+  );
 }

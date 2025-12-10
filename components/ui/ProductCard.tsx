@@ -83,27 +83,29 @@ export default function ProductCard({ product }: { product: Product }) {
       <div className="relative w-full max-w-[350px] rounded-lg shadow-md border border-gray-200 flex flex-col">
         {/* FIXED IMAGE AREA */}
         <Link
-          href={`/${product.slug}`}
-          className="relative bg-gray-50 h-[180px] md:h-[220px] rounded-md flex items-center justify-center overflow-hidden"
-        >
-          <span className="absolute top-1.5 left-1.5 bg-[#FF6B01] text-white text-[10px] font-semibold px-1.5 py-0.5 rounded-full">
-            New Arrival
-          </span>
+  href={`/${product.slug}`}
+  className="relative bg-gray-50 h-[180px] md:h-[220px] rounded-md flex items-center justify-center overflow-hidden"
+>
+  <span className="absolute top-1.5 left-1.5 bg-[#FF6B01] text-white text-[10px] z-[9999] font-semibold px-1.5 py-0.5 rounded-full">
+    New Arrival
+  </span>
 
-          <Image
-            src={product.image}
-            alt={product.name}
-            width={160}
-            height={160}
-            className="object-contain w-[100px] md:w-[110px] h-[100px] md:h-[110px] hover:scale-110 transition-transform duration-300"
-          />
+  <div className="relative w-full h-full">
+    <Image
+      src={product.image}
+      alt={product.name}
+      fill
+      className="object-contain transition-transform duration-300 hover:scale-110"
+      sizes="(max-width: 768px) 100vw, 50vw"
+    />
+  </div>
 
-          <div className="absolute bottom-1.5 left-1.5 bg-white px-1.5 py-0.5 rounded-md flex items-center text-[10px] shadow-sm">
-            <span className="text-yellow-500 mr-0.5">★</span>
-            <span>{product.rating}</span>
-            <span className="text-gray-500 ml-0.5">{product.reviews}</span>
-          </div>
-        </Link>
+  <div className="absolute bottom-1.5 left-1.5 bg-white px-1.5 py-0.5 rounded-md flex items-center text-[10px] shadow-sm">
+    <span className="text-yellow-500 mr-0.5">★</span>
+    <span>{product.rating}</span>
+    <span className="text-gray-500 ml-0.5">{product.reviews}</span>
+  </div>
+</Link>
 
         <div className="p-3 flex flex-col flex-grow">
           {/* FIXED HEIGHT TITLE (2 LINES ALWAYS) */}
