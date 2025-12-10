@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import ProductCard from "@/components/ui/ProductCard";
 import { FiChevronRight, FiChevronLeft } from "react-icons/fi";
 
@@ -35,8 +34,12 @@ const NewArrival = () => {
   useEffect(() => {
     const load = async () => {
       try {
-        const res = await axios.get("/api/products/new-arrivals");
-        setProducts(res.data);
+        const res = await fetch("/api/products/new-arrivals");
+        if (!res.ok) throw new Error("Failed to fetch products");
+        const data = await res.json();
+        setProducts(data);
+      } catch (err) {
+        console.error("Error fetching products:", err);
       } finally {
         setLoading(false);
       }
@@ -91,7 +94,10 @@ const NewArrival = () => {
       {loading ? (
         <div className="grid gap-5 grid-cols-2 md:grid-cols-3 xl:grid-cols-5">
           {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="w-full h-60 bg-gray-200 animate-pulse rounded-xl" />
+            <div
+              key={i}
+              className="w-full h-60 bg-gray-200 animate-pulse rounded-xl"
+            />
           ))}
         </div>
       ) : (
