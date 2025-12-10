@@ -23,7 +23,7 @@ export async function GET() {
         Accept: "application/json",
       },
       cache: "no-cache",
-      redirect: "follow",
+    
     });
 
     const json = await res.json();
