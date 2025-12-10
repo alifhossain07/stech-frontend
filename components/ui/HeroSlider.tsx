@@ -100,7 +100,7 @@ const HeroSlider = () => {
                   alt={`slider-${idx}`}
                   fill
                   priority={idx === 0}
-                  className="object-cover"
+                  className="object-fill"
                 />
               </div>
             ))}
