@@ -40,7 +40,7 @@ const HomeBannerSection = () => {
           [1, 2].map((i) => (
             <div
               key={i}
-              className="w-full md:w-1/2 h-[220px] sm:h-[280px] md:h-[450px] bg-gray-200 animate-pulse rounded-xl"
+              className="w-full md:w-1/2"
             />
           ))}
 
@@ -48,13 +48,14 @@ const HomeBannerSection = () => {
           leftBanners.slice(0, 2).map((banner, index) => (
             <div key={index} className="w-full md:w-1/2">
               <a href={banner.url || "#"} target="_blank">
-                <Image
-                  src={banner.photo}
-                  alt={`Banner ${index + 1}`}
-                  width={600}
-                  height={400}
-                  className="rounded-xl object-fill w-full h-[220px] sm:h-[280px] md:h-[450px] hover:scale-[1.02] transition-transform duration-300"
-                />
+                <div className="relative w-full aspect-[866/381] rounded-xl overflow-hidden">
+                  <Image
+                    src={banner.photo}
+                    alt={`Banner ${index + 1}`}
+                    fill
+                    className="object-contain"
+                  />
+                </div>
               </a>
             </div>
           ))}
