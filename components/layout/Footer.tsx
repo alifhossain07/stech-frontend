@@ -66,7 +66,7 @@ const Footer = async () => {
   const contactAddress = footerData?.contact_address ??
     "6th Floor, 45, Prabal Tower, The Cafe Rio Building, Ring Rd, Dhaka 1207";
   const contactEmail = footerData?.contact_email ?? "sannaiinfo@gmail.com";
-  const helplineNumber = footerData?.helpline_number ?? "09254879523";
+  const helplineNumber = footerData?.helpline_number ?? "01971211333";
 
   const widgetLabelsRaw = footerData?.widget_one_labels ??
     "[\"New Arrival\",\"Flash Deal\",\"Featured Products\",\"About Us\",\"Contact Us\",\"Support Center\"]";
