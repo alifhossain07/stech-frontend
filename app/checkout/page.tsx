@@ -498,7 +498,7 @@ window.dataLayer.push({
                     />
                     Outside Dhaka - 4/6 Days ( Advanced First ) ৳ 140
                   </label>
-                  <label className="flex items-center gap-2">
+                  {/* <label className="flex items-center gap-2">
                     <input
                       type="radio"
                       value="free"
@@ -506,7 +506,7 @@ window.dataLayer.push({
                       onChange={() => field.onChange("free")}
                     />
                     Free Shipping ( Upto ৳ 2000 )
-                  </label>
+                  </label> */}
                   {errors.shipping && (
                     <p className="text-red-500 text-sm">{errors.shipping.message}</p>
                   )}

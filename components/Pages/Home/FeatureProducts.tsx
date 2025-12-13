@@ -70,6 +70,10 @@ const FeatureProducts: React.FC = () => {
     </div>
   );
 
+  if (!loading && products.length === 0) {
+  return null;
+}
+
   return (
     <div className="w-11/12 mx-auto pb-[56px]">
       {/* Header */}

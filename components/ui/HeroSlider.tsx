@@ -162,7 +162,7 @@ const HeroSlider = () => {
               src={banner.photo}
               alt="right banner"
               fill
-              className="object-cover hover:scale-105 transition-transform duration-300 xl:rounded-md"
+              className="object-fill hover:scale-105 transition-transform duration-300 xl:rounded-md"
             />
           </div>
         ))}

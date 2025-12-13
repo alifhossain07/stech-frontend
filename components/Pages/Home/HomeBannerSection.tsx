@@ -53,7 +53,7 @@ const HomeBannerSection = () => {
                   alt={`Banner ${index + 1}`}
                   width={600}
                   height={400}
-                  className="rounded-xl object-cover w-full h-[220px] sm:h-[280px] md:h-[450px] hover:scale-[1.02] transition-transform duration-300"
+                  className="rounded-xl object-fill w-full h-[220px] sm:h-[280px] md:h-[450px] hover:scale-[1.02] transition-transform duration-300"
                 />
               </a>
             </div>

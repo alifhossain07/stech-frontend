@@ -109,7 +109,7 @@ export default function ProductCard({ product }: { product: Product }) {
   href={`/${product.slug}`}
   className="relative bg-gray-50 h-[180px] md:h-[220px] rounded-md flex items-center justify-center overflow-hidden"
 >
-  <span className="absolute top-1.5 left-1.5 bg-[#FF6B01] text-white text-[10px] z-50 font-semibold px-1.5 py-0.5 rounded-full">
+  <span className="absolute top-1.5 left-1.5 bg-[#FF6B01] text-white text-[10px] z-20 font-semibold px-1.5 py-0.5 rounded-full">
     New Arrival
   </span>
 
