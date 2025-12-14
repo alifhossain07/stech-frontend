@@ -44,7 +44,6 @@ const FOOTER_FIELDS = new Set<FooterField>([
   "youtube_link",
   "widget_one_labels",
   "widget_one_links",
-  "helpline_number",
   "contact_address",
   "contact_email",
 ]);
@@ -91,6 +90,11 @@ export async function GET() {
         if (isFooterField(setting.type)) {
           // Keep the value exactly as provided by the backend
           footerData[setting.type] = setting.value;
+        }
+
+        // Map backend contact_phone to helpline_number for the frontend footer
+        if (setting.type === "contact_phone") {
+          footerData.helpline_number = setting.value;
         }
       }
     }

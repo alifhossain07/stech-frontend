@@ -274,10 +274,10 @@ const Navbar = () => {
             <div className="flex items-center gap-2">
               <span>Contact Us 24/7:</span>
               <a
-    href={`tel:${helplineNumber || "+--854789956"}`}
+    href={`tel:${helplineNumber || "+88 01319553399"}`}
     className="underline hover:text-yellow-300"
   >
-    {helplineNumber || "+--854789956"}
+    {helplineNumber || "+88 01319553399"}
   </a>
             </div>
 
