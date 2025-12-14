@@ -74,7 +74,7 @@ export async function generateMetadata(): Promise<Metadata> {
     getMetaValue("meta_description") || fallbackDescription;
 
   const siteIcon = getMetaValue("site_icon");
-
+ console.log("site_icon value:", siteIcon);
   return {
     title,
     description,
