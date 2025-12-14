@@ -73,9 +73,13 @@ export async function generateMetadata(): Promise<Metadata> {
   const description =
     getMetaValue("meta_description") || fallbackDescription;
 
+  const siteIcon = getMetaValue("site_icon");
+
   return {
     title,
     description,
+    // Use dynamic favicon from business settings, fallback to default
+    icons: siteIcon || "/favicon.ico",
   };
 }
 
