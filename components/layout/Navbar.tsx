@@ -89,6 +89,7 @@ const Navbar = () => {
   const [hoveredSubcategory, setHoveredSubcategory] = useState<string | null>(null);
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   const [expandedSubcategory, setExpandedSubcategory] = useState<string | null>(null);
+  const [helplineNumber, setHelplineNumber] = useState<string | null>(null);
   const [closing, setClosing] = useState(false);
   const { cart } = useCart();
   const { user, logout } = useAuth();
@@ -163,6 +164,22 @@ const Navbar = () => {
 
     fetchCategories();
   }, []);
+
+  useEffect(() => {
+  async function fetchHelpline() {
+    try {
+      const res = await fetch("/api/footer", { cache: "no-store" });
+      const json = await res.json();
+      if (json.success && json.data?.helpline_number) {
+        setHelplineNumber(String(json.data.helpline_number));
+      }
+    } catch (err) {
+      console.error("Failed to fetch helpline number:", err);
+    }
+  }
+
+  fetchHelpline();
+}, []);
 
   const handleSearchSubmit = (query: string) => {
   const trimmed = query.trim();
@@ -256,7 +273,12 @@ const Navbar = () => {
           <div className="w-11/12 mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-sm">
             <div className="flex items-center gap-2">
               <span>Contact Us 24/7:</span>
-              <a href="tel:+--854789956" className="underline hover:text-yellow-300">+--854789956</a>
+              <a
+    href={`tel:${helplineNumber || "+--854789956"}`}
+    className="underline hover:text-yellow-300"
+  >
+    {helplineNumber || "+--854789956"}
+  </a>
             </div>
 
             <div className="flex items-center gap-2">
