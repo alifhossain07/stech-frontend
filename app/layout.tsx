@@ -31,10 +31,10 @@ type InfoRouteResponse = {
 
 async function getBusinessSettings(): Promise<BusinessSetting[] | null> {
   try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL}/api/info`,
-      { cache: "no-store" }
-    );
+    const base = process.env.NEXT_PUBLIC_BASE_URL || "";
+    const res = await fetch(`${base}/api/info`, {
+      cache: "no-store",
+    });
 
     if (!res.ok) return null;
 
@@ -78,8 +78,12 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title,
     description,
-    // Use dynamic favicon from business settings, fallback to default
-    icons: siteIcon || "/favicon.ico",
+    // Dynamic favicon from business settings, fallback to local favicon
+    icons: {
+      icon: siteIcon || "/favicon.ico",
+      shortcut: siteIcon || "/favicon.ico",
+      apple: siteIcon || "/favicon.ico",
+    },
   };
 }
 
