@@ -14,6 +14,8 @@ type Banner = {
   position: number | string;
 };
 
+export const dynamic = "force-dynamic";
+
 const HeroSlider = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [rightBanners, setRightBanners] = useState<Banner[]>([]);

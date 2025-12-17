@@ -29,6 +29,8 @@ type HomeBottomBanner = {
   icons: BottomBannerIcon[];
 };
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
     const [bannersRes, slidersRes, bottomBannerRes] = await Promise.all([
