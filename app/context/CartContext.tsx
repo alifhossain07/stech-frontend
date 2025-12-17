@@ -23,7 +23,7 @@ type CartContextType = {
   decreaseQty: (id: string | number) => void;
   clearCart: () => void;
   cartOpen: boolean;
-  setCartOpen: (state: boolean) => void;
+  setCartOpen: React.Dispatch<React.SetStateAction<boolean>>;
 
   selectedItems: (string | number)[];
   setSelectedItems: React.Dispatch<React.SetStateAction<(string | number)[]>>;

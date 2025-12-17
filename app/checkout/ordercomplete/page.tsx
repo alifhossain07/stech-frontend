@@ -51,7 +51,7 @@ export default function OrderComplete() {
       } else {
         setOrderIdState(orderId);
       }
-    } catch (e) {
+    } catch {
       setOrderIdState(orderId);
     } finally {
       setLoading(false);

@@ -23,6 +23,18 @@ type ProductType = {
   product_compatible?: string[];
 };
 
+// API type for flash sale responses to avoid using `any`
+type FlashSaleApiProduct = {
+  id: number;
+  name: string;
+  slug: string;
+  main_price?: string | number;
+  stroked_price?: string | number;
+  discount: string;
+  rating?: number | string;
+  thumbnail_image: string;
+};
+
 const CategoryPage = () => {
   const router = useRouter();
   const params = useParams();
@@ -121,8 +133,8 @@ const CategoryPage = () => {
             setTotalPages(1);
           } else if (category === "flashsale") {
             const res = await axios.get(`/api/products/flashsale`);
-            const raw = res.data?.products || [];
-            const mapped = raw.map((product: any) => ({
+            const raw = (res.data?.products ?? []) as FlashSaleApiProduct[];
+            const mapped = raw.map((product) => ({
               id: product.id,
               name: product.name,
               slug: product.slug,
