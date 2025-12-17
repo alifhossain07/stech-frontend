@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Link from "next/link";
 import ProductCard from "@/components/ui/ProductCard";
 import { FiChevronRight, FiChevronLeft } from "react-icons/fi";
 
@@ -17,7 +18,8 @@ interface Product {
 }
 
 const VISIBLE_CONFIG = {
-  xl: 6,
+  
+  xl: 5,
   lg: 4,
   md: 3,
   sm: 2,
@@ -85,9 +87,9 @@ const NewArrival = () => {
           </p>
         </div>
 
-        <button className="hidden md:flex bg-black text-white px-4 py-2 rounded-xl items-center">
+        <Link href="/products/new-arrivals" className="hidden md:flex bg-black text-white px-4 py-2 rounded-xl items-center">
           See More <FiChevronRight />
-        </button>
+        </Link>
       </div>
 
       {/* LOADING SKELETON */}

@@ -78,9 +78,13 @@ const CheckoutPage: React.FC = () => {
   );
 
   // Totals
-  const subtotal = selectedCart.reduce((acc, item) => acc + item.price * item.qty, 0);
+  // Subtotal should reflect pre-discount sum; discount reflects savings
+  const subtotal = selectedCart.reduce(
+    (acc, item) => acc + (Number(item.oldPrice ?? item.price) * item.qty),
+    0
+  );
   const discount = selectedCart.reduce(
-    (acc, item) => acc + (item.oldPrice - item.price) * item.qty,
+    (acc, item) => acc + Math.max(0, Number(item.oldPrice) - Number(item.price)) * item.qty,
     0
   );
 
@@ -107,12 +111,49 @@ const CheckoutPage: React.FC = () => {
   });
 
   const shippingMethod = watch("shipping");
+  // Dynamic shipping config
+  const [shippingConfig, setShippingConfig] = React.useState<{
+    shipping_cost_inside_dhaka: number;
+    shipping_cost_outside_dhaka: number;
+    free_shipping_min_amount: number;
+    currency_symbol?: string;
+    currency_code?: string;
+  } | null>(null);
 
-  // Shipping charges
+  React.useEffect(() => {
+    let cancelled = false;
+    const loadConfig = async () => {
+      try {
+        const res = await fetch("/api/shipping-config", { cache: "no-store" });
+        if (!res.ok) return;
+        const json = await res.json();
+        const data = json?.data || json; // support either {result,data} or direct
+        if (!cancelled && data) setShippingConfig(data);
+      } catch {
+        // ignore
+      }
+    };
+    loadConfig();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Shipping charges (dynamic from config)
+  const insideDhaka = shippingConfig?.shipping_cost_inside_dhaka ?? 60;
+  const outsideDhaka = shippingConfig?.shipping_cost_outside_dhaka ?? 140;
+  const freeMin = shippingConfig?.free_shipping_min_amount ?? 0;
+  const currencySymbol = shippingConfig?.currency_symbol ?? "৳";
+
   let deliveryCharge = 0;
-  if (shippingMethod === "inside") deliveryCharge = 60;
-  else if (shippingMethod === "outside") deliveryCharge = 140;
+  if (shippingMethod === "inside") deliveryCharge = insideDhaka;
+  else if (shippingMethod === "outside") deliveryCharge = outsideDhaka;
   else if (shippingMethod === "free") deliveryCharge = 0;
+
+  const merchandiseTotal = subtotal - discount;
+  if (freeMin > 0 && merchandiseTotal >= freeMin) {
+    deliveryCharge = 0;
+  }
 
   // ------------------------- Promo Code States & Logic -------------------------
   const [appliedPromo, setAppliedPromo] = React.useState<string | null>(null);
@@ -242,6 +283,8 @@ const CheckoutPage: React.FC = () => {
     }
 
     // Build payload exactly like backend expects
+    const shipping_zone =
+      data.shipping === "inside" ? "insideDhaka" : data.shipping === "outside" ? "outsideDhaka" : null;
     const payload = {
       customer: {
         name: data.name,
@@ -265,6 +308,7 @@ const CheckoutPage: React.FC = () => {
         data.shipping === "inside" || data.shipping === "outside"
           ? "home_delivery"
           : "pickup_point",
+      shipping_zone,
       shipping_charge: effectiveDelivery,
       payment_method: data.payment === "cod" ? "cash_on_delivery" : selectedPaymentMethod.toLowerCase(),
       payment_number: data.payment === "cod" ? null : paymentNumber || null,
@@ -285,10 +329,11 @@ const CheckoutPage: React.FC = () => {
           if (typeof window !== "undefined") {
             const backendData = response.data.data;
             const transactionId =
+              backendData?.orders?.[0]?.code ||
               backendData?.order?.code ||
               backendData?.order_code ||
               backendData?.code ||
-              "";
+              String(backendData?.combined_order_id || "");
 
             const itemsForAnalytics = selectedCart.map((item) => ({
               item_id: String(item.id),
@@ -317,10 +362,59 @@ window.dataLayer.push({
     items: itemsForAnalytics,
   },
 });
+
+            // Persist minimal order summary for order-complete page
+            const shippingMethodLabel =
+              data.shipping === "inside"
+                ? "Inside Dhaka – Home Delivery"
+                : data.shipping === "outside"
+                ? "Outside Dhaka – Home Delivery"
+                : "Free Shipping / Pickup Point";
+
+            const orderSummary = {
+              orderId: transactionId || null,
+              customer: {
+                name: data.name,
+                mobile: data.mobile,
+                email: data.email || "",
+                address: data.address,
+              },
+              items: selectedCart.map((item) => ({
+                id: item.id,
+                name: item.name,
+                qty: item.qty,
+                price: item.price,
+              })),
+              shipping: {
+                method: data.shipping,
+                methodLabel: shippingMethodLabel,
+                charge: effectiveDelivery,
+              },
+              totals: {
+                subtotal,
+                discount,
+                deliveryCharge: effectiveDelivery,
+                promoDiscount,
+                total: subtotal - discount + effectiveDelivery - promoDiscount,
+              },
+            };
+
+            try {
+              sessionStorage.setItem("lastOrder", JSON.stringify(orderSummary));
+            } catch {}
+
+            // Navigate with orderId when available
+            const nextHref = `/checkout/ordercomplete${transactionId ? `?orderId=${encodeURIComponent(transactionId)}` : ""}`;
+            // Clear and navigate after persisting
+            clearCart();
+            setShowPaymentModal(false);
+            router.push(nextHref);
+            return;
           }
         } catch (e) {
           console.error("Failed to push purchase event", e);
         }
+        // Fallback navigation if window/data persistence failed
         clearCart();
         setShowPaymentModal(false);
         router.push("/checkout/ordercomplete");
@@ -382,9 +476,9 @@ window.dataLayer.push({
                   <Image
                     src={item.img}
                     alt={item.name}
-                    width={110}
-                    height={110}
-                    className="object-contain"
+                    width={96}
+                    height={96}
+                    className="object-contain w-full h-full"
                   />
                 </div>
                 <div className="flex-1 space-y-1">
@@ -487,7 +581,7 @@ window.dataLayer.push({
                       checked={field.value === "inside"}
                       onChange={() => field.onChange("inside")}
                     />
-                    Inside Dhaka - 2/4 Days ৳ 60
+                    {`Inside Dhaka - 2/4 Days ${currencySymbol} ${insideDhaka.toLocaleString()}`}
                   </label>
                   <label className="flex items-center gap-2">
                     <input
@@ -496,7 +590,7 @@ window.dataLayer.push({
                       checked={field.value === "outside"}
                       onChange={() => field.onChange("outside")}
                     />
-                    Outside Dhaka - 4/6 Days ( Advanced First ) ৳ 140
+                    {`Outside Dhaka - 4/6 Days ( Advanced First ) ${currencySymbol} ${outsideDhaka.toLocaleString()}`}
                   </label>
                   {/* <label className="flex items-center gap-2">
                     <input
@@ -519,82 +613,67 @@ window.dataLayer.push({
         {/* Payment + Summary */}
         <div className="flex flex-col gap-6">
           {/* Payment Method */}
-          <div className="border rounded-md p-4 bg-white shadow-sm">
-            <h2 className="text-lg font-semibold mb-4">Payment Method</h2>
-            <Controller
-              name="payment"
-              control={control}
-              render={({ field }) => (
-                <>
-                  <label className="flex items-center gap-2 text-lg mb-6">
-                    <input
-                      type="radio"
-                      value="online"
-                      checked={field.value === "online"}
-                      onChange={() => field.onChange("online")}
-                      disabled
-                    />
-                    Online Payment*
-                  </label>
-                <div className="flex gap-2 mb-5 items-center">
-  <h1 className="text-[#8f8f8f] text-sm">We Accept</h1>
-  <div className="flex items-center gap-2">
-    <Image
-      src="/images/visa.png"
-      alt="Visa"
-      width={32}
-      height={20}
-      className="w-12 h-10 md:w-16 md:h-12 object-contain"
-    />
-    <Image
-      src="/images/mastercard.png"
-      alt="Mastercard"
-      width={32}
-      height={20}
-      className="w-12 h-10 md:w-16 md:h-12 object-contain"
-    />
-    <Image
-      src="/images/bkash.png"
-      alt="bKash"
-      width={32}
-      height={20}
-      className="w-12 h-10 md:w-16 md:h-12 object-contain"
-    />
-    <Image
-      src="/images/nagad.png"
-      alt="Nagad"
-      width={32}
-      height={20}
-      className="w-12 h-10 md:w-16 md:h-12 object-contain"
-    />
-  </div>
-</div>
-                  <label className="flex items-center gap-2 text-lg mb-6">
-                    <input
-                      type="radio"
-                      value="cod"
-                      checked={field.value === "cod"}
-                      onChange={() => field.onChange("cod")}
-                    />
-                    Cash On Delivery*
-                  </label>
-                  {errors.payment && (
-                    <p className="text-red-500 text-sm">{errors.payment.message}</p>
-                  )}
-                </>
-              )}
-            />
-            <label className="flex items-center gap-2 text-xs sm:text-sm flex-wrap">
-              <input type="checkbox" {...register("agreeTerms")} className="shrink-0" />
-              <span className="flex-1">
-                I have read & agree to the <span className="text-orange-500">Terms & Conditions, Privacy Policy</span> and{" "}
-                <span className="text-orange-500">Return Policy</span>.
-              </span>
-            </label>
-            {errors.agreeTerms && (
-              <p className="text-red-500 text-sm">{errors.agreeTerms.message}</p>
-            )}
+          {/* Payment Method */}
+<div className="border rounded-md p-4 bg-white shadow-sm">
+  <h2 className="text-lg font-semibold mb-4">Payment Method</h2>
+  <Controller
+    name="payment"
+    control={control}
+    render={({ field }) => (
+      <>
+        {/* Online Payment Hidden and Disabled */}
+        <label className="hidden items-center gap-2 text-lg mb-6">
+          <input
+            type="radio"
+            value="online"
+            checked={field.value === "online"}
+            onChange={() => field.onChange("online")}
+            disabled
+          />
+          Online Payment*
+        </label>
+
+        {/* Payment logos hidden to clean up the UI */}
+        <div className="hidden gap-2 mb-5 items-center">
+          <h1 className="text-[#8f8f8f] text-sm">We Accept</h1>
+          <div className="flex items-center gap-2">
+            <Image src="/images/visa.png" alt="Visa" width={32} height={20} className="w-12 h-10 md:w-16 md:h-12 object-contain" />
+            <Image src="/images/mastercard.png" alt="Mastercard" width={32} height={20} className="w-12 h-10 md:w-16 md:h-12 object-contain" />
+            <Image src="/images/bkash.png" alt="bKash" width={32} height={20} className="w-12 h-10 md:w-16 md:h-12 object-contain" />
+            <Image src="/images/nagad.png" alt="Nagad" width={32} height={20} className="w-12 h-10 md:w-16 md:h-12 object-contain" />
           </div>
+        </div>
+
+        {/* Cash on Delivery - Visible and selected by default */}
+        <label className="flex items-center gap-2 text-lg mb-6 cursor-pointer">
+          <input
+            type="radio"
+            value="cod"
+            checked={field.value === "cod"}
+            onChange={() => field.onChange("cod")}
+          />
+          Cash On Delivery*
+        </label>
+
+        {errors.payment && (
+          <p className="text-red-500 text-sm">{errors.payment.message}</p>
+        )}
+      </>
+    )}
+  />
+
+  <label className="flex items-center gap-2 text-xs sm:text-sm flex-wrap">
+    <input type="checkbox" {...register("agreeTerms")} className="shrink-0" />
+    <span className="flex-1">
+      I have read & agree to the{" "}
+      <span className="text-orange-500">Terms & Conditions, Privacy Policy</span> and{" "}
+      <span className="text-orange-500">Return Policy</span>.
+    </span>
+  </label>
+  {errors.agreeTerms && (
+    <p className="text-red-500 text-sm">{errors.agreeTerms.message}</p>
+  )}
+</div>
 
           {/* Promo Code */}
           <div className="border rounded-xl p-4 bg-white shadow-sm">

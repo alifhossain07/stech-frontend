@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Link from "next/link";
 import axios from "axios";
 import { FiChevronRight } from "react-icons/fi";
 import ProductCard from "@/components/ui/ProductCard";
@@ -105,9 +106,9 @@ const FlashSale = () => {
           </p>
         </div>
 
-        <button className="bg-black hidden text-xs sm:text-sm md:text-sm md:flex items-center justify-center gap-2 text-white px-3.5 py-2 rounded-xl hover:text-black hover:bg-gray-200 duration-300 transition whitespace-nowrap">
+        <Link href="/products/flashsale" className="bg-black hidden text-xs sm:text-sm md:text-sm md:flex items-center justify-center gap-2 text-white px-3.5 py-2 rounded-xl hover:text-black hover:bg-gray-200 duration-300 transition whitespace-nowrap">
           See More <FiChevronRight className="text-sm sm:text-base md:text-xl" />
-        </button>
+        </Link>
       </div>
 
       {/* Flash Sale Layout */}

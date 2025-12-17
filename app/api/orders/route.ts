@@ -51,6 +51,7 @@ export async function POST(req: NextRequest) {
           : null,
 
       shipping_method: data.shipping_method,
+      shipping_zone: data.shipping_zone || null,
       shipping_charge: Number(data.shipping_charge) || 0,
       payment_method: data.payment_method || null,
       payment_number: data.payment_number || null,

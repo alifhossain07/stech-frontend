@@ -33,6 +33,8 @@ const CategoryPage = () => {
     ? searchParams.get("q") || ""
     : "";
   const isSearchMode = category === "search";
+  const isCollectionMode =
+    typeof category === "string" && (category === "new-arrivals" || category === "flashsale");
   
   const [products, setProducts] = useState<ProductType[]>([]);
   const [subtitle, setSubtitle] = useState<string>("");
@@ -108,39 +110,67 @@ const CategoryPage = () => {
       }
       
       try {
-        let url: string;
-        const params = new URLSearchParams();
-
-        if (isSearchMode) {
-          // Search mode - ALWAYS include the search query
-          if (searchQuery) params.set("name", searchQuery);
-        }
-
-        // Add filters to API call (for both search and category)
-        if (minPrice > MIN) params.set("min", String(minPrice));
-        if (maxPrice < MAX) params.set("max", String(maxPrice));
-        
-        // Map sort option to backend key
-        if (sortOption === "price-low-high") {
-          params.set("sort_key", "price_low_to_high");
-        } else if (sortOption === "price-high-low") {
-          params.set("sort_key", "price_high_to_low");
-        }
-        
-        // Add page
-        params.set("page", String(currentPage));
-
-        if (isSearchMode) {
-          url = `/api/products/search?${params.toString()}`;
+        // Collection modes: new-arrivals and flashsale
+        if (isCollectionMode) {
+          if (category === "new-arrivals") {
+            const res = await axios.get(`/api/products/new-arrivals`);
+            const list = Array.isArray(res.data) ? res.data : (res.data.products || []);
+            setProducts(list || []);
+            setSubtitle(res.data?.subtitle || "");
+            setTotalProducts((list || []).length);
+            setTotalPages(1);
+          } else if (category === "flashsale") {
+            const res = await axios.get(`/api/products/flashsale`);
+            const raw = res.data?.products || [];
+            const mapped = raw.map((product: any) => ({
+              id: product.id,
+              name: product.name,
+              slug: product.slug,
+              price: typeof product.main_price === "string" ? parseFloat(product.main_price.replace("৳", "").replace(",", "")) : Number(product.main_price ?? 0),
+              oldPrice: typeof product.stroked_price === "string" ? parseFloat(product.stroked_price.replace("৳", "").replace(",", "")) : Number(product.stroked_price ?? 0),
+              discount: product.discount,
+              rating: String(product.rating ?? "0"),
+              reviews: "0",
+              image: product.thumbnail_image,
+              current_stock: 0,
+            }));
+            setProducts(mapped);
+            setSubtitle(res.data?.subtitle || "");
+            setTotalProducts(mapped.length);
+            setTotalPages(1);
+          }
         } else {
-          url = `/api/products/category/${category}?${params.toString()}`;
-        }
+          // Default: category or search endpoints
+          let url: string;
+          const params = new URLSearchParams();
 
-        const res = await axios.get(url);
-        setProducts(res.data.products || []);
-        setSubtitle(res.data.subtitle || "");
-        setTotalProducts(res.data.meta?.total || res.data.products?.length || 0);
-        setTotalPages(res.data.meta?.last_page || 1);
+          if (isSearchMode) {
+            if (searchQuery) params.set("name", searchQuery);
+          }
+
+          if (minPrice > MIN) params.set("min", String(minPrice));
+          if (maxPrice < MAX) params.set("max", String(maxPrice));
+          
+          if (sortOption === "price-low-high") {
+            params.set("sort_key", "price_low_to_high");
+          } else if (sortOption === "price-high-low") {
+            params.set("sort_key", "price_high_to_low");
+          }
+          
+          params.set("page", String(currentPage));
+
+          if (isSearchMode) {
+            url = `/api/products/search?${params.toString()}`;
+          } else {
+            url = `/api/products/category/${category}?${params.toString()}`;
+          }
+
+          const res = await axios.get(url);
+          setProducts(res.data.products || []);
+          setSubtitle(res.data.subtitle || "");
+          setTotalProducts(res.data.meta?.total || res.data.products?.length || 0);
+          setTotalPages(res.data.meta?.last_page || 1);
+        }
       } catch (err) {
         console.error("Error fetching products:", err);
       } finally {
@@ -150,7 +180,7 @@ const CategoryPage = () => {
     };
 
     fetchProducts();
-  }, [category, isSearchMode, searchQuery, minPrice, maxPrice, sortOption, currentPage]);
+  }, [category, isSearchMode, isCollectionMode, searchQuery, minPrice, maxPrice, sortOption, currentPage]);
 
   // Client-side filtering for availability and device (since API doesn't support these)
   const filteredProducts = products.filter((p) => {

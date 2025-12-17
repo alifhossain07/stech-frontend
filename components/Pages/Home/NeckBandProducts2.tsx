@@ -64,6 +64,7 @@ const EarphoneProducts = () => {
    "Discover Our Latest Arrivals Designed to Inspire and Impress"
  ); // NEW
 const [categorySlug, setCategorySlug] = useState<string | null>(null); // NEW
+const [link, setLink] = useState<string | null>(null);
  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -83,17 +84,26 @@ const [categorySlug, setCategorySlug] = useState<string | null>(null); // NEW
         earphonesData.subtitle ||
           "Discover Our Latest Arrivals Designed to Inspire and Impress"
       );
-      // setLink(earphonesData.link || "#"); // no longer needed
+      setLink(earphonesData.link || null);
 
       const allCategories: CategoryType[] = categoriesRes.data.categories ?? [];
 
-      // Adjust the name check to match your neckband/earphone category name
-      const earphoneCategory = allCategories.find(
-        (c) => c.name?.toLowerCase() === "earphones" // or "neckband" if that's the name
-      );
+      // Robust category matching with aliases and normalization
+      const normalize = (s?: string) => (s || "").toLowerCase().replace(/\s|-/g, "");
+      const aliases = [
+        "earphone",
+        "earphones",
+        "wired earphone",
+        "wired earphones",
+      ].map(normalize);
 
-      if (earphoneCategory?.slug) {
-        setCategorySlug(earphoneCategory.slug);
+      const match = allCategories.find((c) => {
+        const n = normalize(c.name);
+        return aliases.some((a) => n === a || n.includes(a));
+      });
+
+      if (match?.slug) {
+        setCategorySlug(match.slug);
       }
     } catch (err) {
       console.error("Error fetching earphones products or categories:", err);
@@ -119,7 +129,7 @@ const [categorySlug, setCategorySlug] = useState<string | null>(null); // NEW
         </div>
 
      <Link
-  href={categorySlug ? `/products/${categorySlug}` : "#"}
+  href={link || (categorySlug ? `/products/${categorySlug}` : "#")}
   className="bg-black hidden md:flex items-center justify-center gap-2 text-white px-3.5 py-2 rounded-xl hover:text-black hover:bg-gray-200 duration-300 transition whitespace-nowrap"
 >
   See More <FiChevronRight className="text-sm sm:text-base md:text-xl" />
@@ -205,7 +215,7 @@ const [categorySlug, setCategorySlug] = useState<string | null>(null); // NEW
       {/* Mobile See More */}
       <div className="flex items-center justify-center md:hidden pt-[44px]">
         <Link
-          href={categorySlug ? `/products/${categorySlug}` : "#"}
+          href={link || (categorySlug ? `/products/${categorySlug}` : "#")}
           className="bg-black text-xs sm:text-sm md:text-sm flex items-center justify-center gap-2 text-white px-3.5 py-2 rounded-xl hover:text-black hover:bg-gray-200 duration-300 transition whitespace-nowrap"
         >
           See More

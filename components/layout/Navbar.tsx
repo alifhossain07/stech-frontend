@@ -91,12 +91,11 @@ const Navbar = () => {
   const [expandedSubcategory, setExpandedSubcategory] = useState<string | null>(null);
   const [helplineNumber, setHelplineNumber] = useState<string | null>(null);
   const [closing, setClosing] = useState(false);
-  const { cart } = useCart();
+  const { cart, cartOpen, setCartOpen } = useCart();
   const { user, logout } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const [mobileSearchTerm, setMobileSearchTerm] = useState("");
   const [showMobileSearch, setShowMobileSearch] = useState(false);
-  const [cartOpen, setCartOpen] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [suggestions, setSuggestions] = useState<SuggestionItem[]>([]);

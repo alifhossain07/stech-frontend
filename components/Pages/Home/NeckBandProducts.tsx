@@ -65,6 +65,7 @@ const NeckBandProducts = () => {
     "Discover Our Latest Arrivals Designed to Inspire and Impress"
   ); // NEW
  const [categorySlug, setCategorySlug] = useState<string | null>(null); // NEW
+ const [link, setLink] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -84,6 +85,7 @@ const NeckBandProducts = () => {
         neckbandData.subtitle ||
           "Discover Our Latest Arrivals Designed to Inspire and Impress"
       );
+      setLink(neckbandData.link || null);
 
       const allCategories:  CategoryType[] = categoriesRes.data.categories ?? [];
 
@@ -119,7 +121,7 @@ const NeckBandProducts = () => {
         </div>
 
       <Link
-  href={categorySlug ? `/products/${categorySlug}` : "#"}
+  href={link || (categorySlug ? `/products/${categorySlug}` : "#")}
   className="bg-black hidden md:flex items-center justify-center gap-2 text-white px-3.5 py-2 rounded-xl hover:text-black hover:bg-gray-200 duration-300 transition whitespace-nowrap"
 >
   See More <FiChevronRight className="text-sm sm:text-base md:text-xl" />
@@ -205,7 +207,7 @@ const NeckBandProducts = () => {
       {/* Mobile See More */}
      <div className="flex items-center justify-center md:hidden pt-[44px]">
   <Link
-    href={categorySlug ? `/products/${categorySlug}` : "#"}
+    href={link || (categorySlug ? `/products/${categorySlug}` : "#")}
     className="bg-black text-xs sm:text-sm md:text-sm flex items-center justify-center gap-2 text-white px-3.5 py-2 rounded-xl hover:text-black hover:bg-gray-200 duration-300 transition whitespace-nowrap"
   >
     See More

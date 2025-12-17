@@ -30,6 +30,13 @@ export default function CartSidebar({ externalOpen, setExternalOpen }: CartSideb
     setMounted(true);
   }, []);
 
+  // When the sidebar opens, select all items by default
+  useEffect(() => {
+    if (externalOpen) {
+      setSelectedItems(cart.map((item) => item.id));
+    }
+  }, [externalOpen, cart, setSelectedItems]);
+
   const typedCart: CartItem[] = cart;
 
   const toggleSelect = (id: string | number) => {
@@ -48,8 +55,9 @@ export default function CartSidebar({ externalOpen, setExternalOpen }: CartSideb
 
   // Only calculate totals for selected items
   const selectedCart = typedCart.filter(item => selectedItems.includes(item.id));
-  const subtotal = selectedCart.reduce((acc, item) => acc + item.price * item.qty, 0);
-  const discount = selectedCart.reduce((acc, item) => acc + (item.oldPrice - item.price) * item.qty, 0);
+  // Subtotal should reflect pre-discount sum; discount reflects savings
+  const subtotal = selectedCart.reduce((acc, item) => acc + (Number(item.oldPrice ?? item.price) * item.qty), 0);
+  const discount = selectedCart.reduce((acc, item) => acc + Math.max(0, Number(item.oldPrice) - Number(item.price)) * item.qty, 0);
   const total = subtotal - discount;
 
   return (

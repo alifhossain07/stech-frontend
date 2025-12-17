@@ -171,7 +171,7 @@ export default function ProductCard({ product }: { product: Product }) {
               <span className="block xl:hidden text-xs">
                 <LuShoppingBag />
               </span>
-              <span className="hidden xl:flex md:hidden xl:text-sm gap-2 items-center">
+              <span className="hidden xl:flex md:hidden xl:text-[11px] 2xl:text-[12px]  gap-2 items-center">
                 <LuShoppingBag /> Buy Now
               </span>
             </button>
@@ -184,7 +184,7 @@ export default function ProductCard({ product }: { product: Product }) {
               <span className="block xl:hidden text-xs">
                 <FaCartPlus />
               </span>
-              <span className="hidden md:hidden xl:inline">+ Add to Cart</span>
+              <span className="hidden md:hidden text-[11px] 2xl:text-[12px] xl:inline">+ Add to Cart</span>
             </button>
           </div>
         </div>

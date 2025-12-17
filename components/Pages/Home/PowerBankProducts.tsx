@@ -63,6 +63,7 @@ const PowerBankProducts = () => {
     "Discover Our Latest Arrivals Designed to Inspire and Impress"
   );
   const [categorySlug, setCategorySlug] = useState<string | null>(null);
+  const [link, setLink] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -81,16 +82,27 @@ const PowerBankProducts = () => {
           pbData.subtitle ||
             "Discover Our Latest Arrivals Designed to Inspire and Impress"
         );
+        setLink(pbData.link || null);
 
         const allCategories: CategoryType[] = categoriesRes.data.categories ?? [];
 
-        // IMPORTANT: match this to whatever your backend name is
-        const powerBankCategory = allCategories.find(
-          (c) => c.name?.toLowerCase() === "power bank"
-        );
+        // Robust category matching with aliases and normalization
+        const normalize = (s?: string) => (s || "").toLowerCase().replace(/\s|-/g, "");
+        const aliases = [
+          "power bank",
+          "powerbank",
+          "power banks",
+          "power-banks",
+          "powerbanks",
+        ].map(normalize);
 
-        if (powerBankCategory?.slug) {
-          setCategorySlug(powerBankCategory.slug);
+        const match = allCategories.find((c) => {
+          const n = normalize(c.name);
+          return aliases.some((a) => n === a || n.includes(a));
+        });
+
+        if (match?.slug) {
+          setCategorySlug(match.slug);
         }
       } catch (err) {
         console.error("Error fetching power bank products or categories:", err);
@@ -116,7 +128,7 @@ const PowerBankProducts = () => {
         </div>
 
        <Link
-  href={categorySlug ? `/products/${categorySlug}` : "#"}
+  href={link || (categorySlug ? `/products/${categorySlug}` : "#")}
   className="bg-black hidden md:flex items-center justify-center gap-2 text-white px-3.5 py-2 rounded-xl hover:text-black hover:bg-gray-200 duration-300 transition whitespace-nowrap"
 >
   See More <FiChevronRight className="text-sm sm:text-base md:text-xl" />
@@ -202,7 +214,7 @@ const PowerBankProducts = () => {
       {/* Mobile See More */}
       <div className="flex items-center justify-center md:hidden pt-[44px]">
   <Link
-    href={categorySlug ? `/products/${categorySlug}` : "#"}
+    href={link || (categorySlug ? `/products/${categorySlug}` : "#")}
     className="bg-black text-xs sm:text-sm md:text-sm flex items-center justify-center gap-2 text-white px-3.5 py-2 rounded-xl hover:text-black hover:bg-gray-200 duration-300 transition whitespace-nowrap"
   >
     See More
