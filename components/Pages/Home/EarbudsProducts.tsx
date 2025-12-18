@@ -147,7 +147,7 @@ const [loading, setLoading] = useState(true);
                 alt="Earbuds Banner"
                 width={400}
                 height={600}
-                className="rounded-xl object-center md:object-fill w-full h-[300px] md:h-[500px] xl:h-full"
+                className="rounded-xl object-center md:object-fill w-full h-auto  xl:h-full"
               />
             )}
 
@@ -197,8 +197,8 @@ const [loading, setLoading] = useState(true);
               </div>
 
               {/* 2xl */}
-              <div className="hidden 2xl:grid grid-cols-5 gap-4 w-full justify-items-center">
-                {products.slice(0, 10).map((p) => (
+              <div className="hidden 2xl:grid grid-cols-4 gap-4 w-full justify-items-center">
+                {products.slice(0, 8).map((p) => (
                   <ProductCard key={p.id} product={p} />
                 ))}
               </div>

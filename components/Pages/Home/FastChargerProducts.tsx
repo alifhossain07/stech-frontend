@@ -196,8 +196,8 @@ const FastChargerProducts = () => {
               </div>
 
               {/* 2xl */}
-              <div className="hidden 2xl:grid grid-cols-5 gap-4 w-full justify-items-center">
-                {products.slice(0, 10).map((p) => (
+              <div className="hidden 2xl:grid grid-cols-4 gap-4 w-full justify-items-center">
+                {products.slice(0, 8).map((p) => (
                   <ProductCard key={p.id} product={p} />
                 ))}
               </div>
