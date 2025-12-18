@@ -84,7 +84,7 @@ const AboutSection = () => {
 
         {/* Card 2 - Image only */}
         <div className="bg-white hidden md:block shadow-md rounded-xl border border-gray-200 relative overflow-hidden">
-          <Image src="/images/aboutimage.png" alt="Gadget Showcase" fill className="object-contain rounded-xl" />
+          <Image src="/images/aboutimage2.jpg" alt="Gadget Showcase" fill className="object-contain rounded-xl" />
         </div>
 
         {/* Other cards */}
