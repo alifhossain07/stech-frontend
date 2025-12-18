@@ -31,6 +31,9 @@ interface CheckoutFormData {
   payment: "online" | "cod";
   agreeTerms: boolean;
   promoCode?: string;
+  areaId?: number | null;
+  areaName?: string;
+  areaCountryId?: number | null;
 }
 interface CouponData {
   id?: string;
@@ -53,6 +56,9 @@ const schema: yup.ObjectSchema<CheckoutFormData> = yup.object({
     .required("Mobile number is required"),
   email: yup.string().email("Invalid email").optional(),
   address: yup.string().required("Address is required"),
+  areaId: yup.number().typeError("Area is required").required("Area is required"),
+  areaName: yup.string().optional(),
+  areaCountryId: yup.number().nullable().optional(),
   shipping: yup
     .mixed<CheckoutFormData["shipping"]>()
     .required("Shipping method is required"),
@@ -94,6 +100,7 @@ const CheckoutPage: React.FC = () => {
     handleSubmit,
     control,
     watch,
+    setValue,
     formState: { errors, isValid },
   } = useForm<CheckoutFormData>({
     resolver: yupResolver(schema),
@@ -107,8 +114,89 @@ const CheckoutPage: React.FC = () => {
       payment: "cod",
       agreeTerms: true,
       promoCode: "",
+      areaId: null,
+      areaName: "",
+      areaCountryId: null,
     },
   });
+
+  // ------------------------- Areas (Autocomplete) -------------------------
+  type AreaOption = { id: number; country_id: number; name: string };
+  const [areas, setAreas] = React.useState<AreaOption[]>([]);
+  const [suggestions, setSuggestions] = React.useState<AreaOption[]>([]);
+  const [areaQuery, setAreaQuery] = React.useState<string>("");
+  const [areasLoading, setAreasLoading] = React.useState<boolean>(false);
+  const [suggestLoading, setSuggestLoading] = React.useState<boolean>(false);
+  const [areaOpen, setAreaOpen] = React.useState<boolean>(false);
+  const debounceRef = React.useRef<number | undefined>(undefined);
+  const localFiltered = React.useMemo(() => {
+    const q = areaQuery.trim().toLowerCase();
+    if (!q) return areas;
+    return areas.filter((a) => a.name.toLowerCase().includes(q));
+  }, [areaQuery, areas]);
+
+  React.useEffect(() => {
+    let cancelled = false;
+    const loadAreas = async () => {
+      try {
+        setAreasLoading(true);
+        const res = await fetch("/api/areas", { cache: "no-store" });
+        if (!res.ok) return;
+        const json = await res.json();
+        const list: AreaOption[] = Array.isArray(json?.data) ? json.data : [];
+        if (!cancelled) setAreas(list);
+      } catch {
+        // ignore
+      } finally {
+        setAreasLoading(false);
+      }
+    };
+    loadAreas();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const runSuggestionFetch = React.useCallback(async (q: string) => {
+    if (!q) {
+      setSuggestions([]);
+      return;
+    }
+    try {
+      setSuggestLoading(true);
+      const res = await fetch(`/api/areas?name=${encodeURIComponent(q)}`, { cache: "no-store" });
+      if (!res.ok) return;
+      const json = await res.json();
+      const list: AreaOption[] = Array.isArray(json?.data) ? json.data : [];
+      setSuggestions(list);
+    } catch {
+      // ignore
+    } finally {
+      setSuggestLoading(false);
+    }
+  }, []);
+
+  const handleAreaInputChange = (val: string) => {
+    setAreaQuery(val);
+    setAreaOpen(true);
+    // Debounce suggestions
+    if (debounceRef.current) window.clearTimeout(debounceRef.current);
+    debounceRef.current = window.setTimeout(() => runSuggestionFetch(val.trim()), 250);
+  };
+
+  const handleSelectArea = (opt: AreaOption) => {
+    setAreaQuery(opt.name);
+    setValue("areaId", opt.id, { shouldValidate: true });
+    setValue("areaName", opt.name);
+    setValue("areaCountryId", opt.country_id);
+    // Auto set shipping based on country_id
+    if (opt.country_id === 1) {
+      setValue("shipping", "inside", { shouldValidate: true });
+    } else {
+      setValue("shipping", "outside", { shouldValidate: true });
+    }
+    setAreaOpen(false);
+  };
 
   const shippingMethod = watch("shipping");
   // Dynamic shipping config
@@ -283,6 +371,9 @@ const CheckoutPage: React.FC = () => {
     }
 
     // Build payload exactly like backend expects
+    const composedAddress = [data.address?.trim(), (data.areaName || "").trim()]
+      .filter(Boolean)
+      .join(", ");
     const shipping_zone =
       data.shipping === "inside" ? "insideDhaka" : data.shipping === "outside" ? "outsideDhaka" : null;
     const payload = {
@@ -290,12 +381,12 @@ const CheckoutPage: React.FC = () => {
         name: data.name,
         mobile: data.mobile,
         email: data.email || null,
-        address: data.address,
+        address: composedAddress,
         country_id: null,
         state_id: null,
         city_id: null,
-        area_id: null,
-        postal_code: "1230",
+        area_id: data.areaId ?? null,
+        postal_code: null,
       },
       items: selectedCart.map((item) => ({
         id: Number(item.id),
@@ -377,7 +468,7 @@ window.dataLayer.push({
                 name: data.name,
                 mobile: data.mobile,
                 email: data.email || "",
-                address: data.address,
+                address: composedAddress,
               },
               items: selectedCart.map((item) => ({
                 id: item.id,
@@ -555,6 +646,58 @@ window.dataLayer.push({
                 {...register("email")}
               />
               {errors.email && <p className="text-red-500 text-sm">{errors.email.message}</p>}
+              
+              <label>Area*</label>
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Select or search area"
+                  className="border p-2 mb-1 rounded w-full"
+                  value={areaQuery}
+                  onChange={(e) => handleAreaInputChange(e.target.value)}
+                  onFocus={() => setAreaOpen(true)}
+                  onBlur={() => setTimeout(() => setAreaOpen(false), 150)}
+                />
+                {/* Hidden fields to bind with RHF */}
+                <input type="hidden" {...register("areaId")} />
+                <input type="hidden" {...register("areaName")} />
+                <input type="hidden" {...register("areaCountryId")} />
+
+                {areaOpen && (
+                  <div className="absolute z-20 w-full max-h-56 overflow-auto bg-white border rounded shadow mt-1">
+                    {(areasLoading || suggestLoading) && (
+                      <div className="p-2 text-sm text-gray-500">Loading...</div>
+                    )}
+                    {(() => {
+                      const q = areaQuery.trim();
+                      const list = q
+                        ? (suggestions.length > 0 ? suggestions : localFiltered)
+                        : areas;
+                      if (!areasLoading && !suggestLoading && list.length === 0) {
+                        return (
+                          <div className="p-2 text-sm text-gray-500">No areas found</div>
+                        );
+                      }
+                      return list.map((opt) => (
+                        <button
+                          type="button"
+                          key={opt.id}
+                          className="w-full text-left px-3 py-2 hover:bg-orange-50"
+                          onMouseDown={(e) => e.preventDefault()}
+                          onClick={() => handleSelectArea(opt)}
+                        >
+                          <span className="font-medium text-gray-800">{opt.name}</span>
+                          
+                        </button>
+                      ));
+                    })()}
+                  </div>
+                )}
+              </div>
+              {errors.areaId && (
+                <p className="text-red-500 text-sm">{String(errors.areaId.message)}</p>
+              )}
+              
               <label>Address*</label>
               <input
                 type="text"
@@ -569,6 +712,7 @@ window.dataLayer.push({
           {/* Shipping Method */}
           <div className="border rounded-xl p-4 bg-white shadow-sm">
             <h2 className="md:text-2xl text-xl font-semibold mb-4">Shipping Method</h2>
+            {/* <p className="text-xs text-gray-500 mb-2">Auto-selected based on Area. Changes are disabled.</p> */}
             <Controller
               name="shipping"
               control={control}
@@ -580,6 +724,7 @@ window.dataLayer.push({
                       value="inside"
                       checked={field.value === "inside"}
                       onChange={() => field.onChange("inside")}
+                      disabled
                     />
                     {`Inside Dhaka - 2/4 Days ${currencySymbol} ${insideDhaka.toLocaleString()}`}
                   </label>
@@ -589,6 +734,7 @@ window.dataLayer.push({
                       value="outside"
                       checked={field.value === "outside"}
                       onChange={() => field.onChange("outside")}
+                      disabled
                     />
                     {`Outside Dhaka - 4/6 Days ( Advanced First ) ${currencySymbol} ${outsideDhaka.toLocaleString()}`}
                   </label>

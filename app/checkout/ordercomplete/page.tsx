@@ -108,6 +108,10 @@ export default function OrderComplete() {
                       <p className="text-[10px] uppercase text-gray-400 font-bold">Contact</p>
                       <p className="text-sm font-semibold text-gray-800">{customer?.mobile || "N/A"}</p>
                     </div>
+                    <div className="col-span-2">
+                      <p className="text-[10px] uppercase text-gray-400 font-bold">Address</p>
+                      <p className="text-sm font-semibold text-gray-800 break-words">{customer?.address || "N/A"}</p>
+                    </div>
                   </div>
                 </div>
 

@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
         state_id: data.customer?.state_id ?? null,
         city_id: data.customer?.city_id ?? null,
         area_id: data.customer?.area_id ?? null,
-        postal_code: data.customer?.postal_code ?? "1230",
+        postal_code: data.customer?.postal_code ?? null,
       },
 
       items:
