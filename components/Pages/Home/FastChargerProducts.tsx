@@ -146,7 +146,7 @@ const FastChargerProducts = () => {
                 alt="Earbuds Banner"
                 width={400}
                 height={600}
-                className="rounded-xl object-center md:object-fill w-full h-[300px] md:h-[500px] xl:h-full"
+                className="rounded-xl object-center md:object-fill w-full h-auto  xl:h-full"
               />
             )}
 

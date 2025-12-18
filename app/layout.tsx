@@ -74,15 +74,29 @@ export async function generateMetadata(): Promise<Metadata> {
     getMetaValue("meta_description") || fallbackDescription;
 
   const siteIcon = getMetaValue("site_icon");
- console.log("site_icon value:", siteIcon);
+
+  // Build robust icon metadata with explicit type and sizes to avoid
+  // incorrect size inference in production builds.
+  const resolveIconType = (url: string): string => {
+    const lower = url.toLowerCase();
+    if (lower.endsWith(".ico")) return "image/x-icon";
+    if (lower.endsWith(".png")) return "image/png";
+    if (lower.endsWith(".svg")) return "image/svg+xml";
+    if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) return "image/jpeg";
+    return "image/x-icon";
+  };
+
+  const iconUrl = siteIcon || "/images/sannailogo.png";
+  const iconType = resolveIconType(iconUrl);
+
   return {
     title,
     description,
-    // Dynamic favicon from business settings, fallback to local favicon
+    // Explicitly set icon metadata to ensure browsers pick it up in production
     icons: {
-      icon: siteIcon || "/favicon.ico",
-      shortcut: siteIcon || "/favicon.ico",
-      apple: siteIcon || "/favicon.ico",
+      icon: [{ url: iconUrl, type: iconType, sizes: "any" }],
+      shortcut: [{ url: iconUrl, type: iconType }],
+      apple: [{ url: iconUrl, type: iconType }],
     },
   };
 }

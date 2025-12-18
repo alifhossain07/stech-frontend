@@ -271,7 +271,7 @@ const Navbar = () => {
         <div className="py-1 hidden xl:block border-b border-gray-100 bg-black text-white">
           <div className="w-11/12 mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-sm">
             <div className="flex items-center gap-2">
-              <span>Contact Us 24/7:</span>
+              <span>Contact Us :</span>
               <a
     href={`tel:${helplineNumber || "+88 01319553399"}`}
     className="underline hover:text-yellow-300"

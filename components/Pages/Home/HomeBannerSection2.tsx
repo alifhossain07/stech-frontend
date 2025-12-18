@@ -25,7 +25,7 @@ export default function HomeBannerSection2() {
         {/* Banner 1 */}
         <div className="w-full md:w-1/2">
           {bottomBanners[0] && (
-            <div className="relative w-full aspect-[16/9] md:aspect-[16/7] lg:aspect-[16/6] rounded-xl overflow-hidden">
+            <div className="relative w-full aspect-[866/381] rounded-xl overflow-hidden">
               <Image
                 src={bottomBanners[0].photo}
                 alt="Bottom Banner 1"
