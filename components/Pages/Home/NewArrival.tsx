@@ -23,7 +23,7 @@ const VISIBLE_CONFIG = {
   lg: 4,
   md: 3,
   sm: 2,
-  xs: 1,
+  xs: 2,
 };
 
 const NewArrival = () => {
