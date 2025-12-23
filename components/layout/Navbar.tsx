@@ -346,6 +346,7 @@ const Navbar = () => {
                   if (!value.trim()) {
                     setSuggestions([]);
                     setShowSuggestions(false);
+                    setIsSuggestLoading(false);
                     return;
                   }
 
@@ -717,6 +718,7 @@ const Navbar = () => {
           if (!value.trim()) {
             setSuggestions([]);
             setShowSuggestions(false);
+            setIsSuggestLoading(false);
             return;
           }
 
