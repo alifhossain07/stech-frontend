@@ -489,16 +489,8 @@ const Navbar = () => {
                             handleSearchSubmit(label);
                           }
                         }}
-                        className="w-full flex items-center justify-between gap-3 px-3 py-2 text-sm hover:bg-gray-100"
+                        className="w-full flex items-center gap-3 px-3 py-2 text-sm hover:bg-gray-100"
                       >
-                        <div className="flex-1 flex flex-col items-start min-w-0">
-                          <span className="text-gray-800 line-clamp-1 font-medium">{label}</span>
-                          {price !== null && price !== undefined && price !== "" && (
-                            <span className="text-xs text-orange-600 font-semibold mt-0.5">
-                              ৳{typeof price === 'number' ? price : String(price).replace(/[^\d.]/g, '') || price}
-                            </span>
-                          )}
-                        </div>
                         {image && image !== "" && (
                           <div className="relative w-12 h-12 flex-shrink-0 bg-gray-50 rounded overflow-hidden">
                             <Image
@@ -514,6 +506,14 @@ const Navbar = () => {
                             />
                           </div>
                         )}
+                        <div className="flex-1 flex flex-col items-start min-w-0">
+                          <span className="text-gray-800 line-clamp-1 font-medium">{label}</span>
+                          {price !== null && price !== undefined && price !== "" && (
+                            <span className="text-xs text-orange-600 font-semibold mt-0.5">
+                              ৳{typeof price === 'number' ? price : String(price).replace(/[^\d.]/g, '') || price}
+                            </span>
+                          )}
+                        </div>
                       </button>
                     );
                   })}
@@ -848,16 +848,8 @@ const Navbar = () => {
                   setShowSuggestions(false);
                   setShowMobileSearch(false);
                 }}
-                className="w-full flex items-center justify-between gap-3 px-3 py-2 text-sm hover:bg-gray-100"
+                className="w-full flex items-center gap-3 px-3 py-2 text-sm hover:bg-gray-100"
               >
-                <div className="flex-1 flex flex-col items-start min-w-0">
-                  <span className="text-gray-800 line-clamp-1 font-medium">{label}</span>
-                  {price !== null && price !== undefined && price !== "" && (
-                    <span className="text-xs text-orange-600 font-semibold mt-0.5">
-                      ৳{typeof price === 'number' ? price : String(price).replace(/[^\d.]/g, '') || price}
-                    </span>
-                  )}
-                </div>
                 {image && image !== "" && (
                   <div className="relative w-12 h-12 flex-shrink-0 bg-gray-50 rounded overflow-hidden">
                     <Image
@@ -873,6 +865,14 @@ const Navbar = () => {
                     />
                   </div>
                 )}
+                <div className="flex-1 flex flex-col items-start min-w-0">
+                  <span className="text-gray-800 line-clamp-1 font-medium">{label}</span>
+                  {price !== null && price !== undefined && price !== "" && (
+                    <span className="text-xs text-orange-600 font-semibold mt-0.5">
+                      ৳{typeof price === 'number' ? price : String(price).replace(/[^\d.]/g, '') || price}
+                    </span>
+                  )}
+                </div>
               </button>
             );
           })}
