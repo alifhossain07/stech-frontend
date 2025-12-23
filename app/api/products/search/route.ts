@@ -65,6 +65,574 @@ export async function GET(req: Request) {
 
       const backendJson: SuggestionApi = await backendRes.json();
 
+      // 🔍 DEBUG: Log the backend API response
+      console.log("=== BACKEND SUGGESTION API RESPONSE ===");
+      console.log("Response type:", Array.isArray(backendJson) ? "Array" : typeof backendJson);
+      console.log("Full response:", JSON.stringify(backendJson, null, 2));
+      if (Array.isArray(backendJson)) {
+        console.log("✅ Backend returned array directly, length:", backendJson.length);
+        if (backendJson.length > 0) {
+          console.log("First item structure:", Object.keys(backendJson[0]));
+          console.log("First item:", JSON.stringify(backendJson[0], null, 2));
+        }
+      } else if (backendJson && typeof backendJson === 'object') {
+        console.log("Response keys:", Object.keys(backendJson || {}));
+        // Check common response structures
+        if (Array.isArray((backendJson as any).data)) {
+          console.log("Found array at: data, length:", (backendJson as any).data.length);
+          if ((backendJson as any).data.length > 0) {
+            console.log("First item structure:", Object.keys((backendJson as any).data[0]));
+            console.log("First item:", JSON.stringify((backendJson as any).data[0], null, 2));
+          }
+        }
+        if (Array.isArray((backendJson as any).items)) {
+          console.log("Found array at: items, length:", (backendJson as any).items.length);
+        }
+        if (Array.isArray((backendJson as any).suggestions)) {
+          console.log("Found array at: suggestions, length:", (backendJson as any).suggestions.length);
+        }
+        if (Array.isArray((backendJson as any).products)) {
+          console.log("Found array at: products, length:", (backendJson as any).products.length);
+        }
+      }
+      console.log("========================================");
+
+      // Enhance suggestions with product data for product-type suggestions
+      // Extract suggestions array
+      let suggestions: any[] = [];
+      let suggestionsKey = 'data';
+      
+      // Check if backendJson is directly an array (most common case)
+      if (Array.isArray(backendJson)) {
+        suggestions = backendJson;
+        suggestionsKey = 'data';
+        console.log("✅ Backend response is directly an array");
+      } else if (Array.isArray((backendJson as any).data)) {
+        suggestions = (backendJson as any).data;
+        suggestionsKey = 'data';
+        console.log("✅ Found suggestions in backendJson.data");
+      } else if ((backendJson as any).data && Array.isArray((backendJson as any).data.items)) {
+        suggestions = (backendJson as any).data.items;
+        suggestionsKey = 'items';
+        console.log("✅ Found suggestions in backendJson.data.items");
+      } else if ((backendJson as any).data && Array.isArray((backendJson as any).data.suggestions)) {
+        suggestions = (backendJson as any).data.suggestions;
+        suggestionsKey = 'suggestions';
+        console.log("✅ Found suggestions in backendJson.data.suggestions");
+      } else if ((backendJson as any).data && Array.isArray((backendJson as any).data.data)) {
+        suggestions = (backendJson as any).data.data;
+        suggestionsKey = 'data';
+        console.log("✅ Found suggestions in backendJson.data.data");
+      } else if ((backendJson as any).data && Array.isArray((backendJson as any).data.products)) {
+        suggestions = (backendJson as any).data.products;
+        suggestionsKey = 'products';
+        console.log("✅ Found suggestions in backendJson.data.products");
+      } else {
+        console.log("⚠️ Could not find suggestions array in response");
+      }
+
+      console.log(`📊 Total suggestions: ${suggestions.length}`);
+      console.log(`📊 Suggestions structure:`, suggestions.length > 0 ? Object.keys(suggestions[0]) : 'empty');
+      
+      // Try to match ALL suggestions with actual products (not just type="product")
+      console.log(`🔍 Processing ${suggestions.length} suggestions, fetching product data to match...`);
+      
+      try {
+        // Fetch products using the product search API with higher limit for suggestions
+        // Try to get more products by increasing per_page or fetching multiple pages
+        const productSearchRes = await fetch(
+          `${API_BASE}/products/search?name=${encodeURIComponent(queryKey)}&page=1&per_page=50`,
+          {
+            headers: {
+              Accept: "application/json",
+              "System-Key": SYSTEM_KEY,
+            },
+            cache: "no-store",
+          }
+        );
+
+        if (productSearchRes.ok) {
+          const productSearchJson = await productSearchRes.json();
+          
+          // Extract products - backend API returns data array
+          let products: ProductApi[] = [];
+          if (Array.isArray(productSearchJson.data)) {
+            products = productSearchJson.data;
+          } else if (Array.isArray(productSearchJson.products)) {
+            products = productSearchJson.products;
+          } else if (productSearchJson.data && Array.isArray(productSearchJson.data.data)) {
+            products = productSearchJson.data.data;
+          }
+          
+          // Check if there are more pages and fetch them
+          const meta = productSearchJson.meta || productSearchJson.data?.meta;
+          const total = meta?.total || products.length;
+          const perPage = meta?.per_page || 10;
+          const lastPage = meta?.last_page || 1;
+          
+          console.log(`📊 Pagination info:`, {
+            productsOnPage1: products.length,
+            total: total,
+            perPage: perPage,
+            lastPage: lastPage,
+            meta: meta
+          });
+          
+          // If there are more pages and we haven't fetched all products, fetch additional pages
+          if (lastPage > 1 && products.length < total) {
+            console.log(`📄 Fetching additional pages (2-${lastPage}) to get all products...`);
+            const additionalPages: ProductApi[] = [];
+            
+            // Fetch ALL remaining pages (no limit for suggestions)
+            for (let page = 2; page <= lastPage; page++) {
+              try {
+                const pageRes = await fetch(
+                  `${API_BASE}/products/search?name=${encodeURIComponent(queryKey)}&page=${page}&per_page=50`,
+                  {
+                    headers: {
+                      Accept: "application/json",
+                      "System-Key": SYSTEM_KEY,
+                    },
+                    cache: "no-store",
+                  }
+                );
+                
+                if (pageRes.ok) {
+                  const pageJson = await pageRes.json();
+                  let pageProducts: ProductApi[] = [];
+                  if (Array.isArray(pageJson.data)) {
+                    pageProducts = pageJson.data;
+                  } else if (Array.isArray(pageJson.products)) {
+                    pageProducts = pageJson.products;
+                  } else if (pageJson.data && Array.isArray(pageJson.data.data)) {
+                    pageProducts = pageJson.data.data;
+                  }
+                  additionalPages.push(...pageProducts);
+                  console.log(`✅ Fetched ${pageProducts.length} products from page ${page}`);
+                }
+              } catch (err) {
+                console.error(`Error fetching page ${page}:`, err);
+              }
+            }
+            
+            products = [...products, ...additionalPages];
+            console.log(`✅ Total products after fetching all pages: ${products.length} (expected: ${total})`);
+          }
+          
+          // Also try fetching without pagination limit if per_page didn't work
+          if (products.length < total && products.length < 15) {
+            console.log(`⚠️ Only found ${products.length} products but total is ${total}. Trying without per_page limit...`);
+            try {
+              const unlimitedRes = await fetch(
+                `${API_BASE}/products/search?name=${encodeURIComponent(queryKey)}`,
+                {
+                  headers: {
+                    Accept: "application/json",
+                    "System-Key": SYSTEM_KEY,
+                  },
+                  cache: "no-store",
+                }
+              );
+              
+              if (unlimitedRes.ok) {
+                const unlimitedJson = await unlimitedRes.json();
+                let unlimitedProducts: ProductApi[] = [];
+                if (Array.isArray(unlimitedJson.data)) {
+                  unlimitedProducts = unlimitedJson.data;
+                } else if (Array.isArray(unlimitedJson.products)) {
+                  unlimitedProducts = unlimitedJson.products;
+                } else if (unlimitedJson.data && Array.isArray(unlimitedJson.data.data)) {
+                  unlimitedProducts = unlimitedJson.data.data;
+                }
+                
+                if (unlimitedProducts.length > products.length) {
+                  console.log(`✅ Found ${unlimitedProducts.length} products without pagination limit`);
+                  products = unlimitedProducts;
+                }
+              }
+            } catch (err) {
+              console.error(`Error fetching without pagination:`, err);
+            }
+          }
+          
+          console.log(`✅ Final: Found ${products.length} products from search API (total available: ${total})`);
+          if (products.length > 0) {
+            console.log(`First product:`, {
+              name: products[0].name,
+              hasImage: !!products[0].thumbnail_image,
+              hasPrice: !!products[0].main_price
+            });
+          }
+
+          // Helper function to normalize text (remove spaces, special chars for fuzzy matching)
+          const normalizeForMatching = (text: string): string => {
+            return text
+              .toLowerCase()
+              .replace(/\s+/g, '') // Remove all spaces
+              .replace(/[^\w]/g, '') // Remove special characters
+              .trim();
+          };
+          
+          // Helper function to get all variations of a text (with and without spaces)
+          const getTextVariations = (text: string): string[] => {
+            const normalized = text.toLowerCase().trim();
+            const variations = [normalized];
+            
+            // Add version without spaces
+            const noSpaces = normalized.replace(/\s+/g, '');
+            if (noSpaces !== normalized) {
+              variations.push(noSpaces);
+            }
+            
+            // Add version with spaces normalized (single space)
+            const singleSpace = normalized.replace(/\s+/g, ' ');
+            if (singleSpace !== normalized) {
+              variations.push(singleSpace);
+            }
+            
+            return variations;
+          };
+          
+          // Create a map of product names to products for quick lookup
+          const productMap = new Map<string, ProductApi>();
+          const normalizedProductMap = new Map<string, ProductApi>(); // For fuzzy matching
+          
+          products.forEach((p) => {
+            const normalizedName = p.name.toLowerCase().trim();
+            productMap.set(normalizedName, p);
+            
+            // Index normalized version (no spaces, no special chars) for fuzzy matching
+            const normalizedKey = normalizeForMatching(p.name);
+            if (!normalizedProductMap.has(normalizedKey)) {
+              normalizedProductMap.set(normalizedKey, p);
+            }
+            
+            // Also try matching by partial name (first few words)
+            const nameWords = normalizedName.split(/\s+/).slice(0, 3).join(' ');
+            if (nameWords && !productMap.has(nameWords)) {
+              productMap.set(nameWords, p);
+            }
+            
+            // Also index by product name without special characters and pipes
+            const cleanName = normalizedName.split('|')[0].trim();
+            if (cleanName && cleanName !== normalizedName && !productMap.has(cleanName)) {
+              productMap.set(cleanName, p);
+            }
+            
+            // Index variations (with and without spaces)
+            const variations = getTextVariations(cleanName);
+            variations.forEach(variation => {
+              if (!productMap.has(variation)) {
+                productMap.set(variation, p);
+              }
+              const normalizedVariation = normalizeForMatching(variation);
+              if (!normalizedProductMap.has(normalizedVariation)) {
+                normalizedProductMap.set(normalizedVariation, p);
+              }
+            });
+            
+            // Index by model numbers or short identifiers (e.g., "ANC T10", "W-250")
+            const modelMatch = normalizedName.match(/(?:anc|t|w|sn|sp|sc|sa)[\s-]?[\d]+/i);
+            if (modelMatch) {
+              const modelKey = modelMatch[0].toLowerCase().replace(/\s+/g, '');
+              if (!productMap.has(modelKey)) {
+                productMap.set(modelKey, p);
+              }
+            }
+          });
+
+          // First, add products that directly match the search query (even if not in suggestions)
+          // This ensures we show all products that match, not just those in suggestions
+          const normalizedQueryKey = queryKey.toLowerCase().trim();
+          const queryKeyWords = normalizedQueryKey.split(/\s+/).filter(w => w.length > 0);
+          const normalizedQueryKeyNoSpaces = normalizeForMatching(queryKey); // For fuzzy matching
+          const queryVariations = getTextVariations(queryKey); // Get all variations of search query
+          
+          // Add products that start with or contain the search query (including variations)
+          const directMatches: any[] = [];
+          products.forEach((product) => {
+            const productName = product.name.toLowerCase();
+            const normalizedProductName = normalizeForMatching(product.name);
+            
+            // Check multiple matching strategies
+            const startsWithQuery = productName.startsWith(normalizedQueryKey);
+            const containsAllWords = queryKeyWords.every(word => productName.includes(word));
+            
+            // Check normalized matching (handles "power bank" vs "powerbank")
+            const normalizedMatch = normalizedProductName.includes(normalizedQueryKeyNoSpaces) || 
+                                   normalizedQueryKeyNoSpaces.includes(normalizedProductName);
+            
+            // Check if any query variation matches product name variations
+            let variationMatch = false;
+            for (const queryVar of queryVariations) {
+              if (productName.includes(queryVar) || queryVar.includes(productName.split('|')[0].trim())) {
+                variationMatch = true;
+                break;
+              }
+            }
+            
+            if (startsWithQuery || containsAllWords || normalizedMatch || variationMatch) {
+              // Calculate relevance score
+              let relevanceScore = 50; // Base score for direct match
+              if (startsWithQuery) relevanceScore += 30;
+              if (containsAllWords) relevanceScore += queryKeyWords.length * 5;
+              
+              directMatches.push({
+                id: `direct-${product.id}`,
+                query: product.name,
+                count: 0,
+                type: 'product',
+                type_string: 'Product',
+                name: product.name,
+                slug: product.slug,
+                image: product.thumbnail_image,
+                thumbnail_image: product.thumbnail_image,
+                price: product.main_price,
+                main_price: product.main_price,
+                stroked_price: product.stroked_price,
+                discount: product.discount,
+                _relevanceScore: relevanceScore,
+                _isDirectMatch: true
+              });
+            }
+          });
+          
+          console.log(`✅ Found ${directMatches.length} products that directly match "${queryKey}"`);
+          
+          // Enhance ALL suggestions by trying to match them with products
+          let matchedCount = 0;
+          const enhancedSuggestions: any[] = [];
+          const seenProductSlugs = new Set<string>(); // Track seen products to avoid duplicates
+          const seenProductIds = new Set<number | string>(); // Also track by ID
+          
+          suggestions.forEach((suggestion: any) => {
+            if (!suggestion.query) return;
+            
+            const queryLower = suggestion.query.toLowerCase().trim();
+            const queryBase = queryLower.split('|')[0].trim(); // Get part before pipe
+            const queryWords = queryBase.split(/\s+/).slice(0, 3).join(' ');
+            const normalizedQueryBase = normalizeForMatching(queryBase); // Normalized version for fuzzy matching
+            const queryBaseVariations = getTextVariations(queryBase); // Get variations
+            
+            let matchedProduct: ProductApi | undefined;
+            let matchType = 'none'; // Track match quality for sorting
+            let relevanceScore = 0;
+            
+            // Try to find matching product with different strategies (ordered by relevance)
+            
+            // 1. Exact match (highest priority)
+            matchedProduct = productMap.get(queryLower);
+            if (matchedProduct) {
+              matchType = 'exact';
+              relevanceScore = 100;
+            }
+            
+            // 2. Exact match with base (before pipe)
+            if (!matchedProduct && queryBase !== queryLower) {
+              matchedProduct = productMap.get(queryBase);
+              if (matchedProduct) {
+                matchType = 'exact-base';
+                relevanceScore = 90;
+              }
+            }
+            
+            // 3. Try matching with variations (handles "power bank" vs "powerbank")
+            if (!matchedProduct) {
+              for (const variation of queryBaseVariations) {
+                matchedProduct = productMap.get(variation);
+                if (matchedProduct) {
+                  matchType = 'variation';
+                  relevanceScore = 88;
+                  break;
+                }
+              }
+            }
+            
+            // 4. Normalized matching (no spaces, no special chars) - handles "power bank" vs "powerbank"
+            if (!matchedProduct) {
+              matchedProduct = normalizedProductMap.get(normalizedQueryBase);
+              if (matchedProduct) {
+                matchType = 'normalized';
+                relevanceScore = 85;
+              }
+            }
+            
+            // 5. Check if suggestion query contains the search query (high relevance)
+            if (!matchedProduct) {
+              if (queryLower.includes(normalizedQueryKey) || normalizedQueryKey.includes(queryBase)) {
+                matchedProduct = productMap.get(queryWords);
+                if (matchedProduct) {
+                  matchType = 'query-contains';
+                  relevanceScore = 80;
+                }
+              }
+            }
+            
+            // 6. Partial match (first 3 words)
+            if (!matchedProduct) {
+              matchedProduct = productMap.get(queryWords);
+              if (matchedProduct) {
+                matchType = 'partial';
+                relevanceScore = 70;
+              }
+            }
+            
+            // 7. Try matching by model number
+            if (!matchedProduct) {
+              const modelMatch = queryLower.match(/(?:anc|t|w|sn|sp|sc|sa)[\s-]?[\d]+/i);
+              if (modelMatch) {
+                const modelKey = modelMatch[0].toLowerCase().replace(/\s+/g, '');
+                matchedProduct = productMap.get(modelKey);
+                if (matchedProduct) {
+                  matchType = 'model';
+                  relevanceScore = 60;
+                }
+              }
+            }
+            
+            // 8. Fuzzy matching with normalized comparison (lowest priority)
+            if (!matchedProduct) {
+              matchedProduct = products.find((p) => {
+                const pName = p.name.toLowerCase();
+                const pNameBase = pName.split('|')[0].trim();
+                const normalizedPName = normalizeForMatching(pNameBase);
+                
+                // Check if product name starts with query or query starts with product name
+                return pNameBase.includes(queryBase) || 
+                       queryBase.includes(pNameBase) ||
+                       pName.includes(queryBase) ||
+                       queryBase.includes(pName.split('|')[0].trim()) ||
+                       normalizedPName.includes(normalizedQueryBase) ||
+                       normalizedQueryBase.includes(normalizedPName);
+              });
+              if (matchedProduct) {
+                matchType = 'fuzzy';
+                relevanceScore = 50;
+              }
+            }
+
+            // Only include suggestions that matched with actual products AND haven't been seen before
+            if (matchedProduct) {
+              const productSlug = matchedProduct.slug;
+              const productId = matchedProduct.id;
+              
+              // Skip if we've already added this product (by slug or ID)
+              if (seenProductSlugs.has(productSlug) || seenProductIds.has(productId)) {
+                console.log(`⏭️ Skipping duplicate product: "${matchedProduct.name}" (slug: ${productSlug})`);
+                return;
+              }
+              
+              // Calculate additional relevance based on how well product name matches search query
+              const productName = matchedProduct.name.toLowerCase();
+              let additionalScore = 0;
+              
+              // Bonus for product name starting with search query
+              if (productName.startsWith(normalizedQueryKey)) {
+                additionalScore += 20;
+              }
+              
+              // Bonus for each search word found in product name
+              queryKeyWords.forEach(word => {
+                if (productName.includes(word)) {
+                  additionalScore += 5;
+                }
+              });
+              
+              // Bonus for exact model number match (e.g., "SP-23")
+              const productModelMatch = productName.match(/(?:anc|t|w|sn|sp|sc|sa)[\s-]?[\d]+/i);
+              const queryModelMatch = normalizedQueryKey.match(/(?:anc|t|w|sn|sp|sc|sa)[\s-]?[\d]+/i);
+              if (productModelMatch && queryModelMatch) {
+                const productModel = productModelMatch[0].toLowerCase().replace(/\s+/g, '');
+                const queryModel = queryModelMatch[0].toLowerCase().replace(/\s+/g, '');
+                if (productModel === queryModel) {
+                  additionalScore += 30; // Big bonus for exact model match
+                }
+              }
+              
+              relevanceScore += additionalScore;
+              
+              // Mark this product as seen
+              seenProductSlugs.add(productSlug);
+              seenProductIds.add(productId);
+              
+              matchedCount++;
+              console.log(`✅ Matched "${suggestion.query.substring(0, 50)}..." with product "${matchedProduct.name}" (${matchType}, score: ${relevanceScore})`);
+              enhancedSuggestions.push({
+                ...suggestion,
+                name: matchedProduct.name,
+                slug: matchedProduct.slug,
+                image: matchedProduct.thumbnail_image,
+                thumbnail_image: matchedProduct.thumbnail_image,
+                price: matchedProduct.main_price,
+                main_price: matchedProduct.main_price,
+                stroked_price: matchedProduct.stroked_price,
+                discount: matchedProduct.discount,
+                _relevanceScore: relevanceScore, // Internal score for sorting
+              });
+            } else {
+              console.log(`❌ No product match for: "${suggestion.query.substring(0, 50)}..." - filtering out`);
+            }
+          });
+          
+          // Combine direct matches with suggestion matches
+          // Add direct matches that aren't already in enhancedSuggestions
+          directMatches.forEach(directMatch => {
+            const productId = directMatch.slug || directMatch.id;
+            if (!seenProductSlugs.has(productId) && !seenProductIds.has(directMatch.id)) {
+              seenProductSlugs.add(productId);
+              seenProductIds.add(directMatch.id);
+              enhancedSuggestions.push(directMatch);
+            }
+          });
+          
+          // Sort by relevance score (highest first)
+          enhancedSuggestions.sort((a, b) => {
+            const scoreA = a._relevanceScore || 0;
+            const scoreB = b._relevanceScore || 0;
+            return scoreB - scoreA; // Descending order
+          });
+          
+          // Remove the internal relevance score before returning
+          enhancedSuggestions.forEach(item => {
+            delete item._relevanceScore;
+            delete item._isDirectMatch;
+          });
+          
+          console.log(`✅ Enhanced ${matchedCount} from suggestions + ${directMatches.length} direct matches = ${enhancedSuggestions.length} total unique products (sorted by relevance)`);
+
+          // Update the response with enhanced suggestions (only matched products)
+          const enhancedData = { data: enhancedSuggestions };
+          console.log(`✅ Returning ${enhancedSuggestions.length} matched products only`);
+          
+          // Verify enhancement worked
+          if (enhancedSuggestions.length > 0) {
+            const firstEnhanced = enhancedSuggestions[0];
+            console.log("✅ Verification - First enhanced product:", {
+              name: firstEnhanced.name,
+              hasImage: !!firstEnhanced.image,
+              hasPrice: !!firstEnhanced.price,
+              hasSlug: !!firstEnhanced.slug,
+              image: firstEnhanced.image?.substring(0, 50) || 'null',
+              price: firstEnhanced.price || 'null'
+            });
+          }
+          
+          console.log("✅ Enhanced suggestions with product data");
+          
+          return NextResponse.json({
+            success: true,
+            data: enhancedData,
+          });
+        }
+      } catch (error) {
+        console.error("Error enhancing suggestions with product data:", error);
+        // Return empty if enhancement fails
+        return NextResponse.json({
+          success: true,
+          data: { data: [] },
+        });
+      }
+
       return NextResponse.json({
         success: true,
         data: backendJson,

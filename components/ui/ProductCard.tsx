@@ -156,12 +156,26 @@ export default function ProductCard({ product }: { product: Product }) {
           {/* FIXED HEIGHT PRICING */}
           <div className="flex items-center gap-2 mt-4 mb-2 h-[32px]">
             <h1 className="font-semibold text-sm md:text-lg">৳{product.price}</h1>
-            <p className="line-through text-sm md:text-lg text-[#939393]">
-              ৳{product.oldPrice}
-            </p>
-            <p className="text-green-600 bg-green-200 md:px-2 py-1 px-1 md:rounded-full rounded-2xl text-[8px]">
-              {product.discount}
-            </p>
+            {(() => {
+              // Parse discount to check if it's 0 or empty
+              const discountValue = typeof product.discount === 'number' 
+                ? product.discount 
+                : parseFloat(String(product.discount || '0').replace(/[^\d.]/g, ''));
+              const hasDiscount = discountValue > 0 && product.oldPrice !== product.price;
+              
+              if (!hasDiscount) return null;
+              
+              return (
+                <>
+                  <p className="line-through text-sm md:text-lg text-[#939393]">
+                    ৳{product.oldPrice}
+                  </p>
+                  <p className="text-green-600 bg-green-200 md:px-2 py-1 px-1 md:rounded-full rounded-2xl text-[8px]">
+                    {product.discount}
+                  </p>
+                </>
+              );
+            })()}
           </div>
 
           {/* FIXED HEIGHT BUTTON ROW */}

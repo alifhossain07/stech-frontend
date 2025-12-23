@@ -354,15 +354,73 @@ const Navbar = () => {
                       );
                       const json = await res.json();
 
+                      // 🔍 DEBUG: Log the Next.js API response
+                      console.log("=== NEXT.JS API RESPONSE (Desktop) ===");
+                      console.log("Full response:", json);
+                      console.log("Response structure:", {
+                        hasData: !!json.data,
+                        dataType: typeof json.data,
+                        isDataArray: Array.isArray(json.data),
+                        dataKeys: json.data && typeof json.data === 'object' ? Object.keys(json.data) : null
+                      });
+                      console.log("========================================");
+
                       let items: SuggestionItem[] = [];
                       if (Array.isArray(json.data)) {
                         items = json.data;
+                        console.log("✅ Using json.data (array), count:", items.length);
                       } else if (json.data && Array.isArray(json.data.items)) {
                         items = json.data.items;
+                        console.log("✅ Using json.data.items, count:", items.length);
                       } else if (json.data && Array.isArray(json.data.suggestions)) {
                         items = json.data.suggestions;
+                        console.log("✅ Using json.data.suggestions, count:", items.length);
                       } else if (json.data && Array.isArray(json.data.data)) {
                         items = json.data.data;
+                        console.log("✅ Using json.data.data, count:", items.length);
+                      } else if (json.data && Array.isArray(json.data.products)) {
+                        items = json.data.products;
+                        console.log("✅ Using json.data.products, count:", items.length);
+                      } else {
+                        console.warn("⚠️ No suggestions array found in response structure");
+                        console.log("Available paths checked:", [
+                          "json.data",
+                          "json.data.items",
+                          "json.data.suggestions",
+                          "json.data.data",
+                          "json.data.products"
+                        ]);
+                      }
+
+                      // Log first item structure before normalization
+                      if (items.length > 0) {
+                        console.log("=== FIRST ITEM (Before Normalization) ===");
+                        console.log("Item keys:", Object.keys(items[0]));
+                        console.log("Item:", JSON.stringify(items[0], null, 2));
+                        console.log("==========================================");
+                      }
+
+                      // Normalize items to ensure consistent structure
+                      items = items.map((item: any) => ({
+                        ...item,
+                        // Ensure we have name/title
+                        name: item.name || item.title || item.query || "",
+                        // Normalize image field
+                        image: item.image || item.thumbnail || item.cover_image || item.thumbnail_image || item.photo || (item.photos?.[0]?.path) || null,
+                        // Normalize price field
+                        price: item.price || item.sale_price || item.offer_price || item.main_price || item.stroked_price || (item.meta?.price) || null,
+                      }));
+
+                      // Log first item after normalization
+                      if (items.length > 0) {
+                        console.log("=== FIRST ITEM (After Normalization) ===");
+                        console.log("Normalized item:", {
+                          name: items[0].name,
+                          image: items[0].image,
+                          price: items[0].price,
+                          slug: items[0].slug
+                        });
+                        console.log("==========================================");
                       }
 
                       setSuggestions(items);
@@ -394,11 +452,20 @@ const Navbar = () => {
                   {suggestions.map((item: SuggestionItem, idx: number) => {
                     const label = item.name || item.title || item.query || "";
                     const slug = item.slug;
-                    const image = item.image || item.thumbnail || item.cover_image || null;
+                    const image = 
+                      item.image || 
+                      item.thumbnail || 
+                      item.cover_image || 
+                      (item as any).thumbnail_image ||
+                      (item as any).photo ||
+                      (item as any).photos?.[0]?.path ||
+                      null;
                     const price =
                       item.price ||
                       item.sale_price ||
                       item.offer_price ||
+                      (item as any).main_price ||
+                      (item as any).stroked_price ||
                       (item.meta && item.meta.price) ||
                       null;
 
@@ -417,27 +484,31 @@ const Navbar = () => {
                             handleSearchSubmit(label);
                           }
                         }}
-                        className="w-full flex items-center gap-3 px-3 py-2 text-sm hover:bg-gray-100"
+                        className="w-full flex items-center justify-between gap-3 px-3 py-2 text-sm hover:bg-gray-100"
                       >
-                        {image && (
-                          <div className="relative w-10 h-10 flex-shrink-0">
+                        <div className="flex-1 flex flex-col items-start min-w-0">
+                          <span className="text-gray-800 line-clamp-1 font-medium">{label}</span>
+                          {price !== null && price !== undefined && price !== "" && (
+                            <span className="text-xs text-orange-600 font-semibold mt-0.5">
+                              ৳{typeof price === 'number' ? price : String(price).replace(/[^\d.]/g, '') || price}
+                            </span>
+                          )}
+                        </div>
+                        {image && image !== "" && (
+                          <div className="relative w-12 h-12 flex-shrink-0 bg-gray-50 rounded overflow-hidden">
                             <Image
                               src={image}
                               alt={label}
                               fill
-                              sizes="40px"
-                              className="object-contain rounded"
+                              sizes="48px"
+                              className="object-contain"
+                              onError={(e) => {
+                                // Hide image on error
+                                (e.target as HTMLImageElement).style.display = 'none';
+                              }}
                             />
                           </div>
                         )}
-                        <div className="flex-1 flex flex-col items-start">
-                          <span className="text-gray-800 line-clamp-1">{label}</span>
-                          {price && (
-                            <span className="text-xs text-orange-600 font-semibold">
-                              ৳{price}
-                            </span>
-                          )}
-                        </div>
                       </button>
                     );
                   })}
@@ -649,15 +720,73 @@ const Navbar = () => {
               );
               const json = await res.json();
 
+              // 🔍 DEBUG: Log the Next.js API response
+              console.log("=== NEXT.JS API RESPONSE (Mobile) ===");
+              console.log("Full response:", json);
+              console.log("Response structure:", {
+                hasData: !!json.data,
+                dataType: typeof json.data,
+                isDataArray: Array.isArray(json.data),
+                dataKeys: json.data && typeof json.data === 'object' ? Object.keys(json.data) : null
+              });
+              console.log("========================================");
+
               let items:SuggestionItem[] = [];
               if (Array.isArray(json.data)) {
                 items = json.data;
+                console.log("✅ Using json.data (array), count:", items.length);
               } else if (json.data && Array.isArray(json.data.items)) {
                 items = json.data.items;
+                console.log("✅ Using json.data.items, count:", items.length);
               } else if (json.data && Array.isArray(json.data.suggestions)) {
                 items = json.data.suggestions;
+                console.log("✅ Using json.data.suggestions, count:", items.length);
               } else if (json.data && Array.isArray(json.data.data)) {
                 items = json.data.data;
+                console.log("✅ Using json.data.data, count:", items.length);
+              } else if (json.data && Array.isArray(json.data.products)) {
+                items = json.data.products;
+                console.log("✅ Using json.data.products, count:", items.length);
+              } else {
+                console.warn("⚠️ No suggestions array found in response structure");
+                console.log("Available paths checked:", [
+                  "json.data",
+                  "json.data.items",
+                  "json.data.suggestions",
+                  "json.data.data",
+                  "json.data.products"
+                ]);
+              }
+
+              // Log first item structure before normalization
+              if (items.length > 0) {
+                console.log("=== FIRST ITEM (Before Normalization - Mobile) ===");
+                console.log("Item keys:", Object.keys(items[0]));
+                console.log("Item:", JSON.stringify(items[0], null, 2));
+                console.log("===================================================");
+              }
+
+              // Normalize items to ensure consistent structure
+              items = items.map((item: any) => ({
+                ...item,
+                // Ensure we have name/title
+                name: item.name || item.title || item.query || "",
+                // Normalize image field
+                image: item.image || item.thumbnail || item.cover_image || item.thumbnail_image || item.photo || (item.photos?.[0]?.path) || null,
+                // Normalize price field
+                price: item.price || item.sale_price || item.offer_price || item.main_price || item.stroked_price || (item.meta?.price) || null,
+              }));
+
+              // Log first item after normalization
+              if (items.length > 0) {
+                console.log("=== FIRST ITEM (After Normalization - Mobile) ===");
+                console.log("Normalized item:", {
+                  name: items[0].name,
+                  image: items[0].image,
+                  price: items[0].price,
+                  slug: items[0].slug
+                });
+                console.log("==================================================");
               }
 
               setSuggestions(items);
@@ -684,11 +813,20 @@ const Navbar = () => {
           {suggestions.map((item: SuggestionItem, idx: number) => {
             const label = item.name || item.title || item.query || "";
             const slug = item.slug;
-            const image = item.image || item.thumbnail || item.cover_image || null;
+            const image = 
+              item.image || 
+              item.thumbnail || 
+              item.cover_image || 
+              (item as any).thumbnail_image ||
+              (item as any).photo ||
+              (item as any).photos?.[0]?.path ||
+              null;
             const price =
               item.price ||
               item.sale_price ||
               item.offer_price ||
+              (item as any).main_price ||
+              (item as any).stroked_price ||
               (item.meta && item.meta.price) ||
               null;
 
@@ -705,27 +843,31 @@ const Navbar = () => {
                   setShowSuggestions(false);
                   setShowMobileSearch(false);
                 }}
-                className="w-full flex items-center gap-3 px-3 py-2 text-sm hover:bg-gray-100"
+                className="w-full flex items-center justify-between gap-3 px-3 py-2 text-sm hover:bg-gray-100"
               >
-                {image && (
-                  <div className="relative w-10 h-10 flex-shrink-0">
+                <div className="flex-1 flex flex-col items-start min-w-0">
+                  <span className="text-gray-800 line-clamp-1 font-medium">{label}</span>
+                  {price !== null && price !== undefined && price !== "" && (
+                    <span className="text-xs text-orange-600 font-semibold mt-0.5">
+                      ৳{typeof price === 'number' ? price : String(price).replace(/[^\d.]/g, '') || price}
+                    </span>
+                  )}
+                </div>
+                {image && image !== "" && (
+                  <div className="relative w-12 h-12 flex-shrink-0 bg-gray-50 rounded overflow-hidden">
                     <Image
                       src={image}
                       alt={label}
                       fill
-                      sizes="40px"
-                      className="object-contain rounded"
+                      sizes="48px"
+                      className="object-contain"
+                      onError={(e) => {
+                        // Hide image on error
+                        (e.target as HTMLImageElement).style.display = 'none';
+                      }}
                     />
                   </div>
                 )}
-                <div className="flex-1 flex flex-col items-start">
-                  <span className="text-gray-800 line-clamp-1">{label}</span>
-                  {price && (
-                    <span className="text-xs text-orange-600 font-semibold">
-                      ৳{price}
-                    </span>
-                  )}
-                </div>
               </button>
             );
           })}

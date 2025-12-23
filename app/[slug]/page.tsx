@@ -540,15 +540,27 @@ const colors = product.colors || [];
                 {product.main_price}
               </span>
 
-              {/* Discount Badge */}
-              <span className="bg-green-100  text-green-600 2xl:text-[16px] xl:text-[13px] font-semibold text-xs px-2 py-[2px] rounded-full">
-                {product.discount} OFF
-              </span>
+              {(() => {
+                // Parse discount to check if it's 0 or empty
+                const discountValue = parseFloat(String(product.discount || '0').replace(/[^\d.]/g, ''));
+                const hasDiscount = discountValue > 0 && parsePrice(product.stroked_price) !== parsePrice(product.main_price);
+                
+                if (!hasDiscount) return null;
+                
+                return (
+                  <>
+                    {/* Discount Badge */}
+                    <span className="bg-green-100  text-green-600 2xl:text-[16px] xl:text-[13px] font-semibold text-xs px-2 py-[2px] rounded-full">
+                      {product.discount} OFF
+                    </span>
 
-              {/* Old Price */}
-              <span className="text-gray-400 line-through  2xl:text-[16px] xl:text-[13px]">
-               {product.stroked_price}
-              </span>
+                    {/* Old Price */}
+                    <span className="text-gray-400 line-through  2xl:text-[16px] xl:text-[13px]">
+                     {product.stroked_price}
+                    </span>
+                  </>
+                );
+              })()}
             </div>
 
             {/* -------- Right: Compare & Wishlist -------- */}

@@ -268,12 +268,32 @@ export default function ProductOptionsModal({ slug, open, onClose }: Props) {
                           : product.main_price
                       )}
                     </span>
-                    <span className="line-through text-gray-400 text-xs">
-                      ৳{parsePrice(product.stroked_price)}
-                    </span>
-                    <span className="px-2 py-[2px] rounded-full bg-green-100 text-green-600 text-[10px] font-semibold">
-                      {product.discount} OFF
-                    </span>
+                    {(() => {
+                      // Parse discount to check if it's 0 or empty
+                      const discountValue = parseFloat(String(product.discount || '0').replace(/[^\d.]/g, ''));
+                      const currentPrice = parsePrice(
+                        selectedVariant
+                          ? product.variants.find(
+                              (v) => v.variant === selectedVariant
+                            )?.price ?? product.main_price
+                          : product.main_price
+                      );
+                      const strokedPrice = parsePrice(product.stroked_price);
+                      const hasDiscount = discountValue > 0 && strokedPrice !== currentPrice;
+                      
+                      if (!hasDiscount) return null;
+                      
+                      return (
+                        <>
+                          <span className="line-through text-gray-400 text-xs">
+                            ৳{parsePrice(product.stroked_price)}
+                          </span>
+                          <span className="px-2 py-[2px] rounded-full bg-green-100 text-green-600 text-[10px] font-semibold">
+                            {product.discount} OFF
+                          </span>
+                        </>
+                      );
+                    })()}
                   </div>
                 </div>
               </div>
