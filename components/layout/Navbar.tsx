@@ -445,13 +445,18 @@ const Navbar = () => {
                 placeholder="Search your Favourite Accessories."
                 className="w-full text-white bg-black border border-black rounded-full py-2 px-4"
               />
-              <button
-                type="button"
-                onClick={() => handleSearchSubmit(searchTerm)}
-                className="absolute top-1/2 right-2 transform -translate-y-1/2 bg-orange-500 text-white p-2 rounded-full"
-              >
-                <FiSearch />
-              </button>
+              <div className="absolute top-1/2 right-2 transform -translate-y-1/2 flex items-center gap-2">
+                {isSuggestLoading && (
+                  <div className="w-6 h-6 border-4 border-orange-400 border-t-transparent rounded-full animate-spin"></div>
+                )}
+                <button
+                  type="button"
+                  onClick={() => handleSearchSubmit(searchTerm)}
+                  className="bg-orange-500 text-white p-2 rounded-full"
+                >
+                  <FiSearch />
+                </button>
+              </div>
               {showSuggestions && suggestions.length > 0 && (
                 <div className="absolute left-0 right-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-64 overflow-y-auto z-50">
                   {suggestions.map((item: SuggestionItem, idx: number) => {
@@ -809,8 +814,13 @@ const Navbar = () => {
           }
         }}
         placeholder="Search your Favourite Accessories..."
-        className="w-full bg-white text-black py-3 px-4 rounded-md shadow-lg outline-none caret-black placeholder:text-gray-500"
+        className="w-full bg-white text-black py-3 px-4 pr-12 rounded-md shadow-lg outline-none caret-black placeholder:text-gray-500"
       />
+      {isSuggestLoading && (
+        <div className="absolute top-1/2 right-4 transform -translate-y-1/2">
+          <div className="w-4 h-4 border-4 border-orange-400 border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      )}
 
       {/* 🔥 Suggestions Dropdown */}
       {showSuggestions && suggestions.length > 0 && (
