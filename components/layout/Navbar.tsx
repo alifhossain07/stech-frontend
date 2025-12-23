@@ -489,7 +489,7 @@ const Navbar = () => {
                             handleSearchSubmit(label);
                           }
                         }}
-                        className="w-full flex items-center gap-3 px-3 py-2 text-sm hover:bg-gray-100"
+                        className={`w-full flex items-center gap-3 px-3 py-2 text-sm hover:bg-gray-100 ${idx < suggestions.length - 1 ? 'border-b-2 border-gray-200' : ''}`}
                       >
                         {image && image !== "" && (
                           <div className="relative w-12 h-12 flex-shrink-0 bg-gray-50 rounded overflow-hidden">
@@ -848,7 +848,7 @@ const Navbar = () => {
                   setShowSuggestions(false);
                   setShowMobileSearch(false);
                 }}
-                className="w-full flex items-center gap-3 px-3 py-2 text-sm hover:bg-gray-100"
+                className={`w-full flex items-center gap-3 px-3 py-2 text-sm hover:bg-gray-100 ${idx < suggestions.length - 1 ? 'border-b border-gray-200' : ''}`}
               >
                 {image && image !== "" && (
                   <div className="relative w-12 h-12 flex-shrink-0 bg-gray-50 rounded overflow-hidden">
