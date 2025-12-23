@@ -49,12 +49,17 @@ type SuggestionItem = {
   title?: string;
   query?: string;
   slug?: string;
-  image?: string;
-  thumbnail?: string;
-  cover_image?: string;
-  price?: number | string;
-  sale_price?: number | string;
-  offer_price?: number | string;
+  image?: string | null;
+  thumbnail?: string | null;
+  cover_image?: string | null;
+  thumbnail_image?: string | null;
+  photo?: string | null;
+  photos?: Array<{ path?: string }>;
+  price?: number | string | null;
+  sale_price?: number | string | null;
+  offer_price?: number | string | null;
+  main_price?: number | string | null;
+  stroked_price?: number | string | null;
   meta?: {
     price?: number | string;
     [key: string]: unknown;
@@ -401,7 +406,7 @@ const Navbar = () => {
                       }
 
                       // Normalize items to ensure consistent structure
-                      items = items.map((item: any) => ({
+                      items = items.map((item: SuggestionItem) => ({
                         ...item,
                         // Ensure we have name/title
                         name: item.name || item.title || item.query || "",
@@ -456,16 +461,16 @@ const Navbar = () => {
                       item.image || 
                       item.thumbnail || 
                       item.cover_image || 
-                      (item as any).thumbnail_image ||
-                      (item as any).photo ||
-                      (item as any).photos?.[0]?.path ||
+                      item.thumbnail_image ||
+                      item.photo ||
+                      item.photos?.[0]?.path ||
                       null;
                     const price =
                       item.price ||
                       item.sale_price ||
                       item.offer_price ||
-                      (item as any).main_price ||
-                      (item as any).stroked_price ||
+                      item.main_price ||
+                      item.stroked_price ||
                       (item.meta && item.meta.price) ||
                       null;
 
@@ -767,7 +772,7 @@ const Navbar = () => {
               }
 
               // Normalize items to ensure consistent structure
-              items = items.map((item: any) => ({
+              items = items.map((item: SuggestionItem) => ({
                 ...item,
                 // Ensure we have name/title
                 name: item.name || item.title || item.query || "",
@@ -817,16 +822,16 @@ const Navbar = () => {
               item.image || 
               item.thumbnail || 
               item.cover_image || 
-              (item as any).thumbnail_image ||
-              (item as any).photo ||
-              (item as any).photos?.[0]?.path ||
+              item.thumbnail_image ||
+              item.photo ||
+              item.photos?.[0]?.path ||
               null;
             const price =
               item.price ||
               item.sale_price ||
               item.offer_price ||
-              (item as any).main_price ||
-              (item as any).stroked_price ||
+              item.main_price ||
+              item.stroked_price ||
               (item.meta && item.meta.price) ||
               null;
 

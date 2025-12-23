@@ -18,7 +18,50 @@ type ProductApi = {
   product_compatible?: string[] | null;
 };
 
-type SuggestionApi = unknown;
+type SuggestionApi = 
+  | Array<{
+      id: number;
+      query: string;
+      count: number;
+      type: string;
+      type_string: string;
+    }>
+  | {
+      data?: Array<{
+        id: number;
+        query: string;
+        count: number;
+        type: string;
+        type_string: string;
+      }> | {
+        items?: Array<unknown>;
+        suggestions?: Array<unknown>;
+        data?: Array<unknown>;
+        products?: Array<unknown>;
+      };
+      items?: Array<unknown>;
+      suggestions?: Array<unknown>;
+      products?: Array<unknown>;
+    }
+  | Record<string, unknown>;
+
+type SuggestionItem = {
+  id?: number | string;
+  query?: string;
+  count?: number;
+  type?: string;
+  type_string?: string;
+  name?: string;
+  slug?: string;
+  image?: string | null;
+  thumbnail_image?: string | null;
+  price?: number | string | null;
+  main_price?: number | string | null;
+  stroked_price?: number | string | null;
+  discount?: string | number | null;
+  _relevanceScore?: number;
+  _isDirectMatch?: boolean;
+};
 
 export async function GET(req: Request) {
   const url = new URL(req.url);
@@ -75,59 +118,70 @@ export async function GET(req: Request) {
           console.log("First item structure:", Object.keys(backendJson[0]));
           console.log("First item:", JSON.stringify(backendJson[0], null, 2));
         }
-      } else if (backendJson && typeof backendJson === 'object') {
-        console.log("Response keys:", Object.keys(backendJson || {}));
+      } else if (backendJson && typeof backendJson === 'object' && !Array.isArray(backendJson)) {
+        const backendObj = backendJson as Record<string, unknown>;
+        console.log("Response keys:", Object.keys(backendObj));
         // Check common response structures
-        if (Array.isArray((backendJson as any).data)) {
-          console.log("Found array at: data, length:", (backendJson as any).data.length);
-          if ((backendJson as any).data.length > 0) {
-            console.log("First item structure:", Object.keys((backendJson as any).data[0]));
-            console.log("First item:", JSON.stringify((backendJson as any).data[0], null, 2));
+        if (Array.isArray(backendObj.data)) {
+          console.log("Found array at: data, length:", backendObj.data.length);
+          if (backendObj.data.length > 0 && typeof backendObj.data[0] === 'object') {
+            console.log("First item structure:", Object.keys(backendObj.data[0] as Record<string, unknown>));
+            console.log("First item:", JSON.stringify(backendObj.data[0], null, 2));
           }
         }
-        if (Array.isArray((backendJson as any).items)) {
-          console.log("Found array at: items, length:", (backendJson as any).items.length);
+        if (Array.isArray(backendObj.items)) {
+          console.log("Found array at: items, length:", backendObj.items.length);
         }
-        if (Array.isArray((backendJson as any).suggestions)) {
-          console.log("Found array at: suggestions, length:", (backendJson as any).suggestions.length);
+        if (Array.isArray(backendObj.suggestions)) {
+          console.log("Found array at: suggestions, length:", backendObj.suggestions.length);
         }
-        if (Array.isArray((backendJson as any).products)) {
-          console.log("Found array at: products, length:", (backendJson as any).products.length);
+        if (Array.isArray(backendObj.products)) {
+          console.log("Found array at: products, length:", backendObj.products.length);
         }
       }
       console.log("========================================");
 
       // Enhance suggestions with product data for product-type suggestions
       // Extract suggestions array
-      let suggestions: any[] = [];
-      let suggestionsKey = 'data';
+      let suggestions: SuggestionItem[] = [];
       
       // Check if backendJson is directly an array (most common case)
       if (Array.isArray(backendJson)) {
-        suggestions = backendJson;
-        suggestionsKey = 'data';
+        suggestions = backendJson as SuggestionItem[];
         console.log("✅ Backend response is directly an array");
-      } else if (Array.isArray((backendJson as any).data)) {
-        suggestions = (backendJson as any).data;
-        suggestionsKey = 'data';
-        console.log("✅ Found suggestions in backendJson.data");
-      } else if ((backendJson as any).data && Array.isArray((backendJson as any).data.items)) {
-        suggestions = (backendJson as any).data.items;
-        suggestionsKey = 'items';
-        console.log("✅ Found suggestions in backendJson.data.items");
-      } else if ((backendJson as any).data && Array.isArray((backendJson as any).data.suggestions)) {
-        suggestions = (backendJson as any).data.suggestions;
-        suggestionsKey = 'suggestions';
-        console.log("✅ Found suggestions in backendJson.data.suggestions");
-      } else if ((backendJson as any).data && Array.isArray((backendJson as any).data.data)) {
-        suggestions = (backendJson as any).data.data;
-        suggestionsKey = 'data';
-        console.log("✅ Found suggestions in backendJson.data.data");
-      } else if ((backendJson as any).data && Array.isArray((backendJson as any).data.products)) {
-        suggestions = (backendJson as any).data.products;
-        suggestionsKey = 'products';
-        console.log("✅ Found suggestions in backendJson.data.products");
-      } else {
+      } else if (backendJson && typeof backendJson === 'object' && !Array.isArray(backendJson)) {
+        const backendObj = backendJson as Record<string, unknown>;
+        if (Array.isArray(backendObj.data)) {
+          suggestions = backendObj.data as SuggestionItem[];
+          console.log("✅ Found suggestions in backendJson.data");
+        } else if (backendObj.data && typeof backendObj.data === 'object' && !Array.isArray(backendObj.data)) {
+          const dataObj = backendObj.data as Record<string, unknown>;
+          if (Array.isArray(dataObj.items)) {
+            suggestions = dataObj.items as SuggestionItem[];
+            console.log("✅ Found suggestions in backendJson.data.items");
+          } else if (Array.isArray(dataObj.suggestions)) {
+            suggestions = dataObj.suggestions as SuggestionItem[];
+            console.log("✅ Found suggestions in backendJson.data.suggestions");
+          } else if (Array.isArray(dataObj.data)) {
+            suggestions = dataObj.data as SuggestionItem[];
+            console.log("✅ Found suggestions in backendJson.data.data");
+          } else if (Array.isArray(dataObj.products)) {
+            suggestions = dataObj.products as SuggestionItem[];
+            console.log("✅ Found suggestions in backendJson.data.products");
+          }
+        } else if (Array.isArray(backendObj.items)) {
+          suggestions = backendObj.items as SuggestionItem[];
+          console.log("✅ Found suggestions in backendJson.items");
+        } else if (Array.isArray(backendObj.suggestions)) {
+          suggestions = backendObj.suggestions as SuggestionItem[];
+          console.log("✅ Found suggestions in backendJson.suggestions");
+        } else if (Array.isArray(backendObj.products)) {
+          suggestions = backendObj.products as SuggestionItem[];
+          console.log("✅ Found suggestions in backendJson.products");
+        }
+      }
+      
+      if (suggestions.length === 0) {
         console.log("⚠️ Could not find suggestions array in response");
       }
 
@@ -349,7 +403,7 @@ export async function GET(req: Request) {
           const queryVariations = getTextVariations(queryKey); // Get all variations of search query
           
           // Add products that start with or contain the search query (including variations)
-          const directMatches: any[] = [];
+          const directMatches: SuggestionItem[] = [];
           products.forEach((product) => {
             const productName = product.name.toLowerCase();
             const normalizedProductName = normalizeForMatching(product.name);
@@ -385,12 +439,12 @@ export async function GET(req: Request) {
                 type_string: 'Product',
                 name: product.name,
                 slug: product.slug,
-                image: product.thumbnail_image,
-                thumbnail_image: product.thumbnail_image,
-                price: product.main_price,
-                main_price: product.main_price,
-                stroked_price: product.stroked_price,
-                discount: product.discount,
+                image: product.thumbnail_image || null,
+                thumbnail_image: product.thumbnail_image || null,
+                price: product.main_price ?? null,
+                main_price: product.main_price ?? null,
+                stroked_price: product.stroked_price ?? null,
+                discount: product.discount ?? null,
                 _relevanceScore: relevanceScore,
                 _isDirectMatch: true
               });
@@ -401,11 +455,11 @@ export async function GET(req: Request) {
           
           // Enhance ALL suggestions by trying to match them with products
           let matchedCount = 0;
-          const enhancedSuggestions: any[] = [];
+          const enhancedSuggestions: SuggestionItem[] = [];
           const seenProductSlugs = new Set<string>(); // Track seen products to avoid duplicates
           const seenProductIds = new Set<number | string>(); // Also track by ID
           
-          suggestions.forEach((suggestion: any) => {
+          suggestions.forEach((suggestion: SuggestionItem) => {
             if (!suggestion.query) return;
             
             const queryLower = suggestion.query.toLowerCase().trim();
@@ -577,10 +631,11 @@ export async function GET(req: Request) {
           // Combine direct matches with suggestion matches
           // Add direct matches that aren't already in enhancedSuggestions
           directMatches.forEach(directMatch => {
-            const productId = directMatch.slug || directMatch.id;
-            if (!seenProductSlugs.has(productId) && !seenProductIds.has(directMatch.id)) {
+            const productId = directMatch.slug || String(directMatch.id || '');
+            const productIdNum = directMatch.id;
+            if (productId && !seenProductSlugs.has(productId) && productIdNum !== undefined && !seenProductIds.has(productIdNum)) {
               seenProductSlugs.add(productId);
-              seenProductIds.add(directMatch.id);
+              seenProductIds.add(productIdNum);
               enhancedSuggestions.push(directMatch);
             }
           });
