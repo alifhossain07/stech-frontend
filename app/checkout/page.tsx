@@ -167,6 +167,18 @@ const CheckoutPage: React.FC = () => {
     };
   }, []);
 
+  // Auto-set shipping based on selected city
+  React.useEffect(() => {
+    if (!selectedCityId || cities.length === 0) return;
+    
+    const selectedCity = cities.find(c => c.id === selectedCityId);
+    if (selectedCity) {
+      // If city_id is 1 or city name is "Dhaka" (case-insensitive), set to "inside", else "outside"
+      const isDhaka = selectedCity.id === 1 || selectedCity.name.toLowerCase().trim() === "dhaka";
+      setValue("shipping", isDhaka ? "inside" : "outside", { shouldValidate: true });
+    }
+  }, [selectedCityId, cities, setValue]);
+
   // Load zones when city is selected
   React.useEffect(() => {
     if (!selectedCityId) {
@@ -268,6 +280,11 @@ const CheckoutPage: React.FC = () => {
     setCityQuery(city.name);
     setValue("pathao_city_id", city.id, { shouldValidate: true });
     setCityOpen(false);
+    
+    // Auto set shipping based on city_id or city name
+    // If city_id is 1 or city name is "Dhaka" (case-insensitive), set to "inside", else "outside"
+    const isDhaka = city.id === 1 || city.name.toLowerCase().trim() === "dhaka";
+    setValue("shipping", isDhaka ? "inside" : "outside", { shouldValidate: true });
   };
 
   const handleSelectZone = (zone: PathaoZone) => {
@@ -787,18 +804,24 @@ window.dataLayer.push({
                 <input
                   type="text"
                   placeholder={selectedCityId ? "Select or search zone" : "Select city first"}
-                  className="border p-2 mb-1 rounded w-full"
+                  className={`border p-2 mb-1 rounded w-full ${!selectedCityId ? "bg-gray-100 cursor-not-allowed" : ""}`}
                   value={zoneQuery}
                   onChange={(e) => {
+                    if (!selectedCityId) return;
                     setZoneQuery(e.target.value);
                     setZoneOpen(true);
                   }}
-                  onFocus={() => selectedCityId && setZoneOpen(true)}
+                  onFocus={() => {
+                    if (selectedCityId) {
+                      setZoneOpen(true);
+                    }
+                  }}
                   onBlur={() => setTimeout(() => setZoneOpen(false), 150)}
                   disabled={!selectedCityId}
+                  readOnly={!selectedCityId}
                 />
                 <input type="hidden" {...register("pathao_zone_id")} />
-                {zoneOpen && selectedCityId && (
+                {zoneOpen && selectedCityId && zones.length > 0 && (
                   <div className="absolute z-30 w-full max-h-56 overflow-auto bg-white border rounded shadow mt-1">
                     {zonesLoading && (
                       <div className="p-2 text-sm text-gray-500">Loading...</div>
@@ -829,18 +852,24 @@ window.dataLayer.push({
                 <input
                   type="text"
                   placeholder={selectedZoneId ? "Select or search area" : "Select zone first"}
-                  className="border p-2 mb-1 rounded w-full"
+                  className={`border p-2 mb-1 rounded w-full ${!selectedZoneId ? "bg-gray-100 cursor-not-allowed" : ""}`}
                   value={areaQuery}
                   onChange={(e) => {
+                    if (!selectedZoneId) return;
                     setAreaQuery(e.target.value);
                     setAreaOpen(true);
                   }}
-                  onFocus={() => selectedZoneId && setAreaOpen(true)}
+                  onFocus={() => {
+                    if (selectedZoneId) {
+                      setAreaOpen(true);
+                    }
+                  }}
                   onBlur={() => setTimeout(() => setAreaOpen(false), 150)}
                   disabled={!selectedZoneId}
+                  readOnly={!selectedZoneId}
                 />
                 <input type="hidden" {...register("pathao_area_id")} />
-                {areaOpen && selectedZoneId && (
+                {areaOpen && selectedZoneId && areas.length > 0 && (
                   <div className="absolute z-30 w-full max-h-56 overflow-auto bg-white border rounded shadow mt-1">
                     {areasLoading && (
                       <div className="p-2 text-sm text-gray-500">Loading...</div>
