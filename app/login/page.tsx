@@ -114,7 +114,7 @@ const Page = () => {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-[#FF6B01] text-white py-2 sm:py-3 rounded-md font-semibold hover:bg-orange-600 transition text-sm sm:text-base disabled:opacity-60"
+                  className="btn-press-3d w-full bg-[#FF6B01] text-white py-2 sm:py-3 rounded-md font-semibold hover:bg-orange-600 transition text-sm sm:text-base disabled:opacity-60"
                 >
                   {loading ? "Logging in..." : "Login"}
                 </button>

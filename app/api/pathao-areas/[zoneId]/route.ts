@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
+import { getBearerToken } from "@/app/lib/auth-utils";
 
 // Proxies external pathao-areas API for a specific zone
 export async function GET(
@@ -16,15 +17,23 @@ export async function GET(
     );
   }
 
+  // Extract Bearer token from Authorization header (returns null for guest users)
+  const bearerToken = getBearerToken(req);
+  
+  // Build headers
+  const headers: Record<string, string> = {
+    "System-Key": SYSTEM_KEY,
+    "Cache-Control": "no-store",
+    Accept: "application/json",
+    ...(bearerToken && { Authorization: `Bearer ${bearerToken}` }),
+  };
+
   const zoneId = params.zoneId;
   const url = `${API_BASE}/pathao-areas/${zoneId}`;
 
   try {
     const response = await axios.get(url, {
-      headers: {
-        "System-Key": SYSTEM_KEY,
-        "Cache-Control": "no-store",
-      },
+      headers,
     });
     return NextResponse.json(response.data, { status: 200 });
   } catch (err: unknown) {

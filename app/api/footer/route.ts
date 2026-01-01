@@ -1,4 +1,5 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { getBearerToken } from "@/app/lib/auth-utils";
 
 const API_BASE = process.env.API_BASE;
 const SYSTEM_KEY = process.env.SYSTEM_KEY;
@@ -52,7 +53,7 @@ function isFooterField(type: string): type is FooterField {
   return FOOTER_FIELDS.has(type as FooterField);
 }
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
     if (!API_BASE || !SYSTEM_KEY) {
       return NextResponse.json(
@@ -61,12 +62,19 @@ export async function GET() {
       );
     }
 
+    // Extract Bearer token from Authorization header (returns null for guest users)
+    const bearerToken = getBearerToken(req);
+    
+    // Build headers
+    const headers: Record<string, string> = {
+      Accept: "application/json",
+      "System-Key": SYSTEM_KEY,
+      ...(bearerToken && { Authorization: `Bearer ${bearerToken}` }),
+    };
+
     const res = await fetch(`${API_BASE}/business-settings`, {
       method: "GET",
-      headers: {
-        Accept: "application/json",
-        "System-Key": SYSTEM_KEY,
-      },
+      headers,
       cache: "no-store",
     });
 

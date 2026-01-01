@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { LuCopy } from "react-icons/lu";
 import { useSearchParams } from 'next/navigation';
+import { useAuth } from '@/app/context/AuthContext';
 
 interface ShippingAddress {
   name: string;
@@ -72,6 +73,7 @@ interface OrderDetailsResponse {
 
 function OrderDetailsContent() {
   const searchParams = useSearchParams();
+  const { accessToken, loading: authLoading } = useAuth();
   const orderId = searchParams.get("id");
   const isInvoiceMode = searchParams.get("invoice") === "true";
 
@@ -80,6 +82,8 @@ function OrderDetailsContent() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (authLoading) return;
+
     if (!orderId) {
       setError("Order ID is required");
       setLoading(false);
@@ -87,9 +91,7 @@ function OrderDetailsContent() {
     }
 
     const fetchOrderDetails = async () => {
-      const token = typeof window !== "undefined" ? localStorage.getItem("like_auth_token") : null;
-      
-      if (!token) {
+      if (!accessToken) {
         setError("Please login to view order details");
         setLoading(false);
         return;
@@ -99,7 +101,7 @@ function OrderDetailsContent() {
         setLoading(true);
         const res = await fetch(`/api/orders/purchase-history-details/${orderId}`, {
           headers: {
-            "Authorization": `Bearer ${token}`,
+            "Authorization": `Bearer ${accessToken}`,
           },
         });
 
@@ -119,7 +121,7 @@ function OrderDetailsContent() {
     };
 
     fetchOrderDetails();
-  }, [orderId]);
+  }, [orderId, accessToken, authLoading]);
 
   const handleCopy = (code: string) => {
     navigator.clipboard.writeText(code);

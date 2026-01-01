@@ -1,5 +1,6 @@
 // app/api/products/[category]/route.ts
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { getBearerToken } from "@/app/lib/auth-utils";
 
 const API_BASE = process.env.API_BASE!;      // "http://sannai.test/api/v2"
 const SYSTEM_KEY = process.env.SYSTEM_KEY!;  // if your backend needs it
@@ -16,19 +17,26 @@ type ProductApi = {
   featured_specs?: unknown[];
 };
 export async function GET(
-  _req: Request,
+  req: NextRequest,
   { params }: { params: { category: string } }
 ) {
   const { category } = params; // e.g. "fast-charger-bvtzw"
 
   try {
+    // Extract Bearer token from Authorization header (returns null for guest users)
+    const bearerToken = getBearerToken(req);
+    
+    // Build headers
+    const headers: Record<string, string> = {
+      Accept: "application/json",
+      "System-Key": SYSTEM_KEY,
+      ...(bearerToken && { Authorization: `Bearer ${bearerToken}` }),
+    };
+
     const backendRes = await fetch(
       `${API_BASE}/products/category/${category}`,
       {
-        headers: {
-          Accept: "application/json",
-          "System-Key": SYSTEM_KEY,
-        },
+        headers,
         cache: "no-store",
       }
     );

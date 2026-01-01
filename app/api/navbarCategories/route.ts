@@ -1,22 +1,32 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { getBearerToken } from "@/app/lib/auth-utils";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
     const apiBase = process.env.API_BASE;
+    const systemKey = process.env.SYSTEM_KEY;
 
-    if (!apiBase) {
+    if (!apiBase || !systemKey) {
       return NextResponse.json(
-        { error: "API_BASE is missing in environment variables" },
+        { error: "API_BASE or SYSTEM_KEY is missing in environment variables" },
         { status: 500 }
       );
     }
 
+    // Extract Bearer token from Authorization header (returns null for guest users)
+    const bearerToken = getBearerToken(req);
+    
+    // Build headers
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+      "System-Key": systemKey,
+      Accept: "application/json",
+      ...(bearerToken && { Authorization: `Bearer ${bearerToken}` }),
+    };
+
     const response = await fetch(`${apiBase}/categories/menu`, {
       method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        "System-Key": process.env.SYSTEM_KEY ?? "",
-      },
+      headers,
       cache: "no-store",
     });
 

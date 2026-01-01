@@ -1,8 +1,9 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
+import { getBearerToken } from "@/app/lib/auth-utils";
 
 // Proxies external pathao-cities API
-export async function GET() {
+export async function GET(req: NextRequest) {
   const API_BASE = process.env.API_BASE;
   const SYSTEM_KEY = process.env.SYSTEM_KEY;
 
@@ -13,14 +14,22 @@ export async function GET() {
     );
   }
 
+  // Extract Bearer token from Authorization header (returns null for guest users)
+  const bearerToken = getBearerToken(req);
+  
+  // Build headers
+  const headers: Record<string, string> = {
+    "System-Key": SYSTEM_KEY,
+    "Cache-Control": "no-store",
+    Accept: "application/json",
+    ...(bearerToken && { Authorization: `Bearer ${bearerToken}` }),
+  };
+
   const url = `${API_BASE}/pathao-cities`;
 
   try {
     const response = await axios.get(url, {
-      headers: {
-        "System-Key": SYSTEM_KEY,
-        "Cache-Control": "no-store",
-      },
+      headers,
     });
     return NextResponse.json(response.data, { status: 200 });
   } catch (err: unknown) {

@@ -1,27 +1,31 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { getBearerToken } from "@/app/lib/auth-utils";
 
 const API_BASE = process.env.API_BASE!;
 const SYSTEM_KEY = process.env.SYSTEM_KEY!;
 
 
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
+    // Extract Bearer token from Authorization header (returns null for guest users)
+    const bearerToken = getBearerToken(req);
+    
+    // Build headers
+    const headers: Record<string, string> = {
+      Accept: "application/json",
+      "System-Key": SYSTEM_KEY,
+      ...(bearerToken && { Authorization: `Bearer ${bearerToken}` }),
+    };
  
     // Do both API calls at the same time
     const [categoriesRes, featuredRes] = await Promise.all([
       fetch(`${API_BASE}/categories`, {
-        headers: {
-          Accept: "application/json",
-          "System-Key": SYSTEM_KEY,
-        },
+        headers,
         cache: "no-store",
       }),
       fetch(`${API_BASE}/categories/featured`, {
-        headers: {
-          Accept: "application/json",
-          "System-Key": SYSTEM_KEY,
-        },
+        headers,
         cache: "no-store",
       }),
     ]);

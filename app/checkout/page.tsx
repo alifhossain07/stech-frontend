@@ -1,5 +1,7 @@
 "use client";
-import axios from "axios";
+import apiClient from "@/app/lib/api-client";
+import { fetchWithAuth } from "@/app/lib/fetch-client";
+import axios from "axios"; // Keep for axios.isAxiosError utility
 import Image from "next/image";
 import { useCart } from "@/app/context/CartContext";
 import { RiDeleteBin6Line } from "react-icons/ri";
@@ -155,7 +157,7 @@ const CheckoutPage: React.FC = () => {
     const loadCities = async () => {
       try {
         setCitiesLoading(true);
-        const res = await fetch("/api/pathao-cities", { cache: "no-store" });
+        const res = await fetchWithAuth("/api/pathao-cities", { cache: "no-store" });
         if (!res.ok) return;
         const json = await res.json();
         const list: PathaoCity[] = Array.isArray(json?.data) ? json.data : [];
@@ -200,7 +202,7 @@ const CheckoutPage: React.FC = () => {
     const loadZones = async () => {
       try {
         setZonesLoading(true);
-        const res = await fetch(`/api/pathao-zones/${selectedCityId}`, { cache: "no-store" });
+        const res = await fetchWithAuth(`/api/pathao-zones/${selectedCityId}`, { cache: "no-store" });
         if (!res.ok) return;
         const json = await res.json();
         const list: PathaoZone[] = Array.isArray(json?.data) ? json.data : [];
@@ -238,7 +240,7 @@ const CheckoutPage: React.FC = () => {
     const loadAreas = async () => {
       try {
         setAreasLoading(true);
-        const res = await fetch(`/api/pathao-areas/${selectedZoneId}`, { cache: "no-store" });
+        const res = await fetchWithAuth(`/api/pathao-areas/${selectedZoneId}`, { cache: "no-store" });
         if (!res.ok) return;
         const json = await res.json();
         const list: PathaoArea[] = Array.isArray(json?.data) ? json.data : [];
@@ -366,7 +368,7 @@ const CheckoutPage: React.FC = () => {
     let cancelled = false;
     const loadConfig = async () => {
       try {
-        const res = await fetch("/api/shipping-config", { cache: "no-store" });
+        const res = await fetchWithAuth("/api/shipping-config", { cache: "no-store" });
         if (!res.ok) return;
         const json = await res.json();
         const data = json?.data || json; // support either {result,data} or direct
@@ -426,7 +428,7 @@ const CheckoutPage: React.FC = () => {
  const validatePromoCode = async (code: string) => {
   try {
     setIsValidatingPromo(true);
-    const response = await axios.post<{ result: boolean; data?: CouponData; message?: string }>("/api/coupon-apply", {
+    const response = await apiClient.post<{ result: boolean; data?: CouponData; message?: string }>("/api/coupon-apply", {
       code: code.toUpperCase(),
     });
 
@@ -583,7 +585,7 @@ const CheckoutPage: React.FC = () => {
 
     try {
       setIsLoading(true);
-      const response = await axios.post("/api/orders", payload);
+      const response = await apiClient.post("/api/orders", payload);
 
       if (response.data.success && response.data.data?.result) {
         toast.success(response.data.data.message || "Order placed successfully! 🎉");

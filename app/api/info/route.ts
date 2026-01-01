@@ -1,4 +1,5 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { getBearerToken } from "@/app/lib/auth-utils";
 
 const API_BASE = process.env.API_BASE!;
 const SYSTEM_KEY = process.env.SYSTEM_KEY!;
@@ -14,15 +15,22 @@ interface BusinessSettingsResponse {
   data: BusinessSetting[];
 }
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
+    // Extract Bearer token from Authorization header (returns null for guest users)
+    const bearerToken = getBearerToken(req);
+    
+    // Build headers
+    const headers: Record<string, string> = {
+      Accept: "application/json",
+      "System-Key": SYSTEM_KEY,
+      ...(bearerToken && { Authorization: `Bearer ${bearerToken}` }),
+    };
+
     // Fetch business settings dynamically using environment variables
     const res = await fetch(`${API_BASE}/business-settings`, {
       method: "GET",
-      headers: {
-        Accept: "application/json",
-        "System-Key": SYSTEM_KEY,
-      },
+      headers,
       cache: "no-store",
     });
 

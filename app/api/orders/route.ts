@@ -1,6 +1,7 @@
 // /api/orders.ts
 import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
+import { getBearerToken } from "@/app/lib/auth-utils";
 
 interface OrderItem {
   id: number | string;
@@ -65,11 +66,22 @@ export async function POST(req: NextRequest) {
 
     console.log("Mapped payload to backend API:", payload);
 
+    // Extract Bearer token from Authorization header (returns null for guest users)
+    const bearerToken = getBearerToken(req);
+    
+    // Build headers:
+    // - System-Key: Always required for API access
+    // - Authorization: Only included if bearerToken is available (logged-in users)
+    //   Guest users can still place orders without Authorization header
+    const headers: Record<string, string> = {
+      "System-Key": SYSTEM_KEY,
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      ...(bearerToken && { Authorization: `Bearer ${bearerToken}` }),
+    };
+
     const response = await axios.post(`${API_BASE}/order/checkout`, payload, {
-      headers: {
-        "System-Key": SYSTEM_KEY,
-        "Content-Type": "application/json",
-      },
+      headers,
     });
 
     console.log("Backend URL", `${API_BASE}/order/checkout`);

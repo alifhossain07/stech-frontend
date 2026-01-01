@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getBearerToken } from "@/app/lib/auth-utils";
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,17 +15,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Extract Bearer token from Authorization header (returns null for guest users)
+    const bearerToken = getBearerToken(request);
+    
+    // Build headers
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'System-Key': systemKey,
+      Accept: 'application/json',
+      ...(bearerToken && { Authorization: `Bearer ${bearerToken}` }),
+    };
+
     console.log('Calling backend:', `${apiBase}/coupon-apply`); // Debug
 
     const response = await fetch(`${apiBase}/coupon-apply`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        // Try these headers - test which one works:
-        'Authorization': `Bearer ${systemKey}`,
-        'X-API-Key': systemKey,
-        'System-Key': systemKey, // Common custom header
-      },
+      headers,
       body: JSON.stringify({ code: code.toUpperCase() }),
     });
 

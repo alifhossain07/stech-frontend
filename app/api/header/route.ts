@@ -1,6 +1,7 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { getBearerToken } from "@/app/lib/auth-utils";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
     const apiBase = process.env.API_BASE;
     const systemKey = process.env.SYSTEM_KEY;
@@ -12,12 +13,20 @@ export async function GET() {
       );
     }
 
+    // Extract Bearer token from Authorization header (returns null for guest users)
+    const bearerToken = getBearerToken(req);
+    
+    // Build headers
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+      "System-Key": systemKey,
+      Accept: "application/json",
+      ...(bearerToken && { Authorization: `Bearer ${bearerToken}` }),
+    };
+
     const response = await fetch(`${apiBase}/header/logo`, {
       method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        "System-Key": systemKey, // REQUIRED
-      },
+      headers,
       cache: "no-store",
     });
 

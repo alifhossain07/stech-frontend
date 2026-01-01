@@ -531,7 +531,7 @@ const Navbar = () => {
             </div>
 
             <Link href="/offers"
-              className="flex items-center gap-1 text-white px-5 mr-5 py-2 rounded-xl text-sm"
+              className="btn-press-3d flex items-center gap-1 text-white px-5 mr-5 py-2 rounded-xl text-sm"
               style={{ background: "linear-gradient(to bottom, #FFD522, #FF6B01)" }}
             >
               <FiGift className="text-base mr-1 animate-pulseScaleColor" /> Offers
@@ -655,7 +655,12 @@ const Navbar = () => {
                             onMouseEnter={() => setHoveredSubcategory(sub.name)}
                             onMouseLeave={() => setHoveredSubcategory(null)}
                           >
-                            {sub.name}
+                            <span
+                              onClick={() => router.push(`/products/${sub.slug}`)}
+                              className="flex-1 cursor-pointer"
+                            >
+                              {sub.name}
+                            </span>
 
                             {sub.children?.length > 0 && <FiChevronRight className="text-gray-500 text-xs" />}
 
@@ -667,7 +672,11 @@ const Navbar = () => {
                               >
                                 <ul className="min-w-[160px] py-2">
                                   {sub.children?.map((child) => (
-                                    <li key={child.id} className="px-4 py-2 hover:bg-gray-100 text-sm">
+                                    <li
+                                      key={child.id}
+                                      className="px-4 py-2 hover:bg-gray-100 text-sm cursor-pointer"
+                                      onClick={() => router.push(`/products/${child.slug}`)}
+                                    >
                                       {child.name}
                                     </li>
                                   ))}
@@ -905,7 +914,7 @@ const Navbar = () => {
           Home
         </Link>
 
-        <Link href="/offers" className="flex flex-col items-center text-sm">
+        <Link href="/offers" className=" flex flex-col items-center text-sm">
           <FiGift className="text-2xl" />
           Offers
         </Link>
@@ -992,23 +1001,30 @@ const Navbar = () => {
                     <ul className="space-y-1">
                       {cat.subcategories.map((sub, subIndex) => (
                         <li key={subIndex}>
-                          <button
-                            className="flex justify-between w-full py-1 text-sm text-gray-600"
-                            onClick={() =>
-                              setExpandedSubcategory(
-                                expandedSubcategory === sub.name ? null : sub.name
-                              )
-                            }
-                          >
-                            {sub.name}
+                          <div className="flex justify-between w-full items-center">
+                            <span
+                              onClick={() => {
+                                router.push(`/products/${sub.slug}`);
+                                handleCloseMenu();
+                              }}
+                              className="flex-1 py-1 text-sm text-gray-600 cursor-pointer"
+                            >
+                              {sub.name}
+                            </span>
 
                             {sub.children?.length > 0 && (
                               <FiChevronDown
-                                className={`transition-transform ${expandedSubcategory === sub.name ? "rotate-180" : ""
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setExpandedSubcategory(
+                                    expandedSubcategory === sub.name ? null : sub.name
+                                  );
+                                }}
+                                className={`transition-transform cursor-pointer ${expandedSubcategory === sub.name ? "rotate-180" : ""
                                   }`}
                               />
                             )}
-                          </button>
+                          </div>
 
                           {/* SECOND LEVEL */}
                           <div
@@ -1019,7 +1035,14 @@ const Navbar = () => {
                           >
                             <ul className="space-y-1">
                               {sub.children?.map((child, cidx) => (
-                                <li key={cidx} className="py-1 text-sm text-gray-600">
+                                <li
+                                  key={cidx}
+                                  className="py-1 text-sm text-gray-600 cursor-pointer"
+                                  onClick={() => {
+                                    router.push(`/products/${child.slug}`);
+                                    handleCloseMenu();
+                                  }}
+                                >
                                   {child.name}
                                 </li>
                               ))}

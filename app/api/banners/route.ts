@@ -1,5 +1,6 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
+import { getBearerToken } from "@/app/lib/auth-utils";
 
 const API_BASE = process.env.API_BASE!;
 const SYSTEM_KEY = process.env.SYSTEM_KEY!;
@@ -31,17 +32,27 @@ type HomeBottomBanner = {
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
+    // Extract Bearer token from Authorization header (returns null for guest users)
+    const bearerToken = getBearerToken(req);
+    
+    // Build headers
+    const headers: Record<string, string> = {
+      "System-Key": SYSTEM_KEY,
+      Accept: "application/json",
+      ...(bearerToken && { Authorization: `Bearer ${bearerToken}` }),
+    };
+
     const [bannersRes, slidersRes, bottomBannerRes] = await Promise.all([
       axios.get(`${API_BASE}/banners`, {
-        headers: { "System-Key": SYSTEM_KEY },
+        headers,
       }),
       axios.get(`${API_BASE}/sliders`, {
-        headers: { "System-Key": SYSTEM_KEY },
+        headers,
       }),
       axios.get(`${API_BASE}/home-bottom-banner`, {
-        headers: { "System-Key": SYSTEM_KEY },
+        headers,
       }),
     ]);
 

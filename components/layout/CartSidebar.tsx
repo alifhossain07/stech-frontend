@@ -135,11 +135,11 @@ export default function CartSidebar({ externalOpen, setExternalOpen }: CartSideb
         {/* Messenger and WhatsApp Buttons */}
         
       </div>
-      <div className="fixed hidden lg:flex flex-col right-0 top-[62%] -translate-y-1/2 z-[10001] gap-3">
+      <div className="fixed hidden lg:flex flex-col right-0 top-[62%]  -translate-y-1/2 z-[10001] gap-3">
         
 
         {/* Messenger and WhatsApp Buttons */}
-        <div className="flex bg-orange-500 p-1 flex-row gap-1">
+        <div className="flex bg-orange-500 p-1 rounded-l-xl flex-row gap-1">
           {/* Messenger Button */}
           <a
             href={messengerNumber ? `https://m.me/${messengerNumber}` : "#"}
