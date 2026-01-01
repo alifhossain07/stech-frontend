@@ -22,7 +22,7 @@ import {
 
 import YouMayLike from "./YouMayLike";
 import FAQ from "./FAQ";
-// import Reviews from "./Reviews";
+import Reviews from "./Reviews";
 import ProductSkeleton from "./ProductSkeleton";
 
 
@@ -1058,9 +1058,9 @@ const colors = product.colors || [];
     </p>
   )}
 </div>
-            {/* <div className="scroll-mt-36" ref={reviewRef}>
-              <Reviews />
-            </div> */}
+            <div className="scroll-mt-36" ref={reviewRef}>
+              <Reviews slug={Array.isArray(slug) ? slug[0] : slug} />
+            </div>
           </div>
         </div>
 

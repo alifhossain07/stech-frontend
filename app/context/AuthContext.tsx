@@ -8,10 +8,10 @@ interface AuthContextValue {
   user: User | null;
   accessToken: string | null;
   loading: boolean;
-  login: (args: { login_by: "phone" | "email"; email: string; password: string }) => Promise<void>;
+  login: (args: { login_by: "phone"; phone: string; password: string }) => Promise<void>;
   signup: (args: {
     name: string;
-    register_by: "phone" | "email";
+    register_by: "phone";
     email_or_phone: string;
     password: string;
     password_confirmation: string;
@@ -56,8 +56,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const handleLogin = async (args: {
-    login_by: "phone" | "email";
-    email: string;
+    login_by: "phone";
+    phone: string;
     password: string;
   }) => {
     setLoading(true);
@@ -74,7 +74,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const handleSignup = async (args: {
     name: string;
-    register_by: "phone" | "email";
+    register_by: "phone";
     email_or_phone: string;
     password: string;
     password_confirmation: string;

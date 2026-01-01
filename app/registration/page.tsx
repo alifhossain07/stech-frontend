@@ -14,15 +14,12 @@ const Page = () => {
   const router = useRouter();
   const [form, setForm] = useState({
     name: "",
-    register_by: "phone" as "phone" | "email",
-    email_or_phone: "",
+    phone: "",
     password: "",
     password_confirmation: "",
   });
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
@@ -36,8 +33,8 @@ const Page = () => {
     try {
       await signup({
         name: form.name,
-        register_by: form.register_by,
-        email_or_phone: form.email_or_phone,
+        register_by: "phone",
+        email_or_phone: form.phone,
         password: form.password,
         password_confirmation: form.password_confirmation,
       });
@@ -85,39 +82,19 @@ const Page = () => {
                   />
                 </div>
 
-                {/* Register By */}
+                {/* Phone */}
                 <div className="relative">
                   <label
-                    htmlFor="register_by"
+                    htmlFor="phone"
                     className="absolute -top-2 left-3 bg-white px-1 text-xs text-gray-500"
                   >
-                    Register By
-                  </label>
-                  <select
-                    id="register_by"
-                    name="register_by"
-                    value={form.register_by}
-                    onChange={handleChange}
-                    className="w-full border border-gray-300 rounded-md px-4 py-3 sm:py-4 text-sm bg-white focus:border-[#FF6B01] focus:ring-1 focus:ring-[#FF6B01] outline-none"
-                  >
-                    <option value="phone">Phone</option>
-                    <option value="email">Email</option>
-                  </select>
-                </div>
-
-                {/* Email or Phone */}
-                <div className="relative">
-                  <label
-                    htmlFor="email_or_phone"
-                    className="absolute -top-2 left-3 bg-white px-1 text-xs text-gray-500"
-                  >
-                    Mobile Number or Email
+                    Mobile Number
                   </label>
                   <input
                     type="text"
-                    id="email_or_phone"
-                    name="email_or_phone"
-                    value={form.email_or_phone}
+                    id="phone"
+                    name="phone"
+                    value={form.phone}
                     onChange={handleChange}
                     placeholder="01645305138"
                     className="w-full border border-gray-300 rounded-md px-4 py-3 sm:py-4 text-sm focus:border-[#FF6B01] focus:ring-1 focus:ring-[#FF6B01] outline-none"

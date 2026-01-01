@@ -31,9 +31,9 @@ interface CheckoutFormData {
   payment: "online" | "cod";
   agreeTerms: boolean;
   promoCode?: string;
-  areaId?: number | null;
-  areaName?: string;
-  areaCountryId?: number | null;
+  pathao_city_id?: number | null;
+  pathao_zone_id?: number | null;
+  pathao_area_id?: number | null;
 }
 interface CouponData {
   id?: string;
@@ -56,9 +56,9 @@ const schema: yup.ObjectSchema<CheckoutFormData> = yup.object({
     .required("Mobile number is required"),
   email: yup.string().email("Invalid email").optional(),
   address: yup.string().required("Address is required"),
-  areaId: yup.number().typeError("Area is required").required("Area is required"),
-  areaName: yup.string().optional(),
-  areaCountryId: yup.number().nullable().optional(),
+  pathao_city_id: yup.number().typeError("City is required").required("City is required"),
+  pathao_zone_id: yup.number().typeError("Zone is required").required("Zone is required"),
+  pathao_area_id: yup.number().typeError("Area is required").required("Area is required"),
   shipping: yup
     .mixed<CheckoutFormData["shipping"]>()
     .required("Shipping method is required"),
@@ -114,37 +114,123 @@ const CheckoutPage: React.FC = () => {
       payment: "cod",
       agreeTerms: true,
       promoCode: "",
-      areaId: null,
-      areaName: "",
-      areaCountryId: null,
+      pathao_city_id: null,
+      pathao_zone_id: null,
+      pathao_area_id: null,
     },
   });
 
-  // ------------------------- Areas (Autocomplete) -------------------------
-  type AreaOption = { id: number; country_id: number; name: string };
-  const [areas, setAreas] = React.useState<AreaOption[]>([]);
-  const [suggestions, setSuggestions] = React.useState<AreaOption[]>([]);
-  const [areaQuery, setAreaQuery] = React.useState<string>("");
-  const [areasLoading, setAreasLoading] = React.useState<boolean>(false);
-  const [suggestLoading, setSuggestLoading] = React.useState<boolean>(false);
-  const [areaOpen, setAreaOpen] = React.useState<boolean>(false);
-  const debounceRef = React.useRef<number | undefined>(undefined);
-  const localFiltered = React.useMemo(() => {
-    const q = areaQuery.trim().toLowerCase();
-    if (!q) return areas;
-    return areas.filter((a) => a.name.toLowerCase().includes(q));
-  }, [areaQuery, areas]);
+  // ------------------------- Pathao Cities, Zones, Areas -------------------------
+  type PathaoCity = { id: number; name: string };
+  type PathaoZone = { id: number; city_id: number; name: string };
+  type PathaoArea = { id: number; zone_id: number; name: string };
 
+  const [cities, setCities] = React.useState<PathaoCity[]>([]);
+  const [zones, setZones] = React.useState<PathaoZone[]>([]);
+  const [areas, setAreas] = React.useState<PathaoArea[]>([]);
+  
+  const [cityQuery, setCityQuery] = React.useState<string>("");
+  const [zoneQuery, setZoneQuery] = React.useState<string>("");
+  const [areaQuery, setAreaQuery] = React.useState<string>("");
+  
+  const [citiesLoading, setCitiesLoading] = React.useState<boolean>(false);
+  const [zonesLoading, setZonesLoading] = React.useState<boolean>(false);
+  const [areasLoading, setAreasLoading] = React.useState<boolean>(false);
+  
+  const [cityOpen, setCityOpen] = React.useState<boolean>(false);
+  const [zoneOpen, setZoneOpen] = React.useState<boolean>(false);
+  const [areaOpen, setAreaOpen] = React.useState<boolean>(false);
+
+  const selectedCityId = watch("pathao_city_id");
+  const selectedZoneId = watch("pathao_zone_id");
+
+  // Load cities on mount
   React.useEffect(() => {
+    let cancelled = false;
+    const loadCities = async () => {
+      try {
+        setCitiesLoading(true);
+        const res = await fetch("/api/pathao-cities", { cache: "no-store" });
+        if (!res.ok) return;
+        const json = await res.json();
+        const list: PathaoCity[] = Array.isArray(json?.data) ? json.data : [];
+        if (!cancelled) setCities(list);
+      } catch {
+        // ignore
+      } finally {
+        setCitiesLoading(false);
+      }
+    };
+    loadCities();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Load zones when city is selected
+  React.useEffect(() => {
+    if (!selectedCityId) {
+      setZones([]);
+      setAreas([]);
+      setValue("pathao_zone_id", null);
+      setValue("pathao_area_id", null);
+      setZoneQuery("");
+      setAreaQuery("");
+      return;
+    }
+
+    let cancelled = false;
+    const loadZones = async () => {
+      try {
+        setZonesLoading(true);
+        const res = await fetch(`/api/pathao-zones/${selectedCityId}`, { cache: "no-store" });
+        if (!res.ok) return;
+        const json = await res.json();
+        const list: PathaoZone[] = Array.isArray(json?.data) ? json.data : [];
+        if (!cancelled) {
+          setZones(list);
+          // Reset zone and area when city changes
+          setValue("pathao_zone_id", null);
+          setValue("pathao_area_id", null);
+          setZoneQuery("");
+          setAreaQuery("");
+          setAreas([]);
+        }
+      } catch {
+        // ignore
+      } finally {
+        setZonesLoading(false);
+      }
+    };
+    loadZones();
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedCityId, setValue]);
+
+  // Load areas when zone is selected
+  React.useEffect(() => {
+    if (!selectedZoneId) {
+      setAreas([]);
+      setValue("pathao_area_id", null);
+      setAreaQuery("");
+      return;
+    }
+
     let cancelled = false;
     const loadAreas = async () => {
       try {
         setAreasLoading(true);
-        const res = await fetch("/api/areas", { cache: "no-store" });
+        const res = await fetch(`/api/pathao-areas/${selectedZoneId}`, { cache: "no-store" });
         if (!res.ok) return;
         const json = await res.json();
-        const list: AreaOption[] = Array.isArray(json?.data) ? json.data : [];
-        if (!cancelled) setAreas(list);
+        const list: PathaoArea[] = Array.isArray(json?.data) ? json.data : [];
+        if (!cancelled) {
+          setAreas(list);
+          // Reset area when zone changes
+          setValue("pathao_area_id", null);
+          setAreaQuery("");
+        }
       } catch {
         // ignore
       } finally {
@@ -155,46 +241,44 @@ const CheckoutPage: React.FC = () => {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [selectedZoneId, setValue]);
 
-  const runSuggestionFetch = React.useCallback(async (q: string) => {
-    if (!q) {
-      setSuggestions([]);
-      return;
-    }
-    try {
-      setSuggestLoading(true);
-      const res = await fetch(`/api/areas?name=${encodeURIComponent(q)}`, { cache: "no-store" });
-      if (!res.ok) return;
-      const json = await res.json();
-      const list: AreaOption[] = Array.isArray(json?.data) ? json.data : [];
-      setSuggestions(list);
-    } catch {
-      // ignore
-    } finally {
-      setSuggestLoading(false);
-    }
-  }, []);
+  // Filter cities based on query
+  const filteredCities = React.useMemo(() => {
+    const q = cityQuery.trim().toLowerCase();
+    if (!q) return cities;
+    return cities.filter((c) => c.name.toLowerCase().includes(q));
+  }, [cityQuery, cities]);
 
-  const handleAreaInputChange = (val: string) => {
-    setAreaQuery(val);
-    setAreaOpen(true);
-    // Debounce suggestions
-    if (debounceRef.current) window.clearTimeout(debounceRef.current);
-    debounceRef.current = window.setTimeout(() => runSuggestionFetch(val.trim()), 250);
+  // Filter zones based on query
+  const filteredZones = React.useMemo(() => {
+    const q = zoneQuery.trim().toLowerCase();
+    if (!q) return zones;
+    return zones.filter((z) => z.name.toLowerCase().includes(q));
+  }, [zoneQuery, zones]);
+
+  // Filter areas based on query
+  const filteredAreas = React.useMemo(() => {
+    const q = areaQuery.trim().toLowerCase();
+    if (!q) return areas;
+    return areas.filter((a) => a.name.toLowerCase().includes(q));
+  }, [areaQuery, areas]);
+
+  const handleSelectCity = (city: PathaoCity) => {
+    setCityQuery(city.name);
+    setValue("pathao_city_id", city.id, { shouldValidate: true });
+    setCityOpen(false);
   };
 
-  const handleSelectArea = (opt: AreaOption) => {
-    setAreaQuery(opt.name);
-    setValue("areaId", opt.id, { shouldValidate: true });
-    setValue("areaName", opt.name);
-    setValue("areaCountryId", opt.country_id);
-    // Auto set shipping based on country_id
-    if (opt.country_id === 1) {
-      setValue("shipping", "inside", { shouldValidate: true });
-    } else {
-      setValue("shipping", "outside", { shouldValidate: true });
-    }
+  const handleSelectZone = (zone: PathaoZone) => {
+    setZoneQuery(zone.name);
+    setValue("pathao_zone_id", zone.id, { shouldValidate: true });
+    setZoneOpen(false);
+  };
+
+  const handleSelectArea = (area: PathaoArea) => {
+    setAreaQuery(area.name);
+    setValue("pathao_area_id", area.id, { shouldValidate: true });
     setAreaOpen(false);
   };
 
@@ -203,6 +287,8 @@ const CheckoutPage: React.FC = () => {
   const [shippingConfig, setShippingConfig] = React.useState<{
     shipping_cost_inside_dhaka: number;
     shipping_cost_outside_dhaka: number;
+    stroked_shipping_cost_inside_dhaka?: number;
+    stroked_shipping_cost_outside_dhaka?: number;
     free_shipping_min_amount: number;
     currency_symbol?: string;
     currency_code?: string;
@@ -230,17 +316,27 @@ const CheckoutPage: React.FC = () => {
   // Shipping charges (dynamic from config)
   const insideDhaka = shippingConfig?.shipping_cost_inside_dhaka ?? 60;
   const outsideDhaka = shippingConfig?.shipping_cost_outside_dhaka ?? 140;
+  const strokedInsideDhaka = shippingConfig?.stroked_shipping_cost_inside_dhaka;
+  const strokedOutsideDhaka = shippingConfig?.stroked_shipping_cost_outside_dhaka;
   const freeMin = shippingConfig?.free_shipping_min_amount ?? 0;
   const currencySymbol = shippingConfig?.currency_symbol ?? "৳";
 
   let deliveryCharge = 0;
-  if (shippingMethod === "inside") deliveryCharge = insideDhaka;
-  else if (shippingMethod === "outside") deliveryCharge = outsideDhaka;
-  else if (shippingMethod === "free") deliveryCharge = 0;
+  let strokedDeliveryCharge: number | undefined = undefined;
+  if (shippingMethod === "inside") {
+    deliveryCharge = insideDhaka;
+    strokedDeliveryCharge = strokedInsideDhaka;
+  } else if (shippingMethod === "outside") {
+    deliveryCharge = outsideDhaka;
+    strokedDeliveryCharge = strokedOutsideDhaka;
+  } else if (shippingMethod === "free") {
+    deliveryCharge = 0;
+  }
 
   const merchandiseTotal = subtotal - discount;
   if (freeMin > 0 && merchandiseTotal >= freeMin) {
     deliveryCharge = 0;
+    strokedDeliveryCharge = undefined;
   }
 
   // ------------------------- Promo Code States & Logic -------------------------
@@ -371,9 +467,6 @@ const CheckoutPage: React.FC = () => {
     }
 
     // Build payload exactly like backend expects
-    const composedAddress = [data.address?.trim(), (data.areaName || "").trim()]
-      .filter(Boolean)
-      .join(", ");
     const shipping_zone =
       data.shipping === "inside" ? "insideDhaka" : data.shipping === "outside" ? "outsideDhaka" : null;
     const payload = {
@@ -381,12 +474,14 @@ const CheckoutPage: React.FC = () => {
         name: data.name,
         mobile: data.mobile,
         email: data.email || null,
-        address: composedAddress,
+        address: data.address?.trim() || "",
         country_id: null,
         state_id: null,
         city_id: null,
-        area_id: data.areaId ?? null,
-        postal_code: null,
+        area_id: null,
+        pathao_city_id: data.pathao_city_id ?? null,
+        pathao_zone_id: data.pathao_zone_id ?? null,
+        pathao_area_id: data.pathao_area_id ?? null,
       },
       items: selectedCart.map((item) => ({
         id: Number(item.id),
@@ -401,7 +496,7 @@ const CheckoutPage: React.FC = () => {
           : "pickup_point",
       shipping_zone,
       shipping_charge: effectiveDelivery,
-      payment_method: data.payment === "cod" ? "cash_on_delivery" : selectedPaymentMethod.toLowerCase(),
+      payment_method: data.payment === "cod" ? "Cash on Delivery" : selectedPaymentMethod.toLowerCase(),
       payment_number: data.payment === "cod" ? null : paymentNumber || null,
       promo_code: appliedPromo || null,
       coupon_data: couponData || null, // Real coupon data from API
@@ -468,7 +563,7 @@ window.dataLayer.push({
                 name: data.name,
                 mobile: data.mobile,
                 email: data.email || "",
-                address: composedAddress,
+                address: data.address?.trim() || "",
               },
               items: selectedCart.map((item) => ({
                 id: item.id,
@@ -646,56 +741,129 @@ window.dataLayer.push({
                 {...register("email")}
               />
               {errors.email && <p className="text-red-500 text-sm">{errors.email.message}</p>}
-              
+              <label>City*</label>
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Select or search city"
+                  className="border p-2 mb-1 rounded w-full"
+                  value={cityQuery}
+                  onChange={(e) => {
+                    setCityQuery(e.target.value);
+                    setCityOpen(true);
+                  }}
+                  onFocus={() => setCityOpen(true)}
+                  onBlur={() => setTimeout(() => setCityOpen(false), 150)}
+                />
+                <input type="hidden" {...register("pathao_city_id")} />
+                {cityOpen && (
+                  <div className="absolute z-30 w-full max-h-56 overflow-auto bg-white border rounded shadow mt-1">
+                    {citiesLoading && (
+                      <div className="p-2 text-sm text-gray-500">Loading...</div>
+                    )}
+                    {!citiesLoading && filteredCities.length === 0 && (
+                      <div className="p-2 text-sm text-gray-500">No cities found</div>
+                    )}
+                    {!citiesLoading && filteredCities.map((city) => (
+                      <button
+                        type="button"
+                        key={city.id}
+                        className="w-full text-left px-3 py-2 hover:bg-orange-50"
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={() => handleSelectCity(city)}
+                      >
+                        <span className="font-medium text-gray-800">{city.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+              {errors.pathao_city_id && (
+                <p className="text-red-500 text-sm">{String(errors.pathao_city_id.message)}</p>
+              )}
+
+              <label>Zone*</label>
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder={selectedCityId ? "Select or search zone" : "Select city first"}
+                  className="border p-2 mb-1 rounded w-full"
+                  value={zoneQuery}
+                  onChange={(e) => {
+                    setZoneQuery(e.target.value);
+                    setZoneOpen(true);
+                  }}
+                  onFocus={() => selectedCityId && setZoneOpen(true)}
+                  onBlur={() => setTimeout(() => setZoneOpen(false), 150)}
+                  disabled={!selectedCityId}
+                />
+                <input type="hidden" {...register("pathao_zone_id")} />
+                {zoneOpen && selectedCityId && (
+                  <div className="absolute z-30 w-full max-h-56 overflow-auto bg-white border rounded shadow mt-1">
+                    {zonesLoading && (
+                      <div className="p-2 text-sm text-gray-500">Loading...</div>
+                    )}
+                    {!zonesLoading && filteredZones.length === 0 && (
+                      <div className="p-2 text-sm text-gray-500">No zones found</div>
+                    )}
+                    {!zonesLoading && filteredZones.map((zone) => (
+                      <button
+                        type="button"
+                        key={zone.id}
+                        className="w-full text-left px-3 py-2 hover:bg-orange-50"
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={() => handleSelectZone(zone)}
+                      >
+                        <span className="font-medium text-gray-800">{zone.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+              {errors.pathao_zone_id && (
+                <p className="text-red-500 text-sm">{String(errors.pathao_zone_id.message)}</p>
+              )}
+
               <label>Area*</label>
               <div className="relative">
                 <input
                   type="text"
-                  placeholder="Select or search area"
+                  placeholder={selectedZoneId ? "Select or search area" : "Select zone first"}
                   className="border p-2 mb-1 rounded w-full"
                   value={areaQuery}
-                  onChange={(e) => handleAreaInputChange(e.target.value)}
-                  onFocus={() => setAreaOpen(true)}
+                  onChange={(e) => {
+                    setAreaQuery(e.target.value);
+                    setAreaOpen(true);
+                  }}
+                  onFocus={() => selectedZoneId && setAreaOpen(true)}
                   onBlur={() => setTimeout(() => setAreaOpen(false), 150)}
+                  disabled={!selectedZoneId}
                 />
-                {/* Hidden fields to bind with RHF */}
-                <input type="hidden" {...register("areaId")} />
-                <input type="hidden" {...register("areaName")} />
-                <input type="hidden" {...register("areaCountryId")} />
-
-                {areaOpen && (
-                  <div className="absolute z-20 w-full max-h-56 overflow-auto bg-white border rounded shadow mt-1">
-                    {(areasLoading || suggestLoading) && (
+                <input type="hidden" {...register("pathao_area_id")} />
+                {areaOpen && selectedZoneId && (
+                  <div className="absolute z-30 w-full max-h-56 overflow-auto bg-white border rounded shadow mt-1">
+                    {areasLoading && (
                       <div className="p-2 text-sm text-gray-500">Loading...</div>
                     )}
-                    {(() => {
-                      const q = areaQuery.trim();
-                      const list = q
-                        ? (suggestions.length > 0 ? suggestions : localFiltered)
-                        : areas;
-                      if (!areasLoading && !suggestLoading && list.length === 0) {
-                        return (
-                          <div className="p-2 text-sm text-gray-500">No areas found</div>
-                        );
-                      }
-                      return list.map((opt) => (
-                        <button
-                          type="button"
-                          key={opt.id}
-                          className="w-full text-left px-3 py-2 hover:bg-orange-50"
-                          onMouseDown={(e) => e.preventDefault()}
-                          onClick={() => handleSelectArea(opt)}
-                        >
-                          <span className="font-medium text-gray-800">{opt.name}</span>
-                          
-                        </button>
-                      ));
-                    })()}
+                    {!areasLoading && filteredAreas.length === 0 && (
+                      <div className="p-2 text-sm text-gray-500">No areas found</div>
+                    )}
+                    {!areasLoading && filteredAreas.map((area) => (
+                      <button
+                        type="button"
+                        key={area.id}
+                        className="w-full text-left px-3 py-2 hover:bg-orange-50"
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={() => handleSelectArea(area)}
+                      >
+                        <span className="font-medium text-gray-800">{area.name}</span>
+                      </button>
+                    ))}
                   </div>
                 )}
               </div>
-              {errors.areaId && (
-                <p className="text-red-500 text-sm">{String(errors.areaId.message)}</p>
+              {errors.pathao_area_id && (
+                <p className="text-red-500 text-sm">{String(errors.pathao_area_id.message)}</p>
               )}
               
               <label>Address*</label>
@@ -856,7 +1024,14 @@ window.dataLayer.push({
             </div>
             <div className="flex justify-between md:text-lg text-base mb-2">
               <span>Delivery Charge :</span>
-              <span>৳ {effectiveDelivery.toLocaleString()}</span>
+              <span className="flex items-center gap-2">
+                {strokedDeliveryCharge && strokedDeliveryCharge > effectiveDelivery && (
+                  <span className="line-through text-orange-500 text-md tracking-wide">
+                    ৳{strokedDeliveryCharge.toLocaleString()}
+                  </span>
+                )}
+                <span>৳ {effectiveDelivery.toLocaleString()}</span>
+              </span>
             </div>
             <div className="flex justify-between md:text-lg text-base mb-2">
               <span>Discount :</span>

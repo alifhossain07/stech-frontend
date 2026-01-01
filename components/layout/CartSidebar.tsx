@@ -5,6 +5,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { RiDeleteBin6Line } from "react-icons/ri";
+import { FaWhatsapp } from "react-icons/fa";
+import { SiMessenger } from "react-icons/si";
 
 interface CartSidebarProps {
   externalOpen: boolean;
@@ -25,11 +27,56 @@ interface CartItem {
 export default function CartSidebar({ externalOpen, setExternalOpen }: CartSidebarProps) {
   const { cart, increaseQty, decreaseQty, removeFromCart, selectedItems, setSelectedItems } = useCart();
   const [mounted, setMounted] = useState(false);
-
+  const [whatsappNumber, setWhatsappNumber] = useState<string | null>(null);
+  const [messengerNumber, setMessengerNumber] = useState<string | null>(null);
   useEffect(() => {
     setMounted(true);
   }, []);
 
+  // Fetch WhatsApp number from business-settings
+  useEffect(() => {
+    const fetchWhatsappNumber = async () => {
+      try {
+        const res = await fetch("/api/business-settings", { cache: "no-store" });
+        const json = await res.json();
+        
+        if (json.success && json.data) {
+          const whatsappSetting = json.data.find(
+            (setting: { type: string; value: string }) => setting.type === "whatsapp_number"
+          );
+          if (whatsappSetting?.value) {
+            setWhatsappNumber(whatsappSetting.value);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch WhatsApp number:", error);
+      }
+    };
+
+    fetchWhatsappNumber();
+  }, []);
+ // Fetch WhatsApp number from business-settings
+ useEffect(() => {
+  const fetchMessengerNumber = async () => {
+    try {
+      const res = await fetch("/api/business-settings", { cache: "no-store" });
+      const json = await res.json();
+      
+      if (json.success && json.data) {
+        const messengerSetting = json.data.find(
+          (setting: { type: string; value: string }) => setting.type === "facebook_messenger_chat"
+        );
+        if (messengerSetting?.value) {
+          setMessengerNumber(messengerSetting.value);
+        }
+      }
+    } catch (error) {
+      console.error("Failed to fetch WhatsApp number:", error);
+    }
+  };
+
+  fetchMessengerNumber();
+}, []);
   // When the sidebar opens, select all items by default
   useEffect(() => {
     if (externalOpen) {
@@ -63,26 +110,59 @@ export default function CartSidebar({ externalOpen, setExternalOpen }: CartSideb
   return (
     <>
       {/* Floating Cart Button */}
-      <button
-        onClick={() => setExternalOpen(true)}
-        className="fixed hidden lg:block right-0 top-1/2 -translate-y-1/2 z-[10001] shadow-lg rounded-l-xl overflow-hidden"
-      >
-        <div className="w-[90px]">
-          <div className="bg-black text-white flex flex-col items-center py-3">
-            <div className="w-[28px] h-[28px] flex items-center justify-center">
-              <Image src="/images/buy.png" alt="Cart Icon" width={28} height={28} />
+      <div className="fixed hidden lg:flex flex-col right-0 top-1/2 -translate-y-1/2 z-[10001] gap-3">
+        <button
+          onClick={() => setExternalOpen(true)}
+          className="shadow-lg rounded-l-xl overflow-hidden"
+        >
+          <div className="w-[90px]">
+            <div className="bg-black text-white flex flex-col items-center py-3">
+              <div className="w-[28px] h-[28px] flex items-center justify-center">
+                <Image src="/images/buy.png" alt="Cart Icon" width={28} height={28} />
+              </div>
+              <span className="text-xs mt-2">
+                *{mounted ? typedCart.length.toString().padStart(2, "0") : "00"} Items
+              </span>
             </div>
-            <span className="text-xs mt-2">
-              *{mounted ? typedCart.length.toString().padStart(2, "0") : "00"} Items
-            </span>
+            <div className="bg-orange-500 text-white text-center py-2 font-semibold">
+              {mounted
+                ? `৳${typedCart.reduce((acc, item) => acc + item.price * item.qty, 0).toLocaleString()}`
+                : "৳0"}
+            </div>
           </div>
-          <div className="bg-orange-500 text-white text-center py-2 font-semibold">
-            {mounted
-              ? `৳${typedCart.reduce((acc, item) => acc + item.price * item.qty, 0).toLocaleString()}`
-              : "৳0"}
-          </div>
+        </button>
+
+        {/* Messenger and WhatsApp Buttons */}
+        
+      </div>
+      <div className="fixed hidden lg:flex flex-col right-0 top-[62%] -translate-y-1/2 z-[10001] gap-3">
+        
+
+        {/* Messenger and WhatsApp Buttons */}
+        <div className="flex bg-orange-500 p-1 flex-row gap-1">
+          {/* Messenger Button */}
+          <a
+            href={messengerNumber ? `https://m.me/${messengerNumber}` : "#"}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-[40px] h-[40px] bg-white border-4 border-orange-500 rounded-full flex items-center justify-center shadow-lg hover:border-orange-400 transition-colors"
+            aria-label="Facebook Messenger"
+          >
+            <SiMessenger className="text-black text-[24px]" />
+          </a>
+
+          {/* WhatsApp Button */}
+          <a
+            href={whatsappNumber ? `https://wa.me/${whatsappNumber.replace(/[^0-9]/g, "")}` : "#"}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-[40px] h-[40px] bg-white border-4 border-orange-500 rounded-full flex items-center justify-center shadow-lg hover:border-orange-600 transition-colors"
+            aria-label="WhatsApp"
+          >
+            <FaWhatsapp className="text-black text-[24px]" />
+          </a>
         </div>
-      </button>
+      </div>
 
       {/* Overlay */}
       {externalOpen && (

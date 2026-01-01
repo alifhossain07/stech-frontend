@@ -12,8 +12,7 @@ const Page = () => {
   const { login, loading } = useAuth();
   const router = useRouter();
   const [form, setForm] = useState({
-    login_by: "phone" as "phone" | "email",
-    email: "",
+    phone: "",
     password: "",
   });
 
@@ -24,10 +23,22 @@ const Page = () => {
 
    const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Frontend validation
+    if (!form.phone || form.phone.trim() === "") {
+      toast.error("Phone number is required");
+      return;
+    }
+    
+    if (!form.password || form.password.trim() === "") {
+      toast.error("Password is required");
+      return;
+    }
+    
     try {
       await login({
-        login_by: form.login_by,
-        email: form.email,
+        login_by: "phone",
+        phone: form.phone.trim(),
         password: form.password,
       });
       toast.success("Logged in successfully");
@@ -54,20 +65,21 @@ const Page = () => {
             <div className="w-10/12 md:w-full xl:w-9/12  mx-auto md:mx-0">
               {/* Form */}
               <form className="space-y-5 sm:space-y-6" onSubmit={handleSubmit}>
-                {/* Name Field */}
+                {/* Phone Field */}
                 <div className="relative">
                   <label
-                    htmlFor="name"
+                    htmlFor="phone"
                     className="absolute -top-2 left-3 bg-white px-1 text-xs text-gray-500"
                   >
-                    Login with mobile number/e-mail
+                    Mobile Number
                   </label>
                   <input
                     type="text"
-                    id="email"
-                    name="email"
-                    value={form.email}
+                    id="phone"
+                    name="phone"
+                    value={form.phone}
                     onChange={handleChange}
+                    placeholder="01645305138"
                     className="w-full border border-gray-300 rounded-md px-4 py-3 sm:py-4 text-sm focus:border-[#FF6B01] focus:ring-1 focus:ring-[#FF6B01] outline-none"
                   />
                 </div>

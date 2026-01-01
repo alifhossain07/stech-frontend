@@ -35,17 +35,38 @@ export async function signup(payload: {
 }
 
 export async function login(payload: {
-  login_by: "phone" | "email";
-  email: string;
+  login_by: "phone";
+  phone: string;
   password: string;
 }): Promise<AuthResponse> {
+  // Client-side debugging
+  console.log("=== CLIENT-SIDE LOGIN DEBUG ===");
+  console.log("Login payload:", JSON.stringify(payload, null, 2));
+  console.log("Phone value:", payload.phone);
+  console.log("Phone type:", typeof payload.phone);
+  console.log("===============================");
+  
   const res = await fetch("/api/auth/login", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
-  if (!res.ok) throw new Error("Login failed");
-  return res.json();
+  
+  console.log("API Response status:", res.status);
+  
+  const data = await res.json();
+  console.log("API Response data:", data);
+  
+  // If the response is not ok, throw an error with the backend message
+  if (!res.ok || !data.result) {
+    const errorMessage = Array.isArray(data.message) 
+      ? data.message.join(", ") 
+      : data.message || "Login failed";
+    console.error("Login error:", errorMessage);
+    throw new Error(errorMessage);
+  }
+  
+  return data;
 }
 
 export async function fetchProfile(access_token: string): Promise<AuthResponse> {

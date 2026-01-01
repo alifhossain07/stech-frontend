@@ -14,15 +14,19 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json();
 
+    // Ensure phone-only registration
+    const signupBody = {
+      ...body,
+      register_by: "phone",
+    };
+
     const res = await fetch(`${apiBase}/auth/signup`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        // add the same style of auth you use elsewhere:
         "System-Key": systemKey,
-        // "Authorization": `Bearer ${systemKey}`, // uncomment if your auth APIs require this instead
       },
-      body: JSON.stringify(body),
+      body: JSON.stringify(signupBody),
     });
 
     const data = await res.json();
