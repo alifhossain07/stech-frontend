@@ -58,7 +58,7 @@ const schema: yup.ObjectSchema<CheckoutFormData> = yup.object({
   address: yup.string().required("Address is required"),
   pathao_city_id: yup.number().typeError("City is required").required("City is required"),
   pathao_zone_id: yup.number().typeError("Zone is required").required("Zone is required"),
-  pathao_area_id: yup.number().typeError("Area is required").required("Area is required"),
+  pathao_area_id: yup.number().nullable().optional(),
   shipping: yup
     .mixed<CheckoutFormData["shipping"]>()
     .required("Shipping method is required"),
@@ -141,8 +141,13 @@ const CheckoutPage: React.FC = () => {
   const [zoneOpen, setZoneOpen] = React.useState<boolean>(false);
   const [areaOpen, setAreaOpen] = React.useState<boolean>(false);
 
+  const [citySelected, setCitySelected] = React.useState<boolean>(false);
+  const [zoneSelected, setZoneSelected] = React.useState<boolean>(false);
+  const [areaSelected, setAreaSelected] = React.useState<boolean>(false);
+
   const selectedCityId = watch("pathao_city_id");
   const selectedZoneId = watch("pathao_zone_id");
+  const selectedAreaId = watch("pathao_area_id");
 
   // Load cities on mount
   React.useEffect(() => {
@@ -280,6 +285,7 @@ const CheckoutPage: React.FC = () => {
     setCityQuery(city.name);
     setValue("pathao_city_id", city.id, { shouldValidate: true });
     setCityOpen(false);
+    setCitySelected(true);
     
     // Auto set shipping based on city_id or city name
     // If city_id is 1 or city name is "Dhaka" (case-insensitive), set to "inside", else "outside"
@@ -287,17 +293,62 @@ const CheckoutPage: React.FC = () => {
     setValue("shipping", isDhaka ? "inside" : "outside", { shouldValidate: true });
   };
 
+  const handleClearCity = () => {
+    setCityQuery("");
+    setValue("pathao_city_id", null, { shouldValidate: true });
+    setCitySelected(false);
+    setValue("pathao_zone_id", null);
+    setValue("pathao_area_id", null);
+    setZoneQuery("");
+    setAreaQuery("");
+    setZoneSelected(false);
+    setAreaSelected(false);
+    setZones([]);
+    setAreas([]);
+  };
+
   const handleSelectZone = (zone: PathaoZone) => {
     setZoneQuery(zone.name);
     setValue("pathao_zone_id", zone.id, { shouldValidate: true });
     setZoneOpen(false);
+    setZoneSelected(true);
+  };
+
+  const handleClearZone = () => {
+    setZoneQuery("");
+    setValue("pathao_zone_id", null, { shouldValidate: true });
+    setZoneSelected(false);
+    setValue("pathao_area_id", null);
+    setAreaQuery("");
+    setAreaSelected(false);
+    setAreas([]);
   };
 
   const handleSelectArea = (area: PathaoArea) => {
     setAreaQuery(area.name);
     setValue("pathao_area_id", area.id, { shouldValidate: true });
     setAreaOpen(false);
+    setAreaSelected(true);
   };
+
+  const handleClearArea = () => {
+    setAreaQuery("");
+    setValue("pathao_area_id", null, { shouldValidate: true });
+    setAreaSelected(false);
+  };
+
+  // Update selected states when values change
+  React.useEffect(() => {
+    setCitySelected(!!selectedCityId);
+  }, [selectedCityId]);
+
+  React.useEffect(() => {
+    setZoneSelected(!!selectedZoneId);
+  }, [selectedZoneId]);
+
+  React.useEffect(() => {
+    setAreaSelected(!!selectedAreaId);
+  }, [selectedAreaId]);
 
   const shippingMethod = watch("shipping");
   // Dynamic shipping config
@@ -338,23 +389,32 @@ const CheckoutPage: React.FC = () => {
   const freeMin = shippingConfig?.free_shipping_min_amount ?? 0;
   const currencySymbol = shippingConfig?.currency_symbol ?? "৳";
 
-  let deliveryCharge = 0;
-  let strokedDeliveryCharge: number | undefined = undefined;
-  if (shippingMethod === "inside") {
-    deliveryCharge = insideDhaka;
-    strokedDeliveryCharge = strokedInsideDhaka;
-  } else if (shippingMethod === "outside") {
-    deliveryCharge = outsideDhaka;
-    strokedDeliveryCharge = strokedOutsideDhaka;
-  } else if (shippingMethod === "free") {
-    deliveryCharge = 0;
-  }
-
   const merchandiseTotal = subtotal - discount;
-  if (freeMin > 0 && merchandiseTotal >= freeMin) {
-    deliveryCharge = 0;
-    strokedDeliveryCharge = undefined;
-  }
+
+  // Calculate delivery charge based on shipping method - use useMemo to ensure it updates
+  const { deliveryCharge, strokedDeliveryCharge } = React.useMemo(() => {
+    let charge = 0;
+    let stroked: number | undefined = undefined;
+    
+    if (shippingMethod === "inside") {
+      charge = insideDhaka;
+      stroked = strokedInsideDhaka;
+    } else if (shippingMethod === "outside") {
+      charge = outsideDhaka;
+      stroked = strokedOutsideDhaka;
+    } else if (shippingMethod === "free") {
+      charge = 0;
+      stroked = undefined;
+    }
+
+    // Apply free shipping if applicable
+    if (freeMin > 0 && merchandiseTotal >= freeMin && charge > 0) {
+      charge = 0;
+      stroked = undefined;
+    }
+
+    return { deliveryCharge: charge, strokedDeliveryCharge: stroked };
+  }, [shippingMethod, insideDhaka, outsideDhaka, strokedInsideDhaka, strokedOutsideDhaka, freeMin, merchandiseTotal]);
 
   // ------------------------- Promo Code States & Logic -------------------------
   const [appliedPromo, setAppliedPromo] = React.useState<string | null>(null);
@@ -516,7 +576,6 @@ const CheckoutPage: React.FC = () => {
       payment_method: data.payment === "cod" ? "Cash on Delivery" : selectedPaymentMethod.toLowerCase(),
       payment_number: data.payment === "cod" ? null : paymentNumber || null,
       promo_code: appliedPromo || null,
-      coupon_data: couponData || null, // Real coupon data from API
       note: "",
       pickup_point_id: null,
       carrier_id: null,
@@ -763,17 +822,38 @@ window.dataLayer.push({
                 <input
                   type="text"
                   placeholder="Select or search city"
-                  className="border p-2 mb-1 rounded w-full"
+                  className={`border p-2 mb-1 rounded w-full pr-8 ${citySelected ? "bg-gray-50 cursor-default" : ""}`}
                   value={cityQuery}
                   onChange={(e) => {
+                    if (citySelected) return;
                     setCityQuery(e.target.value);
                     setCityOpen(true);
                   }}
-                  onFocus={() => setCityOpen(true)}
+                  onKeyDown={(e) => {
+                    if (citySelected && e.key !== "Escape") {
+                      e.preventDefault();
+                    }
+                  }}
+                  onFocus={() => {
+                    if (!citySelected) {
+                      setCityOpen(true);
+                    }
+                  }}
                   onBlur={() => setTimeout(() => setCityOpen(false), 150)}
+                  readOnly={citySelected}
                 />
+                {citySelected && (
+                  <button
+                    type="button"
+                    onClick={handleClearCity}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 text-xl font-bold"
+                    title="Clear selection"
+                  >
+                    ×
+                  </button>
+                )}
                 <input type="hidden" {...register("pathao_city_id")} />
-                {cityOpen && (
+                {cityOpen && !citySelected && (
                   <div className="absolute z-30 w-full max-h-56 overflow-auto bg-white border rounded shadow mt-1">
                     {citiesLoading && (
                       <div className="p-2 text-sm text-gray-500">Loading...</div>
@@ -804,24 +884,39 @@ window.dataLayer.push({
                 <input
                   type="text"
                   placeholder={selectedCityId ? "Select or search zone" : "Select city first"}
-                  className={`border p-2 mb-1 rounded w-full ${!selectedCityId ? "bg-gray-100 cursor-not-allowed" : ""}`}
+                  className={`border p-2 mb-1 rounded w-full pr-8 ${!selectedCityId ? "bg-gray-100 cursor-not-allowed" : zoneSelected ? "bg-gray-50 cursor-default" : ""}`}
                   value={zoneQuery}
                   onChange={(e) => {
-                    if (!selectedCityId) return;
+                    if (!selectedCityId || zoneSelected) return;
                     setZoneQuery(e.target.value);
                     setZoneOpen(true);
                   }}
+                  onKeyDown={(e) => {
+                    if (zoneSelected && e.key !== "Escape") {
+                      e.preventDefault();
+                    }
+                  }}
                   onFocus={() => {
-                    if (selectedCityId) {
+                    if (selectedCityId && !zoneSelected) {
                       setZoneOpen(true);
                     }
                   }}
                   onBlur={() => setTimeout(() => setZoneOpen(false), 150)}
                   disabled={!selectedCityId}
-                  readOnly={!selectedCityId}
+                  readOnly={!selectedCityId || zoneSelected}
                 />
+                {zoneSelected && (
+                  <button
+                    type="button"
+                    onClick={handleClearZone}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 text-xl font-bold"
+                    title="Clear selection"
+                  >
+                    ×
+                  </button>
+                )}
                 <input type="hidden" {...register("pathao_zone_id")} />
-                {zoneOpen && selectedCityId && zones.length > 0 && (
+                {zoneOpen && selectedCityId && !zoneSelected && zones.length > 0 && (
                   <div className="absolute z-30 w-full max-h-56 overflow-auto bg-white border rounded shadow mt-1">
                     {zonesLoading && (
                       <div className="p-2 text-sm text-gray-500">Loading...</div>
@@ -847,35 +942,53 @@ window.dataLayer.push({
                 <p className="text-red-500 text-sm">{String(errors.pathao_zone_id.message)}</p>
               )}
 
-              <label>Area*</label>
+              <label>Area (optional)</label>
               <div className="relative">
                 <input
                   type="text"
-                  placeholder={selectedZoneId ? "Select or search area" : "Select zone first"}
-                  className={`border p-2 mb-1 rounded w-full ${!selectedZoneId ? "bg-gray-100 cursor-not-allowed" : ""}`}
+                  placeholder={selectedZoneId ? "Select or search area (optional)" : "Select zone first"}
+                  className={`border p-2 mb-1 rounded w-full pr-8 ${!selectedZoneId ? "bg-gray-100 cursor-not-allowed" : areaSelected ? "bg-gray-50 cursor-default" : ""}`}
                   value={areaQuery}
                   onChange={(e) => {
-                    if (!selectedZoneId) return;
+                    if (!selectedZoneId || areaSelected) return;
                     setAreaQuery(e.target.value);
                     setAreaOpen(true);
                   }}
+                  onKeyDown={(e) => {
+                    if (areaSelected && e.key !== "Escape") {
+                      e.preventDefault();
+                    }
+                  }}
                   onFocus={() => {
-                    if (selectedZoneId) {
+                    if (selectedZoneId && !areaSelected) {
                       setAreaOpen(true);
                     }
                   }}
                   onBlur={() => setTimeout(() => setAreaOpen(false), 150)}
                   disabled={!selectedZoneId}
-                  readOnly={!selectedZoneId}
+                  readOnly={!selectedZoneId || areaSelected}
                 />
+                {areaSelected && (
+                  <button
+                    type="button"
+                    onClick={handleClearArea}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 text-xl font-bold"
+                    title="Clear selection"
+                  >
+                    ×
+                  </button>
+                )}
                 <input type="hidden" {...register("pathao_area_id")} />
-                {areaOpen && selectedZoneId && areas.length > 0 && (
+                {areaOpen && selectedZoneId && !areaSelected && (
                   <div className="absolute z-30 w-full max-h-56 overflow-auto bg-white border rounded shadow mt-1">
                     {areasLoading && (
                       <div className="p-2 text-sm text-gray-500">Loading...</div>
                     )}
-                    {!areasLoading && filteredAreas.length === 0 && (
-                      <div className="p-2 text-sm text-gray-500">No areas found</div>
+                    {!areasLoading && areas.length === 0 && (
+                      <div className="p-2 text-sm text-gray-500">No areas available for this zone. You can proceed without selecting an area.</div>
+                    )}
+                    {!areasLoading && areas.length > 0 && filteredAreas.length === 0 && (
+                      <div className="p-2 text-sm text-gray-500">No areas found matching your search</div>
                     )}
                     {!areasLoading && filteredAreas.map((area) => (
                       <button
@@ -1054,12 +1167,12 @@ window.dataLayer.push({
             <div className="flex justify-between md:text-lg text-base mb-2">
               <span>Delivery Charge :</span>
               <span className="flex items-center gap-2">
-                {strokedDeliveryCharge && strokedDeliveryCharge > effectiveDelivery && (
-                  <span className="line-through text-orange-500 text-md tracking-wide">
+                {strokedDeliveryCharge && strokedDeliveryCharge > deliveryCharge && deliveryCharge > 0 && (
+                  <span className="line-through text-gray-400 text-md tracking-wide">
                     ৳{strokedDeliveryCharge.toLocaleString()}
                   </span>
                 )}
-                <span>৳ {effectiveDelivery.toLocaleString()}</span>
+                <span>৳ {deliveryCharge.toLocaleString()}</span>
               </span>
             </div>
             <div className="flex justify-between md:text-lg text-base mb-2">
