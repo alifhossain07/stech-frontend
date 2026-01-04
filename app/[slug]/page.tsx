@@ -2,7 +2,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import { RefObject } from "react";
 import { useCart } from "@/app/context/CartContext";
-import { useParams,useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import {
   FiChevronLeft,
@@ -56,7 +56,7 @@ interface ProductType {
   stroked_price: number;
   discount: string;
   brand: Brand;
-   product_compatible: string[];
+  product_compatible: string[];
   description: string;
   photos: { path: string }[];
   colors: string[];
@@ -64,13 +64,13 @@ interface ProductType {
   current_stock: number;
   est_shipping_time: number;
 
-   model_number?: string;
+  model_number?: string;
   connection_type?: string;
-  weight: number; 
+  weight: number;
   other_features?: string;
   faqs?: FAQItem[];
   variants: ProductVariant[];
-  thumbnail_image?: string; 
+  thumbnail_image?: string;
 }
 
 // Optional: Recently Viewed Products
@@ -85,12 +85,12 @@ interface ProductType {
 const Page = () => {
 
 
-const { slug } = useParams(); // <-- grabs slug from URL
-const router = useRouter();
-const { addToCart, setCartOpen,setSelectedItems } = useCart();
-const [product, setProduct] = useState<ProductType | null>(null);
- const [cartLoading, setCartLoading] = useState(false);
-  
+  const { slug } = useParams(); // <-- grabs slug from URL
+  const router = useRouter();
+  const { addToCart, setCartOpen, setSelectedItems } = useCart();
+  const [product, setProduct] = useState<ProductType | null>(null);
+  const [cartLoading, setCartLoading] = useState(false);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState("spec");
@@ -102,37 +102,66 @@ const [product, setProduct] = useState<ProductType | null>(null);
   const [selectedVariant, setSelectedVariant] = useState("");
   const [selectedColor, setSelectedColor] = useState("gray");
   const [quantity, setQuantity] = useState(1);
+  const [isInWishlist, setIsInWishlist] = useState(false);
+  const [wishlistLoading, setWishlistLoading] = useState(false);
+
   const increase = () => setQuantity((prev) => prev + 1);
   const decrease = () => setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
- 
- 
+
+
 
   useEffect(() => {
     if (!slug) return;
 
-   const fetchProduct = async () => {
-  setLoading(true);
-  try {
-    const res = await fetch(`/api/products/${slug}`);
-    if (!res.ok) throw new Error("Failed to fetch product");
+    const fetchProduct = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch(`/api/products/${slug}`);
+        if (!res.ok) throw new Error("Failed to fetch product");
 
-    const data: ProductType = await res.json(); // <-- explicitly typed
-    setProduct(data);
-    if (data.variants && data.variants.length > 0) {
-  setSelectedVariant(data.variants[0].variant);
-}
-  } catch (err: unknown) {   // <-- avoid 'any' here too
-    if (err instanceof Error) {
-      setError(err.message);
-    } else {
-      setError("Something went wrong");
-    }
-  } finally {
-    setLoading(false);
-  }
-};
+        const data: ProductType = await res.json(); // <-- explicitly typed
+        setProduct(data);
+        if (data.variants && data.variants.length > 0) {
+          setSelectedVariant(data.variants[0].variant);
+        }
+      } catch (err: unknown) {   // <-- avoid 'any' here too
+        if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError("Something went wrong");
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
 
     fetchProduct();
+
+    // Check wishlist status
+    // Check wishlist status
+    const checkWishlistStatus = async () => {
+      try {
+        const token = localStorage.getItem("sannai_auth_token");
+        if (!token) return;
+
+        const headers = {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        };
+        const res = await fetch(`/api/wishlists/check-product/${slug}`, { headers });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.is_in_wishlist) {
+            setIsInWishlist(true);
+          } else {
+            setIsInWishlist(false);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to check wishlist status", error);
+      }
+    };
+    checkWishlistStatus();
   }, [slug]);
   const scrollToSection = (ref: RefObject<HTMLDivElement>) => {
     ref.current?.scrollIntoView({
@@ -141,7 +170,7 @@ const [product, setProduct] = useState<ProductType | null>(null);
     });
   };
 
-    useEffect(() => {
+  useEffect(() => {
     if (!product) return;
 
     const variantObj = selectedVariant
@@ -173,69 +202,134 @@ const [product, setProduct] = useState<ProductType | null>(null);
     }
   }, [product, selectedVariant]);
 
-const shareUrl = typeof window !== 'undefined' ? encodeURIComponent(window.location.href) : '';
-const shareText = encodeURIComponent(`${product?.name || 'Check out this product'}`);
+  const shareUrl = typeof window !== 'undefined' ? encodeURIComponent(window.location.href) : '';
+  const shareText = encodeURIComponent(`${product?.name || 'Check out this product'}`);
 
-const shareOnPlatform = (platform: string) => {
-  let shareLink = '';
-  
-  switch (platform) {
-    case 'facebook':
-      shareLink = `https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`;
-      break;
-    case 'twitter': // Now X
-      shareLink = `https://x.com/intent/tweet?url=${shareUrl}&text=${shareText}`;
-      break;
-    case 'instagram':
-      // Instagram web doesn't support direct sharing - redirect to mobile app or profile
-      shareLink = `https://www.instagram.com/?url=${shareUrl}`;
-      break;
-    case 'youtube':
-      // YouTube primarily shares videos; use generic share or redirect
-      shareLink = `https://www.youtube.com/?url=${shareUrl}`;
-      break;
-    default:
-      return;
-  }
-  
-  window.open(shareLink, '_blank', 'width=600,height=400,menubar=no,toolbar=no');
-};
+  const shareOnPlatform = (platform: string) => {
+    let shareLink = '';
+
+    switch (platform) {
+      case 'facebook':
+        shareLink = `https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`;
+        break;
+      case 'twitter': // Now X
+        shareLink = `https://x.com/intent/tweet?url=${shareUrl}&text=${shareText}`;
+        break;
+      case 'instagram':
+        // Instagram web doesn't support direct sharing - redirect to mobile app or profile
+        shareLink = `https://www.instagram.com/?url=${shareUrl}`;
+        break;
+      case 'youtube':
+        // YouTube primarily shares videos; use generic share or redirect
+        shareLink = `https://www.youtube.com/?url=${shareUrl}`;
+        break;
+      default:
+        return;
+    }
+
+    window.open(shareLink, '_blank', 'width=600,height=400,menubar=no,toolbar=no');
+  };
 
   const parsePrice = (priceStr: string | number | null | undefined): number => {
-  if (typeof priceStr === 'number') return priceStr;
-  if (!priceStr) return 0;
-  
-  // Convert to string and clean
-  const cleaned = String(priceStr)
-    .replace(/[^\d.]/g, '')  // Remove all non-digits except decimal
-    .trim();
-  
-  const num = parseFloat(cleaned);
-  return isNaN(num) ? 0 : num;
-};
+    if (typeof priceStr === 'number') return priceStr;
+    if (!priceStr) return 0;
 
-const handleAdd = () => {
-  if (!product) return;
-  if (!slug || Array.isArray(slug)) return;
-  if (cartLoading) return; // prevent double click while loading
+    // Convert to string and clean
+    const cleaned = String(priceStr)
+      .replace(/[^\d.]/g, '')  // Remove all non-digits except decimal
+      .trim();
 
-  setCartLoading(true);
+    const num = parseFloat(cleaned);
+    return isNaN(num) ? 0 : num;
+  };
 
-  const effectivePrice = parsePrice(
-    selectedVariant
-      ? product.variants.find((v) => v.variant === selectedVariant)?.price ??
-          product.main_price
-      : product.main_price
-  );
+  const handleAdd = () => {
+    if (!product) return;
+    if (!slug || Array.isArray(slug)) return;
+    if (cartLoading) return; // prevent double click while loading
 
-  const image =
-    product.thumbnail_image ||
-    product.photos[0]?.path ||
-    "/images/placeholder.png";
+    setCartLoading(true);
 
-  setTimeout(() => {
+    const effectivePrice = parsePrice(
+      selectedVariant
+        ? product.variants.find((v) => v.variant === selectedVariant)?.price ??
+        product.main_price
+        : product.main_price
+    );
+
+    const image =
+      product.thumbnail_image ||
+      product.photos[0]?.path ||
+      "/images/placeholder.png";
+
+    setTimeout(() => {
+      addToCart({
+        id: product.id.toString(),
+        slug: String(slug),
+        name: product.name,
+        price: effectivePrice,
+        oldPrice: parsePrice(product.stroked_price),
+        img: image,
+        qty: quantity,
+        variant: selectedVariant || undefined,
+        variantImage: image,
+      });
+
+      if (typeof window !== "undefined") {
+        const variantObj = selectedVariant
+          ? product.variants.find((v) => v.variant === selectedVariant)
+          : undefined;
+
+        const item = {
+          item_id: product.id.toString(),
+          item_name: product.name,
+          item_brand: product.brand?.name || "",
+          item_category: "",
+          price: effectivePrice,
+          quantity,
+          item_variant: variantObj?.variant || "",
+          item_sku: variantObj?.sku || "",
+        };
+
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({
+          event: "add_to_cart",
+          ecommerce: {
+            currency: "BDT",
+            value: effectivePrice * quantity,
+            items: [item],
+          },
+        });
+      }
+
+
+      setCartOpen(true);
+      setCartLoading(false);
+    }, 1500);
+
+
+  };
+
+  const handleBuyNow = () => {
+    if (!product) return;
+    if (!slug || Array.isArray(slug)) return;
+
+    const effectivePrice = parsePrice(
+      selectedVariant
+        ? product.variants.find((v) => v.variant === selectedVariant)?.price ??
+        product.main_price
+        : product.main_price
+    );
+
+    const image =
+      product.thumbnail_image ||
+      product.photos[0]?.path ||
+      "/images/placeholder.png";
+
+    const id = product.id.toString();
+
     addToCart({
-      id: product.id.toString(),
+      id,
       slug: String(slug),
       name: product.name,
       price: effectivePrice,
@@ -246,104 +340,39 @@ const handleAdd = () => {
       variantImage: image,
     });
 
-     if (typeof window !== "undefined") {
-    const variantObj = selectedVariant
-      ? product.variants.find((v) => v.variant === selectedVariant)
-      : undefined;
+    // Only this item should be checked at checkout
+    setSelectedItems([id]);
 
-    const item = {
-      item_id: product.id.toString(),
-      item_name: product.name,
-      item_brand: product.brand?.name || "",
-      item_category: "",
-      price: effectivePrice,
-      quantity,
-      item_variant: variantObj?.variant || "",
-      item_sku: variantObj?.sku || "",
-    };
+    if (typeof window !== "undefined") {
+      const variantObj = selectedVariant
+        ? product.variants.find((v) => v.variant === selectedVariant)
+        : undefined;
 
-    window.dataLayer = window.dataLayer || [];
-    window.dataLayer.push({
-      event: "add_to_cart",
-      ecommerce: {
-        currency: "BDT",
-        value: effectivePrice * quantity,
-        items: [item],
-      },
-    });
-  }
+      const item = {
+        item_id: product.id.toString(),
+        item_name: product.name,
+        item_brand: product.brand?.name || "",
+        item_category: "",
+        price: effectivePrice,
+        quantity,
+        item_variant: variantObj?.variant || "",
+        item_sku: variantObj?.sku || "",
+      };
 
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        event: "add_to_cart",
+        ecommerce: {
+          currency: "BDT",
+          value: effectivePrice * quantity,
+          items: [item],
+        },
+      });
+    }
 
-    setCartOpen(true);
-    setCartLoading(false);
-  }, 1500);
-  
- 
-};
+    router.push("/checkout");
+  };
 
-const handleBuyNow = () => {
-  if (!product) return;
-  if (!slug || Array.isArray(slug)) return;
-
-  const effectivePrice = parsePrice(
-    selectedVariant
-      ? product.variants.find((v) => v.variant === selectedVariant)?.price ??
-          product.main_price
-      : product.main_price
-  );
-
-  const image =
-    product.thumbnail_image ||
-    product.photos[0]?.path ||
-    "/images/placeholder.png";
-
-  const id = product.id.toString();
-
-  addToCart({
-    id,
-    slug: String(slug),
-    name: product.name,
-    price: effectivePrice,
-    oldPrice: parsePrice(product.stroked_price),
-    img: image,
-    qty: quantity,
-    variant: selectedVariant || undefined,
-    variantImage: image,
-  });
-
-  // Only this item should be checked at checkout
-  setSelectedItems([id]);
-
-  if (typeof window !== "undefined") {
-    const variantObj = selectedVariant
-      ? product.variants.find((v) => v.variant === selectedVariant)
-      : undefined;
-
-    const item = {
-      item_id: product.id.toString(),
-      item_name: product.name,
-      item_brand: product.brand?.name || "",
-      item_category: "",
-      price: effectivePrice,
-      quantity,
-      item_variant: variantObj?.variant || "",
-      item_sku: variantObj?.sku || "",
-    };
-
-    window.dataLayer = window.dataLayer || [];
-    window.dataLayer.push({
-      event: "add_to_cart",
-      ecommerce: {
-        currency: "BDT",
-        value: effectivePrice * quantity,
-        items: [item],
-      },
-    });
-  }
-
-  router.push("/checkout");
-};
-  
 
   const tabs = [
     { id: "spec", label: "Specification" },
@@ -392,15 +421,15 @@ const handleBuyNow = () => {
   if (loading) return <ProductSkeleton />;
   if (error) return <p className="text-center mt-10 text-red-500">{error}</p>;
   if (!product) return <p className="text-center mt-10">No product found</p>;
-let images = (product.photos || [])
-  .map((photo) => photo?.path)
-  .filter((p): p is string => !!p);
+  let images = (product.photos || [])
+    .map((photo) => photo?.path)
+    .filter((p): p is string => !!p);
 
-if (images.length === 0) {
-  images = [product.thumbnail_image || "/images/placeholder.png"];
-}
+  if (images.length === 0) {
+    images = [product.thumbnail_image || "/images/placeholder.png"];
+  }
 
-const colors = product.colors || [];
+  const colors = product.colors || [];
   return (
     <div className="md:mt-10 mt-5 w-11/12 mx-auto">
       {/* Product Details Container */}
@@ -462,30 +491,29 @@ const colors = product.colors || [];
 
           {/* Thumbnail Row */}
           <div className="h-[16%] w-full grid grid-cols-6 gap-4 mt-4">
-  {images.slice(0,6).map((img: string, index: number) => (
-    <div
-      key={index}
-      onClick={() => setSelectedImage(index)}
-      className={`relative cursor-pointer border-2 rounded-xl overflow-hidden transition-all duration-200 aspect-square flex items-center justify-center ${
-        selectedImage === index
-          ? "border-orange-500"
-          : "border-transparent hover:border-orange-400"
-      }`}
-    >
-      <Image
-        src={img}
-        alt={`Thumb ${index + 1}`}
-        width={100}
-        height={100}
-        className="object-contain w-full h-full p-1"
-      />
+            {images.slice(0, 6).map((img: string, index: number) => (
+              <div
+                key={index}
+                onClick={() => setSelectedImage(index)}
+                className={`relative cursor-pointer border-2 rounded-xl overflow-hidden transition-all duration-200 aspect-square flex items-center justify-center ${selectedImage === index
+                  ? "border-orange-500"
+                  : "border-transparent hover:border-orange-400"
+                  }`}
+              >
+                <Image
+                  src={img}
+                  alt={`Thumb ${index + 1}`}
+                  width={100}
+                  height={100}
+                  className="object-contain w-full h-full p-1"
+                />
 
-      {selectedImage === index && (
-        <div className="absolute inset-0 border-[3px] border-orange-500 rounded-xl pointer-events-none"></div>
-      )}
-    </div>
-  ))}
-</div>
+                {selectedImage === index && (
+                  <div className="absolute inset-0 border-[3px] border-orange-500 rounded-xl pointer-events-none"></div>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* ---------- Right: Product Details ---------- */}
@@ -510,15 +538,15 @@ const colors = product.colors || [];
             <div className="h-4 w-px bg-gray-300"></div>
 
             <div className="text-gray-700 font-medium">
-  Status:{" "}
-  {product.current_stock === 0 ? (
-    <span className="text-red-600 font-semibold">Stock Out</span>
-  ) : product.current_stock < 5 ? (
-    <span className="text-orange-500 font-semibold">Low Stock</span>
-  ) : (
-    <span className="text-green-600 font-semibold">In Stock</span>
-  )}
-</div>
+              Status:{" "}
+              {product.current_stock === 0 ? (
+                <span className="text-red-600 font-semibold">Stock Out</span>
+              ) : product.current_stock < 5 ? (
+                <span className="text-orange-500 font-semibold">Low Stock</span>
+              ) : (
+                <span className="text-green-600 font-semibold">In Stock</span>
+              )}
+            </div>
 
 
             <div className="h-4 w-px bg-gray-300"></div>
@@ -544,9 +572,9 @@ const colors = product.colors || [];
                 // Parse discount to check if it's 0 or empty
                 const discountValue = parseFloat(String(product.discount || '0').replace(/[^\d.]/g, ''));
                 const hasDiscount = discountValue > 0 && parsePrice(product.stroked_price) !== parsePrice(product.main_price);
-                
+
                 if (!hasDiscount) return null;
-                
+
                 return (
                   <>
                     {/* Discount Badge */}
@@ -556,7 +584,7 @@ const colors = product.colors || [];
 
                     {/* Old Price */}
                     <span className="text-gray-400 line-through  2xl:text-[16px] xl:text-[13px]">
-                     {product.stroked_price}
+                      {product.stroked_price}
                     </span>
                   </>
                 );
@@ -625,10 +653,52 @@ const colors = product.colors || [];
                   Add to Compare
                 </button>
 
-                <button className="flex items-center gap-1 hover:text-gray-700 transition">
+                <button
+                  onClick={async () => {
+                    if (!product || !slug || wishlistLoading) return;
+                    setWishlistLoading(true);
+
+                    try {
+                      const token = localStorage.getItem("sannai_auth_token");
+                      const headers = {
+                        "Content-Type": "application/json",
+                        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                      };
+
+                      // If already in wishlist, remove it
+                      if (isInWishlist) {
+                        const res = await fetch(`/api/wishlists/remove-product/${slug}`, { headers });
+                        const data = await res.json();
+                        if (data.is_in_wishlist === false) {
+                          setIsInWishlist(false);
+                          // You might want to show a toast here
+                          alert(data.message || "Removed from wishlist");
+                        }
+                      } else {
+                        // Add to wishlist
+                        const res = await fetch(`/api/wishlists/add-product/${slug}`, { headers });
+                        const data = await res.json();
+                        if (data.is_in_wishlist === true) {
+                          setIsInWishlist(true);
+                          // You might want to show a toast here
+                          alert(data.message || "Added to wishlist");
+                        }
+                      }
+                    } catch (err) {
+                      console.error("Wishlist operation failed", err);
+                      // Handle error (e.g. show toast)
+                      alert("Something went wrong with wishlist");
+                    } finally {
+                      setWishlistLoading(false);
+                    }
+                  }}
+                  className={`flex items-center gap-1 transition ${isInWishlist ? "text-red-500 hover:text-red-600" : "hover:text-gray-700"
+                    }`}
+                  disabled={wishlistLoading}
+                >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
+                    fill={isInWishlist ? "currentColor" : "none"}
                     viewBox="0 0 24 24"
                     strokeWidth={1.5}
                     stroke="currentColor"
@@ -640,7 +710,7 @@ const colors = product.colors || [];
                       d="M21 8.25c0-2.485-2.015-4.5-4.5-4.5a4.5 4.5 0 00-3.75 2.028A4.5 4.5 0 009 3.75C6.515 3.75 4.5 5.765 4.5 8.25c0 7.125 7.5 11.25 7.5 11.25s7.5-4.125 7.5-11.25z"
                     />
                   </svg>
-                  Add wishlist
+                  {wishlistLoading ? "Loading..." : isInWishlist ? "In Wishlist" : "Add wishlist"}
                 </button>
               </div>
             </div>
@@ -653,31 +723,30 @@ const colors = product.colors || [];
             </p>
             <div className="space-y-2">
               {/* Item 1 */}
-             {(product.featured_specs || []).slice(0, 5).map((item, index) => {
-  const iconSrc = item.icon || "/images/placeholder.png"; // or any default icon
+              {(product.featured_specs || []).slice(0, 5).map((item, index) => {
+                const iconSrc = item.icon || "/images/placeholder.png"; // or any default icon
 
-  return (
-    <div
-      key={index}
-      className="flex items-center gap-3 bg-[#f4f4f4] rounded-md 2xl:px-4 2xl:py-3 xl:px-4 xl:py-2 py-1"
-    >
-      <Image
-        src={iconSrc}
-        alt={item.text}
-        width={20}
-        height={20}
-        className="object-contain"
-      />
-      <span
-        className={`md:text-[16px] text-[12px] text-black ${
-          index === 4 ? "underline" : ""
-        }`}
-      >
-        {item.text}
-      </span>
-    </div>
-  );
-})}
+                return (
+                  <div
+                    key={index}
+                    className="flex items-center gap-3 bg-[#f4f4f4] rounded-md 2xl:px-4 2xl:py-3 xl:px-4 xl:py-2 py-1"
+                  >
+                    <Image
+                      src={iconSrc}
+                      alt={item.text}
+                      width={20}
+                      height={20}
+                      className="object-contain"
+                    />
+                    <span
+                      className={`md:text-[16px] text-[12px] text-black ${index === 4 ? "underline" : ""
+                        }`}
+                    >
+                      {item.text}
+                    </span>
+                  </div>
+                );
+              })}
 
             </div>
           </div>
@@ -685,70 +754,69 @@ const colors = product.colors || [];
           {/* Product Compatible */}
 
           <div className="bg-[#f4f4f4] rounded-xl p-4 mt-2">
-  <h1 className="tracking-wide text-[14px] font-medium mb-2">
-    Product Compatible
-  </h1>
+            <h1 className="tracking-wide text-[14px] font-medium mb-2">
+              Product Compatible
+            </h1>
 
-  <div className="flex flex-wrap gap-2 md:gap-4">
-    {product?.product_compatible?.map((brand) => (
-      <button
-        key={brand}
-        className="
+            <div className="flex flex-wrap gap-2 md:gap-4">
+              {product?.product_compatible?.map((brand) => (
+                <button
+                  key={brand}
+                  className="
           bg-black text-white rounded-full 
           px-3 py-[4px] text-[12px]       /* mobile */
           md:px-4 md:py-1 md:text-[16px]  /* md and up */
         "
-      >
-        {brand}
-      </button>
-    ))}
-  </div>
-</div>
+                >
+                  {brand}
+                </button>
+              ))}
+            </div>
+          </div>
 
           <div className="bg-gray-50 px-4 py-3 rounded-lg flex flex-wrap items-start justify-between gap-4 mt-3">
-  {/* Variants */}
-  <div className="flex items-start gap-3">
-    <span className="text-[14px] font-medium text-gray-700 mt-1 shrink-0">
-      Variants :
-    </span>
-    <div
-      className="
+            {/* Variants */}
+            <div className="flex items-start gap-3">
+              <span className="text-[14px] font-medium text-gray-700 mt-1 shrink-0">
+                Variants :
+              </span>
+              <div
+                className="
         flex gap-2 py-1
         overflow-x-auto whitespace-nowrap
         md:overflow-visible md:whitespace-normal md:flex-wrap
       "
-    >
-      {product.variants?.map((v) => (
-  <div key={v.sku || v.variant} className="relative group">
-    <button
-      onClick={() => setSelectedVariant(v.variant)}
-      className={`
+              >
+                {product.variants?.map((v) => (
+                  <div key={v.sku || v.variant} className="relative group">
+                    <button
+                      onClick={() => setSelectedVariant(v.variant)}
+                      className={`
         px-3 py-[4px] rounded-full text-[13px] font-medium border transition-all duration-200
         md:max-w-[140px] md:truncate
-        ${
-          selectedVariant === v.variant
-            ? "bg-gray-200 text-orange-500 border-orange-400"
-            : "bg-gray-100 text-gray-700 border-transparent hover:border-gray-300"
-        }
+        ${selectedVariant === v.variant
+                          ? "bg-gray-200 text-orange-500 border-orange-400"
+                          : "bg-gray-100 text-gray-700 border-transparent hover:border-gray-300"
+                        }
       `}
-    >
-      {v.variant}
-    </button>
+                    >
+                      {v.variant}
+                    </button>
 
-    {/* Tooltip */}
-    <div
-      className="
+                    {/* Tooltip */}
+                    <div
+                      className="
         pointer-events-none absolute left-1/2 top-full z-20 mt-1 -translate-x-1/2
         hidden whitespace-nowrap rounded-md bg-black px-2 py-1 text-xs text-white shadow-md
         group-hover:block
       "
-    >
-      {v.variant}
-    </div>
-  </div>
-))}
-    </div>
-  </div>
+                    >
+                      {v.variant}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
 
             {/* Colors */}
             <div className="flex items-center gap-3 ">
@@ -760,11 +828,10 @@ const colors = product.colors || [];
                   <button
                     key={color}
                     onClick={() => setSelectedColor(color)}
-                    className={`w-6 h-6 rounded-full border-[2px] transition-all duration-200 ${
-                      selectedColor === color
-                        ? "border-orange-500 scale-110"
-                        : "border-gray-300 hover:scale-105"
-                    }`}
+                    className={`w-6 h-6 rounded-full border-[2px] transition-all duration-200 ${selectedColor === color
+                      ? "border-orange-500 scale-110"
+                      : "border-gray-300 hover:scale-105"
+                      }`}
                     style={{ backgroundColor: color }}
                   ></button>
                 ))}
@@ -812,7 +879,7 @@ const colors = product.colors || [];
             <div className="flex items-center gap-3 md:gap-4">
               {/* Buy Now */}
               <button
-              onClick={handleBuyNow}
+                onClick={handleBuyNow}
                 className="
       flex items-center justify-center w-1/2
       bg-orange-500 hover:bg-orange-600 text-white font-medium
@@ -827,10 +894,10 @@ const colors = product.colors || [];
               </button>
 
               {/* Add to Cart */}
-             <button
-  onClick={handleAdd}
-  disabled={cartLoading}
-  className={`
+              <button
+                onClick={handleAdd}
+                disabled={cartLoading}
+                className={`
     flex items-center justify-center w-1/2
     border border-gray-400 hover:border-gray-600 text-gray-800 font-medium
     gap-2 rounded-full transition-all
@@ -838,19 +905,19 @@ const colors = product.colors || [];
     md:px-10 md:py-4 md:text-[15px]
     ${cartLoading ? "opacity-70 cursor-not-allowed" : ""}
   `}
->
-  {cartLoading ? (
-    <>
-      <span className="w-4 h-4 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
-      <span>Adding...</span>
-    </>
-  ) : (
-    <>
-      <FiPlus className="text-sm md:text-lg" />
-      <span>Add to Cart</span>
-    </>
-  )}
-</button>
+              >
+                {cartLoading ? (
+                  <>
+                    <span className="w-4 h-4 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
+                    <span>Adding...</span>
+                  </>
+                ) : (
+                  <>
+                    <FiPlus className="text-sm md:text-lg" />
+                    <span>Add to Cart</span>
+                  </>
+                )}
+              </button>
             </div>
 
             <div className="mt-8 space-y-6">
@@ -862,23 +929,23 @@ const colors = product.colors || [];
                     Share :
                   </span>
                   <div className="flex items-center gap-3 text-[22px] text-gray-800">
-  <FaFacebookF 
-    className="cursor-pointer hover:text-orange-500 transition-all" 
-    onClick={() => shareOnPlatform('facebook')}
-  />
-  <FaInstagram 
-    className="cursor-pointer hover:text-orange-500 transition-all" 
-    onClick={() => shareOnPlatform('instagram')}
-  />
-  <FaTwitter 
-    className="cursor-pointer hover:text-orange-500 transition-all" 
-    onClick={() => shareOnPlatform('twitter')}
-  />
-  <FaYoutube 
-    className="cursor-pointer hover:text-orange-500 transition-all" 
-    onClick={() => shareOnPlatform('youtube')}
-  />
-</div>
+                    <FaFacebookF
+                      className="cursor-pointer hover:text-orange-500 transition-all"
+                      onClick={() => shareOnPlatform('facebook')}
+                    />
+                    <FaInstagram
+                      className="cursor-pointer hover:text-orange-500 transition-all"
+                      onClick={() => shareOnPlatform('instagram')}
+                    />
+                    <FaTwitter
+                      className="cursor-pointer hover:text-orange-500 transition-all"
+                      onClick={() => shareOnPlatform('twitter')}
+                    />
+                    <FaYoutube
+                      className="cursor-pointer hover:text-orange-500 transition-all"
+                      onClick={() => shareOnPlatform('youtube')}
+                    />
+                  </div>
                 </div>
 
                 {/* WhatsApp Button */}
@@ -954,11 +1021,10 @@ const colors = product.colors || [];
                       scrollToSection(faqRef);
                     }
                   }}
-                  className={`md:py-4 py-3 text-[12px] md:text-base font-semibold rounded-md transition-all duration-200 ${
-                    activeTab === tab.id
-                      ? "bg-black text-white shadow-sm"
-                      : "bg-white text-gray-800 hover:bg-gray-200"
-                  }`}
+                  className={`md:py-4 py-3 text-[12px] md:text-base font-semibold rounded-md transition-all duration-200 ${activeTab === tab.id
+                    ? "bg-black text-white shadow-sm"
+                    : "bg-white text-gray-800 hover:bg-gray-200"
+                    }`}
                 >
                   {tab.label}
                 </button>
@@ -1039,25 +1105,25 @@ const colors = product.colors || [];
               className="w-full scroll-mt-36 font-medium  border-t border-gray-200 pt-4"
             >
               <h1 className="text-4xl font-bold mb-10">- Product Details</h1>
-             <div
-        className="prose max-w-none "
-        dangerouslySetInnerHTML={{ __html: product.description }}
-      />
-              
+              <div
+                className="prose max-w-none "
+                dangerouslySetInnerHTML={{ __html: product.description }}
+              />
+
             </div>
 
-            
-            
-            
-           <div className="scroll-mt-36" ref={faqRef}>
-  {product.faqs && product.faqs.length > 0 ? (
-    <FAQ faqs={product.faqs} />
-  ) : (
-    <p className="text-gray-500 text-center py-5">
-      No FAQs available for this product.
-    </p>
-  )}
-</div>
+
+
+
+            <div className="scroll-mt-36" ref={faqRef}>
+              {product.faqs && product.faqs.length > 0 ? (
+                <FAQ faqs={product.faqs} />
+              ) : (
+                <p className="text-gray-500 text-center py-5">
+                  No FAQs available for this product.
+                </p>
+              )}
+            </div>
             <div className="scroll-mt-36" ref={reviewRef}>
               <Reviews slug={Array.isArray(slug) ? slug[0] : slug} />
             </div>

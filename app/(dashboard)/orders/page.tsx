@@ -11,7 +11,7 @@ interface OrderItem {
   variation: string;
   price: string;
   quantity: number;
-  product_image?: string;
+  product_thumbnail_image?: string;
   thumbnail_image?: string;
 }
 
@@ -233,11 +233,7 @@ export default function OrdersPage() {
     return 'Your order is being processed';
   };
 
-  const getEstimatedDeliveryDate = (orderDate: string) => {
-    const date = new Date(orderDate.split('-').reverse().join('-'));
-    date.setDate(date.getDate() + 7); // Add 7 days for estimated delivery
-    return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
-  };
+
 
   const handleTrackOrder = (orderId: number) => {
     router.push(`/orderdetails?id=${orderId}`);
@@ -329,7 +325,7 @@ export default function OrdersPage() {
             <div key={order.id} className="bg-white border border-gray-200 rounded-xl overflow-hidden">
               {/* Order Summary Banner */}
               <div className="bg-gray-800 text-white p-4">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
                   <div>
                     <p className="text-gray-400 text-xs mb-1">Order ID</p>
                     <p className="font-semibold">#{order.code}</p>
@@ -342,10 +338,7 @@ export default function OrdersPage() {
                     <p className="text-gray-400 text-xs mb-1">Payment Method</p>
                     <p className="font-semibold">{order.payment_type}</p>
                   </div>
-                  <div>
-                    <p className="text-gray-400 text-xs mb-1">Estimated Delivery</p>
-                    <p className="font-semibold">{getEstimatedDeliveryDate(order.date)}</p>
-                  </div>
+                 
                 </div>
               </div>
 
@@ -374,7 +367,7 @@ export default function OrdersPage() {
                           {/* Product Image */}
                           <div className="w-16 h-16 bg-gray-100 rounded-lg flex-shrink-0 flex items-center justify-center overflow-hidden">
                             <Image
-                              src={item.product_image || item.thumbnail_image || "/images/placeholder.png"}
+                              src={item.product_thumbnail_image || item.thumbnail_image || "/images/placeholder.png"}
                               alt={item.product_name}
                               width={64}
                               height={64}

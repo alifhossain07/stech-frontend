@@ -45,27 +45,27 @@ export async function login(payload: {
   console.log("Phone value:", payload.phone);
   console.log("Phone type:", typeof payload.phone);
   console.log("===============================");
-  
+
   const res = await fetch("/api/auth/login", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
-  
+
   console.log("API Response status:", res.status);
-  
+
   const data = await res.json();
   console.log("API Response data:", data);
-  
+
   // If the response is not ok, throw an error with the backend message
   if (!res.ok || !data.result) {
-    const errorMessage = Array.isArray(data.message) 
-      ? data.message.join(", ") 
+    const errorMessage = Array.isArray(data.message)
+      ? data.message.join(", ")
       : data.message || "Login failed";
     console.error("Login error:", errorMessage);
     throw new Error(errorMessage);
   }
-  
+
   return data;
 }
 
@@ -76,5 +76,25 @@ export async function fetchProfile(access_token: string): Promise<AuthResponse> 
     body: JSON.stringify({ access_token }),
   });
   if (!res.ok) throw new Error("Fetching profile failed");
+  return res.json();
+}
+
+export async function updateProfile(
+  payload: {
+    name: string;
+    phone?: string;
+    password?: string;
+  },
+  access_token: string
+): Promise<AuthResponse> {
+  const res = await fetch("/api/profile/update", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${access_token}`
+    },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) throw new Error("Profile update failed");
   return res.json();
 }

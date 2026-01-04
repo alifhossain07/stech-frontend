@@ -232,7 +232,9 @@ const Footer = async () => {
             <div>
               <h3 className="text-md font-semibold mb-3">Terms</h3>
               <ul className="space-y-2 text-gray-400 text-sm">
-                <li className="hover:text-orange-500 cursor-pointer duration-300">Warranty</li>
+                <li className="hover:text-orange-500 cursor-pointer duration-300">
+                  <Link href="/footer/footerwarranty">Warranty</Link>
+                </li>
                 <li className="hover:text-orange-500 cursor-pointer duration-300">Shipping & Delivery</li>
                 <li className="hover:text-orange-500 cursor-pointer duration-300">Privacy Policy</li>
                 <li className="hover:text-orange-500 cursor-pointer duration-300">Terms & Conditions</li>

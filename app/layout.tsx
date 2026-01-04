@@ -10,8 +10,10 @@ import { Toaster } from "react-hot-toast";
 import ClientLayoutWrapper from "@/components/layout/ClientLayoutWrapper";
 import { CartProvider } from "./context/CartContext";
 import { AuthProvider } from "./context/AuthContext";
-// import GoogleAnalytics from "@/components/layout/GoogleAnalytics";
-// import GTM from "@/components/layout/GTM";
+import Script from "next/script";
+import FacebookPixelEvents from "@/components/layout/FacebookPixelEvents";
+import GTM from "@/components/layout/GTM";
+// Ensure this path matches your file structure
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -75,8 +77,6 @@ export async function generateMetadata(): Promise<Metadata> {
 
   const siteIcon = getMetaValue("site_icon");
 
-  // Build robust icon metadata with explicit type and sizes to avoid
-  // incorrect size inference in production builds.
   const resolveIconType = (url: string): string => {
     const lower = url.toLowerCase();
     if (lower.endsWith(".ico")) return "image/x-icon";
@@ -92,7 +92,6 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title,
     description,
-    // Explicitly set icon metadata to ensure browsers pick it up in production
     icons: {
       icon: [{ url: iconUrl, type: iconType, sizes: "any" }],
       shortcut: [{ url: iconUrl, type: iconType }],
@@ -108,13 +107,35 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" data-theme="light" suppressHydrationWarning>
+      <head>
+        {/* Meta Pixel NoScript Fallback */}
+        <noscript>
+          <img
+            height="1"
+            width="1"
+            style={{ display: "none" }}
+            src="https://www.facebook.com/tr?id=1102240858090249&ev=PageView&noscript=1"
+            alt=""
+          />
+        </noscript>
+      </head>
       <body className={`${poppins.variable} antialiased`}>
-        {/* <GoogleAnalytics id="G-S4ED028867" /> */}
-        {/* <GTM /> */}
+        {/* GTM Noscript Fallback - Must be as high in <body> as possible */}
+        <noscript>
+          <iframe
+            src="https://www.googletagmanager.com/ns.html?id=GTM-NWDSC8PR"
+            height="0"
+            width="0"
+            style={{ display: "none", visibility: "hidden" }}
+          />
+        </noscript>
+
         <AuthProvider>
           <CartProvider>
             <Navbar />
-            <ClientLayoutWrapper>{children}</ClientLayoutWrapper>
+            <ClientLayoutWrapper>
+              {children}
+            </ClientLayoutWrapper>
             <Footer />
             <Toaster
               position="top-right"
@@ -130,6 +151,31 @@ export default function RootLayout({
             />
           </CartProvider>
         </AuthProvider>
+
+        {/* Google Tag Manager Main Script */}
+        <GTM />
+
+        {/* Initialize Facebook Pixel */}
+        <Script
+          id="fb-pixel"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              !function(f,b,e,v,n,t,s)
+              {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+              n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+              if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+              n.queue=[];t=b.createElement(e);t.async=!0;
+              t.src=v;s=b.getElementsByTagName(e)[0];
+              s.parentNode.insertBefore(t,s)}(window, document,'script',
+              'https://connect.facebook.net/en_US/fbevents.js');
+              fbq('init', '1102240858090249');
+              fbq('track', 'PageView');
+            `,
+          }}
+        />
+        {/* Component to handle PageView on route changes */}
+        <FacebookPixelEvents />
       </body>
     </html>
   );

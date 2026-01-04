@@ -1,19 +1,148 @@
 "use client";
 import Image from "next/image";
+import { useState, useEffect } from "react";
 
-
- type CardProps = {
+type CardProps = {
   icon: string;
   title: string;
   text: string | string[];
 };
 
-export default function Page() {
+interface ContactPageData {
+  id: number;
+  title: string;
+  slug: string;
+  description: string;
+  form_title: string;
+  form_description: string;
+  submit_button_text: string;
+  address_label: string;
+  address: string;
+  address_icon: string;
+  phone_label: string;
+  phone: string;
+  phone_icon: string;
+  email_label: string;
+  email: string;
+  email_icon: string;
+  meta_title: string;
+  meta_description: string;
+  meta_image: string | null;
+  keywords: string;
+}
 
-   
+export default function Page() {
+  const [contactData, setContactData] = useState<ContactPageData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitMessage, setSubmitMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    content: "",
+  });
+
+  useEffect(() => {
+    fetchContactData();
+  }, []);
+
+  const fetchContactData = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch("/api/contact/page");
+      const result = await response.json();
+      
+      if (result.result && result.data) {
+        setContactData(result.data);
+      }
+    } catch (error) {
+      console.error("Error fetching contact data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    // Clear message when user starts typing
+    if (submitMessage) {
+      setSubmitMessage(null);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Validation
+    if (!formData.name.trim() || !formData.email.trim() || !formData.phone.trim() || !formData.content.trim()) {
+      setSubmitMessage({ type: "error", text: "Please fill in all required fields" });
+      return;
+    }
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      setSubmitMessage({ type: "error", text: "Please enter a valid email address" });
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+      setSubmitMessage(null);
+
+      const response = await fetch("/api/contact/store", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const result = await response.json();
+
+      if (result.result) {
+        setSubmitMessage({ type: "success", text: result.message || "Your message has been sent successfully!" });
+        // Reset form
+        setFormData({
+          name: "",
+          email: "",
+          phone: "",
+          content: "",
+        });
+      } else {
+        setSubmitMessage({ type: "error", text: result.message || "Failed to send message. Please try again." });
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      setSubmitMessage({ type: "error", text: "An error occurred. Please try again later." });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="w-11/12 mx-auto my-10 flex justify-center items-center min-h-[400px]">
+        <div className="text-lg text-gray-600">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!contactData) {
+    return (
+      <div className="w-11/12 mx-auto my-10 flex justify-center items-center min-h-[400px]">
+        <div className="text-lg text-red-600">Failed to load contact page data</div>
+      </div>
+    );
+  }
+
   return (
     <div className="w-11/12 mx-auto my-10">
-
       {/* ============================
           CONTACT FORM SECTION
       ============================= */}
@@ -39,23 +168,36 @@ export default function Page() {
             flex flex-col
           ">
             <h1 className="text-3xl md:text-4xl font-semibold text-orange-500 mb-3">
-              Get in touch
+              {contactData.form_title || "Get in touch"}
             </h1>
 
             <p className="text-base text-black leading-relaxed mb-6 w-full md:w-10/12">
-              Have an inquiry or some feedback for us? Fill out the form
-              below to contact our team. You may also email us at
-              <br />
-              <b>bdsannai@gmail.com</b>
+              {contactData.form_description || "Have an inquiry or some feedback for us? Fill out the form below to contact our team."}
             </p>
 
-            <div className="flex flex-col gap-4 flex-grow">
+            {submitMessage && (
+              <div
+                className={`mb-4 p-3 rounded-md ${
+                  submitMessage.type === "success"
+                    ? "bg-green-100 text-green-700 border border-green-300"
+                    : "bg-red-100 text-red-700 border border-red-300"
+                }`}
+              >
+                {submitMessage.text}
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4 flex-grow">
               {/* NAME */}
               <div>
                 <label className="text-lg text-[#434343] font-medium">Name *</label>
                 <input
                   type="text"
-                  className="w-full border rounded-md mt-1 p-3 focus:outline-none"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  className="w-full border rounded-md mt-1 p-3 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  required
                 />
               </div>
 
@@ -64,7 +206,11 @@ export default function Page() {
                 <label className="text-lg text-[#434343] font-medium">Phone Number *</label>
                 <input
                   type="text"
-                  className="w-full border rounded-md mt-1 p-3 focus:outline-none"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleInputChange}
+                  className="w-full border rounded-md mt-1 p-3 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  required
                 />
               </div>
 
@@ -73,7 +219,11 @@ export default function Page() {
                 <label className="text-lg text-[#434343] font-medium">Your E-mail *</label>
                 <input
                   type="email"
-                  className="w-full border rounded-md mt-1 p-3 focus:outline-none"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  className="w-full border rounded-md mt-1 p-3 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  required
                 />
               </div>
 
@@ -83,17 +233,25 @@ export default function Page() {
                   Your Message *
                 </label>
                 <textarea
-                  className="w-full border rounded-md mt-1 p-3 focus:outline-none resize-none h-40 md:h-full"
+                  name="content"
+                  value={formData.content}
+                  onChange={handleInputChange}
+                  className="w-full border rounded-md mt-1 p-3 focus:outline-none focus:ring-2 focus:ring-orange-500 resize-none h-40 md:h-full"
+                  required
                 ></textarea>
               </div>
-            </div>
 
-            {/* SEND BUTTON */}
-            <div className="mt-4 flex justify-end">
-              <button className="bg-orange-500 text-white px-6 py-3 rounded-md text-sm md:text-base">
-                Send
-              </button>
-            </div>
+              {/* SEND BUTTON */}
+              <div className="mt-4 flex justify-end">
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="bg-orange-500 text-white px-6 py-3 rounded-md text-sm md:text-base hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  {submitting ? "Sending..." : contactData.submit_button_text || "Send"}
+                </button>
+              </div>
+            </form>
           </div>
 
           {/* MAP SIDE */}
@@ -132,25 +290,25 @@ export default function Page() {
             place-items-center
           "
         >
-          {/* CARD 1 */}
+          {/* CARD 1 - ADDRESS */}
           <Card
-            icon="/images/location.png"
-            title="Office Address"
-            text="Level 4, Techdyno BD LTD, Haq’s Plaza, 4th Floor, 26 Kemal Ataturk Ave, Dhaka 1213"
+            icon={contactData.address_icon || "/images/location.png"}
+            title={contactData.address_label || "Office Address"}
+            text={contactData.address || ""}
           />
 
-          {/* CARD 2 */}
+          {/* CARD 2 - PHONE */}
           <Card
-            icon="/images/phones.png"
-            title="Support Number"
-            text={["+88001925739100", "+88001925739100"]}
+            icon={contactData.phone_icon || "/images/phones.png"}
+            title={contactData.phone_label || "Support Number"}
+            text={contactData.phone || ""}
           />
 
-          {/* CARD 3 */}
+          {/* CARD 3 - EMAIL */}
           <Card
-            icon="/images/mail.png"
-            title="Support E-mail"
-            text="hellortl@gmail.com"
+            icon={contactData.email_icon || "/images/mail.png"}
+            title={contactData.email_label || "Support E-mail"}
+            text={contactData.email || ""}
           />
         </div>
       </div>
@@ -163,8 +321,9 @@ export default function Page() {
 ============================= */
 
 function Card({ icon, title, text }: CardProps) {
-
-    const lines = Array.isArray(text) ? text : text.split("\n");
+  const [imageError, setImageError] = useState(false);
+  const lines = Array.isArray(text) ? text : text.split("\n");
+  
   return (
     <div
       className="
@@ -176,8 +335,21 @@ function Card({ icon, title, text }: CardProps) {
         px-6 py-10
       "
     >
-      <div className="md:w-[72px] md:h-[72px] w-[60px] h-[60px] rounded-full bg-orange-500 flex items-center justify-center mb-5">
-        <Image src={icon} alt={title} width={32} height={32} />
+      <div className="md:w-[72px] md:h-[72px] w-[60px] h-[60px] rounded-full  flex items-center justify-center mb-5">
+        {!imageError ? (
+          <Image
+            src={icon}
+            alt={title}
+            width={64}
+            height={64}
+            onError={() => setImageError(true)}
+            className="object-contain"
+          />
+        ) : (
+          <div className="text-white text-xl font-bold">
+            {title.charAt(0).toUpperCase()}
+          </div>
+        )}
       </div>
 
       <h3 className="text-[18px] md:text-[28px] font-semibold text-orange-500 mb-2">
@@ -185,10 +357,10 @@ function Card({ icon, title, text }: CardProps) {
       </h3>
 
       <div className="text-sm md:text-lg text-gray-700 leading-[22px] space-y-1">
-  {lines.map((line, i) => (
-    <div key={i}>{line}</div>
-  ))}
-</div>
+        {lines.map((line, i) => (
+          <div key={i}>{line}</div>
+        ))}
+      </div>
     </div>
   );
 }
