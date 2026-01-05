@@ -20,7 +20,8 @@ type HomeBottomBanner = {
 const NewsLetter = () => {
   const [open, setOpen] = useState(false);
   const [infoRows, setInfoRows] = useState<{ title: string; paragraph: string }[]>([]);
-  const formatTitle = (title: string) => {
+  const formatTitle = (title: string | null | undefined) => {
+    if (!title) return "";
     return title
       .replace(/\*(.*?)\*/g, (_, text) => {
         return `<span class="highlight-banner-text">${text}</span>`;
@@ -166,17 +167,15 @@ const NewsLetter = () => {
         </h1>
 
         <FiChevronDown
-          className={`text-white font-bold text-4xl mx-auto xl:mx-0 transition-transform duration-300 ${
-            open ? "rotate-180" : "rotate-0"
-          }`}
+          className={`text-white font-bold text-4xl mx-auto xl:mx-0 transition-transform duration-300 ${open ? "rotate-180" : "rotate-0"
+            }`}
         />
       </div>
 
       {/* DROPDOWN CONTENT */}
       <div
-        className={`overflow-hidden transition-all duration-500 ${
-          open ? "max-h-[2000px] opacity-100 mt-4" : "max-h-0 opacity-0"
-        }`}
+        className={`overflow-hidden transition-all duration-500 ${open ? "max-h-[2000px] opacity-100 mt-4" : "max-h-0 opacity-0"
+          }`}
       >
         <div className="p-6 bg-white rounded-md shadow-md">
           <div className="space-y-10">
