@@ -45,7 +45,7 @@ interface CouponData {
   min_order?: number;
   max_discount?: number;
   expiry_date?: string;
- 
+
 }
 
 
@@ -130,15 +130,15 @@ const CheckoutPage: React.FC = () => {
   const [cities, setCities] = React.useState<PathaoCity[]>([]);
   const [zones, setZones] = React.useState<PathaoZone[]>([]);
   const [areas, setAreas] = React.useState<PathaoArea[]>([]);
-  
+
   const [cityQuery, setCityQuery] = React.useState<string>("");
   const [zoneQuery, setZoneQuery] = React.useState<string>("");
   const [areaQuery, setAreaQuery] = React.useState<string>("");
-  
+
   const [citiesLoading, setCitiesLoading] = React.useState<boolean>(false);
   const [zonesLoading, setZonesLoading] = React.useState<boolean>(false);
   const [areasLoading, setAreasLoading] = React.useState<boolean>(false);
-  
+
   const [cityOpen, setCityOpen] = React.useState<boolean>(false);
   const [zoneOpen, setZoneOpen] = React.useState<boolean>(false);
   const [areaOpen, setAreaOpen] = React.useState<boolean>(false);
@@ -177,7 +177,7 @@ const CheckoutPage: React.FC = () => {
   // Auto-set shipping based on selected city
   React.useEffect(() => {
     if (!selectedCityId || cities.length === 0) return;
-    
+
     const selectedCity = cities.find(c => c.id === selectedCityId);
     if (selectedCity) {
       // If city_id is 1 or city name is "Dhaka" (case-insensitive), set to "inside", else "outside"
@@ -288,7 +288,7 @@ const CheckoutPage: React.FC = () => {
     setValue("pathao_city_id", city.id, { shouldValidate: true });
     setCityOpen(false);
     setCitySelected(true);
-    
+
     // Auto set shipping based on city_id or city name
     // If city_id is 1 or city name is "Dhaka" (case-insensitive), set to "inside", else "outside"
     const isDhaka = city.id === 1 || city.name.toLowerCase().trim() === "dhaka";
@@ -397,7 +397,7 @@ const CheckoutPage: React.FC = () => {
   const { deliveryCharge, strokedDeliveryCharge } = React.useMemo(() => {
     let charge = 0;
     let stroked: number | undefined = undefined;
-    
+
     if (shippingMethod === "inside") {
       charge = insideDhaka;
       stroked = strokedInsideDhaka;
@@ -425,66 +425,66 @@ const CheckoutPage: React.FC = () => {
   const [isValidatingPromo, setIsValidatingPromo] = React.useState(false);
 
   // Real API promo validation
- const validatePromoCode = async (code: string) => {
-  try {
-    setIsValidatingPromo(true);
-    const response = await apiClient.post<{ result: boolean; data?: CouponData; message?: string }>("/api/coupon-apply", {
-      code: code.toUpperCase(),
-    });
-
-    if (response.data.result) {
-      setCouponData(response.data.data!); // "!" because data exists if result is true
-      setAppliedPromo(code.toUpperCase());
-      toast.success(`Promo code "${code.toUpperCase()}" applied! 🎉`, {
-        style: {
-          background: "#22c55e",
-          color: "#ffffff",
-          fontWeight: 500,
-        },
+  const validatePromoCode = async (code: string) => {
+    try {
+      setIsValidatingPromo(true);
+      const response = await apiClient.post<{ result: boolean; data?: CouponData; message?: string }>("/api/coupon-apply", {
+        code: code.toUpperCase(),
       });
-      return true;
-    } else {
-      throw new Error(response.data.message || "Invalid coupon");
+
+      if (response.data.result) {
+        setCouponData(response.data.data!); // "!" because data exists if result is true
+        setAppliedPromo(code.toUpperCase());
+        toast.success(`Promo code "${code.toUpperCase()}" applied! 🎉`, {
+          style: {
+            background: "#22c55e",
+            color: "#ffffff",
+            fontWeight: 500,
+          },
+        });
+        return true;
+      } else {
+        throw new Error(response.data.message || "Invalid coupon");
+      }
+    } catch (error: unknown) {
+      setAppliedPromo(null);
+      setCouponData(null);
+      setPromoDiscount(0);
+
+      if (axios.isAxiosError(error)) {
+        // Axios-specific error
+        toast.error(error.response?.data?.message || "Invalid promo code ❌", {
+          style: {
+            background: "#ef4444",
+            color: "#ffffff",
+            fontWeight: 500,
+          },
+        });
+      } else if (error instanceof Error) {
+        // Regular JS error
+        toast.error(error.message || "Invalid promo code ❌", {
+          style: {
+            background: "#ef4444",
+            color: "#ffffff",
+            fontWeight: 500,
+          },
+        });
+      } else {
+        // Fallback
+        toast.error("Invalid promo code ❌", {
+          style: {
+            background: "#ef4444",
+            color: "#ffffff",
+            fontWeight: 500,
+          },
+        });
+      }
+
+      return false;
+    } finally {
+      setIsValidatingPromo(false);
     }
-  } catch (error: unknown) {
-    setAppliedPromo(null);
-    setCouponData(null);
-    setPromoDiscount(0);
-
-    if (axios.isAxiosError(error)) {
-      // Axios-specific error
-      toast.error(error.response?.data?.message || "Invalid promo code ❌", {
-        style: {
-          background: "#ef4444",
-          color: "#ffffff",
-          fontWeight: 500,
-        },
-      });
-    } else if (error instanceof Error) {
-      // Regular JS error
-      toast.error(error.message || "Invalid promo code ❌", {
-        style: {
-          background: "#ef4444",
-          color: "#ffffff",
-          fontWeight: 500,
-        },
-      });
-    } else {
-      // Fallback
-      toast.error("Invalid promo code ❌", {
-        style: {
-          background: "#ef4444",
-          color: "#ffffff",
-          fontWeight: 500,
-        },
-      });
-    }
-
-    return false;
-  } finally {
-    setIsValidatingPromo(false);
-  }
-};
+  };
 
   const handleApplyPromo = async () => {
     const code = watch("promoCode")?.toUpperCase().trim();
@@ -501,13 +501,13 @@ const CheckoutPage: React.FC = () => {
     if (couponData) {
       const baseAmount = subtotal - discount;
       let discountAmount = 0;
-      
+
       if (couponData.type === "percentage") {
         discountAmount = baseAmount * (couponData.value / 100);
       } else {
         discountAmount = couponData.value;
       }
-      
+
       setPromoDiscount(Math.min(discountAmount, baseAmount)); // Don't exceed base amount
     } else {
       setPromoDiscount(0);
@@ -516,6 +516,76 @@ const CheckoutPage: React.FC = () => {
 
   const effectiveDelivery = deliveryCharge;
   const total = subtotal - discount + effectiveDelivery - promoDiscount;
+
+  // ------------------------- Data Layer Events -------------------------
+  React.useEffect(() => {
+    if (typeof window !== "undefined" && selectedCart.length > 0) {
+      const items = selectedCart.map((item) => ({
+        item_id: item.id.toString(),
+        item_name: item.name,
+        price: item.price,
+        quantity: item.qty,
+        item_variant: item.variant || "",
+      }));
+
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        event: "begin_checkout",
+        ecommerce: {
+          currency: "BDT",
+          value: subtotal - discount,
+          items: items,
+        },
+      });
+    }
+  }, []); // Run once on mount
+
+  React.useEffect(() => {
+    if (typeof window !== "undefined" && shippingMethod && selectedCart.length > 0) {
+      const items = selectedCart.map((item) => ({
+        item_id: item.id.toString(),
+        item_name: item.name,
+        price: item.price,
+        quantity: item.qty,
+        item_variant: item.variant || "",
+      }));
+
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        event: "add_shipping_info",
+        ecommerce: {
+          currency: "BDT",
+          value: subtotal - discount,
+          shipping_tier: shippingMethod,
+          items: items,
+        },
+      });
+    }
+  }, [shippingMethod]);
+
+  const paymentMethod = watch("payment");
+  React.useEffect(() => {
+    if (typeof window !== "undefined" && paymentMethod && selectedCart.length > 0) {
+      const items = selectedCart.map((item) => ({
+        item_id: item.id.toString(),
+        item_name: item.name,
+        price: item.price,
+        quantity: item.qty,
+        item_variant: item.variant || "",
+      }));
+
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        event: "add_payment_info",
+        ecommerce: {
+          currency: "BDT",
+          value: subtotal - discount,
+          payment_type: paymentMethod === "cod" ? "Cash on Delivery" : "Online Payment",
+          items: items,
+        },
+      });
+    }
+  }, [paymentMethod]);
 
   // ------------------------- Payment Modal -------------------------
   const [showPaymentModal, setShowPaymentModal] = React.useState(false);
@@ -565,7 +635,7 @@ const CheckoutPage: React.FC = () => {
       items: selectedCart.map((item) => ({
         id: Number(item.id),
         qty: Number(item.qty),
-        variant:  item.variant || null,
+        variant: item.variant || null,
         variation: item.variant || null,
         referral_code: null,
       })),
@@ -612,28 +682,37 @@ const CheckoutPage: React.FC = () => {
             const shipping = effectiveDelivery;
             const value = subtotal - discount - promoDiscount + shipping;
 
-           window.dataLayer = window.dataLayer || [];
-window.dataLayer.push({
-  event: "purchase",
-  ecommerce: {
-    transaction_id: transactionId,
-    affiliation: "Online Store",
-    value,
-    tax: 0,
-    shipping,
-    currency: "BDT",
-    coupon: appliedPromo || "",
-    items: itemsForAnalytics,
-  },
-});
+            window.dataLayer = window.dataLayer || [];
+            window.dataLayer.push({
+              event: "purchase",
+              ecommerce: {
+                transaction_id: transactionId,
+                affiliation: "Online Store",
+                value,
+                tax: 0,
+                shipping,
+                currency: "BDT",
+                coupon: appliedPromo || "",
+                items: itemsForAnalytics,
+              },
+              customer: {
+                name: data.name,
+                email: data.email || "",
+                phone: data.mobile,
+                address: data.address,
+                city_id: data.pathao_city_id,
+                zone_id: data.pathao_zone_id,
+                area_id: data.pathao_area_id,
+              },
+            });
 
             // Persist minimal order summary for order-complete page
             const shippingMethodLabel =
               data.shipping === "inside"
                 ? "Inside Dhaka – Home Delivery"
                 : data.shipping === "outside"
-                ? "Outside Dhaka – Home Delivery"
-                : "Free Shipping / Pickup Point";
+                  ? "Outside Dhaka – Home Delivery"
+                  : "Free Shipping / Pickup Point";
 
             const orderSummary = {
               orderId: transactionId || null,
@@ -665,7 +744,7 @@ window.dataLayer.push({
 
             try {
               sessionStorage.setItem("lastOrder", JSON.stringify(orderSummary));
-            } catch {}
+            } catch { }
 
             // Navigate with orderId when available
             const nextHref = `/checkout/ordercomplete${transactionId ? `?orderId=${encodeURIComponent(transactionId)}` : ""}`;
@@ -748,10 +827,10 @@ window.dataLayer.push({
                 <div className="flex-1 space-y-1">
                   <h3 className="text-sm md:text-lg">{item.name}</h3>
                   {item.variant && (
-  <p className="text-xs text-gray-500 mt-1">
-    {item.variant}
-  </p>
-)}
+                    <p className="text-xs text-gray-500 mt-1">
+                      {item.variant}
+                    </p>
+                  )}
                   <div className="font-semibold text-orange-600 text-sm md:text-lg mt-1">
                     ৳{item.price}
                     <span className="line-through text-gray-400 ml-2 text-xs">৳{item.oldPrice}</span>
@@ -1009,7 +1088,7 @@ window.dataLayer.push({
               {errors.pathao_area_id && (
                 <p className="text-red-500 text-sm">{String(errors.pathao_area_id.message)}</p>
               )}
-              
+
               <label>Address*</label>
               <input
                 type="text"
@@ -1072,66 +1151,66 @@ window.dataLayer.push({
         <div className="flex flex-col gap-6">
           {/* Payment Method */}
           {/* Payment Method */}
-<div className="border rounded-md p-4 bg-white shadow-sm">
-  <h2 className="text-lg font-semibold mb-4">Payment Method</h2>
-  <Controller
-    name="payment"
-    control={control}
-    render={({ field }) => (
-      <>
-        {/* Online Payment Hidden and Disabled */}
-        <label className="hidden items-center gap-2 text-lg mb-6">
-          <input
-            type="radio"
-            value="online"
-            checked={field.value === "online"}
-            onChange={() => field.onChange("online")}
-            disabled
-          />
-          Online Payment*
-        </label>
+          <div className="border rounded-md p-4 bg-white shadow-sm">
+            <h2 className="text-lg font-semibold mb-4">Payment Method</h2>
+            <Controller
+              name="payment"
+              control={control}
+              render={({ field }) => (
+                <>
+                  {/* Online Payment Hidden and Disabled */}
+                  <label className="hidden items-center gap-2 text-lg mb-6">
+                    <input
+                      type="radio"
+                      value="online"
+                      checked={field.value === "online"}
+                      onChange={() => field.onChange("online")}
+                      disabled
+                    />
+                    Online Payment*
+                  </label>
 
-        {/* Payment logos hidden to clean up the UI */}
-        <div className="hidden gap-2 mb-5 items-center">
-          <h1 className="text-[#8f8f8f] text-sm">We Accept</h1>
-          <div className="flex items-center gap-2">
-            <Image src="/images/visa.png" alt="Visa" width={32} height={20} className="w-12 h-10 md:w-16 md:h-12 object-contain" />
-            <Image src="/images/mastercard.png" alt="Mastercard" width={32} height={20} className="w-12 h-10 md:w-16 md:h-12 object-contain" />
-            <Image src="/images/bkash.png" alt="bKash" width={32} height={20} className="w-12 h-10 md:w-16 md:h-12 object-contain" />
-            <Image src="/images/nagad.png" alt="Nagad" width={32} height={20} className="w-12 h-10 md:w-16 md:h-12 object-contain" />
+                  {/* Payment logos hidden to clean up the UI */}
+                  <div className="hidden gap-2 mb-5 items-center">
+                    <h1 className="text-[#8f8f8f] text-sm">We Accept</h1>
+                    <div className="flex items-center gap-2">
+                      <Image src="/images/visa.png" alt="Visa" width={32} height={20} className="w-12 h-10 md:w-16 md:h-12 object-contain" />
+                      <Image src="/images/mastercard.png" alt="Mastercard" width={32} height={20} className="w-12 h-10 md:w-16 md:h-12 object-contain" />
+                      <Image src="/images/bkash.png" alt="bKash" width={32} height={20} className="w-12 h-10 md:w-16 md:h-12 object-contain" />
+                      <Image src="/images/nagad.png" alt="Nagad" width={32} height={20} className="w-12 h-10 md:w-16 md:h-12 object-contain" />
+                    </div>
+                  </div>
+
+                  {/* Cash on Delivery - Visible and selected by default */}
+                  <label className="flex items-center gap-2 text-lg mb-6 cursor-pointer">
+                    <input
+                      type="radio"
+                      value="cod"
+                      checked={field.value === "cod"}
+                      onChange={() => field.onChange("cod")}
+                    />
+                    Cash On Delivery*
+                  </label>
+
+                  {errors.payment && (
+                    <p className="text-red-500 text-sm">{errors.payment.message}</p>
+                  )}
+                </>
+              )}
+            />
+
+            <label className="flex items-center gap-2 text-xs sm:text-sm flex-wrap">
+              <input type="checkbox" {...register("agreeTerms")} className="shrink-0" />
+              <span className="flex-1">
+                I have read & agree to the{" "}
+                <span className="text-orange-500">Terms & Conditions, Privacy Policy</span> and{" "}
+                <span className="text-orange-500">Return Policy</span>.
+              </span>
+            </label>
+            {errors.agreeTerms && (
+              <p className="text-red-500 text-sm">{errors.agreeTerms.message}</p>
+            )}
           </div>
-        </div>
-
-        {/* Cash on Delivery - Visible and selected by default */}
-        <label className="flex items-center gap-2 text-lg mb-6 cursor-pointer">
-          <input
-            type="radio"
-            value="cod"
-            checked={field.value === "cod"}
-            onChange={() => field.onChange("cod")}
-          />
-          Cash On Delivery*
-        </label>
-
-        {errors.payment && (
-          <p className="text-red-500 text-sm">{errors.payment.message}</p>
-        )}
-      </>
-    )}
-  />
-
-  <label className="flex items-center gap-2 text-xs sm:text-sm flex-wrap">
-    <input type="checkbox" {...register("agreeTerms")} className="shrink-0" />
-    <span className="flex-1">
-      I have read & agree to the{" "}
-      <span className="text-orange-500">Terms & Conditions, Privacy Policy</span> and{" "}
-      <span className="text-orange-500">Return Policy</span>.
-    </span>
-  </label>
-  {errors.agreeTerms && (
-    <p className="text-red-500 text-sm">{errors.agreeTerms.message}</p>
-  )}
-</div>
 
           {/* Promo Code */}
           <div className="border rounded-xl p-4 bg-white shadow-sm">
@@ -1193,9 +1272,8 @@ window.dataLayer.push({
             </div>
             <button
               type="submit"
-              className={`w-full bg-orange-500 text-white py-3 rounded-full font-semibold text-center mt-4 ${
-                !isValid ? "opacity-60 cursor-not-allowed" : ""
-              }`}
+              className={`w-full bg-orange-500 text-white py-3 rounded-full font-semibold text-center mt-4 ${!isValid ? "opacity-60 cursor-not-allowed" : ""
+                }`}
               disabled={!isValid || isLoading}
             >
               {isLoading ? "Processing..." : "Confirm Order"}
@@ -1219,11 +1297,10 @@ window.dataLayer.push({
                   key={method}
                   type="button"
                   onClick={() => setSelectedPaymentMethod(method)}
-                  className={`flex-1 p-2 border rounded hover:border-orange-500 flex items-center justify-center gap-2 ${
-                    selectedPaymentMethod === method
-                      ? "border-orange-500 bg-orange-50"
-                      : "border-gray-300"
-                  }`}
+                  className={`flex-1 p-2 border rounded hover:border-orange-500 flex items-center justify-center gap-2 ${selectedPaymentMethod === method
+                    ? "border-orange-500 bg-orange-50"
+                    : "border-gray-300"
+                    }`}
                 >
                   <Image
                     src={`/images/${method}.png`}

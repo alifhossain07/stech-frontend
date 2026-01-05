@@ -14,7 +14,7 @@ interface CartSidebarProps {
 }
 
 interface CartItem {
-  id: string | number; 
+  id: string | number;
   name: string;
   img: string;
   price: number;
@@ -39,7 +39,7 @@ export default function CartSidebar({ externalOpen, setExternalOpen }: CartSideb
       try {
         const res = await fetch("/api/business-settings", { cache: "no-store" });
         const json = await res.json();
-        
+
         if (json.success && json.data) {
           const whatsappSetting = json.data.find(
             (setting: { type: string; value: string }) => setting.type === "whatsapp_number"
@@ -55,32 +55,54 @@ export default function CartSidebar({ externalOpen, setExternalOpen }: CartSideb
 
     fetchWhatsappNumber();
   }, []);
- // Fetch WhatsApp number from business-settings
- useEffect(() => {
-  const fetchMessengerNumber = async () => {
-    try {
-      const res = await fetch("/api/business-settings", { cache: "no-store" });
-      const json = await res.json();
-      
-      if (json.success && json.data) {
-        const messengerSetting = json.data.find(
-          (setting: { type: string; value: string }) => setting.type === "facebook_messenger_chat"
-        );
-        if (messengerSetting?.value) {
-          setMessengerNumber(messengerSetting.value);
-        }
-      }
-    } catch (error) {
-      console.error("Failed to fetch WhatsApp number:", error);
-    }
-  };
+  // Fetch WhatsApp number from business-settings
+  useEffect(() => {
+    const fetchMessengerNumber = async () => {
+      try {
+        const res = await fetch("/api/business-settings", { cache: "no-store" });
+        const json = await res.json();
 
-  fetchMessengerNumber();
-}, []);
+        if (json.success && json.data) {
+          const messengerSetting = json.data.find(
+            (setting: { type: string; value: string }) => setting.type === "facebook_messenger_chat"
+          );
+          if (messengerSetting?.value) {
+            setMessengerNumber(messengerSetting.value);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch WhatsApp number:", error);
+      }
+    };
+
+    fetchMessengerNumber();
+  }, []);
   // When the sidebar opens, select all items by default
   useEffect(() => {
     if (externalOpen) {
       setSelectedItems(cart.map((item) => item.id));
+
+      if (typeof window !== "undefined" && cart.length > 0) {
+        const items = cart.map((item) => ({
+          item_id: item.id.toString(),
+          item_name: item.name,
+          price: item.price,
+          quantity: item.qty,
+          item_variant: item.variant || "",
+        }));
+
+        const totalValue = cart.reduce((acc, item) => acc + item.price * item.qty, 0);
+
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({
+          event: "view_cart",
+          ecommerce: {
+            currency: "BDT",
+            value: totalValue,
+            items: items,
+          },
+        });
+      }
     }
   }, [externalOpen, cart, setSelectedItems]);
 
@@ -133,10 +155,10 @@ export default function CartSidebar({ externalOpen, setExternalOpen }: CartSideb
         </button>
 
         {/* Messenger and WhatsApp Buttons */}
-        
+
       </div>
       <div className="fixed hidden lg:flex flex-col right-0 top-[62%]  -translate-y-1/2 z-[10001] gap-3">
-        
+
 
         {/* Messenger and WhatsApp Buttons */}
         <div className="flex bg-orange-500 p-1 rounded-l-xl flex-row gap-1">
@@ -171,9 +193,8 @@ export default function CartSidebar({ externalOpen, setExternalOpen }: CartSideb
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-0 right-0 h-full w-[360px] sm:w-[450px] bg-white shadow-xl z-[20000] transform transition-transform duration-300 ${
-          externalOpen ? "translate-x-0" : "translate-x-full"
-        }`}
+        className={`fixed top-0 right-0 h-full w-[360px] sm:w-[450px] bg-white shadow-xl z-[20000] transform transition-transform duration-300 ${externalOpen ? "translate-x-0" : "translate-x-full"
+          }`}
       >
         <div className="absolute top-0 left-0 w-full bg-orange-500 text-white px-5 py-4 flex items-center justify-between">
           <h2 className="text-lg font-semibold">Your Cart</h2>
@@ -194,15 +215,14 @@ export default function CartSidebar({ externalOpen, setExternalOpen }: CartSideb
         <div className="p-4 overflow-y-auto" style={{ height: "calc(100vh - 260px)" }}>
           {typedCart.map((item) => (
             <div
-  key={item.id}
-  className="flex gap-3 p-3 mb-3 items-center"
->
+              key={item.id}
+              className="flex gap-3 p-3 mb-3 items-center"
+            >
               {/* Checkbox */}
               <button
                 onClick={() => toggleSelect(item.id)}
-                className={`w-5 h-5 rounded-full border flex items-center justify-center flex-shrink-0 ${
-                  selectedItems.includes(item.id) ? "bg-orange-500 border-orange-500" : "border-gray-400"
-                }`}
+                className={`w-5 h-5 rounded-full border flex items-center justify-center flex-shrink-0 ${selectedItems.includes(item.id) ? "bg-orange-500 border-orange-500" : "border-gray-400"
+                  }`}
               >
                 {selectedItems.includes(item.id) && (
                   <span className="text-white text-xs font-bold">✓</span>
@@ -211,12 +231,12 @@ export default function CartSidebar({ externalOpen, setExternalOpen }: CartSideb
 
               <div className="min-w-[70px] w-20 aspect-square bg-gray-100 rounded-lg flex items-center justify-center">
                 <Image
-    src={item.variantImage || item.img}
-    alt={item.name}
-    width={70}
-    height={70}
-    className="object-contain"
-  />
+                  src={item.variantImage || item.img}
+                  alt={item.name}
+                  width={70}
+                  height={70}
+                  className="object-contain"
+                />
               </div>
 
               <div className="flex-1 min-w-0 flex flex-col">
@@ -272,11 +292,10 @@ export default function CartSidebar({ externalOpen, setExternalOpen }: CartSideb
             {/* Select All */}
             <button onClick={toggleSelectAll} className="flex items-center gap-2 text-sm">
               <span
-                className={`w-5 h-5 rounded-full border flex items-center justify-center ${
-                  selectedItems.length === typedCart.length && typedCart.length > 0
+                className={`w-5 h-5 rounded-full border flex items-center justify-center ${selectedItems.length === typedCart.length && typedCart.length > 0
                     ? "bg-orange-500 border-orange-500"
                     : "border-gray-400"
-                }`}
+                  }`}
               >
                 {selectedItems.length === typedCart.length && typedCart.length > 0 && (
                   <span className="text-white text-xs font-bold">✓</span>
@@ -305,11 +324,10 @@ export default function CartSidebar({ externalOpen, setExternalOpen }: CartSideb
           {/* Checkout Button */}
           <Link href="/checkout" onClick={() => setExternalOpen(false)}>
             <button
-              className={`w-full py-3 rounded-full text-white ${
-                selectedItems.length > 0
+              className={`w-full py-3 rounded-full text-white ${selectedItems.length > 0
                   ? "bg-orange-500 hover:bg-orange-600"
                   : "bg-gray-400 cursor-not-allowed"
-              }`}
+                }`}
               disabled={selectedItems.length === 0}
             >
               Checkout

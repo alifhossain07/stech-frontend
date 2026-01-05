@@ -30,8 +30,8 @@ type Product = {
 export default function ProductCard({ product }: { product: Product }) {
   // const { addToCart, setCartOpen } = useCart();
   // const [loading, setLoading] = useState(false);
-    const { addToCart, setSelectedItems } = useCart();
-    const router = useRouter();
+  const { addToCart, setSelectedItems } = useCart();
+  const router = useRouter();
   const [optionsOpen, setOptionsOpen] = useState(false);
 
   // const handleAdd = () => {
@@ -53,6 +53,27 @@ export default function ProductCard({ product }: { product: Product }) {
   //   }, 700);
   // };
 
+  const handleProductClick = () => {
+    if (typeof window !== "undefined") {
+      const item = {
+        item_id: product.id.toString(),
+        item_name: product.name,
+        item_brand: "", // Add brand if available
+        item_category: "", // Add category if available
+        price: product.price,
+        item_variant: "",
+      };
+
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        event: "select_item",
+        ecommerce: {
+          items: [item],
+        },
+      });
+    }
+  };
+
   const handleBuyNow = () => {
     const id = product.id; // or product.id.toString() if you use strings elsewhere
 
@@ -69,27 +90,27 @@ export default function ProductCard({ product }: { product: Product }) {
     // Make only this item selected for checkout
     setSelectedItems([id]);
     if (typeof window !== "undefined") {
-    const item = {
-      item_id: id.toString(),
-      item_name: product.name,
-      item_brand: "",
-      item_category: "",
-      price: product.price,
-      quantity: 1,
-      item_variant: "",
-      item_sku: "",
-    };
+      const item = {
+        item_id: id.toString(),
+        item_name: product.name,
+        item_brand: "",
+        item_category: "",
+        price: product.price,
+        quantity: 1,
+        item_variant: "",
+        item_sku: "",
+      };
 
-    window.dataLayer = window.dataLayer || [];
-    window.dataLayer.push({
-      event: "add_to_cart",
-      ecommerce: {
-        currency: "BDT",
-        value: product.price,
-        items: [item],
-      },
-    });
-  }
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        event: "add_to_cart",
+        ecommerce: {
+          currency: "BDT",
+          value: product.price,
+          items: [item],
+        },
+      });
+    }
 
 
     // Go straight to checkout
@@ -106,33 +127,34 @@ export default function ProductCard({ product }: { product: Product }) {
       <div className="relative w-full max-w-[350px] rounded-lg shadow-md border border-gray-200 flex flex-col">
         {/* FIXED IMAGE AREA */}
         <Link
-  href={`/${product.slug}`}
-  className="relative bg-gray-50 h-[180px] md:h-[220px] rounded-md flex items-center justify-center overflow-hidden"
->
-  <span className="absolute top-1.5 left-1.5 bg-[#FF6B01] text-white text-[10px] z-20 font-semibold px-1.5 py-0.5 rounded-full">
-    New Arrival
-  </span>
+          href={`/${product.slug}`}
+          onClick={handleProductClick}
+          className="relative bg-gray-50 h-[180px] md:h-[220px] rounded-md flex items-center justify-center overflow-hidden"
+        >
+          <span className="absolute top-1.5 left-1.5 bg-[#FF6B01] text-white text-[10px] z-20 font-semibold px-1.5 py-0.5 rounded-full">
+            New Arrival
+          </span>
 
-  <div className="relative w-full h-full">
-    <Image
-      src={product.image}
-      alt={product.name}
-      fill
-      className="object-contain transition-transform duration-300 hover:scale-110"
-      sizes="(max-width: 768px) 100vw, 50vw"
-    />
-  </div>
+          <div className="relative w-full h-full">
+            <Image
+              src={product.image}
+              alt={product.name}
+              fill
+              className="object-contain transition-transform duration-300 hover:scale-110"
+              sizes="(max-width: 768px) 100vw, 50vw"
+            />
+          </div>
 
-  <div className="absolute bottom-1.5 left-1.5 bg-white px-1.5 py-0.5 rounded-md flex items-center text-[10px] shadow-sm">
-    <span className="text-yellow-500 mr-0.5">★</span>
-    <span>{product.rating}</span>
-    <span className="text-gray-500 ml-0.5">{product.reviews}</span>
-  </div>
-</Link>
+          <div className="absolute bottom-1.5 left-1.5 bg-white px-1.5 py-0.5 rounded-md flex items-center text-[10px] shadow-sm">
+            <span className="text-yellow-500 mr-0.5">★</span>
+            <span>{product.rating}</span>
+            <span className="text-gray-500 ml-0.5">{product.reviews}</span>
+          </div>
+        </Link>
 
         <div className="p-3 flex flex-col flex-grow">
           {/* FIXED HEIGHT TITLE (2 LINES ALWAYS) */}
-          <Link href={`/${product.slug}`}>
+          <Link href={`/${product.slug}`} onClick={handleProductClick}>
             <h1 className="md:text-base text-sm mb-3 hover:text-orange-600 cursor-pointer hover:underline duration-300 font-semibold line-clamp-2 h-[45px]">
               {product.name}
             </h1>
@@ -158,13 +180,13 @@ export default function ProductCard({ product }: { product: Product }) {
             <h1 className="font-semibold text-sm md:text-lg">৳{product.price}</h1>
             {(() => {
               // Parse discount to check if it's 0 or empty
-              const discountValue = typeof product.discount === 'number' 
-                ? product.discount 
+              const discountValue = typeof product.discount === 'number'
+                ? product.discount
                 : parseFloat(String(product.discount || '0').replace(/[^\d.]/g, ''));
               const hasDiscount = discountValue > 0 && product.oldPrice !== product.price;
-              
+
               if (!hasDiscount) return null;
-              
+
               return (
                 <>
                   <p className="line-through text-sm md:text-lg text-[#939393]">
@@ -181,7 +203,7 @@ export default function ProductCard({ product }: { product: Product }) {
           {/* FIXED HEIGHT BUTTON ROW */}
           <div className="flex gap-2 h-[30px]  md:h-[42px]">
             {/* Buy Now */}
-            <button  onClick={handleBuyNow} className="flex items-center justify-center w-1/2 rounded-md text-white md:text-sm text-xs bg-[#FF6B01] md:py-1 hover:opacity-90 transition hover:bg-white hover:text-orange-500 hover:border hover:border-orange-500">
+            <button onClick={handleBuyNow} className="flex items-center justify-center w-1/2 rounded-md text-white md:text-sm text-xs bg-[#FF6B01] md:py-1 hover:opacity-90 transition hover:bg-white hover:text-orange-500 hover:border hover:border-orange-500">
               <span className="block xl:hidden text-xs">
                 <LuShoppingBag />
               </span>
