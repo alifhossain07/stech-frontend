@@ -19,15 +19,15 @@ const MissionVision = () => {
           Our Mission
         </h1>
 
-        <p className="2xl:text-xl xl:text-lg text-justify text-base leading-[32px] text-white">
+        <p className="2xl:text-xl xl:text-base text-justify text-base leading-[32px] text-white">
           At Sannai Technology, our mission is to provide innovative, reliable, and high-
-          quality mobile accessories that enhance the everyday digital lifestyle of our 
+          quality mobile accessories that enhance the everyday digital lifestyle of our
           customers. We are committed to blending advanced technology with modern
           design, ensuring that every product not only performs well but also adds value
           to the user experience. We strive to maintain the highest standards of customer
-          service, trust, and satisfaction, ensuring that every interaction with our brand 
-          builds long-term relationships. Through continuous research, improvement, 
-          and innovation, our goal is to deliver solutions that empower people to stay 
+          service, trust, and satisfaction, ensuring that every interaction with our brand
+          builds long-term relationships. Through continuous research, improvement,
+          and innovation, our goal is to deliver solutions that empower people to stay
           connected in smarter and more meaningful ways.
         </p>
       </div>
@@ -46,15 +46,15 @@ const MissionVision = () => {
           Our Vision
         </h1>
 
-        <p className="2xl:text-xl xl:text-lg text-base text-justify leading-[32px] text-white">
-          Our vision is to become the most trusted and leading provider of mobile 
-          accessories in Bangladesh and beyond—a brand recognized for its quality, 
+        <p className="2xl:text-xl xl:text-base text-base text-justify leading-[32px] text-white">
+          Our vision is to become the most trusted and leading provider of mobile
+          accessories in Bangladesh and beyond—a brand recognized for its quality,
           innovation, and customer-first approach. We aspire to set benchmarks in the
           industry by offering products that combine durability, modern design, and eco-
           friendly practices. We envision creating a future where technology is accessible,
           sustainable, and reliable for all, contributing to a smarter lifestyle while positively
-          impacting communities. By focusing on innovation and excellence, Sannai 
-          Technology aims to grow into a global brand that customers can depend on 
+          impacting communities. By focusing on innovation and excellence, Sannai
+          Technology aims to grow into a global brand that customers can depend on
           with confidence.
         </p>
       </div>

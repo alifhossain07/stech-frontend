@@ -13,7 +13,7 @@ const AboutBanner = () => {
           alt="Office"
           width={2000}
           height={900}
-          className="w-full h-auto object-cover rounded-xl"
+          className="w-full h-auto object-contain rounded-xl"
         />
       </div>
 
@@ -25,7 +25,7 @@ const AboutBanner = () => {
           Welcome to Sannai
         </h2>
 
-        <p className="2xl:text-[28px] xl:text-[22px] text-[18px] text-justify leading-[32px] md:leading-[42px] text-gray-700">
+        <p className="2xl:text-[28px] xl:text-[18px] text-[18px] text-justify leading-[32px] md:leading-[42px] text-gray-700">
           Founded in September 2023, Sannai Technology Limited is a rapidly
           emerging leader in Bangladeshs mobile accessories industry.
           Headquartered in Bangladesh, the company has quickly established
@@ -43,11 +43,11 @@ const AboutBanner = () => {
         <div className="border rounded-xl p-8 bg-white">
           <p className="text-gray-400 text-[14px] mb-24">(01)</p>
 
-          <h3 className="min-h-[60px] 2xl:text-[22px] text-[18px] md:text-[20px] font-semibold text-orange-500 mb-2">
+          <h3 className="min-h-[60px] 2xl:text-[22px] text-[18px]  font-semibold text-orange-500 mb-2">
             Stronger Presence, Wider Reach
           </h3>
 
-          <p className="2xl:text-[20px] text-[16px] md:text-[18px] leading-[32px] text-orange-500">
+          <p className="2xl:text-[20px] text-[16px]  leading-[32px] text-orange-500">
             From bustling cities to remote towns, our products are available
             every-where across Bangladesh—making quality accessible to everyone,
             everywhere.
@@ -58,11 +58,11 @@ const AboutBanner = () => {
         <div className="border rounded-xl p-8 bg-white">
           <p className="text-gray-400 text-[14px] mb-24">(02)</p>
 
-          <h3 className=" min-h-[60px] 2xl:text-[22px] text-[18px] md:text-[20px] font-semibold text-orange-500 mb-2">
+          <h3 className=" min-h-[60px] 2xl:text-[22px] text-[18px]  font-semibold text-orange-500 mb-2">
             Trusted by Thousands, Growing Every Day
           </h3>
 
-          <p className="2xl:text-[20px] text-[16px] md:text-[18px] leading-[32px] text-orange-500">
+          <p className="2xl:text-[20px] text-[16px]  leading-[32px] text-orange-500">
             We take pride in serving a rapidly expanding customer community.
             Their trust fuels our passion to deliver excellence in both product
             quality & service.
@@ -73,11 +73,11 @@ const AboutBanner = () => {
         <div className="border rounded-md p-8 bg-white">
           <p className="text-gray-400 text-[14px] mb-24">(03)</p>
 
-          <h3 className="min-h-[60px] 2xl:text-[22px] text-[18px] md:text-[20px] font-semibold text-orange-500 mb-2">
+          <h3 className="min-h-[60px] 2xl:text-[22px] text-[18px]  font-semibold text-orange-500 mb-2">
             Fast, Reliable & Everywhere You Need Us
           </h3>
 
-          <p className="2xl:text-[20px] text-[16px] md:text-[18px] leading-[32px] text-orange-500">
+          <p className="2xl:text-[20px] text-[16px]  leading-[32px] text-orange-500">
             With an extensive network of distributors and partners, we ensure
             fast delivery, constant product availability, and a seamless
             experience nationwide.

@@ -14,18 +14,18 @@ const FutureVision = () => {
             alt="Future Vision"
             width={600}
             height={400}
-            className="w-full h-full rounded-lg object-cover"
+            className="w-full h-full rounded-lg object-contain"
           />
         </div>
 
         {/* RIGHT TEXT */}
         <div className="w-full xl:w-1/2 flex flex-col gap-4">
 
-          <h2 className="text-[20px] md:text-[30px] xl:text-[32px] 2xl:text-[36px] font-semibold text-orange-500">
+          <h2 className="text-[20px] md:text-[30px] xl:text-[28px] 2xl:text-[36px] font-semibold text-orange-500">
             Our Future Vision: Global Expansion
           </h2>
 
-          <p className="text-[14px] md:text-[16px] xl:text-[18px] 2xl:text-[20px] text-justify leading-[33px] text-gray-700">
+          <p className="text-[14px] md:text-[16px]  2xl:text-[20px] text-justify leading-[33px] text-gray-700">
             Sannai Technology Limited is not only focused on being a market leader in
             Bangladesh but also on positioning itself as a recognized global brand. We
             aim to enter new and emerging international markets, collaborating with
@@ -33,16 +33,16 @@ const FutureVision = () => {
             available to customers everywhere.
           </p>
 
-          <p className="text-[14px] md:text-[16px] xl:text-[18px] 2xl:text-[20px] leading-[33px] text-gray-700">
-            Our vision is built on innovation, sustainability, and reliability. By integrating 
-            the latest technologies and design trends, we ensure that our mobile accessories 
-            remain competitive in the ever-evolving digital landscape. We also emphasize 
+          <p className="text-[14px] md:text-[16px]  2xl:text-[20px] leading-[33px] text-gray-700">
+            Our vision is built on innovation, sustainability, and reliability. By integrating
+            the latest technologies and design trends, we ensure that our mobile accessories
+            remain competitive in the ever-evolving digital landscape. We also emphasize
             eco-friendly practices, ensuring our growth aligns with global sustainability goals.
-            But global expansion for us goes beyond geography—it is about building meaningful 
+            But global expansion for us goes beyond geography—it is about building meaningful
             connections with diverse communities worldwide.
           </p>
 
-          <p className="text-[14px] md:text-[16px] xl:text-[18px] 2xl:text-[20px] leading-[33px] text-gray-700">
+          <p className="text-[14px] md:text-[16px]  2xl:text-[20px] leading-[33px] text-gray-700">
             We plan to localize our approach by understanding customer needs in each
             market and customizing solutions that truly add value to their digital lifestyles.
           </p>
