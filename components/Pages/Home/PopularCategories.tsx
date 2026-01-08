@@ -56,28 +56,28 @@ const PopularCategories = () => {
           ))}
         </div>
       )}
-{!loading && (
-  <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4 md:gap-6 p-6 mt-4">
-    {categories.map((cat) => (
-      <Link
-        key={cat.id}
-        href={`/products/${cat.slug}`}          // ✅ go to category products
-        className="flex flex-col h-44 xl:h-52 2xl:h-64 hover:bg-orange-300 duration-300 items-center justify-center bg-white border border-gray-300 rounded-lg cursor-pointer p-6 hover:shadow-lg transition"
-      >
-        <Image
-          src={cat.icon || "/images/placeholder.png"}
-          alt={cat.name}
-          width={100}
-          height={100}
-          className="mb-3 w-16 xl:w-24 2xl:w-32 object-contain"
-        />
-        <h3 className="xl:text-lg text-sm text-center text-gray-800">
-          {cat.name}
-        </h3>
-      </Link>
-    ))}
-  </div>
-)}
+      {!loading && (
+        <div className="grid grid-cols-3 md:grid-cols-3 xl:grid-cols-6 gap-4 md:gap-6 xl:p-6 mt-6">
+          {categories.slice(0, 6).map((cat) => (
+            <Link
+              key={cat.id}
+              href={`/products/${cat.slug}`}          // ✅ go to category products
+              className="flex flex-col h-36 xl:h-52 2xl:h-64 hover:bg-orange-300 duration-300 items-center justify-center bg-white border border-gray-300 rounded-lg cursor-pointer p-6 hover:shadow-lg transition"
+            >
+              <Image
+                src={cat.icon || "/images/placeholder.png"}
+                alt={cat.name}
+                width={100}
+                height={100}
+                className="mb-3 w-16 xl:w-24 2xl:w-32 object-contain"
+              />
+              <h3 className="xl:text-lg text-[12px] text-center text-gray-800">
+                {cat.name}
+              </h3>
+            </Link>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

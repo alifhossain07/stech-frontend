@@ -1,21 +1,17 @@
 import { NextResponse } from "next/server";
-
+export const dynamic = "force-dynamic";
 const API_BASE = process.env.API_BASE!;
 const SYSTEM_KEY = process.env.SYSTEM_KEY!;
 
-// Type for a single business setting
+
 interface BusinessSetting {
   type: string;
-  value: string | number | null | Array<{
-    type: string;
-    label: string;
-  }> | string[];
+  value: string;
 }
 
-// Response type from external API
 interface BusinessSettingsResponse {
+  success?: boolean;
   data: BusinessSetting[];
-  success: boolean;
   status: number;
 }
 
@@ -58,4 +54,3 @@ export async function GET() {
     );
   }
 }
-

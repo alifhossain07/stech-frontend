@@ -11,9 +11,9 @@ import ClientLayoutWrapper from "@/components/layout/ClientLayoutWrapper";
 import { CartProvider } from "./context/CartContext";
 import { AuthProvider } from "./context/AuthContext";
 import Script from "next/script";
-import FacebookPixelEvents from "@/components/layout/FacebookPixelEvents";
-import GTM from "@/components/layout/GTM";
-// Ensure this path matches your file structure
+
+// Import your new consolidated library functions
+import { fetchBusinessSettings, fetchScriptsInternal } from "@/app/lib/get-scripts";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -21,161 +21,82 @@ const poppins = Poppins({
   weight: ["400", "500", "600", "700"],
 });
 
-type BusinessSetting = {
-  key: string;
-  value: string | null;
-};
 
-type InfoRouteResponse = {
-  success?: boolean;
-  settings?: BusinessSetting[];
-};
 
-async function getBusinessSettings(): Promise<BusinessSetting[] | null> {
-  try {
-    const base = process.env.NEXT_PUBLIC_BASE_URL || "";
-    const res = await fetch(`${base}/api/info`, {
-      cache: "no-store",
-    });
-
-    if (!res.ok) return null;
-
-    const json: InfoRouteResponse = await res.json();
-    if (!json.success || !json.settings) return null;
-
-    return json.settings;
-  } catch {
-    return null;
-  }
-}
-
+// --- Metadata ---
 export async function generateMetadata(): Promise<Metadata> {
   const fallbackTitle = "Sannai Technology";
   const fallbackDescription = "A Project By Techdyno BD LTD";
 
-  const settings = await getBusinessSettings();
+  const settings = await fetchBusinessSettings();
+
   if (!settings) {
-    return {
-      title: fallbackTitle,
-      description: fallbackDescription,
-    };
+    return { title: fallbackTitle, description: fallbackDescription };
   }
 
   const getMetaValue = (key: string): string | undefined => {
-    const item = settings.find((s) => s.key === key);
-    if (!item || item.value == null) return undefined;
-    return item.value;
+    interface Setting {
+      key?: string;
+      type?: string;
+      value?: string;
+    }
+    const item = settings.find((s: Setting) => s.key === key || s.type === key);
+    return (item && item.value != null) ? item.value : undefined;
   };
 
-  const title =
-    getMetaValue("meta_title") ||
-    getMetaValue("website_name") ||
-    fallbackTitle;
-
-  const description =
-    getMetaValue("meta_description") || fallbackDescription;
-
-  const siteIcon = getMetaValue("site_icon");
-
-  const resolveIconType = (url: string): string => {
-    const lower = url.toLowerCase();
-    if (lower.endsWith(".ico")) return "image/x-icon";
-    if (lower.endsWith(".png")) return "image/png";
-    if (lower.endsWith(".svg")) return "image/svg+xml";
-    if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) return "image/jpeg";
-    return "image/x-icon";
-  };
-
-  const iconUrl = siteIcon || "/images/sannailogo.png";
-  const iconType = resolveIconType(iconUrl);
+  const title = getMetaValue("meta_title") || getMetaValue("website_name") || fallbackTitle;
+  const description = getMetaValue("meta_description") || fallbackDescription;
+  const siteIcon = getMetaValue("site_icon") || "/images/sannailogo.png";
 
   return {
     title,
     description,
     icons: {
-      icon: [{ url: iconUrl, type: iconType, sizes: "any" }],
-      shortcut: [{ url: iconUrl, type: iconType }],
-      apple: [{ url: iconUrl, type: iconType }],
+      icon: [{ url: siteIcon, sizes: "any" }],
+      shortcut: [{ url: siteIcon }],
+      apple: [{ url: siteIcon }],
     },
   };
 }
 
-export default function RootLayout({
+// --- Layout ---
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Fetch scripts directly via the lib (No internal HTTP fetch loop)
+  const scripts = await fetchScriptsInternal();
+
   return (
     <html lang="en" data-theme="light" suppressHydrationWarning>
       <head>
-        {/* Meta Pixel NoScript Fallback */}
-        <noscript>
-          <img
-            height="1"
-            width="1"
-            style={{ display: "none" }}
-            src="https://www.facebook.com/tr?id=1102240858090249&ev=PageView&noscript=1"
-            alt=""
+        {scripts?.header_script && (
+          <Script
+            id="dynamic-header-script"
+            strategy="afterInteractive"
+            dangerouslySetInnerHTML={{
+              __html: scripts.header_script.trim(),
+            }}
           />
-        </noscript>
+        )}
       </head>
       <body className={`${poppins.variable} antialiased`}>
-        {/* GTM Noscript Fallback - Must be as high in <body> as possible */}
-        <noscript>
-          <iframe
-            src="https://www.googletagmanager.com/ns.html?id=GTM-NWDSC8PR"
-            height="0"
-            width="0"
-            style={{ display: "none", visibility: "hidden" }}
+        {scripts?.footer_script && (
+          <div
+            id="dynamic-footer-scripts"
+            dangerouslySetInnerHTML={{ __html: scripts.footer_script }}
           />
-        </noscript>
+        )}
 
         <AuthProvider>
           <CartProvider>
             <Navbar />
-            <ClientLayoutWrapper>
-              {children}
-            </ClientLayoutWrapper>
+            <ClientLayoutWrapper>{children}</ClientLayoutWrapper>
             <Footer />
-            <Toaster
-              position="top-right"
-              reverseOrder={false}
-              toastOptions={{
-                duration: 3000,
-                style: {
-                  fontWeight: 500,
-                  borderRadius: "8px",
-                  boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
-                },
-              }}
-            />
+            <Toaster position="top-right" />
           </CartProvider>
         </AuthProvider>
-
-        {/* Google Tag Manager Main Script */}
-        <GTM />
-
-        {/* Initialize Facebook Pixel */}
-        <Script
-          id="fb-pixel"
-          strategy="afterInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `
-              !function(f,b,e,v,n,t,s)
-              {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-              n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-              if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-              n.queue=[];t=b.createElement(e);t.async=!0;
-              t.src=v;s=b.getElementsByTagName(e)[0];
-              s.parentNode.insertBefore(t,s)}(window, document,'script',
-              'https://connect.facebook.net/en_US/fbevents.js');
-              fbq('init', '1102240858090249');
-              fbq('track', 'PageView');
-            `,
-          }}
-        />
-        {/* Component to handle PageView on route changes */}
-        <FacebookPixelEvents />
       </body>
     </html>
   );

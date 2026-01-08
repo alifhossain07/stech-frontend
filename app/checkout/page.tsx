@@ -538,7 +538,7 @@ const CheckoutPage: React.FC = () => {
         },
       });
     }
-  }, []); // Run once on mount
+  }, [selectedCart, subtotal, discount]); // Run when cart or total values change
 
   React.useEffect(() => {
     if (typeof window !== "undefined" && shippingMethod && selectedCart.length > 0) {
@@ -561,7 +561,7 @@ const CheckoutPage: React.FC = () => {
         },
       });
     }
-  }, [shippingMethod]);
+  }, [shippingMethod, selectedCart, subtotal, discount]);
 
   const paymentMethod = watch("payment");
   React.useEffect(() => {
@@ -585,7 +585,7 @@ const CheckoutPage: React.FC = () => {
         },
       });
     }
-  }, [paymentMethod]);
+  }, [paymentMethod, selectedCart, subtotal, discount]);
 
   // ------------------------- Payment Modal -------------------------
   const [showPaymentModal, setShowPaymentModal] = React.useState(false);

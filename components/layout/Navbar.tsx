@@ -594,7 +594,7 @@ const Navbar = () => {
                     </Link>
                     <button
                       onClick={() => setShowLogoutConfirm(true)}
-                      className="block w-full text-sm text-red-500 px-3 py-2 hover:bg-red-50 transition border-t border-gray-200"
+                      className="block text-left w-full text-sm text-red-500 px-3 py-2 hover:bg-red-50 transition border-t border-gray-200"
                     >
                       Logout
                     </button>

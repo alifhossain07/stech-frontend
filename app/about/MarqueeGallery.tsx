@@ -3,39 +3,21 @@
 import Image from "next/image";
 import React from "react";
 
-const MarqueeGallery = () => {
-  const images = [
-    "/images/marquee1.webp",
-    "/images/marquee2.webp",
-    "/images/marquee3.webp",
-    "/images/marquee4.webp",
-    "/images/marquee5.webp",
-  ];
+import { SocialPost } from "@/types/about";
 
-  const socialOptions = [
-    {
-      icon: "/images/instagramslidericon.png",
-      url: "https://www.instagram.com/sannai_technology/",
-    },
-    {
-      icon: "/images/facebookslidericon.png",
-      url: "https://www.facebook.com/SannaiTechnology",
-    },
-  ];
+const MarqueeGallery = ({ social_posts }: { social_posts: SocialPost[] }) => {
 
   return (
     <div className="w-full mt-[36px] overflow-hidden py-6 marquee-wrapper">
       <div className="animate-marquee gap-4 flex">
-        {[...images, ...images].map((src, i) => {
-          const social = socialOptions[i % 2];
-
+        {[...social_posts, ...social_posts].map((post, i) => {
           return (
             <div
               key={i}
               className="relative rounded-md overflow-hidden"
               style={{ width: "337.38px", height: "389.23px" }}
             >
-              <Image src={src} alt="marquee item" fill className="object-cover" />
+              <Image src={post.image} alt="marquee item" fill className="object-cover" />
 
               {/* Smoother Hover Overlay */}
               <div
@@ -48,7 +30,7 @@ const MarqueeGallery = () => {
                 "
               >
                 <a
-                  href={social.url}
+                  href={post.link}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="
@@ -59,7 +41,7 @@ const MarqueeGallery = () => {
                   "
                 >
                   <Image
-                    src={social.icon}
+                    src={post.icon}
                     width={36}
                     height={36}
                     alt="social icon"
