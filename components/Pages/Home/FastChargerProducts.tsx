@@ -86,11 +86,11 @@ const FastChargerProducts = () => {
         setTitle(fastData.title || "Fast Charger Products");
         setSubtitle(
           fastData.subtitle ||
-            "Discover Our Latest Arrivals Designed to Inspire and Impress"
+          "Discover Our Latest Arrivals Designed to Inspire and Impress"
         );
         setLink(fastData.link || null);
 
-        const allCategories:  CategoryType[] = categoriesRes.data.categories ?? [];
+        const allCategories: CategoryType[] = categoriesRes.data.categories ?? [];
 
         // Adjust this name check to match your fast charger category
         const fastChargerCategory = allCategories.find(
@@ -124,11 +124,11 @@ const FastChargerProducts = () => {
         </div>
 
         <Link
-  href={link || (categorySlug ? `/products/${categorySlug}` : "#")}
-  className="bg-black hidden md:flex items-center justify-center gap-2 text-white px-3.5 py-2 rounded-xl hover:text-black hover:bg-gray-200 duration-300 transition whitespace-nowrap"
->
-  See More <FiChevronRight className="text-sm sm:text-base md:text-xl" />
-</Link>
+          href={link || (categorySlug ? `/products/${categorySlug}` : "#")}
+          className="bg-black hidden md:flex items-center justify-center gap-2 text-white px-3.5 py-2 rounded-xl hover:text-black hover:bg-gray-200 duration-300 transition whitespace-nowrap"
+        >
+          See More <FiChevronRight className="text-sm sm:text-base md:text-xl" />
+        </Link>
       </div>
 
       {/* Main Layout */}
@@ -140,13 +140,23 @@ const FastChargerProducts = () => {
             {/* ⭐ Banner Skeleton */}
             {loading ? (
               <BannerSkeleton />
+            ) : link ? (
+              <Link href={link} className="block cursor-pointer">
+                <Image
+                  src={banner || "/images/earbudsimage.png"}
+                  alt="Earbuds Banner"
+                  width={400}
+                  height={600}
+                  className="rounded-xl object-center md:object-fill w-full h-auto xl:h-full"
+                />
+              </Link>
             ) : (
               <Image
                 src={banner || "/images/earbudsimage.png"}
                 alt="Earbuds Banner"
                 width={400}
                 height={600}
-                className="rounded-xl object-center md:object-fill w-full h-auto  xl:h-full"
+                className="rounded-xl object-center md:object-fill w-full h-auto xl:h-full"
               />
             )}
 
@@ -209,14 +219,14 @@ const FastChargerProducts = () => {
 
       {/* Mobile See More */}
       <div className="flex items-center justify-center md:hidden pt-[44px]">
-  <Link
-    href={link || (categorySlug ? `/products/${categorySlug}` : "#")}
-    className="bg-black text-xs sm:text-sm md:text-sm flex items-center justify-center gap-2 text-white px-3.5 py-2 rounded-xl hover:text-black hover:bg-gray-200 duration-300 transition whitespace-nowrap"
-  >
-    See More
-    <FiChevronRight className="text-sm sm:text-base md:text-xl" />
-  </Link>
-</div>
+        <Link
+          href={link || (categorySlug ? `/products/${categorySlug}` : "#")}
+          className="bg-black text-xs sm:text-sm md:text-sm flex items-center justify-center gap-2 text-white px-3.5 py-2 rounded-xl hover:text-black hover:bg-gray-200 duration-300 transition whitespace-nowrap"
+        >
+          See More
+          <FiChevronRight className="text-sm sm:text-base md:text-xl" />
+        </Link>
+      </div>
     </div>
   );
 };

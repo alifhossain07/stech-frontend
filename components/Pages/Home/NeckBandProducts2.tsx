@@ -27,7 +27,7 @@ const ProductCardSkeleton = () => (
 );
 
 type ProductType = {
- id: number;
+  id: number;
   name: string;
   slug: string;
   price: number;
@@ -58,62 +58,62 @@ type EarphoneResponse = {
 
 const EarphoneProducts = () => {
   const [products, setProducts] = useState<ProductType[]>([]);
- const [banner, setBanner] = useState<string>("");
- const [title, setTitle] = useState<string>("Earphone Products"); // NEW
- const [subtitle, setSubtitle] = useState<string>(
-   "Discover Our Latest Arrivals Designed to Inspire and Impress"
- ); // NEW
-const [categorySlug, setCategorySlug] = useState<string | null>(null); // NEW
-const [link, setLink] = useState<string | null>(null);
- const [loading, setLoading] = useState(true);
+  const [banner, setBanner] = useState<string>("");
+  const [title, setTitle] = useState<string>("Earphone Products"); // NEW
+  const [subtitle, setSubtitle] = useState<string>(
+    "Discover Our Latest Arrivals Designed to Inspire and Impress"
+  ); // NEW
+  const [categorySlug, setCategorySlug] = useState<string | null>(null); // NEW
+  const [link, setLink] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-  const fetchEarphones = async () => {
-    try {
-      const [earphonesRes, categoriesRes] = await Promise.all([
-        axios.get<EarphoneResponse>("/api/products/earphones"),
-        axios.get("/api/categories"),
-      ]);
+    const fetchEarphones = async () => {
+      try {
+        const [earphonesRes, categoriesRes] = await Promise.all([
+          axios.get<EarphoneResponse>("/api/products/earphones"),
+          axios.get("/api/categories"),
+        ]);
 
-      const earphonesData = earphonesRes.data;
+        const earphonesData = earphonesRes.data;
 
-      setProducts(earphonesData.products);
-      setBanner(earphonesData.banner);
-      setTitle(earphonesData.title || "Earphone Products");
-      setSubtitle(
-        earphonesData.subtitle ||
+        setProducts(earphonesData.products);
+        setBanner(earphonesData.banner);
+        setTitle(earphonesData.title || "Earphone Products");
+        setSubtitle(
+          earphonesData.subtitle ||
           "Discover Our Latest Arrivals Designed to Inspire and Impress"
-      );
-      setLink(earphonesData.link || null);
+        );
+        setLink(earphonesData.link || null);
 
-      const allCategories: CategoryType[] = categoriesRes.data.categories ?? [];
+        const allCategories: CategoryType[] = categoriesRes.data.categories ?? [];
 
-      // Robust category matching with aliases and normalization
-      const normalize = (s?: string) => (s || "").toLowerCase().replace(/\s|-/g, "");
-      const aliases = [
-        "earphone",
-        "earphones",
-        "wired earphone",
-        "wired earphones",
-      ].map(normalize);
+        // Robust category matching with aliases and normalization
+        const normalize = (s?: string) => (s || "").toLowerCase().replace(/\s|-/g, "");
+        const aliases = [
+          "earphone",
+          "earphones",
+          "wired earphone",
+          "wired earphones",
+        ].map(normalize);
 
-      const match = allCategories.find((c) => {
-        const n = normalize(c.name);
-        return aliases.some((a) => n === a || n.includes(a));
-      });
+        const match = allCategories.find((c) => {
+          const n = normalize(c.name);
+          return aliases.some((a) => n === a || n.includes(a));
+        });
 
-      if (match?.slug) {
-        setCategorySlug(match.slug);
+        if (match?.slug) {
+          setCategorySlug(match.slug);
+        }
+      } catch (err) {
+        console.error("Error fetching earphones products or categories:", err);
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      console.error("Error fetching earphones products or categories:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
 
-  fetchEarphones();
-}, []);
+    fetchEarphones();
+  }, []);
 
   return (
     <div className="md:w-11/12 w-11/12 pb-[56px] mx-auto">
@@ -121,19 +121,19 @@ const [link, setLink] = useState<string | null>(null);
       <div className="flex flex-col sm:flex-row justify-between items-center text-center sm:text-left w-full gap-3 mb-7">
         <div className="w-full sm:w-7/12">
           <h1 className="text-2xl sm:text-2xl md:text-4xl font-semibold mb-1 md:mb-2">
-           {title}
+            {title}
           </h1>
           <p className="text-xs sm:text-sm md:text-lg text-gray-600">
             {subtitle}
           </p>
         </div>
 
-     <Link
-  href={link || (categorySlug ? `/products/${categorySlug}` : "#")}
-  className="bg-black hidden md:flex items-center justify-center gap-2 text-white px-3.5 py-2 rounded-xl hover:text-black hover:bg-gray-200 duration-300 transition whitespace-nowrap"
->
-  See More <FiChevronRight className="text-sm sm:text-base md:text-xl" />
-</Link>
+        <Link
+          href={link || (categorySlug ? `/products/${categorySlug}` : "#")}
+          className="bg-black hidden md:flex items-center justify-center gap-2 text-white px-3.5 py-2 rounded-xl hover:text-black hover:bg-gray-200 duration-300 transition whitespace-nowrap"
+        >
+          See More <FiChevronRight className="text-sm sm:text-base md:text-xl" />
+        </Link>
       </div>
 
       {/* Main Layout */}
@@ -141,17 +141,27 @@ const [link, setLink] = useState<string | null>(null);
         {/* LEFT: Dynamic Banner Image */}
         <div className="xl:w-3/12 2xl:w-3/12 flex justify-center items-center">
           <div className="w-full h-auto md:h-full">
-            
+
             {/* ⭐ Banner Skeleton */}
             {loading ? (
               <BannerSkeleton />
+            ) : link ? (
+              <Link href={link} className="block cursor-pointer">
+                <Image
+                  src={banner || "/images/earbudsimage.png"}
+                  alt="Earbuds Banner"
+                  width={400}
+                  height={600}
+                  className="rounded-xl object-center md:object-fill w-full h-auto xl:h-full"
+                />
+              </Link>
             ) : (
               <Image
                 src={banner || "/images/earbudsimage.png"}
                 alt="Earbuds Banner"
                 width={400}
                 height={600}
-                className="rounded-xl object-center md:object-fill w-full h-auto  xl:h-full"
+                className="rounded-xl object-center md:object-fill w-full h-auto xl:h-full"
               />
             )}
 

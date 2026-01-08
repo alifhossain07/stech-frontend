@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
+import Link from "next/link";
 
 type Banner = {
   id?: number;
@@ -47,7 +48,18 @@ const HomeBannerSection = () => {
         {!loading &&
           leftBanners.slice(0, 2).map((banner, index) => (
             <div key={index} className="w-full md:w-1/2">
-              <a href={banner.url || "#"} target="_blank">
+              {banner.url ? (
+                <Link href={banner.url} target="_blank" className="block cursor-pointer">
+                  <div className="relative w-full aspect-[866/381] rounded-xl overflow-hidden">
+                    <Image
+                      src={banner.photo}
+                      alt={`Banner ${index + 1}`}
+                      fill
+                      className="object-contain"
+                    />
+                  </div>
+                </Link>
+              ) : (
                 <div className="relative w-full aspect-[866/381] rounded-xl overflow-hidden">
                   <Image
                     src={banner.photo}
@@ -56,7 +68,7 @@ const HomeBannerSection = () => {
                     className="object-contain"
                   />
                 </div>
-              </a>
+              )}
             </div>
           ))}
       </div>

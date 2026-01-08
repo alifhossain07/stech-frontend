@@ -2,16 +2,20 @@
 
 import React, { useEffect, useState, useRef } from "react";
 import Image from "next/image";
-import { HiArrowSmLeft,HiArrowSmRight } from "react-icons/hi";
+import Link from "next/link";
+import { HiArrowSmLeft, HiArrowSmRight } from "react-icons/hi";
+
 type Slider = {
   id: number;
   photo: string;
+  url: string | null;
 };
 
 type Banner = {
   id: number;
   photo: string;
   position: number | string;
+  url: string | null;
 };
 
 export const dynamic = "force-dynamic";
@@ -76,9 +80,8 @@ const HeroSlider = () => {
             <div className="w-full h-full bg-gray-200 animate-pulse rounded-md" />
           ) : (
             <div
-              className={`relative w-full h-full transition-opacity duration-500 ${
-                isLoaded ? "opacity-100" : "opacity-0"
-              }`}
+              className={`relative w-full h-full transition-opacity duration-500 ${isLoaded ? "opacity-100" : "opacity-0"
+                }`}
             >
               <div className="overflow-hidden w-full h-full relative">
                 <div
@@ -92,13 +95,25 @@ const HeroSlider = () => {
                       className="w-full h-full flex-shrink-0 relative"
                       key={idx}
                     >
-                      <Image
-                        src={slide.photo}
-                        alt={`slider-${idx}`}
-                        fill
-                        priority={idx === 0}
-                        className="object-contain"
-                      />
+                      {slide.url ? (
+                        <Link href={slide.url} className="block w-full h-full cursor-pointer">
+                          <Image
+                            src={slide.photo}
+                            alt={`slider-${idx}`}
+                            fill
+                            priority={idx === 0}
+                            className="object-contain"
+                          />
+                        </Link>
+                      ) : (
+                        <Image
+                          src={slide.photo}
+                          alt={`slider-${idx}`}
+                          fill
+                          priority={idx === 0}
+                          className="object-contain"
+                        />
+                      )}
                     </div>
                   ))}
                 </div>
@@ -128,11 +143,10 @@ const HeroSlider = () => {
                     key={i}
                     onClick={() => goTo(i)}
                     className={`w-3 h-3 rounded-full transition
-                ${
-                  i === current
-                    ? "bg-white"
-                    : "bg-white/40 hover:bg-white/70"
-                }
+                ${i === current
+                        ? "bg-white"
+                        : "bg-white/40 hover:bg-white/70"
+                      }
               `}
                   ></button>
                 ))}
@@ -145,24 +159,35 @@ const HeroSlider = () => {
         <div className="flex gap-4">
           {loading
             ? [1, 2].map((i) => (
-                <div
-                  key={i}
-                  className="relative w-1/2 aspect-[16/9] bg-gray-200 rounded-md"
-                />
-              ))
+              <div
+                key={i}
+                className="relative w-1/2 aspect-[16/9] bg-gray-200 rounded-md"
+              />
+            ))
             : rightBanners.slice(0, 2).map((banner) => (
-                <div
-                  key={banner.id}
-                  className="relative w-1/2 aspect-[16/9]"
-                >
+              <div
+                key={banner.id}
+                className="relative w-1/2 aspect-[16/9]"
+              >
+                {banner.url ? (
+                  <Link href={banner.url} className="block w-full h-full cursor-pointer">
+                    <Image
+                      src={banner.photo}
+                      alt="right banner"
+                      fill
+                      className="object-contain rounded-md"
+                    />
+                  </Link>
+                ) : (
                   <Image
                     src={banner.photo}
                     alt="right banner"
                     fill
                     className="object-contain rounded-md"
                   />
-                </div>
-              ))}
+                )}
+              </div>
+            ))}
         </div>
       </div>
 
@@ -176,9 +201,8 @@ const HeroSlider = () => {
                 <div className="w-full h-full bg-gray-200 animate-pulse rounded-md" />
               ) : (
                 <div
-                  className={`relative w-full h-full transition-opacity duration-500 ${
-                    isLoaded ? "opacity-100" : "opacity-0"
-                  }`}
+                  className={`relative w-full h-full transition-opacity duration-500 ${isLoaded ? "opacity-100" : "opacity-0"
+                    }`}
                 >
                   <div className="overflow-hidden w-full h-full relative">
                     <div
@@ -192,13 +216,25 @@ const HeroSlider = () => {
                           className="w-full h-full flex-shrink-0 relative"
                           key={idx}
                         >
-                          <Image
-                            src={slide.photo}
-                            alt={`slider-${idx}`}
-                            fill
-                            priority={idx === 0}
-                            className="object-contain"
-                          />
+                          {slide.url ? (
+                            <Link href={slide.url} className="block w-full h-full cursor-pointer">
+                              <Image
+                                src={slide.photo}
+                                alt={`slider-${idx}`}
+                                fill
+                                priority={idx === 0}
+                                className="object-contain"
+                              />
+                            </Link>
+                          ) : (
+                            <Image
+                              src={slide.photo}
+                              alt={`slider-${idx}`}
+                              fill
+                              priority={idx === 0}
+                              className="object-contain"
+                            />
+                          )}
                         </div>
                       ))}
                     </div>
@@ -228,11 +264,10 @@ const HeroSlider = () => {
                         key={i}
                         onClick={() => goTo(i)}
                         className={`w-3 h-3 rounded-full transition
-                ${
-                  i === current
-                    ? "bg-white"
-                    : "bg-white/40 hover:bg-white/70"
-                }
+                ${i === current
+                            ? "bg-white"
+                            : "bg-white/40 hover:bg-white/70"
+                          }
               `}
                       ></button>
                     ))}
@@ -245,24 +280,35 @@ const HeroSlider = () => {
             <div className="flex flex-col gap-4 w-1/3 h-full">
               {loading
                 ? [1, 2].map((i) => (
-                    <div
-                      key={i}
-                      className="relative w-full h-1/2 bg-gray-200 rounded-md"
-                    />
-                  ))
+                  <div
+                    key={i}
+                    className="relative w-full h-1/2 bg-gray-200 rounded-md"
+                  />
+                ))
                 : rightBanners.slice(0, 2).map((banner) => (
-                    <div
-                      key={banner.id}
-                      className="relative w-full h-1/2"
-                    >
+                  <div
+                    key={banner.id}
+                    className="relative w-full h-1/2"
+                  >
+                    {banner.url ? (
+                      <Link href={banner.url} className="block w-full h-full cursor-pointer">
+                        <Image
+                          src={banner.photo}
+                          alt="right banner"
+                          fill
+                          className="object-contain rounded-md"
+                        />
+                      </Link>
+                    ) : (
                       <Image
                         src={banner.photo}
                         alt="right banner"
                         fill
                         className="object-contain rounded-md"
                       />
-                    </div>
-                  ))}
+                    )}
+                  </div>
+                ))}
             </div>
           </div>
         </div>

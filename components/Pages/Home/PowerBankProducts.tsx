@@ -80,7 +80,7 @@ const PowerBankProducts = () => {
         setTitle(pbData.title || "Powerbank Products");
         setSubtitle(
           pbData.subtitle ||
-            "Discover Our Latest Arrivals Designed to Inspire and Impress"
+          "Discover Our Latest Arrivals Designed to Inspire and Impress"
         );
         setLink(pbData.link || null);
 
@@ -120,19 +120,19 @@ const PowerBankProducts = () => {
       <div className="flex flex-col sm:flex-row justify-between items-center text-center sm:text-left w-full gap-3 mb-7">
         <div className="w-full sm:w-7/12">
           <h1 className="text-2xl sm:text-2xl md:text-4xl font-semibold mb-1 md:mb-2">
-           {title}
+            {title}
           </h1>
           <p className="text-xs sm:text-sm md:text-lg text-gray-600">
-           {subtitle}
+            {subtitle}
           </p>
         </div>
 
-       <Link
-  href={link || (categorySlug ? `/products/${categorySlug}` : "#")}
-  className="bg-black hidden md:flex items-center justify-center gap-2 text-white px-3.5 py-2 rounded-xl hover:text-black hover:bg-gray-200 duration-300 transition whitespace-nowrap"
->
-  See More <FiChevronRight className="text-sm sm:text-base md:text-xl" />
-</Link>
+        <Link
+          href={link || (categorySlug ? `/products/${categorySlug}` : "#")}
+          className="bg-black hidden md:flex items-center justify-center gap-2 text-white px-3.5 py-2 rounded-xl hover:text-black hover:bg-gray-200 duration-300 transition whitespace-nowrap"
+        >
+          See More <FiChevronRight className="text-sm sm:text-base md:text-xl" />
+        </Link>
       </div>
 
       {/* Main Layout */}
@@ -140,17 +140,27 @@ const PowerBankProducts = () => {
         {/* LEFT: Dynamic Banner Image */}
         <div className="xl:w-3/12 2xl:w-3/12 flex justify-center items-center">
           <div className="w-full h-auto md:h-full">
-            
+
             {/* ⭐ Banner Skeleton */}
             {loading ? (
               <BannerSkeleton />
+            ) : link ? (
+              <Link href={link} className="block cursor-pointer">
+                <Image
+                  src={banner || "/images/earbudsimage.png"}
+                  alt="Earbuds Banner"
+                  width={400}
+                  height={600}
+                  className="rounded-xl object-center md:object-fill w-full h-auto xl:h-full"
+                />
+              </Link>
             ) : (
               <Image
                 src={banner || "/images/earbudsimage.png"}
                 alt="Earbuds Banner"
                 width={400}
                 height={600}
-                className="rounded-xl object-center md:object-fill w-full h-auto  xl:h-full"
+                className="rounded-xl object-center md:object-fill w-full h-auto xl:h-full"
               />
             )}
 
@@ -213,14 +223,14 @@ const PowerBankProducts = () => {
 
       {/* Mobile See More */}
       <div className="flex items-center justify-center md:hidden pt-[44px]">
-  <Link
-    href={link || (categorySlug ? `/products/${categorySlug}` : "#")}
-    className="bg-black text-xs sm:text-sm md:text-sm flex items-center justify-center gap-2 text-white px-3.5 py-2 rounded-xl hover:text-black hover:bg-gray-200 duration-300 transition whitespace-nowrap"
-  >
-    See More
-    <FiChevronRight className="text-sm sm:text-base md:text-xl" />
-  </Link>
-</div>
+        <Link
+          href={link || (categorySlug ? `/products/${categorySlug}` : "#")}
+          className="bg-black text-xs sm:text-sm md:text-sm flex items-center justify-center gap-2 text-white px-3.5 py-2 rounded-xl hover:text-black hover:bg-gray-200 duration-300 transition whitespace-nowrap"
+        >
+          See More
+          <FiChevronRight className="text-sm sm:text-base md:text-xl" />
+        </Link>
+      </div>
     </div>
   );
 };
