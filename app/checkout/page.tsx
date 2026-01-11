@@ -13,16 +13,6 @@ import React from "react";
 import { useRouter } from "next/navigation";
 
 // ------------------------- Types -------------------------
-interface CartItem {
-  id: string | number;
-  name: string;
-  img: string;
-  price: number;
-  oldPrice: number;
-  qty: number;
-  variant?: string;
-  variantImage?: string;
-}
 
 interface CheckoutFormData {
   name: string;
@@ -81,19 +71,26 @@ const CheckoutPage: React.FC = () => {
   const router = useRouter();
 
   // Filter selected items
-  const selectedCart: CartItem[] = cart.filter((item) =>
-    selectedItems.includes(item.id)
+  const selectedCart = React.useMemo(() =>
+    cart.filter((item) => selectedItems.includes(item.id)),
+    [cart, selectedItems]
   );
 
   // Totals
   // Subtotal should reflect pre-discount sum; discount reflects savings
-  const subtotal = selectedCart.reduce(
-    (acc, item) => acc + (Number(item.oldPrice ?? item.price) * item.qty),
-    0
+  const subtotal = React.useMemo(() =>
+    selectedCart.reduce(
+      (acc, item) => acc + (Number(item.oldPrice ?? item.price) * item.qty),
+      0
+    ),
+    [selectedCart]
   );
-  const discount = selectedCart.reduce(
-    (acc, item) => acc + Math.max(0, Number(item.oldPrice) - Number(item.price)) * item.qty,
-    0
+  const discount = React.useMemo(() =>
+    selectedCart.reduce(
+      (acc, item) => acc + Math.max(0, Number(item.oldPrice) - Number(item.price)) * item.qty,
+      0
+    ),
+    [selectedCart]
   );
 
   // ------------------------- React Hook Form -------------------------
@@ -518,8 +515,12 @@ const CheckoutPage: React.FC = () => {
   const total = subtotal - discount + effectiveDelivery - promoDiscount;
 
   // ------------------------- Data Layer Events -------------------------
+  const hasFiredBeginCheckout = React.useRef(false);
+  const lastShippingTier = React.useRef("");
+  const lastPaymentType = React.useRef("");
+
   React.useEffect(() => {
-    if (typeof window !== "undefined" && selectedCart.length > 0) {
+    if (typeof window !== "undefined" && selectedCart.length > 0 && !hasFiredBeginCheckout.current) {
       const items = selectedCart.map((item) => ({
         item_id: item.id.toString(),
         item_name: item.name,
@@ -537,11 +538,14 @@ const CheckoutPage: React.FC = () => {
           items: items,
         },
       });
+      hasFiredBeginCheckout.current = true;
     }
   }, [selectedCart, subtotal, discount]); // Run when cart or total values change
 
   React.useEffect(() => {
     if (typeof window !== "undefined" && shippingMethod && selectedCart.length > 0) {
+      if (lastShippingTier.current === shippingMethod) return;
+
       const items = selectedCart.map((item) => ({
         item_id: item.id.toString(),
         item_name: item.name,
@@ -560,12 +564,15 @@ const CheckoutPage: React.FC = () => {
           items: items,
         },
       });
+      lastShippingTier.current = shippingMethod;
     }
   }, [shippingMethod, selectedCart, subtotal, discount]);
 
   const paymentMethod = watch("payment");
   React.useEffect(() => {
     if (typeof window !== "undefined" && paymentMethod && selectedCart.length > 0) {
+      if (lastPaymentType.current === paymentMethod) return;
+
       const items = selectedCart.map((item) => ({
         item_id: item.id.toString(),
         item_name: item.name,
@@ -584,6 +591,7 @@ const CheckoutPage: React.FC = () => {
           items: items,
         },
       });
+      lastPaymentType.current = paymentMethod;
     }
   }, [paymentMethod, selectedCart, subtotal, discount]);
 
