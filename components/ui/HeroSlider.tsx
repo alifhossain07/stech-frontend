@@ -120,17 +120,17 @@ const HeroSlider = () => {
               </div>
 
               {/* ARROWS */}
-              <div className="absolute inset-0 flex items-center justify-between px-4 z-20">
+              <div className="absolute inset-0 flex items-center justify-between px-4 z-20 pointer-events-none">
                 <button
                   onClick={prevSlide}
-                  className="text-white bg-black/40 hover:bg-orange-400 px-1 py-1 md:px-3 md:py-3 rounded-full"
+                  className="text-white bg-black/40 hover:bg-orange-400 px-1 py-1 md:px-3 md:py-3 rounded-full pointer-events-auto"
                 >
                   <HiArrowSmLeft />
                 </button>
 
                 <button
                   onClick={nextSlide}
-                  className="text-white bg-black/40 hover:bg-orange-400 px-1 py-1 md:px-3 md:py-3 rounded-full"
+                  className="text-white bg-black/40 hover:bg-orange-400 px-1 py-1 md:px-3 md:py-3 rounded-full pointer-events-auto"
                 >
                   <HiArrowSmRight />
                 </button>
@@ -241,17 +241,17 @@ const HeroSlider = () => {
                   </div>
 
                   {/* ARROWS */}
-                  <div className="absolute inset-0 flex items-center justify-between px-4 z-20">
+                  <div className="absolute inset-0 flex items-center justify-between px-4 z-20 pointer-events-none">
                     <button
                       onClick={prevSlide}
-                      className="text-white bg-black/40 hover:bg-orange-400 px-1 py-1 md:px-3 md:py-3 rounded-full"
+                      className="text-white bg-black/40 hover:bg-orange-400 px-1 py-1 md:px-3 md:py-3 rounded-full pointer-events-auto"
                     >
                       <HiArrowSmLeft />
                     </button>
 
                     <button
                       onClick={nextSlide}
-                      className="text-white bg-black/40 hover:bg-orange-400 px-1 py-1 md:px-3 md:py-3 rounded-full"
+                      className="text-white bg-black/40 hover:bg-orange-400 px-1 py-1 md:px-3 md:py-3 rounded-full pointer-events-auto"
                     >
                       <HiArrowSmRight />
                     </button>
