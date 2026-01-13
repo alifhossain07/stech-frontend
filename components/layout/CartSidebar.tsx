@@ -157,7 +157,10 @@ export default function CartSidebar({ externalOpen, setExternalOpen }: CartSideb
         {/* Messenger and WhatsApp Buttons */}
 
       </div>
-      <div className="fixed hidden lg:flex flex-col right-0 top-[62%]  -translate-y-1/2 z-[10001] gap-3">
+      <div className="fixed z-[10001] gap-3 flex flex-col
+    right-0 bottom-20
+    lg:right-0 lg:top-[62%] lg:-translate-y-1/2
+    lg:bottom-auto">
 
 
         {/* Messenger and WhatsApp Buttons */}
@@ -293,8 +296,8 @@ export default function CartSidebar({ externalOpen, setExternalOpen }: CartSideb
             <button onClick={toggleSelectAll} className="flex items-center gap-2 text-sm">
               <span
                 className={`w-5 h-5 rounded-full border flex items-center justify-center ${selectedItems.length === typedCart.length && typedCart.length > 0
-                    ? "bg-orange-500 border-orange-500"
-                    : "border-gray-400"
+                  ? "bg-orange-500 border-orange-500"
+                  : "border-gray-400"
                   }`}
               >
                 {selectedItems.length === typedCart.length && typedCart.length > 0 && (
@@ -325,8 +328,8 @@ export default function CartSidebar({ externalOpen, setExternalOpen }: CartSideb
           <Link href="/checkout" onClick={() => setExternalOpen(false)}>
             <button
               className={`w-full py-3 rounded-full text-white ${selectedItems.length > 0
-                  ? "bg-orange-500 hover:bg-orange-600"
-                  : "bg-gray-400 cursor-not-allowed"
+                ? "bg-orange-500 hover:bg-orange-600"
+                : "bg-gray-400 cursor-not-allowed"
                 }`}
               disabled={selectedItems.length === 0}
             >
