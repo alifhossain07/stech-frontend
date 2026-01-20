@@ -35,7 +35,7 @@ const PopularCategories = () => {
   }, []);
 
   return (
-    <div className="w-11/12 mx-auto pb-[56px]">
+    <div className="w-11/12 mx-auto pt-10 pb-[56px]">
       <div className="space-y-3 text-center">
         <h1 className="md:text-4xl text-2xl font-semibold">
           Explore Popular Categories

@@ -7,6 +7,8 @@ export interface User {
   avatar_original: string;
   phone: string;
   email_verified: boolean;
+  is_dealer?: number | string;
+  dealer_code?: string;
 }
 
 export interface AuthResponse {

@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  HiOutlineUser, HiOutlineShoppingBag, HiOutlineHeart, HiOutlineTicket, HiOutlineChatAlt2
+  HiOutlineUser, HiOutlineShoppingBag, HiOutlineHeart, HiOutlineTicket, HiOutlineChatAlt2, HiOutlineShieldCheck
 } from "react-icons/hi";
 import { MdOutlineEdit } from "react-icons/md";
 import Image from "next/image";
@@ -12,8 +12,7 @@ import { useAuth } from "@/app/context/AuthContext";
 const menuItems = [
   { name: "Profile", href: "/profile", icon: <HiOutlineUser size={22} /> },
   { name: "Orders", href: "/orders", icon: <HiOutlineShoppingBag size={22} /> },
-
-
+  { name: "Warranty", href: "/warranty", icon: <HiOutlineShieldCheck size={22} /> },
   { name: "Wishlist", href: "/wishlist", icon: <HiOutlineHeart size={22} /> },
   { name: "Coupon", href: "/coupon", icon: <HiOutlineTicket size={22} /> },
   { name: "Review", href: "/review", icon: <HiOutlineChatAlt2 size={22} /> },

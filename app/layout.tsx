@@ -14,6 +14,7 @@ import Script from "next/script";
 
 // Import your new consolidated library functions
 import { fetchBusinessSettings, fetchScriptsInternal } from "@/app/lib/get-scripts";
+import { CompareProvider } from "./context/CompareContext";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -91,10 +92,12 @@ export default async function RootLayout({
 
         <AuthProvider>
           <CartProvider>
-            <Navbar />
-            <ClientLayoutWrapper>{children}</ClientLayoutWrapper>
-            <Footer />
-            <Toaster position="top-right" />
+            <CompareProvider>
+              <Navbar />
+              <ClientLayoutWrapper>{children}</ClientLayoutWrapper>
+              <Footer />
+              <Toaster position="top-right" />
+            </CompareProvider>
           </CartProvider>
         </AuthProvider>
       </body>

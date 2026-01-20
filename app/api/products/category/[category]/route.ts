@@ -4,6 +4,15 @@ import { getBearerToken } from "@/app/lib/auth-utils";
 
 const API_BASE = process.env.API_BASE!;      // "http://sannai.test/api/v2"
 const SYSTEM_KEY = process.env.SYSTEM_KEY!;  // if your backend needs it
+
+type Variant = {
+  variant: string;
+  price: number;
+  sku: string | null;
+  qty: number;
+  image: string | null;
+};
+
 type ProductApi = {
   id: number | string;
   name: string;
@@ -15,7 +24,11 @@ type ProductApi = {
   sales?: string | number | null;
   thumbnail_image: string;
   featured_specs?: unknown[];
+  variants?: Variant[];
+  current_stock?: number;
+  product_compatible?: string[];
 };
+
 export async function GET(
   req: NextRequest,
   { params }: { params: { category: string } }
@@ -53,6 +66,7 @@ export async function GET(
 
     const productsRaw: ProductApi[] = backendJson.data ?? [];
     const meta = backendJson.meta ?? {};
+    const filtering_attributes = backendJson.filtering_attributes ?? [];
 
     const products = productsRaw.map((p) => ({
       id: p.id,
@@ -65,6 +79,9 @@ export async function GET(
       reviews: String(p.sales ?? 0),
       image: p.thumbnail_image,
       featured_specs: p.featured_specs ?? [],
+      variants: p.variants ?? [],
+      current_stock: p.current_stock ?? 0,
+      product_compatible: p.product_compatible ?? [],
     }));
 
     return NextResponse.json({
@@ -73,6 +90,7 @@ export async function GET(
       subtitle: "",
       total: meta.total ?? products.length,
       products,
+      filtering_attributes,
     });
   } catch (error) {
     console.error("Category products API error:", error);

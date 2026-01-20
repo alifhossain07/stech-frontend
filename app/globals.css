@@ -203,3 +203,24 @@ body {
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2),
               inset 0 2px 5px rgba(0, 0, 0, 0.15);
 }
+
+/* Target tables inside your blog content */
+.blog-content table {
+  width: 100%;
+  border-collapse: collapse; /* optional, looks cleaner */
+}
+
+.blog-content table td {
+  vertical-align: top; /* aligns text/image to the top */
+  padding: 8px; /* optional spacing */
+}
+
+/* Target the first td in each row */
+.blog-content table tr td:first-child {
+  width: 50%; /* first td takes 50% */
+}
+
+/* Optional: second td automatically takes remaining 50% */
+.blog-content table tr td:last-child {
+  width: 50%;
+}

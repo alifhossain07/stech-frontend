@@ -1,52 +1,39 @@
-import Script from "next/script";
-import AboutSection from "@/components/Pages/Home/AboutSection";
-import EarbudsProducts from "@/components/Pages/Home/EarbudsProducts";
-import FastChargerProduct from "@/components/Pages/Home/FastChargerProducts";
-import FeatureProducts from "@/components/Pages/Home/FeatureProducts";
-import FlashSale from "@/components/Pages/Home/FlashSale";
-import HomeBannerSection from "@/components/Pages/Home/HomeBannerSection";
-import HomeBannerSection2 from "@/components/Pages/Home/HomeBannerSection2";
-import NeckBandProducts from "@/components/Pages/Home/NeckBandProducts";
-import NeckBandProducts2 from "@/components/Pages/Home/NeckBandProducts2";
-import NewArrival from "@/components/Pages/Home/NewArrival";
-import NewsLetter from "@/components/Pages/Home/NewsLetter";
-import PopularCategories from "@/components/Pages/Home/PopularCategories";
-import PowerBankProducts from "@/components/Pages/Home/PowerBankProducts";
-import PowerBankProducts2 from "@/components/Pages/Home/PowerBankProducts2";
-import HeroSlider from "@/components/ui/HeroSlider";
+"use client";
 
+import React from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/app/context/AuthContext";
+import PublicHome from "@/components/Pages/Home/PublicHome";
+import DealerHome from "@/components/Pages Dealer/DealerHome";
 
 export default function Home() {
-  return (
-    <div >
+  const { user, loading } = useAuth();
+  const router = useRouter();
 
-      <Script id="homepage-data-layer" strategy="afterInteractive">
-        {`
-          window.dataLayer = window.dataLayer || [];
-          window.dataLayer.push({
-            event: 'page_view',
-            page_type: 'home',
-            timestamp: new Date().toISOString()
-          });
-        `}
-      </Script>
-      <HeroSlider /> 
-      <PopularCategories />
-      <NewArrival/>
-      <EarbudsProducts/>
-      <FlashSale/>
-      <FastChargerProduct/>
-      <HomeBannerSection/>
-      <PowerBankProducts/>
-      <NeckBandProducts/>
-      <HomeBannerSection2/>
-      <PowerBankProducts2/>
-      <NeckBandProducts2/>
-      <FeatureProducts/>
-      <AboutSection/>
-      <NewsLetter/>
+  // Redirect dealers to their dedicated dashboard
+  React.useEffect(() => {
+    if (!loading && user?.type?.toLowerCase() === "dealer") {
+      router.push("/dealer");
+    }
+  }, [user, loading, router]);
 
-  
-    </div>
-  );
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  // If dealer is logged in, show a loading spinner while redirecting
+  if (user?.type?.toLowerCase() === "dealer") {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  // Otherwise, show the regular public homepage
+  return <PublicHome />;
 }

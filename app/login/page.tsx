@@ -9,8 +9,19 @@ import { useAuth } from "../context/AuthContext";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 const Page = () => {
-  const { login, loading } = useAuth();
+  const { login, loading, user } = useAuth();
   const router = useRouter();
+
+  // Redirect if already logged in (optional but good for UX)
+  React.useEffect(() => {
+    if (user) {
+      if (user.type?.toLowerCase() === "dealer") {
+        router.push("/");
+      } else {
+        router.push("/");
+      }
+    }
+  }, [user, router]);
   const [form, setForm] = useState({
     phone: "",
     password: "",
@@ -21,28 +32,32 @@ const Page = () => {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-   const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Frontend validation
     if (!form.phone || form.phone.trim() === "") {
       toast.error("Phone number is required");
       return;
     }
-    
+
     if (!form.password || form.password.trim() === "") {
       toast.error("Password is required");
       return;
     }
-    
+
     try {
-      await login({
+      const loginRes = await login({
         login_by: "phone",
         phone: form.phone.trim(),
         password: form.password,
       });
       toast.success("Logged in successfully");
+
+      // The state might take a tick to update, but we can also use the returned values if needed
+      // but for now, we just redirect to "/" as app/page.tsx handles the switch
       router.push("/");
+      router.refresh(); // Force refresh components relying on server/layout state
     } catch (err: unknown) {
       const message =
         err instanceof Error ? err.message : "Login failed";
@@ -90,7 +105,7 @@ const Page = () => {
                     htmlFor="login"
                     className="absolute -top-2 left-3 bg-white px-1 text-xs text-orange-600"
                   >
-                   Password
+                    Password
                   </label>
                   <input
                     type="password"
@@ -125,6 +140,14 @@ const Page = () => {
                     Sign In
                   </Link>
                 </p>
+                <div className="mt-4 pt-4 border-t border-gray-100 text-center">
+                  <p className="text-sm text-gray-600">
+                    Are you a Dealer?{" "}
+                    <Link href="/dealer/login" className="font-bold text-black border-b border-black hover:text-orange-600 hover:border-orange-600 transition ml-1">
+                      Login as Dealer
+                    </Link>
+                  </p>
+                </div>
               </form>
 
               {/* Divider */}

@@ -1,3 +1,4 @@
+
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
@@ -223,9 +224,9 @@ const Footer = async () => {
                   );
                 })}
               </ul>
-              <button className="mt-4 px-4 py-2 bg-gradient-to-b from-[#FFD522] to-[#FF6B01] text-white rounded-lg hover:opacity-90 transition text-sm">
-                Buy Dealer Products
-              </button>
+              <Link href="/dealer/registration" className="mt-12 px-4 py-2 bg-gradient-to-b from-[#FFD522] to-[#FF6B01] text-white rounded-lg hover:opacity-90 transition text-sm">
+                Become a Dealer
+              </Link>
             </div>
 
             {/* Column 2 - Terms */}
@@ -239,7 +240,9 @@ const Footer = async () => {
                 <li className="hover:text-orange-500 cursor-pointer duration-300">Privacy Policy</li>
                 <li className="hover:text-orange-500 cursor-pointer duration-300">Terms & Conditions</li>
                 <li className="hover:text-orange-500 cursor-pointer duration-300">Return & Refund Policy</li>
-                <li className="hover:text-orange-500 cursor-pointer duration-300">Track Order</li>
+                <li className="hover:text-orange-500 cursor-pointer duration-300">
+                  <Link href="/trackorder">Track Order</Link>
+                </li>
               </ul>
             </div>
 

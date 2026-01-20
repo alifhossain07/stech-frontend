@@ -4,6 +4,7 @@ import { RefObject } from "react";
 import { useCart } from "@/app/context/CartContext";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
+import { useCompare } from "@/app/context/CompareContext";
 import {
   FiChevronLeft,
   FiChevronRight,
@@ -72,6 +73,7 @@ interface ProductType {
   faqs?: FAQItem[];
   variants: ProductVariant[];
   thumbnail_image?: string;
+  compare_specifications?: string;
 }
 
 // Optional: Recently Viewed Products
@@ -89,6 +91,7 @@ const Page = () => {
   const { slug } = useParams(); // <-- grabs slug from URL
   const router = useRouter();
   const { addToCart, setCartOpen, setSelectedItems } = useCart();
+  const { addToCompare, isInCompare, removeFromCompare } = useCompare();
   const [product, setProduct] = useState<ProductType | null>(null);
   const [cartLoading, setCartLoading] = useState(false);
 
@@ -609,10 +612,34 @@ const Page = () => {
 
               {/* --- Desktop Buttons (md and up) --- */}
               <div className="hidden md:flex items-center gap-4 text-[16px]">
-                <button className="flex items-center gap-1 hover:text-gray-700 transition">
+                <button
+                  onClick={() => {
+                    if (!product || !slug) return;
+                    if (isInCompare(product.id)) {
+                      removeFromCompare(product.id);
+                    } else {
+                      addToCompare({
+                        id: product.id,
+                        slug: String(slug),
+                        name: product.name,
+                        image: product.thumbnail_image || product.photos?.[0]?.path || "/images/placeholder.png",
+                        main_price: String(product.main_price),
+                        stroked_price: String(product.stroked_price),
+                        has_discount: !!product.discount,
+                        discount: product.discount,
+                        rating: 0,
+                        compare_specifications: product.compare_specifications || "",
+                        brand: product.brand,
+                        model_number: product.model_number,
+                        other_features: product.other_features,
+                      });
+                    }
+                  }}
+                  className={`flex items-center gap-1 transition ${isInCompare(product?.id || 0) ? "text-orange-500 hover:text-orange-600" : "hover:text-gray-700"}`}
+                >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
+                    fill={isInCompare(product?.id || 0) ? "currentColor" : "none"}
                     viewBox="0 0 24 24"
                     strokeWidth={1.5}
                     stroke="currentColor"
@@ -624,7 +651,7 @@ const Page = () => {
                       d="M8 16h8M8 12h8m-8-4h8m-6 8v4m4-4v4"
                     />
                   </svg>
-                  Add to Compare
+                  {isInCompare(product?.id || 0) ? "Remove Compare" : "Add to Compare"}
                 </button>
 
                 <button

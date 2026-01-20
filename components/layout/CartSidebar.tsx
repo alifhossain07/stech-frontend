@@ -138,7 +138,7 @@ export default function CartSidebar({ externalOpen, setExternalOpen }: CartSideb
           className="shadow-lg rounded-l-xl overflow-hidden"
         >
           <div className="w-[90px]">
-            <div className="bg-black text-white flex flex-col items-center py-3">
+            <div className="bg-gray-900 text-white flex flex-col items-center py-3">
               <div className="w-[28px] h-[28px] flex items-center justify-center">
                 <Image src="/images/buy.png" alt="Cart Icon" width={28} height={28} />
               </div>
