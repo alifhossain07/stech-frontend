@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
-import { FiChevronDown, FiX } from "react-icons/fi";
+import { FiChevronDown } from "react-icons/fi";
 import { toast } from "react-hot-toast";
 import WarrantyClaimModal from "@/components/ui/WarrantyClaimModal";
 import { useAuth } from "@/app/context/AuthContext";
@@ -17,7 +17,10 @@ interface WarrantyClaim {
     product: {
         id?: number;
         name: string;
-        thumbnail?: string;
+        thumbnail?: string | { file_name: string };
+        thumbnail_image?: string;
+        image?: string;
+        photos?: { path: string }[] | string;
         unit_price?: number;
         discount?: number;
     };
@@ -59,7 +62,7 @@ export default function ProductWarrantyPage() {
                 if (data.data && data.data.length > 0) {
                     setExpandedId(data.data[0].id);
                 } else {
-                    toast.error("No claims found for this number");
+                    toast.error("It's looks like you didn't purchase this product from us.this number");
                 }
             } else {
                 setClaims([]);
@@ -93,9 +96,26 @@ export default function ProductWarrantyPage() {
                 month: 'long',
                 year: 'numeric'
             });
-        } catch (error) {
+        } catch {
             return dateString;
         }
+    };
+
+    const getProductImage = (product: WarrantyClaim['product']) => {
+        // 1. Direct URL string (Activation style)
+        if (typeof product.thumbnail === 'string' && product.thumbnail.startsWith('http')) return product.thumbnail;
+
+        // 2. Object with file_name (Warranty Claim style) -> Construct URL
+        if (product.thumbnail && typeof product.thumbnail === 'object' && 'file_name' in product.thumbnail) {
+            return `https://sannaiadmin.techdynobdltd.com/public/${product.thumbnail.file_name}`;
+        }
+
+        // 3. Fallbacks
+        if (product.image) return product.image;
+        if (product.thumbnail_image) return product.thumbnail_image;
+        if (Array.isArray(product.photos) && product.photos.length > 0) return product.photos[0].path;
+
+        return "/images/placeholder.jpg";
     };
 
     if (authLoading) {
@@ -167,7 +187,7 @@ export default function ProductWarrantyPage() {
                                             <div className="flex items-center gap-4 flex-1">
                                                 <div className="w-16 h-16 bg-white border border-gray-100 rounded-lg flex items-center justify-center p-1 flex-shrink-0 relative overflow-hidden">
                                                     <Image
-                                                        src={claim.product.thumbnail || "/images/placeholder.jpg"}
+                                                        src={getProductImage(claim.product)}
                                                         alt={claim.product.name}
                                                         width={50}
                                                         height={50}
@@ -213,7 +233,7 @@ export default function ProductWarrantyPage() {
                                                     {claim.admin_note && (
                                                         <div className="pt-3 border-t border-gray-200">
                                                             <span className="text-orange-500 text-xs font-semibold uppercase tracking-wider">Admin Response</span>
-                                                            <p className="text-gray-800 text-sm mt-1 italic">"{claim.admin_note}"</p>
+                                                            <p className="text-gray-800 text-sm mt-1 italic">&quot;{claim.admin_note}&quot;</p>
                                                         </div>
                                                     )}
                                                 </div>

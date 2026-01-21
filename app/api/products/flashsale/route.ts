@@ -17,7 +17,7 @@ export async function GET(request: Request) {
     let flashSaleData;
 
     if (slug) {
-      flashSaleData = flashDeals.find((deal: any) => deal.slug === slug);
+      flashSaleData = flashDeals.find((deal: { slug: string, [key: string]: unknown }) => deal.slug === slug);
     }
 
     // Default to the first one if no slug provided or slug not found

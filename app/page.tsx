@@ -4,7 +4,6 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/app/context/AuthContext";
 import PublicHome from "@/components/Pages/Home/PublicHome";
-import DealerHome from "@/components/Pages Dealer/DealerHome";
 
 export default function Home() {
   const { user, loading } = useAuth();

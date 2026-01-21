@@ -95,7 +95,6 @@ export default function ProductOptionsModal({ slug, open, onClose }: Props) {
   const [loading, setLoading] = useState(false);
   const [adding, setAdding] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [selectedVariant, setSelectedVariant] = useState<string>("");
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
   const [selectedColor, setSelectedColor] = useState<string>("");
   const [quantity, setQuantity] = useState<number>(1);
@@ -114,7 +113,7 @@ export default function ProductOptionsModal({ slug, open, onClose }: Props) {
       setError(null);
       setProduct(null);
       setQuantity(1);
-      setSelectedVariant("");
+      setQuantity(1);
 
       try {
         const res = await fetch(`/api/products/${slug}`);
@@ -124,7 +123,7 @@ export default function ProductOptionsModal({ slug, open, onClose }: Props) {
         setProduct(data);
 
         if (data.variants && data.variants.length > 0) {
-          setSelectedVariant(data.variants[0].variant);
+          // setSelectedVariant(data.variants[0].variant);
         }
         if (data.colors && data.colors.length > 0) {
           setSelectedColor(data.colors[0]);

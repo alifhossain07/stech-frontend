@@ -47,7 +47,7 @@ const Page = () => {
     }
 
     try {
-      const loginRes = await login({
+      await login({
         login_by: "phone",
         phone: form.phone.trim(),
         password: form.password,

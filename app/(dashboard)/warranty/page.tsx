@@ -56,13 +56,7 @@ export default function WarrantyDashboardPage() {
     const [claimDescription, setClaimDescription] = useState("");
     const [isSubmittingClaim, setIsSubmittingClaim] = useState(false);
 
-    useEffect(() => {
-        if (!loading && user) {
-            fetchData();
-        }
-    }, [user, loading]);
-
-    const fetchData = async () => {
+    const fetchData = React.useCallback(async () => {
         setIsLoading(true);
         try {
             const headers: Record<string, string> = {};
@@ -104,7 +98,13 @@ export default function WarrantyDashboardPage() {
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [accessToken, user]);
+
+    useEffect(() => {
+        if (!loading && user) {
+            fetchData();
+        }
+    }, [user, loading, fetchData]);
 
     const handleOpenClaimModal = (product: ActivatedProduct) => {
         setSelectedProductForClaim(product);

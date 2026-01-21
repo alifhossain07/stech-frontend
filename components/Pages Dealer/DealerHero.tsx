@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
+
 import { FiSearch, FiArrowRight } from "react-icons/fi";
 import { AiOutlineFileText } from "react-icons/ai";
 import { MdBusiness } from "react-icons/md";

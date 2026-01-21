@@ -85,7 +85,7 @@ const Navbar = () => {
   const [helplineNumber, setHelplineNumber] = useState<string | null>(null);
   const [closing, setClosing] = useState(false);
   const { cart, cartOpen, setCartOpen } = useCart();
-  const { user, logout, loading: authLoading } = useAuth();
+  const { user, logout } = useAuth();
 
   // Debug log for dealer state
   useEffect(() => {

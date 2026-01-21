@@ -6,12 +6,7 @@ import BlogCard from "@/components/blog/BlogCard";
 // import BlogSidebar from "@/components/blog/BlogSidebar";
 import "./blog.css";
 
-interface Category {
-    id: number;
-    category_name: string;
-    slug: string;
-    blogs_count: number;
-}
+
 
 interface Blog {
     id: number;
@@ -27,23 +22,10 @@ export default function BlogListing() {
     const searchParams = useSearchParams();
     const category = searchParams.get("category");
     const [blogs, setBlogs] = useState<Blog[]>([]);
-    const [categories, setCategories] = useState<Category[]>([]);
+
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        async function fetchCategories() {
-            try {
-                const res = await fetch("/api/blog-categories");
-                const data = await res.json();
-                if (data.result && data.categories) {
-                    setCategories(data.categories);
-                }
-            } catch (error) {
-                console.error("Error fetching categories:", error);
-            }
-        }
-        fetchCategories();
-    }, []);
+
 
     useEffect(() => {
         async function fetchBlogs() {

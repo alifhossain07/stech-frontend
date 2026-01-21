@@ -1,14 +1,13 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState } from "react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { useAuth } from "@/app/context/AuthContext";
 import { FiCheck, FiX, FiChevronDown, } from "react-icons/fi";
 import { toast } from "react-hot-toast";
 import WarrantyClaimModal from "@/components/ui/WarrantyClaimModal";
 
-type AuthStep = "mobile_input" | "activation_status" | "success_validation";
+
 
 interface ActivatedProduct {
     product_serial_id: number;
@@ -33,10 +32,20 @@ interface ActivatedProduct {
     };
 }
 
+interface SuccessData {
+    serial: {
+        serial: string;
+        product: {
+            name: string;
+            warranty_days: number;
+        };
+        warranty_expires_at: string;
+    };
+}
+
 export default function AuthenticationPage() {
-    const router = useRouter();
     const { loading } = useAuth();
-    const [step, setStep] = useState<AuthStep>("mobile_input");
+    const [step, setStep] = useState<"activation_status" | "mobile_input" | "success_validation">("mobile_input");
 
     // Form States
     const [mobileNumber, setMobileNumber] = useState("");
@@ -44,7 +53,7 @@ export default function AuthenticationPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [isActivating, setIsActivating] = useState(false);
     const [activatedProducts, setActivatedProducts] = useState<ActivatedProduct[]>([]);
-    const [successData, setSuccessData] = useState<any>(null);
+    const [successData, setSuccessData] = useState<SuccessData | null>(null);
 
     // Modal States
     const [isClaimModalOpen, setIsClaimModalOpen] = useState(false);
@@ -263,7 +272,7 @@ export default function AuthenticationPage() {
                                                                 </h4>
                                                                 <FiChevronDown className={`transition-transform duration-300 ${expandedId === prod.product_serial_id ? 'rotate-180' : ''}`} />
                                                             </div>
-                                                            <div className="flex items-center gap-2 mt-1">
+                                                            {/* <div className="flex items-center gap-2 mt-1">
                                                                 <span className="text-orange-500 font-bold text-base md:text-lg">৳{prod.product.unit_price || 0}</span>
                                                                 {prod.product.discount && (
                                                                     <span className="bg-green-100 text-green-600 px-2 py-0.5 rounded text-[10px] font-bold">
@@ -273,7 +282,7 @@ export default function AuthenticationPage() {
                                                                 <span className="text-gray-300 line-through text-xs">
                                                                     ৳{prod.product.unit_price ? Math.round(prod.product.unit_price * 1.1) : 0}
                                                                 </span>
-                                                            </div>
+                                                            </div> */}
                                                         </div>
                                                     </div>
                                                     <button

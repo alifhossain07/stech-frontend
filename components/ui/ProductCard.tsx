@@ -88,7 +88,7 @@ export default function ProductCard({ product }: { product: Product }) {
     });
 
     // Make only this item selected for checkout
-    setSelectedItems([id]);
+    setSelectedItems([id.toString()]);
     if (typeof window !== "undefined") {
       const item = {
         item_id: id.toString(),

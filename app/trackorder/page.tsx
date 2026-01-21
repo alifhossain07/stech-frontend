@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import Image from "next/image";
+
 
 interface OrderDetails {
     id: number;
@@ -59,7 +59,7 @@ export default function TrackOrder() {
             } else {
                 setError(result.message || "Order not found. Please check your code.");
             }
-        } catch (err) {
+        } catch {
             setError("An error occurred while tracking your order.");
         } finally {
             setLoading(false);
@@ -102,11 +102,11 @@ export default function TrackOrder() {
                             disabled={loading}
                             className="w-full md:w-auto bg-[#f16335] hover:bg-[#d9562d] text-white font-semibold py-3 px-8 rounded-lg transition-colors shadow-sm disabled:opacity-50"
                         >
-                            {loading ? "Tracking..." : "Track Order"}
+                            {loading ? "Wait, don't close the tab! Information loading..." : "Track Order"}
                         </button>
                     </form>
                     <p className="text-xs text-gray-500 mt-4 leading-relaxed text-center md:text-left">
-                        To track your order please enter your Order ID in the box below and press the 'Track Order' button. This was given to you on your receipt and in the confirmation email you should have received.
+                        To track your order please enter your Order ID in the box below and press the &apos;Track Order&apos; button. This was given to you on your receipt and in the confirmation email you should have received.
                     </p>
                 </div>
 

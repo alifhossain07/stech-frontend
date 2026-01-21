@@ -42,7 +42,7 @@ export default function BlogDetailsPage() {
                 const res = await fetch("/api/blog-categories");
                 const data = await res.json();
                 if (data.result && data.categories) {
-                    setCategories(data.categories.map((c: any) => c.category_name));
+                    setCategories(data.categories.map((c: { category_name: string }) => c.category_name));
                 }
             } catch (error) {
                 console.error("Error fetching categories:", error);

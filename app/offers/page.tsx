@@ -10,8 +10,10 @@ type Offer = {
   slug: string;
   imageSrc: string; // local path in /public/images
   imageAlt: string;
+  banner?: string;
 };
 
+/*
 const mockOffers: Offer[] = [
   {
     id: 1,
@@ -42,9 +44,10 @@ const mockOffers: Offer[] = [
     imageAlt: "Samsung special 25W fast charger",
   },
 ];
+*/
 
 export default function OffersPage() {
-  const [offers, setOffers] = React.useState<any[]>([]);
+  const [offers, setOffers] = React.useState<Offer[]>([]);
   const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
@@ -74,14 +77,12 @@ export default function OffersPage() {
   return (
     <main className="w-full min-h-[60vh] bg-white">
       <section className="max-w-6xl mx-auto px-3 sm:px-4 lg:px-0 py-8 sm:py-10">
-        {/* Page heading */}
         <div className="text-center mb-6 xl:mt-10 sm:mb-8">
           <h1 className="text-2xl sm:text-3xl font-bold text-orange-500">
             Latest Offers
           </h1>
         </div>
 
-        {/* 2x2 grid of offers */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
           {offers.map((offer) => (
             <Link
@@ -91,7 +92,7 @@ export default function OffersPage() {
             >
               <div className="relative w-full h-52 sm:h-64 md:h-72">
                 <Image
-                  src={offer.banner}
+                  src={offer.banner || offer.imageSrc}
                   alt={offer.title}
                   fill
                   priority

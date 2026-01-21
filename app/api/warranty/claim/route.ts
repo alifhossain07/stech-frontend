@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
     let data;
     try {
       data = JSON.parse(responseText);
-    } catch (e) {
+    } catch {
       return NextResponse.json(
         { result: false, message: "Backend communication error" },
         { status: res.status }

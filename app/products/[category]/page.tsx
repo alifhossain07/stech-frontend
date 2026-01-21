@@ -38,8 +38,9 @@ type FilterAttribute = {
   values: { id: number; value: string }[];
 };
 
-// API type for flash sale responses to avoid using `any`
-type FlashSaleApiProduct = {
+
+
+interface RawFlashDealProduct {
   id: number;
   name: string;
   slug: string;
@@ -48,7 +49,16 @@ type FlashSaleApiProduct = {
   discount: string;
   rating?: number | string;
   thumbnail_image: string;
-};
+}
+
+interface FlashDeal {
+  id: number;
+  title: string;
+  subtitle: string;
+  date: number;
+  products: { data: RawFlashDealProduct[] };
+}
+
 
 const CategoryPage = () => {
   const router = useRouter();
@@ -62,10 +72,11 @@ const CategoryPage = () => {
   const isSearchMode = category === "search";
   const isCollectionMode =
     typeof category === "string" && (category === "new-arrivals" || category === "flashsale");
-  const isAllFlashDeals = category === "flashsale" && !searchParams.get("slug");
+  /* const isAllFlashDeals = category === "flashsale" && !searchParams.get("slug"); */
+
 
   const [products, setProducts] = useState<ProductType[]>([]);
-  const [allDeals, setAllDeals] = useState<any[]>([]);
+  const [allDeals, setAllDeals] = useState<FlashDeal[]>([]);
   const [subtitle, setSubtitle] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [isFilterLoading, setIsFilterLoading] = useState(false);
@@ -111,8 +122,7 @@ const CategoryPage = () => {
     return filters;
   });
 
-  type DeviceType = "I Phone" | "Oppo" | "Samsung" | "Redmi";
-  const [deviceFilters, setDeviceFilters] = useState<DeviceType[]>([]); // Initialize empty since we'll use dynamic filters
+
 
   // Update URL with current filters - FIXED to preserve search query
   const updateURL = useCallback((updates: Record<string, string | number | null>) => {
@@ -152,7 +162,7 @@ const CategoryPage = () => {
         if (isCollectionMode) {
           if (category === "new-arrivals") {
             const res = await axios.get(`/api/products/new-arrivals`);
-            const list = (Array.isArray(res.data) ? res.data : (res.data.products || [])).map((p: any) => ({
+            const list = (Array.isArray(res.data) ? res.data : (res.data.products || [])).map((p: ProductType) => ({
               ...p,
               variants: p.variants || []
             }));
@@ -164,7 +174,7 @@ const CategoryPage = () => {
             const slug = searchParams.get("slug");
             if (slug) {
               const res = await axios.get(`/api/products/flashsale?slug=${slug}`);
-              const raw = (res.data?.products ?? []) as FlashSaleApiProduct[];
+              const raw = (res.data?.products ?? []) as RawFlashDealProduct[];
               const mapped = raw.map((product) => ({
                 id: product.id,
                 name: product.name,
@@ -230,7 +240,7 @@ const CategoryPage = () => {
     };
 
     fetchProducts();
-  }, [category, isSearchMode, isCollectionMode, searchQuery, sortOption, currentPage]);
+  }, [category, isSearchMode, isCollectionMode, searchQuery, sortOption, currentPage, searchParams]);
 
   // Client-side filtering for availability, price and dynamic attributes
   const filteredProducts = products.filter((p) => {
@@ -727,7 +737,7 @@ const CategoryPage = () => {
   );
 };
 
-const FlashDealSection = ({ deal }: { deal: any }) => {
+const FlashDealSection = ({ deal }: { deal: FlashDeal }) => {
   const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
   useEffect(() => {
@@ -751,7 +761,7 @@ const FlashDealSection = ({ deal }: { deal: any }) => {
     return () => clearInterval(interval);
   }, [deal.date]);
 
-  const mappedProducts = (deal.products?.data || []).map((product: any) => ({
+  const mappedProducts = (deal.products?.data || []).map((product: RawFlashDealProduct) => ({
     id: product.id,
     name: product.name,
     slug: product.slug,
@@ -793,7 +803,7 @@ const FlashDealSection = ({ deal }: { deal: any }) => {
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 md:gap-6">
-        {mappedProducts.map((p: any) => (
+        {mappedProducts.map((p) => (
           <ProductCard key={p.id} product={p} />
         ))}
       </div>
