@@ -74,7 +74,10 @@ interface ProductType {
   variants: ProductVariant[];
   thumbnail_image?: string;
   compare_specifications?: string;
+  choice_options?: { name: string; title: string; options: string[] }[];
 }
+
+
 
 // Optional: Recently Viewed Products
 // interface RecentProduct {
@@ -85,6 +88,22 @@ interface ProductType {
 //   discount: ssdsdstring;
 //   image: string;
 // }
+const colorMap: Record<string, string> = {
+  "#000000": "Black",
+  "#ffffff": "White",
+  "#ff0000": "Red",
+  "#00ff00": "Green",
+  "#0000ff": "Blue",
+  "#ffff00": "Yellow",
+  "#808080": "Gray",
+  "#666666": "Gray",
+  "#e74c3c": "Red",
+  "#27ae60": "Green",
+  "#f39c12": "Orange",
+  "#gray": "Gray",
+  "gray": "Gray",
+};
+
 const Page = () => {
 
 
@@ -106,8 +125,25 @@ const Page = () => {
   const [selectedVariant, setSelectedVariant] = useState("");
   const [selectedColor, setSelectedColor] = useState("gray");
   const [quantity, setQuantity] = useState(1);
+  const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
   const [isInWishlist, setIsInWishlist] = useState(false);
   const [wishlistLoading, setWishlistLoading] = useState(false);
+
+  const getEffectiveVariant = () => {
+    if (!product || !product.variants || product.variants.length === 0) return null;
+
+    const colorName = colorMap[selectedColor.toLowerCase()] || "";
+    const selectedParts = [colorName, ...Object.values(selectedOptions)].filter(Boolean).map(s => s.toLowerCase().replace(/\s+/g, ""));
+
+    return product.variants.find(v => {
+      const variantLow = v.variant.toLowerCase().replace(/\s+/g, "");
+      // Check if all selected parts are present in the variant string
+      return selectedParts.every(part => variantLow.includes(part));
+    }) || product.variants[0];
+  };
+
+  const currentVariant = getEffectiveVariant();
+  const displayPrice = currentVariant ? currentVariant.price : (product?.main_price || 0);
 
   const increase = () => setQuantity((prev) => prev + 1);
   const decrease = () => setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
@@ -135,6 +171,18 @@ const Page = () => {
         setProduct(data);
         if (data.variants && data.variants.length > 0) {
           setSelectedVariant(data.variants[0].variant);
+        }
+        if (data.colors && data.colors.length > 0) {
+          setSelectedColor(data.colors[0]);
+        }
+        if (data.choice_options && data.choice_options.length > 0) {
+          const initialOptions: Record<string, string> = {};
+          data.choice_options.forEach((opt) => {
+            if (opt.options.length > 0) {
+              initialOptions[opt.title] = opt.options[0];
+            }
+          });
+          setSelectedOptions(initialOptions);
         }
       } catch (err: unknown) {   // <-- avoid 'any' here too
         if (err instanceof Error) {
@@ -261,14 +309,16 @@ const Page = () => {
 
     setCartLoading(true);
 
-    const effectivePrice = parsePrice(
-      selectedVariant
-        ? product.variants.find((v) => v.variant === selectedVariant)?.price ??
-        product.main_price
-        : product.main_price
-    );
+    const effectivePrice = parsePrice(displayPrice);
+    const strokedPrice = parsePrice(product.stroked_price);
+
+    // FIX: Ensure oldPrice is at least the effective price to keep subtotal accurate
+    // If there's a discount, we should try to maintain the same discount gap if possible, 
+    // or just ensure oldPrice >= effectivePrice.
+    const cartOldPrice = Math.max(effectivePrice, strokedPrice);
 
     const image =
+      currentVariant?.image ||
       product.thumbnail_image ||
       product.photos[0]?.path ||
       "/images/placeholder.png";
@@ -279,10 +329,10 @@ const Page = () => {
         slug: String(slug),
         name: product.name,
         price: effectivePrice,
-        oldPrice: parsePrice(product.stroked_price),
+        oldPrice: cartOldPrice,
         img: image,
         qty: quantity,
-        variant: selectedVariant || undefined,
+        variant: currentVariant?.variant || undefined,
         variantImage: image,
       });
 
@@ -325,14 +375,12 @@ const Page = () => {
     if (!product) return;
     if (!slug || Array.isArray(slug)) return;
 
-    const effectivePrice = parsePrice(
-      selectedVariant
-        ? product.variants.find((v) => v.variant === selectedVariant)?.price ??
-        product.main_price
-        : product.main_price
-    );
+    const effectivePrice = parsePrice(displayPrice);
+    const strokedPrice = parsePrice(product.stroked_price);
+    const cartOldPrice = Math.max(effectivePrice, strokedPrice);
 
     const image =
+      currentVariant?.image ||
       product.thumbnail_image ||
       product.photos[0]?.path ||
       "/images/placeholder.png";
@@ -344,10 +392,10 @@ const Page = () => {
       slug: String(slug),
       name: product.name,
       price: effectivePrice,
-      oldPrice: parsePrice(product.stroked_price),
+      oldPrice: cartOldPrice,
       img: image,
       qty: quantity,
-      variant: selectedVariant || undefined,
+      variant: currentVariant?.variant || undefined,
       variantImage: image,
     });
 
@@ -542,7 +590,7 @@ const Page = () => {
             <div className="flex items-center justify-center gap-3 ">
               {/* New Price */}
               <span className="2xl:text-[32px] xl:text-[26px] text-[20px] font-semibold text-orange-500">
-                {product.main_price}
+                ৳{displayPrice}
               </span>
 
               {(() => {
@@ -775,69 +823,58 @@ const Page = () => {
             </div>
           </div>
 
-          <div className="bg-gray-50 px-4 py-3 rounded-lg flex flex-wrap items-start justify-between gap-4 mt-3">
-            {/* Variants */}
-            <div className="flex items-start gap-3">
-              <span className="text-[14px] font-medium text-gray-700 mt-1 shrink-0">
-                Variants :
-              </span>
-              <div
-                className="
-        flex gap-2 py-1
-        overflow-x-auto whitespace-nowrap
-        md:overflow-visible md:whitespace-normal md:flex-wrap
-      "
-              >
-                {product.variants?.map((v) => (
-                  <div key={v.sku || v.variant} className="relative group">
+          <div className="bg-gray-50 px-4 py-3 rounded-lg flex flex-col gap-4 mt-3">
+            {/* Choice Options */}
+            {product.choice_options?.map((opt) => (
+              <div key={opt.name} className="flex items-start gap-3">
+                <span className="text-[14px] font-medium text-gray-700 mt-1 shrink-0 w-24">
+                  {opt.title} :
+                </span>
+                <div className="flex flex-wrap gap-2">
+                  {opt.options.map((val) => (
                     <button
-                      onClick={() => setSelectedVariant(v.variant)}
-                      className={`
-        px-3 py-[4px] rounded-full text-[13px] font-medium border transition-all duration-200
-        md:max-w-[140px] md:truncate
-        ${selectedVariant === v.variant
-                          ? "bg-gray-200 text-orange-500 border-orange-400"
-                          : "bg-gray-100 text-gray-700 border-transparent hover:border-gray-300"
-                        }
-      `}
+                      key={val}
+                      onClick={() => setSelectedOptions(prev => ({ ...prev, [opt.title]: val }))}
+                      className={`px-3 py-[4px] rounded-full text-[13px] font-medium border transition-all duration-200 ${selectedOptions[opt.title] === val
+                        ? "bg-gray-200 text-orange-500 border-orange-400"
+                        : "bg-gray-100 text-gray-700 border-transparent hover:border-gray-300"
+                        }`}
                     >
-                      {v.variant}
+                      {val}
                     </button>
-
-                    {/* Tooltip */}
-                    <div
-                      className="
-        pointer-events-none absolute left-1/2 top-full z-20 mt-1 -translate-x-1/2
-        hidden whitespace-nowrap rounded-md bg-black px-2 py-1 text-xs text-white shadow-md
-        group-hover:block
-      "
-                    >
-                      {v.variant}
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
+            ))}
 
             {/* Colors */}
-            <div className="flex items-center gap-3 ">
-              <span className="text-[14px] font-medium text-gray-700">
-                Color :
-              </span>
+            {colors.length > 0 && (
               <div className="flex items-center gap-3">
-                {colors.map((color) => (
-                  <button
-                    key={color}
-                    onClick={() => setSelectedColor(color)}
-                    className={`w-6 h-6 rounded-full border-[2px] transition-all duration-200 ${selectedColor === color
-                      ? "border-orange-500 scale-110"
-                      : "border-gray-300 hover:scale-105"
-                      }`}
-                    style={{ backgroundColor: color }}
-                  ></button>
-                ))}
+                <span className="text-[14px] font-medium text-gray-700 shrink-0 w-24">
+                  Color :
+                </span>
+                <div className="flex items-center gap-3">
+                  {colors.map((color) => (
+                    <button
+                      key={color}
+                      onClick={() => setSelectedColor(color)}
+                      className={`w-6 h-6 rounded-full border-[2px] transition-all duration-200 ${selectedColor === color
+                        ? "border-orange-500 scale-110"
+                        : "border-gray-300 hover:scale-105"
+                        }`}
+                      style={{ backgroundColor: color }}
+                    ></button>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
+
+            {/* Derived Variant (Optional Info) */}
+            {currentVariant && product.variants && product.variants.length > 0 && (
+              <div className="flex items-center gap-3 text-xs text-gray-500 border-t pt-2">
+                <span>Selected SKU: {currentVariant.sku}</span>
+              </div>
+            )}
           </div>
 
           {/* Delivery, Quantity and Add Buy Buttons  */}

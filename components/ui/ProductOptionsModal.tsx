@@ -50,6 +50,25 @@ type ProductType = {
   other_features?: string;
   faqs?: FAQItem[];
   variants: ProductVariant[];
+  choice_options?: { name: string; title: string; options: string[] }[];
+};
+
+
+
+const colorMap: Record<string, string> = {
+  "#000000": "Black",
+  "#ffffff": "White",
+  "#ff0000": "Red",
+  "#00ff00": "Green",
+  "#0000ff": "Blue",
+  "#ffff00": "Yellow",
+  "#808080": "Gray",
+  "#666666": "Gray",
+  "#e74c3c": "Red",
+  "#27ae60": "Green",
+  "#f39c12": "Orange",
+  "#gray": "Gray",
+  "gray": "Gray",
 };
 
 type Props = {
@@ -77,6 +96,8 @@ export default function ProductOptionsModal({ slug, open, onClose }: Props) {
   const [adding, setAdding] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedVariant, setSelectedVariant] = useState<string>("");
+  const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
+  const [selectedColor, setSelectedColor] = useState<string>("");
   const [quantity, setQuantity] = useState<number>(1);
   const [mounted, setMounted] = useState(false);
 
@@ -105,6 +126,18 @@ export default function ProductOptionsModal({ slug, open, onClose }: Props) {
         if (data.variants && data.variants.length > 0) {
           setSelectedVariant(data.variants[0].variant);
         }
+        if (data.colors && data.colors.length > 0) {
+          setSelectedColor(data.colors[0]);
+        }
+        if (data.choice_options && data.choice_options.length > 0) {
+          const initialOptions: Record<string, string> = {};
+          data.choice_options.forEach((opt) => {
+            if (opt.options.length > 0) {
+              initialOptions[opt.title] = opt.options[0];
+            }
+          });
+          setSelectedOptions(initialOptions);
+        }
       } catch (err: unknown) {
         setError(err instanceof Error ? err.message : "Something went wrong");
       } finally {
@@ -114,6 +147,21 @@ export default function ProductOptionsModal({ slug, open, onClose }: Props) {
 
     fetchProduct();
   }, [open, slug]);
+
+  const getEffectiveVariant = () => {
+    if (!product || !product.variants || product.variants.length === 0) return null;
+
+    const colorName = colorMap[selectedColor.toLowerCase()] || "";
+    const selectedParts = [colorName, ...Object.values(selectedOptions)].filter(Boolean).map(s => s.toLowerCase().replace(/\s+/g, ""));
+
+    return product.variants.find(v => {
+      const variantLow = v.variant.toLowerCase().replace(/\s+/g, "");
+      return selectedParts.every(part => variantLow.includes(part));
+    }) || product.variants[0];
+  };
+
+  const currentVariant = getEffectiveVariant();
+  const displayPrice = currentVariant ? currentVariant.price : parsePrice(product?.main_price);
 
   const increment = () => setQuantity((q) => q + 1);
   const decrement = () => setQuantity((q) => (q > 1 ? q - 1 : 1));
@@ -129,15 +177,12 @@ export default function ProductOptionsModal({ slug, open, onClose }: Props) {
         return;
       }
 
-      const variantObj = selectedVariant
-        ? product.variants.find((v) => v.variant === selectedVariant)
-        : undefined;
-
-      const price = parsePrice(
-        variantObj?.price ?? product.main_price
-      );
+      const price = parsePrice(displayPrice);
+      const strokedPrice = parsePrice(product.stroked_price);
+      const cartOldPrice = Math.max(price, strokedPrice);
 
       const image =
+        currentVariant?.image ||
         product.thumbnail_image ||
         product.photos[0]?.path ||
         "/images/placeholder.png";
@@ -147,10 +192,10 @@ export default function ProductOptionsModal({ slug, open, onClose }: Props) {
         slug,
         name: product.name,
         price,
-        oldPrice: parsePrice(product.stroked_price),
+        oldPrice: cartOldPrice,
         img: image,
         qty: quantity,
-        variant: selectedVariant || undefined,
+        variant: currentVariant?.variant || undefined,
         variantImage: image,
       });
 
@@ -162,8 +207,8 @@ export default function ProductOptionsModal({ slug, open, onClose }: Props) {
           item_category: "",
           price,
           quantity,
-          item_variant: variantObj?.variant || "",
-          item_sku: variantObj?.sku || "",
+          item_variant: currentVariant?.variant || "",
+          item_sku: currentVariant?.sku || "",
         };
 
         window.dataLayer = window.dataLayer || [];
@@ -259,30 +304,17 @@ export default function ProductOptionsModal({ slug, open, onClose }: Props) {
 
                   <div className="flex items-center gap-2">
                     <span className="text-orange-500 font-semibold text-lg">
-                      ৳
-                      {parsePrice(
-                        selectedVariant
-                          ? product.variants.find(
-                              (v) => v.variant === selectedVariant
-                            )?.price ?? product.main_price
-                          : product.main_price
-                      )}
+                      ৳{displayPrice}
                     </span>
                     {(() => {
                       // Parse discount to check if it's 0 or empty
                       const discountValue = parseFloat(String(product.discount || '0').replace(/[^\d.]/g, ''));
-                      const currentPrice = parsePrice(
-                        selectedVariant
-                          ? product.variants.find(
-                              (v) => v.variant === selectedVariant
-                            )?.price ?? product.main_price
-                          : product.main_price
-                      );
+                      const currentPrice = parsePrice(displayPrice);
                       const strokedPrice = parsePrice(product.stroked_price);
                       const hasDiscount = discountValue > 0 && strokedPrice !== currentPrice;
-                      
+
                       if (!hasDiscount) return null;
-                      
+
                       return (
                         <>
                           <span className="line-through text-gray-400 text-xs">
@@ -298,25 +330,46 @@ export default function ProductOptionsModal({ slug, open, onClose }: Props) {
                 </div>
               </div>
 
-              {/* Variant select (if any) */}
-              {product.variants && product.variants.length > 0 && (
-                <div className="space-y-1">
+              {/* Choice Options */}
+              {product.choice_options?.map((opt) => (
+                <div key={opt.name} className="space-y-1">
                   <p className="text-xs font-medium text-gray-700">
-                    Choose Variant
+                    {opt.title}
                   </p>
                   <div className="flex flex-wrap gap-2">
-                    {product.variants.map((v) => (
+                    {opt.options.map((val) => (
                       <button
-                        key={v.sku}
-                        onClick={() => setSelectedVariant(v.variant)}
-                        className={`px-3 py-1 rounded-full border text-xs ${
-                          selectedVariant === v.variant
-                            ? "bg-black text-white border-black"
-                            : "bg-white text-gray-700 border-gray-300 hover:border-black"
-                        }`}
+                        key={val}
+                        onClick={() => setSelectedOptions(prev => ({ ...prev, [opt.title]: val }))}
+                        className={`px-3 py-1 rounded-full border text-xs ${selectedOptions[opt.title] === val
+                          ? "bg-black text-white border-black"
+                          : "bg-white text-gray-700 border-gray-300 hover:border-black"
+                          }`}
                       >
-                        {v.variant}
+                        {val}
                       </button>
+                    ))}
+                  </div>
+                </div>
+              ))}
+
+              {/* Colors */}
+              {product.colors && product.colors.length > 0 && (
+                <div className="space-y-1">
+                  <p className="text-xs font-medium text-gray-700">
+                    Color
+                  </p>
+                  <div className="flex items-center gap-3">
+                    {product.colors.map((color) => (
+                      <button
+                        key={color}
+                        onClick={() => setSelectedColor(color)}
+                        className={`w-6 h-6 rounded-full border-[2px] transition-all duration-200 ${selectedColor === color
+                          ? "border-orange-500 scale-110"
+                          : "border-gray-300 hover:scale-105"
+                          }`}
+                        style={{ backgroundColor: color }}
+                      ></button>
                     ))}
                   </div>
                 </div>
@@ -347,7 +400,7 @@ export default function ProductOptionsModal({ slug, open, onClose }: Props) {
               </div>
 
               {/* Small specs preview */}
-              
+
             </>
           )}
         </div>
@@ -363,11 +416,10 @@ export default function ProductOptionsModal({ slug, open, onClose }: Props) {
           <button
             disabled={adding || loading || !product || product.current_stock === 0}
             onClick={handleConfirmAdd}
-            className={`w-1/2 py-2 rounded-full text-xs md:text-sm font-semibold text-white transition ${
-              adding || loading || !product || product.current_stock === 0
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-orange-500 hover:bg-orange-600"
-            }`}
+            className={`w-1/2 py-2 rounded-full text-xs md:text-sm font-semibold text-white transition ${adding || loading || !product || product.current_stock === 0
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-orange-500 hover:bg-orange-600"
+              }`}
           >
             {adding ? "Adding..." : "Add to Cart"}
           </button>

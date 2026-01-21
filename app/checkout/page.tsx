@@ -72,7 +72,7 @@ const CheckoutPage: React.FC = () => {
 
   // Filter selected items
   const selectedCart = React.useMemo(() =>
-    cart.filter((item) => selectedItems.includes(item.id)),
+    cart.filter((item) => selectedItems.includes(item.variant ? `${item.id}-${item.variant}` : item.id.toString())),
     [cart, selectedItems]
   );
 
@@ -735,6 +735,7 @@ const CheckoutPage: React.FC = () => {
                 name: item.name,
                 qty: item.qty,
                 price: item.price,
+                variant: item.variant || null,
               })),
               shipping: {
                 method: data.shipping,
@@ -849,7 +850,7 @@ const CheckoutPage: React.FC = () => {
                       <button
                         type="button"
                         className="w-5 h-5 flex items-center justify-center bg-black text-white rounded-full"
-                        onClick={() => decreaseQty(item.id)}
+                        onClick={() => decreaseQty(item.id, item.variant)}
                       >
                         -
                       </button>
@@ -857,7 +858,7 @@ const CheckoutPage: React.FC = () => {
                       <button
                         type="button"
                         className="w-5 h-5 flex items-center justify-center bg-black text-white rounded-full"
-                        onClick={() => increaseQty(item.id)}
+                        onClick={() => increaseQty(item.id, item.variant)}
                       >
                         +
                       </button>
@@ -866,7 +867,7 @@ const CheckoutPage: React.FC = () => {
                 </div>
                 <button
                   type="button"
-                  onClick={() => removeFromCart(item.id)}
+                  onClick={() => removeFromCart(item.id, item.variant)}
                   className="absolute right-2 bottom-2 text-gray-400 hover:text-red-500 text-lg"
                 >
                   <RiDeleteBin6Line className="text-xl mr-2 mb-2" />

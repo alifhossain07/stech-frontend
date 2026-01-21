@@ -80,7 +80,7 @@ export default function CartSidebar({ externalOpen, setExternalOpen }: CartSideb
   // When the sidebar opens, select all items by default
   useEffect(() => {
     if (externalOpen) {
-      setSelectedItems(cart.map((item) => item.id));
+      setSelectedItems(cart.map((item) => item.variant ? `${item.id}-${item.variant}` : item.id.toString()));
 
       if (typeof window !== "undefined" && cart.length > 0) {
         const items = cart.map((item) => ({
@@ -108,9 +108,10 @@ export default function CartSidebar({ externalOpen, setExternalOpen }: CartSideb
 
   const typedCart: CartItem[] = cart;
 
-  const toggleSelect = (id: string | number) => {
+  const toggleSelect = (id: string | number, variant?: string) => {
+    const key = variant ? `${id}-${variant}` : id.toString();
     setSelectedItems(prev =>
-      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+      prev.includes(key) ? prev.filter(i => i !== key) : [...prev, key]
     );
   };
 
@@ -118,12 +119,15 @@ export default function CartSidebar({ externalOpen, setExternalOpen }: CartSideb
     if (selectedItems.length === typedCart.length) {
       setSelectedItems([]);
     } else {
-      setSelectedItems(typedCart.map(item => item.id));
+      setSelectedItems(typedCart.map(item => item.variant ? `${item.id}-${item.variant}` : item.id.toString()));
     }
   };
 
   // Only calculate totals for selected items
-  const selectedCart = typedCart.filter(item => selectedItems.includes(item.id));
+  const selectedCart = typedCart.filter(item => {
+    const key = item.variant ? `${item.id}-${item.variant}` : item.id.toString();
+    return selectedItems.includes(key);
+  });
   // Subtotal should reflect pre-discount sum; discount reflects savings
   const subtotal = selectedCart.reduce((acc, item) => acc + (Number(item.oldPrice ?? item.price) * item.qty), 0);
   const discount = selectedCart.reduce((acc, item) => acc + Math.max(0, Number(item.oldPrice) - Number(item.price)) * item.qty, 0);
@@ -223,11 +227,13 @@ export default function CartSidebar({ externalOpen, setExternalOpen }: CartSideb
             >
               {/* Checkbox */}
               <button
-                onClick={() => toggleSelect(item.id)}
-                className={`w-5 h-5 rounded-full border flex items-center justify-center flex-shrink-0 ${selectedItems.includes(item.id) ? "bg-orange-500 border-orange-500" : "border-gray-400"
+                onClick={() => toggleSelect(item.id, item.variant)}
+                className={`w-5 h-5 rounded-full border flex items-center justify-center flex-shrink-0 ${selectedItems.includes(item.variant ? `${item.id}-${item.variant}` : item.id.toString())
+                    ? "bg-orange-500 border-orange-500"
+                    : "border-gray-400"
                   }`}
               >
-                {selectedItems.includes(item.id) && (
+                {selectedItems.includes(item.variant ? `${item.id}-${item.variant}` : item.id.toString()) && (
                   <span className="text-white text-xs font-bold">✓</span>
                 )}
               </button>
@@ -263,14 +269,14 @@ export default function CartSidebar({ externalOpen, setExternalOpen }: CartSideb
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-medium text-gray-600">QTY :</span>
                     <button
-                      onClick={() => decreaseQty(item.id)}
+                      onClick={() => decreaseQty(item.id, item.variant)}
                       className="w-5 h-5 flex items-center justify-center bg-black text-white rounded-full"
                     >
                       -
                     </button>
                     <span className="text-sm font-medium">{item.qty}</span>
                     <button
-                      onClick={() => increaseQty(item.id)}
+                      onClick={() => increaseQty(item.id, item.variant)}
                       className="w-5 h-5 flex items-center justify-center bg-black text-white rounded-full"
                     >
                       +
@@ -278,7 +284,7 @@ export default function CartSidebar({ externalOpen, setExternalOpen }: CartSideb
                   </div>
 
                   <button
-                    onClick={() => removeFromCart(item.id)}
+                    onClick={() => removeFromCart(item.id, item.variant)}
                     className="text-gray-400 hover:text-red-500 text-lg"
                   >
                     <RiDeleteBin6Line />

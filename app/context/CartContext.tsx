@@ -18,15 +18,15 @@ export type CartItem = {
 type CartContextType = {
   cart: CartItem[];
   addToCart: (item: CartItem) => void;
-  removeFromCart: (id: string | number) => void;
-  increaseQty: (id: string | number) => void;
-  decreaseQty: (id: string | number) => void;
+  removeFromCart: (id: string | number, variant?: string) => void;
+  increaseQty: (id: string | number, variant?: string) => void;
+  decreaseQty: (id: string | number, variant?: string) => void;
   clearCart: () => void;
   cartOpen: boolean;
   setCartOpen: React.Dispatch<React.SetStateAction<boolean>>;
 
-  selectedItems: (string | number)[];
-  setSelectedItems: React.Dispatch<React.SetStateAction<(string | number)[]>>;
+  selectedItems: string[];
+  setSelectedItems: React.Dispatch<React.SetStateAction<string[]>>;
 };
 
 const CartContext = createContext<CartContextType | null>(null);
@@ -34,7 +34,7 @@ const CartContext = createContext<CartContextType | null>(null);
 export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
-  const [selectedItems, setSelectedItems] = useState<(string | number)[]>([]);
+  const [selectedItems, setSelectedItems] = useState<string[]>([]);
 
   // Load cart
   useEffect(() => {
@@ -61,15 +61,17 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   }, [selectedItems]);
 
   const addToCart = (item: CartItem) => {
-    // Check if already in cart, increase qty
-    const exists = cart.find((i) => i.id === item.id);
-    if (exists) {
-      setCart((prev) =>
-        prev.map((i) => (i.id === item.id ? { ...i, qty: i.qty + item.qty } : i))
-      );
-    } else {
-      setCart((prev) => [...prev, item]);
-    }
+    setCart((prev) => {
+      const exists = prev.find((i) => i.id === item.id && i.variant === item.variant);
+      if (exists) {
+        return prev.map((i) =>
+          i.id === item.id && i.variant === item.variant
+            ? { ...i, qty: i.qty + item.qty }
+            : i
+        );
+      }
+      return [...prev, item];
+    });
 
     toast.success("Product added to cart!", {
       position: "top-right",
@@ -82,19 +84,20 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     });
   };
 
-  const removeFromCart = (id: string | number) => {
-    setCart((prev) => prev.filter((i) => i.id !== id));
-    setSelectedItems((prev) => prev.filter((i) => i !== id));
+  const removeFromCart = (id: string | number, variant?: string) => {
+    const key = variant ? `${id}-${variant}` : id.toString();
+    setCart((prev) => prev.filter((i) => !(i.id === id && i.variant === variant)));
+    setSelectedItems((prev) => prev.filter((i) => i !== key));
   };
 
-  const increaseQty = (id: string | number) =>
+  const increaseQty = (id: string | number, variant?: string) =>
     setCart((prev) =>
-      prev.map((i) => (i.id === id ? { ...i, qty: i.qty + 1 } : i))
+      prev.map((i) => (i.id === id && i.variant === variant ? { ...i, qty: i.qty + 1 } : i))
     );
 
-  const decreaseQty = (id: string | number) =>
+  const decreaseQty = (id: string | number, variant?: string) =>
     setCart((prev) =>
-      prev.map((i) => (i.id === id && i.qty > 1 ? { ...i, qty: i.qty - 1 } : i))
+      prev.map((i) => (i.id === id && i.variant === variant && i.qty > 1 ? { ...i, qty: i.qty - 1 } : i))
     );
 
   const clearCart = () => {
