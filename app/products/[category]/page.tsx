@@ -62,8 +62,10 @@ const CategoryPage = () => {
   const isSearchMode = category === "search";
   const isCollectionMode =
     typeof category === "string" && (category === "new-arrivals" || category === "flashsale");
+  const isAllFlashDeals = category === "flashsale" && !searchParams.get("slug");
 
   const [products, setProducts] = useState<ProductType[]>([]);
+  const [allDeals, setAllDeals] = useState<any[]>([]);
   const [subtitle, setSubtitle] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [isFilterLoading, setIsFilterLoading] = useState(false);
@@ -159,25 +161,35 @@ const CategoryPage = () => {
             setTotalProducts((list || []).length);
             setTotalPages(1);
           } else if (category === "flashsale") {
-            const res = await axios.get(`/api/products/flashsale`);
-            const raw = (res.data?.products ?? []) as FlashSaleApiProduct[];
-            const mapped = raw.map((product) => ({
-              id: product.id,
-              name: product.name,
-              slug: product.slug,
-              price: typeof product.main_price === "string" ? parseFloat(product.main_price.replace("৳", "").replace(",", "")) : Number(product.main_price ?? 0),
-              oldPrice: typeof product.stroked_price === "string" ? parseFloat(product.stroked_price.replace("৳", "").replace(",", "")) : Number(product.stroked_price ?? 0),
-              discount: product.discount,
-              rating: String(product.rating ?? "0"),
-              reviews: "0",
-              image: product.thumbnail_image,
-              current_stock: 0,
-              variants: [],
-            }));
-            setProducts(mapped);
-            setSubtitle(res.data?.subtitle || "");
-            setTotalProducts(mapped.length);
-            setTotalPages(1);
+            const slug = searchParams.get("slug");
+            if (slug) {
+              const res = await axios.get(`/api/products/flashsale?slug=${slug}`);
+              const raw = (res.data?.products ?? []) as FlashSaleApiProduct[];
+              const mapped = raw.map((product) => ({
+                id: product.id,
+                name: product.name,
+                slug: product.slug,
+                price: typeof product.main_price === "string" ? parseFloat(product.main_price.replace("৳", "").replace(",", "")) : Number(product.main_price ?? 0),
+                oldPrice: typeof product.stroked_price === "string" ? parseFloat(product.stroked_price.replace("৳", "").replace(",", "")) : Number(product.stroked_price ?? 0),
+                discount: product.discount,
+                rating: String(product.rating ?? "0"),
+                reviews: "0",
+                image: product.thumbnail_image,
+                current_stock: 0,
+                variants: [],
+              }));
+              setProducts(mapped);
+              setSubtitle(res.data?.title || "");
+              setTotalProducts(mapped.length);
+              setTotalPages(1);
+            } else {
+              // View All mode
+              const res = await axios.get(`/api/products/flashdealsall`);
+              if (res.data.success) {
+                setAllDeals(res.data.data);
+                setTotalProducts(res.data.data.length);
+              }
+            }
           }
         } else {
           // Default: category or search endpoints
@@ -524,6 +536,22 @@ const CategoryPage = () => {
     </div>
   );
 
+  if (category === "flashsale" && !searchParams.get("slug")) {
+    return (
+      <div className="xl:w-9/12 w-11/12 pt-6 md:pt-16 pb-[56px] mx-auto">
+        {loading ? (
+          <CategoryPageSkeleton />
+        ) : (
+          <div className="flex flex-col gap-16">
+            {allDeals.map((deal) => (
+              <FlashDealSection key={deal.id} deal={deal} />
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="w-11/12 pt-6 md:pt-10 pb-[56px] mx-auto">
       {/* Display search query if in search mode */}
@@ -534,7 +562,7 @@ const CategoryPage = () => {
       )}
 
       {subtitle && (
-        <p className="text-gray-600 mb-4 md:mb-6 text-sm md:text-base">
+        <p className="text-gray-900 font-bold mt-5 mb-4 md:mb-6 text-md md:text-xl">
           {subtitle}
         </p>
       )}
@@ -695,6 +723,80 @@ const CategoryPage = () => {
           </div>
         </>
       )}
+    </div>
+  );
+};
+
+const FlashDealSection = ({ deal }: { deal: any }) => {
+  const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+
+  useEffect(() => {
+    const apiEndTime = deal.date * 1000;
+    const interval = setInterval(() => {
+      const currentTime = Date.now();
+      const timeRemaining = apiEndTime - currentTime;
+
+      if (timeRemaining <= 0) {
+        clearInterval(interval);
+        setCountdown({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+      } else {
+        const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+        setCountdown({ days, hours, minutes, seconds });
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [deal.date]);
+
+  const mappedProducts = (deal.products?.data || []).map((product: any) => ({
+    id: product.id,
+    name: product.name,
+    slug: product.slug,
+    price: typeof product.main_price === "string" ? parseFloat(product.main_price.replace("৳", "").replace(",", "")) : Number(product.main_price ?? 0),
+    oldPrice: typeof product.stroked_price === "string" ? parseFloat(product.stroked_price.replace("৳", "").replace(",", "")) : Number(product.stroked_price ?? 0),
+    discount: product.discount,
+    rating: String(product.rating ?? "0"),
+    reviews: "0",
+    image: product.thumbnail_image,
+    current_stock: 0,
+    variants: [],
+  }));
+
+  return (
+    <div className="w-full">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+        <div>
+          <h2 className="text-2xl md:text-3xl font-bold text-gray-900">{deal.title}</h2>
+          <p className="text-gray-600 mt-1">{deal.subtitle}</p>
+        </div>
+
+        <div className="flex gap-2 md:gap-4">
+          {[
+            { label: "Days", value: countdown.days },
+            { label: "Hours", value: countdown.hours },
+            { label: "Mins", value: countdown.minutes },
+            { label: "Sec", value: countdown.seconds },
+          ].map((item) => (
+            <div key={item.label} className="bg-[#fce9dc] rounded-lg p-2 md:p-3 min-w-[60px] md:min-w-[80px] text-center">
+              <div className="text-xl md:text-2xl font-bold text-orange-500 leading-none">
+                {String(item.value).padStart(2, "0")}
+              </div>
+              <div className="text-[10px] md:text-xs text-orange-600 font-medium uppercase mt-1">
+                {item.label}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 md:gap-6">
+        {mappedProducts.map((p: any) => (
+          <ProductCard key={p.id} product={p} />
+        ))}
+      </div>
     </div>
   );
 };

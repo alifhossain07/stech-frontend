@@ -6,7 +6,7 @@ import axios from "axios";
 import { FiChevronRight } from "react-icons/fi";
 import ProductCard from "@/components/ui/ProductCard";
 import FlashSaleShimmerSkeleton from "@/components/Skeletons/FlashSaleShimmerSkeleton";
- // Import the ShimmerSkeleton component
+// Import the ShimmerSkeleton component
 
 interface Product {
   id: number;
@@ -18,7 +18,7 @@ interface Product {
   rating: number;
   reviews: number;
   image: string;
-  
+
 }
 
 type BackendProduct = {
@@ -40,58 +40,58 @@ const FlashSale = () => {
   // const [endTime, setEndTime] = useState<number>(0); // Store the end time in Unix timestamp format
 
   useEffect(() => {
-  const fetchFlashSale = async () => {
-    let interval: NodeJS.Timeout | null = null;
-    try {
-      const res = await axios.get("/api/products/flashsale");
-      setBanner(res.data.banner);
+    const fetchFlashSale = async () => {
+      let interval: NodeJS.Timeout | null = null;
+      try {
+        const res = await axios.get("/api/products/flashsale");
+        setBanner(res.data.banner);
 
-      const mappedProducts: Product[] = res.data.products.map((product: BackendProduct) => ({
-        id: product.id,
-        name: product.name,
-        slug: product.slug,
-        price: parseFloat(product.main_price.replace("৳", "").replace(",", "")),
-        oldPrice: parseFloat(product.stroked_price.replace("৳", "").replace(",", "")),
-        discount: product.discount,
-        rating: parseFloat(product.rating),
-        reviews: 0,
-        image: product.thumbnail_image,
-      }));
+        const mappedProducts: Product[] = res.data.products.map((product: BackendProduct) => ({
+          id: product.id,
+          name: product.name,
+          slug: product.slug,
+          price: parseFloat(product.main_price.replace("৳", "").replace(",", "")),
+          oldPrice: parseFloat(product.stroked_price.replace("৳", "").replace(",", "")),
+          discount: product.discount,
+          rating: parseFloat(product.rating),
+          reviews: 0,
+          image: product.thumbnail_image,
+        }));
 
-      setProducts(mappedProducts);
+        setProducts(mappedProducts);
 
-      const apiEndTime = res.data.date * 1000; // ms
+        const apiEndTime = res.data.date * 1000; // ms
 
-      interval = setInterval(() => {
-        const currentTime = Date.now();
-        const timeRemaining = apiEndTime - currentTime;
+        interval = setInterval(() => {
+          const currentTime = Date.now();
+          const timeRemaining = apiEndTime - currentTime;
 
-        if (timeRemaining <= 0) {
-          clearInterval(interval!);
-          setCountdown({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-        } else {
-          const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
-          const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-          const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
-          const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+          if (timeRemaining <= 0) {
+            clearInterval(interval!);
+            setCountdown({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+          } else {
+            const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
 
-          setCountdown({ days, hours, minutes, seconds });
-        }
-      }, 1000);
-    } catch (error) {
-      console.error("Error fetching Flash Sale products:", error);
-    } finally {
-      setLoading(false);
-    }
+            setCountdown({ days, hours, minutes, seconds });
+          }
+        }, 1000);
+      } catch (error) {
+        console.error("Error fetching Flash Sale products:", error);
+      } finally {
+        setLoading(false);
+      }
 
-    // cleanup on unmount
-    return () => {
-      if (interval) clearInterval(interval);
+      // cleanup on unmount
+      return () => {
+        if (interval) clearInterval(interval);
+      };
     };
-  };
 
-  fetchFlashSale();
-}, []);
+    fetchFlashSale();
+  }, []);
 
   return (
     <div className="md:w-11/12 w-11/12 mx-auto pb-[56px]">
@@ -125,6 +125,7 @@ const FlashSale = () => {
               backgroundPosition: "center",
             }}
           >
+            <div className="absolute inset-0 bg-black/30 z-0"></div>
             <div className="relative text-white space-y-5 z-10">
               <p className="text-sm font-medium opacity-90">Only One Week Offer’s</p>
               <h1 className="md:text-2xl text-xl font-bold">Deal Of The Day</h1>

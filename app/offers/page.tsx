@@ -1,7 +1,8 @@
 "use client";
-
+import React from "react";
 import Image from "next/image";
 import Link from "next/link";
+import axios from "axios";
 
 type Offer = {
   id: number;
@@ -23,14 +24,14 @@ const mockOffers: Offer[] = [
     id: 2,
     title: "Smart 10000mAh Power Bank",
     slug: "smart-10000mah-powerbank",
-       imageSrc: "/images/offer2.webp",
+    imageSrc: "/images/offer2.webp",
     imageAlt: "Smart 10000mAh power bank",
   },
   {
     id: 3,
     title: "Sannai W-30 Gyro Charger",
     slug: "sannai-w30-gyro",
-     imageSrc: "/images/offer3.webp",
+    imageSrc: "/images/offer3.webp",
     imageAlt: "Sannai W-30 Gyro fast charger",
   },
   {
@@ -43,15 +44,38 @@ const mockOffers: Offer[] = [
 ];
 
 export default function OffersPage() {
-  // later you can replace mockOffers with data from an API
-  // e.g. const { data: offers } = useSWR("/api/offers", fetcher);
-  const offers = mockOffers;
+  const [offers, setOffers] = React.useState<any[]>([]);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    const fetchOffers = async () => {
+      try {
+        const res = await axios.get("/api/products/flashdealsall");
+        if (res.data.success) {
+          setOffers(res.data.data);
+        }
+      } catch (error) {
+        console.error("Error fetching offers:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchOffers();
+  }, []);
+
+  if (loading) {
+    return (
+      <main className="w-full bg-white h-screen flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+      </main>
+    );
+  }
 
   return (
-    <main className="w-full bg-white">
+    <main className="w-full min-h-[60vh] bg-white">
       <section className="max-w-6xl mx-auto px-3 sm:px-4 lg:px-0 py-8 sm:py-10">
         {/* Page heading */}
-        <div className="text-center mb-6 sm:mb-8">
+        <div className="text-center mb-6 xl:mt-10 sm:mb-8">
           <h1 className="text-2xl sm:text-3xl font-bold text-orange-500">
             Latest Offers
           </h1>
@@ -62,13 +86,13 @@ export default function OffersPage() {
           {offers.map((offer) => (
             <Link
               key={offer.id}
-              href={`/products/${offer.slug}`}
+              href={`/products/flashsale?slug=${offer.slug}`}
               className="block rounded-md overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-200 bg-white"
             >
               <div className="relative w-full h-52 sm:h-64 md:h-72">
                 <Image
-                  src={offer.imageSrc}
-                  alt={offer.imageAlt}
+                  src={offer.banner}
+                  alt={offer.title}
                   fill
                   priority
                   className="object-cover"
