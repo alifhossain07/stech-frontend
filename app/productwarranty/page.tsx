@@ -33,6 +33,7 @@ export default function ProductWarrantyPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [claims, setClaims] = useState<WarrantyClaim[]>([]);
     const [isResultsVisible, setIsResultsVisible] = useState(false);
+    const [mobileError, setMobileError] = useState<string | null>(null);
 
     // UI States
     const [expandedId, setExpandedId] = useState<number | null>(null);
@@ -41,9 +42,10 @@ export default function ProductWarrantyPage() {
 
     const handleSearch = async (e?: React.FormEvent) => {
         if (e) e.preventDefault();
+        setMobileError(null);
 
-        if (mobileNumber.length < 10) {
-            toast.error("Please enter a valid mobile number");
+        if (mobileNumber.length !== 11) {
+            setMobileError("Phone number must be exactly 11 digits");
             return;
         }
 
@@ -131,7 +133,7 @@ export default function ProductWarrantyPage() {
             <div className="max-w-7xl mx-auto px-4">
 
                 {/* TITLE */}
-                <h1 className="text-xl md:text-4xl font-bold text-center text-orange-500 mb-16">
+                <h1 className="text-xl md:text-4xl font-bold text-center text-orange-500 mb-5 xl:mb-16">
                     Sannai Technology Product Warranty
                 </h1>
 
@@ -147,10 +149,18 @@ export default function ProductWarrantyPage() {
                                 <input
                                     type="text"
                                     value={mobileNumber}
-                                    onChange={(e) => setMobileNumber(e.target.value)}
+                                    onChange={(e) => {
+                                        setMobileNumber(e.target.value);
+                                        if (mobileError) setMobileError(null);
+                                    }}
                                     placeholder="Enter number"
-                                    className="w-full h-12 bg-white border border-gray-200 rounded-xl px-6 text-xl focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all placeholder:text-gray-300"
+                                    className={`w-full h-12 bg-white border border-gray-200 rounded-xl px-6 text-xl focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all placeholder:text-gray-300 ${mobileError ? "ring-2 ring-red-500 bg-red-50 text-red-600 border-red-500" : ""}`}
                                 />
+                                {mobileError && (
+                                    <p className="text-red-500 mt-2 text-sm font-medium animate-fadeIn">
+                                        {mobileError}
+                                    </p>
+                                )}
                             </div>
 
                             <div className="flex gap-4 justify-center">
@@ -176,14 +186,14 @@ export default function ProductWarrantyPage() {
                     {isResultsVisible && claims.length > 0 && (
                         <div className="space-y-6 animate-fadeIn">
                             <div className="bg-[#F5F5F5] py-4 rounded-xl text-center">
-                                <h2 className="text-2xl font-bold text-gray-800 uppercase tracking-wide">Your Warranty Claim History</h2>
+                                <h2 className="text-lg xl:text-2xl font-bold text-gray-800 uppercase tracking-wide">Your Warranty Claim History</h2>
                             </div>
 
                             <div className="bg-white rounded-[2.5rem] shadow-[0_10px_50px_rgba(0,0,0,0.04)] overflow-hidden">
                                 {claims.map((claim) => (
                                     <div key={claim.id} className="border-b border-gray-100 last:border-none">
                                         {/* Header Row */}
-                                        <div className="p-4 md:p-6 flex flex-col md:flex-row items-center justify-between gap-4">
+                                        <div className="p-4 md:p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                                             <div className="flex items-center gap-4 flex-1">
                                                 <div className="w-16 h-16 bg-white border border-gray-100 rounded-lg flex items-center justify-center p-1 flex-shrink-0 relative overflow-hidden">
                                                     <Image
@@ -216,7 +226,7 @@ export default function ProductWarrantyPage() {
                                             </div>
                                             <button
                                                 onClick={() => openClaimModal(claim)}
-                                                className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-6 rounded-lg transition-all shadow-sm text-sm whitespace-nowrap"
+                                                className="bg-orange-500 hover:bg-orange-600 text-white font-bold xl:py-2 xl:px-6 rounded-lg transition-all shadow-sm text-sm whitespace-nowrap mt-2 md:mt-0 py-1 px-2 "
                                             >
                                                 New Claim
                                             </button>

@@ -100,8 +100,8 @@ const WarrantyClaimModal: React.FC<WarrantyClaimModalProps> = ({
             <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-2xl relative overflow-hidden animate-scaleIn">
                 {/* Header */}
                 <div className="flex justify-between items-center px-8 py-6 border-b border-gray-100">
-                    <h2 className="text-2xl font-semibold text-gray-800">
-                        Warranty Claim From
+                    <h2 className="text-md xl:text-2xl font-semibold text-gray-800">
+                        Warranty Claim Form
                     </h2>
                     <button
                         onClick={onClose}
@@ -164,7 +164,6 @@ const WarrantyClaimModal: React.FC<WarrantyClaimModalProps> = ({
                                     onChange={handleInputChange}
                                     placeholder="Enter e-mail"
                                     className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white transition-all"
-                                    required
                                 />
                             </div>
                         </div>

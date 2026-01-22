@@ -6,6 +6,7 @@ import { useAuth } from "@/app/context/AuthContext";
 import { FiCheck, FiX, FiChevronDown, } from "react-icons/fi";
 import { toast } from "react-hot-toast";
 import WarrantyClaimModal from "@/components/ui/WarrantyClaimModal";
+import ProductInfoModal from "@/components/ui/ProductInfoModal";
 
 
 
@@ -59,11 +60,16 @@ export default function AuthenticationPage() {
     const [isClaimModalOpen, setIsClaimModalOpen] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState<ActivatedProduct | undefined>(undefined);
     const [expandedId, setExpandedId] = useState<number | null>(null);
+    const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
+    const [activationError, setActivationError] = useState<string | null>(null);
+    const [mobileError, setMobileError] = useState<string | null>(null);
 
     const handleMobileNext = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (mobileNumber.length < 10) {
-            toast.error("Please enter a valid mobile number");
+        setMobileError(null);
+
+        if (mobileNumber.length !== 11) {
+            setMobileError("Phone number must be  11 digits");
             return;
         }
 
@@ -97,6 +103,18 @@ export default function AuthenticationPage() {
             toast.error("Please enter activation code");
             return;
         }
+        setActivationError(null);
+
+        // 1. Check if code matches an existing product for this user (phone)
+        const normalizedInput = activationCode.trim().toLowerCase();
+        const foundProduct = activatedProducts.find(p => p.serial.trim().toLowerCase() === normalizedInput);
+        if (foundProduct) {
+            setSelectedProduct(foundProduct);
+            setIsInfoModalOpen(true);
+            return;
+        }
+
+        // 2. If not found locally, try to activate via API
         setIsActivating(true);
         try {
             const res = await fetch("/api/warranty/activate", {
@@ -110,11 +128,15 @@ export default function AuthenticationPage() {
                 setSuccessData(data.data);
                 setStep("success_validation");
             } else {
-                toast.error(data.message || "Invalid or already activated code");
+                // Determine if it's an "already activated" or "invalid" error
+                // The API message usually clarifies. We will show it inline.
+                setActivationError(data.message || "Invalid or already activated code");
+                // Optional: still toast if it's a server error, but for validation we show inline
+                // toast.error(data.message || "Invalid or already activated code");
             }
         } catch (error) {
             console.error(error);
-            toast.error("Activation failed");
+            setActivationError("Activation failed due to a detailed network error");
         } finally {
             setIsActivating(false);
         }
@@ -155,7 +177,7 @@ export default function AuthenticationPage() {
             <div className="max-w-7xl mx-auto px-4">
 
                 {/* TITLE */}
-                <h1 className="text-2xl md:text-4xl font-bold text-center text-orange-500 mb-16">
+                <h1 className="text-2xl md:text-4xl font-bold text-center text-orange-500 xl:mb-16 mb-6">
                     Sannai Technology Product Activation
                 </h1>
 
@@ -171,10 +193,18 @@ export default function AuthenticationPage() {
                                 <input
                                     type="text"
                                     value={mobileNumber}
-                                    onChange={(e) => setMobileNumber(e.target.value)}
+                                    onChange={(e) => {
+                                        setMobileNumber(e.target.value);
+                                        if (mobileError) setMobileError(null);
+                                    }}
                                     placeholder="Enter number"
-                                    className="w-full h-12 bg-white border border-gray-200 rounded-xl px-6 text-xl focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all placeholder:text-gray-300"
+                                    className={`w-full h-12 bg-white border border-gray-200 rounded-xl px-6 text-xl focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all placeholder:text-gray-300 ${mobileError ? "ring-2 ring-red-500 bg-red-50 text-red-600 border-red-500" : ""}`}
                                 />
+                                {mobileError && (
+                                    <p className="text-red-500 mt-2 text-sm font-medium animate-fadeIn">
+                                        {mobileError}
+                                    </p>
+                                )}
 
                             </div>
 
@@ -212,7 +242,7 @@ export default function AuthenticationPage() {
                                     </div>
                                 </div>
 
-                                <h3 className="xl:text-2xl text-xl font-semibold text-gray-800 mb-8 text-center px-4">
+                                <h3 className="xl:text-2xl text-xl font-base text-gray-800 mb-8 text-center px-4">
                                     Please scratch the coating of the sticker on your product and provide the code below
                                 </h3>
 
@@ -222,8 +252,13 @@ export default function AuthenticationPage() {
                                         value={activationCode}
                                         onChange={(e) => setActivationCode(e.target.value)}
                                         placeholder="Enter activation code"
-                                        className="w-full h-12 bg-[#F5F5F5] border-none rounded-xl px-6 text-center text-xl font-bold focus:ring-2 focus:ring-orange-500 transition-all placeholder:font-normal placeholder:text-gray-400"
+                                        className={`w-full h-12 bg-[#F5F5F5] border-none rounded-xl px-6 text-center text-xl font-semibold focus:ring-2 focus:ring-orange-500 transition-all placeholder:font-normal placeholder:text-gray-400 ${activationError ? "ring-2 ring-red-500 bg-red-50 text-red-600" : ""}`}
                                     />
+                                    {activationError && (
+                                        <p className="text-red-500 text-center font-medium -mt-4 animate-fadeIn">
+                                            {activationError}
+                                        </p>
+                                    )}
 
                                     <div className="flex gap-4 justify-center">
                                         <button
@@ -247,7 +282,7 @@ export default function AuthenticationPage() {
                             {activatedProducts.length > 0 && (
                                 <div className="space-y-6">
                                     <div className="bg-[#F5F5F5] py-4 rounded-xl text-center">
-                                        <h2 className="md:text-2xl   text-md font-bold text-gray-800 uppercase tracking-wide">Your Product Warranty Details</h2>
+                                        <h2 className="md:text-2xl   text-md font-bold text-gray-800 uppercase tracking-wide">Your Product Activation Details</h2>
                                     </div>
 
                                     <div className="bg-white rounded-[2.5rem] shadow-[0_10px_50px_rgba(0,0,0,0.04)] overflow-hidden">
@@ -349,7 +384,7 @@ export default function AuthenticationPage() {
                                     </div>
 
                                     <h3 className="xl:text-2xl text-xl font-bold text-gray-800 mb-4">Code : {successData.serial.serial}</h3>
-                                    <h2 className="text-2xl md:text-4xl font-black text-[#26B95C] mb-8 tracking-wide uppercase">SUCCESSFULLY VALIDATED</h2>
+                                    <h2 className="text-2xl md:text-4xl font-black text-[#26B95C] mb-8 tracking-wide uppercase">Successfully Activated</h2>
 
                                     <p className="text-gray-500 md:text-xl text-lg font-medium mb-16 leading-relaxed">
                                         This Is A Genuine Sannai Product.
@@ -394,6 +429,13 @@ export default function AuthenticationPage() {
                     </div>
                 </div>
             </div> */}
+
+            {/* Product Info Modal (Already Activated by Me) */}
+            <ProductInfoModal
+                isOpen={isInfoModalOpen}
+                onClose={() => setIsInfoModalOpen(false)}
+                product={selectedProduct}
+            />
 
             {/* Warranty Claim Modal */}
             <WarrantyClaimModal

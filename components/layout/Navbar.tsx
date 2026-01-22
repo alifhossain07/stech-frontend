@@ -432,8 +432,8 @@ const Navbar = () => {
 
         {/* ========= DESKTOP NAV ========= */}
         <div className={`${isDealer ? "bg-gray-900" : "bg-orange-500"} hidden lg:block`}>
-          <div className="w-11/12 mx-auto flex justify-between items-center h-10">
-            <ul className="flex gap-6 text-white text-sm">
+          <div className="w-11/12 mx-auto flex  justify-between items-center min-h-[40px] py-2">
+            <ul className="flex flex-wrap gap-x-6 gap-y-2 text-white text-sm">
               {categories.map((category, i) => (
                 <li
                   key={i}
