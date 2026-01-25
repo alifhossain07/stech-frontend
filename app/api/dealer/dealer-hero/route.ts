@@ -18,7 +18,7 @@ export async function GET(req: NextRequest) {
       ...(bearerToken && { Authorization: `Bearer ${bearerToken}` }),
     };
 
-    const response = await fetch(`${API_BASE}/dealer/hero`, {
+    const response = await fetch(`${API_BASE}/dealer-hero`, {
       method: "GET",
       headers,
       cache: "no-store",

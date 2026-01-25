@@ -14,7 +14,7 @@ const DealerRegistrationPage = () => {
 
     const [form, setForm] = useState({
         name: "",
-        phone: "",
+        email_or_phone: "",
         email: "",
         password: "",
         password_confirmation: "",
@@ -52,14 +52,12 @@ const DealerRegistrationPage = () => {
         try {
             const formData = new FormData();
             formData.append("name", form.name);
-            formData.append("email_or_phone", form.phone);
+            formData.append("email_or_phone", form.email_or_phone);
             formData.append("email", form.email);
             formData.append("password", form.password);
             formData.append("password_confirmation", form.password_confirmation);
             formData.append("register_by", "phone");
             formData.append("is_dealer", "1");
-            formData.append("user_type", "dealer"); // Added for broader compatibility
-            formData.append("type", "dealer");      // Added for broader compatibility
             formData.append("dealer_code", form.dealer_code);
             formData.append("dealer_nid", form.dealer_nid);
             formData.append("business_address", form.business_address);
@@ -75,7 +73,7 @@ const DealerRegistrationPage = () => {
             const data = await res.json();
 
             if (data.result) {
-                toast.success("Dealer registration successful! Please login.");
+                toast.success(data.message || "Dealer registration successful! Please wait for approval.");
                 router.push("/login");
             } else {
                 toast.error(data.message || "Registration failed");
@@ -130,9 +128,9 @@ const DealerRegistrationPage = () => {
                             <label className="block text-sm font-medium text-gray-700 mb-2">Mobile Number</label>
                             <input
                                 type="text"
-                                name="phone"
+                                name="email_or_phone"
                                 required
-                                value={form.phone}
+                                value={form.email_or_phone}
                                 onChange={handleChange}
                                 placeholder="Enter mobile number"
                                 className="w-full px-4 py-3 border border-gray-200 rounded-lg text-gray-900 placeholder:text-gray-300 focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500"
