@@ -3,6 +3,7 @@
 import React from "react";
 import DealerHero from "./DealerHero";
 import PopularCategories from "../Pages/Home/PopularCategories";
+import CampingOffer from "./CampingOffer";
 
 const DealerHome = () => {
 
@@ -10,7 +11,7 @@ const DealerHome = () => {
         <div className="bg-gray-50 min-h-screen">
             <DealerHero />
             <PopularCategories />
-
+            <CampingOffer />
         </div>
     );
 };
