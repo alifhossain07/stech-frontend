@@ -16,6 +16,7 @@ import Script from "next/script";
 import { fetchBusinessSettings, fetchScriptsInternal } from "@/app/lib/get-scripts";
 import { CompareProvider } from "./context/CompareContext";
 
+
 const poppins = Poppins({
   variable: "--font-poppins",
   subsets: ["latin"],
@@ -97,6 +98,35 @@ export default async function RootLayout({
               <ClientLayoutWrapper>{children}</ClientLayoutWrapper>
               <Footer />
               <Toaster position="top-right" />
+              <Script id="tawk-script" strategy="afterInteractive">
+                {`
+    var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+
+    Tawk_API.customStyle = {
+        visibility : {
+            desktop : {
+                position : 'br', // Keeps desktop at Bottom-Right
+                xOffset : 20,
+                yOffset : 20
+            },
+            mobile : {
+                position : 'cr', // 'cr' stands for Center-Right
+                xOffset : 0,     // 0px gap from the right edge
+                yOffset : 0      // 0px offset from the vertical center
+            }
+        }
+    };
+
+    (function(){
+    var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+    s1.async=true;
+    s1.src='https://embed.tawk.to/${process.env.NEXT_PUBLIC_TAWK_PROPERTY_ID}/${process.env.NEXT_PUBLIC_TAWK_WIDGET_ID}';
+    s1.charset='UTF-8';
+    s1.setAttribute('crossorigin','*');
+    s0.parentNode.insertBefore(s1,s0);
+    })();
+  `}
+              </Script>
             </CompareProvider>
           </CartProvider>
         </AuthProvider>

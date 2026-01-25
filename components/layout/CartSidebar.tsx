@@ -1,6 +1,7 @@
 "use client";
 
 import { useCart } from "@/app/context/CartContext";
+import { useAuth } from "@/app/context/AuthContext";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -26,6 +27,8 @@ interface CartItem {
 
 export default function CartSidebar({ externalOpen, setExternalOpen }: CartSidebarProps) {
   const { cart, increaseQty, decreaseQty, removeFromCart, selectedItems, setSelectedItems } = useCart();
+  const { user } = useAuth();
+  const isDealer = user?.type?.toLowerCase() === "dealer";
   const [mounted, setMounted] = useState(false);
   const [whatsappNumber, setWhatsappNumber] = useState<string | null>(null);
   const [messengerNumber, setMessengerNumber] = useState<string | null>(null);
@@ -136,31 +139,33 @@ export default function CartSidebar({ externalOpen, setExternalOpen }: CartSideb
   return (
     <>
       {/* Floating Cart Button */}
-      <div className="fixed hidden lg:flex flex-col right-0 top-1/2 -translate-y-1/2 z-[10001] gap-3">
-        <button
-          onClick={() => setExternalOpen(true)}
-          className="shadow-lg rounded-l-xl overflow-hidden"
-        >
-          <div className="w-[90px]">
-            <div className="bg-gray-900 text-white flex flex-col items-center py-3">
-              <div className="w-[28px] h-[28px] flex items-center justify-center">
-                <Image src="/images/buy.png" alt="Cart Icon" width={28} height={28} />
+      {!isDealer && (
+        <div className="fixed hidden lg:flex flex-col right-0 top-1/2 -translate-y-1/2 z-[10001] gap-3">
+          <button
+            onClick={() => setExternalOpen(true)}
+            className="shadow-lg rounded-l-xl overflow-hidden"
+          >
+            <div className="w-[90px]">
+              <div className="bg-gray-900 text-white flex flex-col items-center py-3">
+                <div className="w-[28px] h-[28px] flex items-center justify-center">
+                  <Image src="/images/buy.png" alt="Cart Icon" width={28} height={28} />
+                </div>
+                <span className="text-xs mt-2">
+                  *{mounted ? typedCart.length.toString().padStart(2, "0") : "00"} Items
+                </span>
               </div>
-              <span className="text-xs mt-2">
-                *{mounted ? typedCart.length.toString().padStart(2, "0") : "00"} Items
-              </span>
+              <div className="bg-orange-500 text-white text-center py-2 font-semibold">
+                {mounted
+                  ? `৳${typedCart.reduce((acc, item) => acc + item.price * item.qty, 0).toLocaleString()}`
+                  : "৳0"}
+              </div>
             </div>
-            <div className="bg-orange-500 text-white text-center py-2 font-semibold">
-              {mounted
-                ? `৳${typedCart.reduce((acc, item) => acc + item.price * item.qty, 0).toLocaleString()}`
-                : "৳0"}
-            </div>
-          </div>
-        </button>
+          </button>
 
-        {/* Messenger and WhatsApp Buttons */}
+          {/* Messenger and WhatsApp Buttons */}
 
-      </div>
+        </div>
+      )}
       <div className="fixed z-[10001] gap-3 flex flex-col
     right-0 bottom-20
     lg:right-0 lg:top-[62%] lg:-translate-y-1/2
@@ -229,8 +234,8 @@ export default function CartSidebar({ externalOpen, setExternalOpen }: CartSideb
               <button
                 onClick={() => toggleSelect(item.id, item.variant)}
                 className={`w-5 h-5 rounded-full border flex items-center justify-center flex-shrink-0 ${selectedItems.includes(item.variant ? `${item.id}-${item.variant}` : item.id.toString())
-                    ? "bg-orange-500 border-orange-500"
-                    : "border-gray-400"
+                  ? "bg-orange-500 border-orange-500"
+                  : "border-gray-400"
                   }`}
               >
                 {selectedItems.includes(item.variant ? `${item.id}-${item.variant}` : item.id.toString()) && (
