@@ -73,9 +73,11 @@ export async function login(payload: {
 
 export async function fetchProfile(access_token: string): Promise<AuthResponse> {
   const res = await fetch("/api/auth/info", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ access_token }),
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${access_token}`
+    }
   });
   if (!res.ok) throw new Error("Fetching profile failed");
   return res.json();

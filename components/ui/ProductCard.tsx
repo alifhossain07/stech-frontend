@@ -240,14 +240,18 @@ export default function ProductCard({ product }: { product: Product }) {
                 onClick={handleProductClick}
                 className="flex items-center justify-center w-1/2 rounded-md border border-black text-black md:text-sm text-[10px] duration-300 hover:bg-black hover:text-white"
               >
-                More Details
+                <span className="block md:hidden">Details</span>
+                <span className="hidden md:block">More Details</span>
               </Link>
+
               {/* Get a best price (WhatsApp) */}
               <a
                 href={
                   whatsappNumber
                     ? `https://wa.me/${whatsappNumber.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(
-                      `Hello, I'm interested in the product: ${product.name}. Link: ${typeof window !== "undefined" ? window.location.origin + "/" + product.slug : ""
+                      `Hello, I'm interested in the product: ${product.name}. Link: ${typeof window !== "undefined"
+                        ? window.location.origin + "/" + product.slug
+                        : ""
                       }`
                     )}`
                     : "#"
@@ -256,10 +260,11 @@ export default function ProductCard({ product }: { product: Product }) {
                 rel="noopener noreferrer"
                 className="flex items-center justify-center w-1/2 rounded-md text-white md:text-sm text-[10px] bg-orange-500 hover:bg-orange-400 transition-colors gap-1"
               >
-                {/* <FaWhatsapp className="md:text-base text-green-500 text-lg font-bold" /> */}
-                <span>Get The Best Price</span>
+                <span className="block md:hidden">Get Price</span>
+                <span className="hidden md:block">Get The Best Price</span>
               </a>
             </div>
+
           ) : (
             <div className="flex gap-2 h-[30px] md:h-[42px]">
               {/* Buy Now */}

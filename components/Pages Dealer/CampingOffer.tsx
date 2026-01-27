@@ -114,12 +114,12 @@ const CampingOffer = () => {
     return (
         <section className=" bg-white mx-auto px-4 py-12">
             <div className="w-11/12 mx-auto">
-                <div className="flex justify-between xl:items-end items-center mb-8">
+                <div className="flex justify-between  items-center mb-8">
                     <div>
-                        <h2 className="xl:text-3xl text-xl font-bold text-gray-900">{data.title}</h2>
+                        <h2 className="xl:text-3xl text-xl font-semibold text-gray-900">{data.title}</h2>
                         <p className="text-gray-500 text-md mt-1">{data.subtitle}</p>
                     </div>
-                    <Link href="/products" className="flex items-center text-sm font-medium text-gray-600 hover:text-primary transition-colors">
+                    <Link href="/dealer/camping-offers" className="flex items-center text-sm font-medium text-gray-600 hover:text-primary transition-colors">
                         View All Products <FiChevronRight className="w-4 h-4 ml-1" />
                     </Link>
                 </div>

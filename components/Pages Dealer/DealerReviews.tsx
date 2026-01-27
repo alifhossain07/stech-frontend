@@ -8,8 +8,23 @@ import { FaStar } from "react-icons/fa";
 
 import apiClient from "@/app/lib/api-client";
 
+interface Review {
+    name: string;
+    shop_name: string;
+    profile_pic: string;
+    rating: string;
+    description: string;
+    images?: string[];
+}
+
+interface ReviewData {
+    title: string;
+    subtitle: string;
+    reviews: Review[];
+}
+
 const DealerReviews = () => {
-    const [data, setData] = useState<any>(null);
+    const [data, setData] = useState<ReviewData | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -108,7 +123,7 @@ const DealerReviews = () => {
                             </div>
 
                             <p className="text-gray-700 text-sm leading-relaxed mb-6 italic">
-                                "{review.description}"
+                                &quot;{review.description}&quot;
                             </p>
 
                             <div className="mt-auto">

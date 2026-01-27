@@ -42,23 +42,28 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setAccessToken(token);
 
     fetchProfile(token)
-      .then((res) => {
-        if (res.result) {
+      .then((res: unknown) => {
+        // Relax check to allow cases where backend might return user directly 
+        // or where res.result is present.
+        const response = res as { result?: boolean; user?: User };
+        const userData = response.result ? response.user : response as User;
+
+        if (userData && (userData.id || userData.phone)) {
+          console.log("Profile rehydration successful", userData);
           const userWithForcedType = {
-            ...res.user,
-            type: forcedType || res.user.type
+            ...userData,
+            type: forcedType || userData.type
           };
           setUser(userWithForcedType);
+          setAccessToken(token);
         } else {
-          localStorage.removeItem(STORAGE_KEY);
-          localStorage.removeItem(STORAGE_KEY + "_forced_type");
-          setAccessToken(null);
+          console.error("Profile rehydration failed - invalid user data", res);
+          logout();
         }
       })
-      .catch(() => {
-        localStorage.removeItem(STORAGE_KEY);
-        localStorage.removeItem(STORAGE_KEY + "_forced_type");
-        setAccessToken(null);
+      .catch((err) => {
+        console.error("Profile rehydration catch error", err);
+        logout();
       })
       .finally(() => setLoading(false));
   }, []);

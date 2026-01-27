@@ -100,7 +100,7 @@ export default async function RootLayout({
               </Providers>
               <Footer />
 
-              <Script id="tawk-script" strategy="afterInteractive">
+              {/* <Script id="tawk-script" strategy="afterInteractive">
                 {`
     var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
 
@@ -128,7 +128,7 @@ export default async function RootLayout({
     s0.parentNode.insertBefore(s1,s0);
     })();
   `}
-              </Script>
+              </Script> */}
             </CompareProvider>
           </CartProvider>
         </AuthProvider>

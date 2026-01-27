@@ -57,7 +57,7 @@ const PopularCategories = () => {
         </div>
       )}
       {!loading && (
-        <div className="grid grid-cols-3 md:grid-cols-3 xl:grid-cols-6 gap-4 md:gap-6 xl:p-6 mt-6">
+        <div className="grid grid-cols-3 md:grid-cols-3 xl:grid-cols-6 gap-4 md:gap-[8px] xl:p-6 mt-6">
           {categories.slice(0, 6).map((cat) => (
             <Link
               key={cat.id}

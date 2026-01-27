@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
 
       console.log("Dealer signup backend success:", response.data);
       return NextResponse.json(response.data);
-    } catch (err: any) {
+    } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
         console.error("Dealer signup backend error status:", err.response?.status);
         console.error("Dealer signup backend error headers:", err.response?.headers);
@@ -50,10 +50,11 @@ export async function POST(req: NextRequest) {
       }
       throw err;
     }
-  } catch (err: any) {
-    console.error("Dealer signup proxy critical error:", err.message);
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : "Dealer signup failed";
+    console.error("Dealer signup proxy critical error:", errorMessage);
     return NextResponse.json(
-      { result: false, message: "Dealer signup failed", error: err.message },
+      { result: false, message: "Dealer signup failed", error: errorMessage },
       { status: 500 }
     );
   }

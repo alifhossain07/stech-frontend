@@ -16,7 +16,7 @@ export default function DealerLayout({
     useEffect(() => {
         const isDealer = user?.type?.toLowerCase() === "dealer";
         if (!loading && (!user || !isDealer)) {
-            router.push("/login");
+            router.push("/dealer/login");
         }
     }, [user, loading, router]);
 

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { FiChevronDown, FiChevronUp } from "react-icons/fi";
+import { FiChevronDown } from "react-icons/fi";
 
 import apiClient from "@/app/lib/api-client";
 
@@ -17,7 +17,7 @@ interface FAQData {
 }
 
 const DealerFAQ = () => {
-    const [data, setData] = useState<any>(null);
+    const [data, setData] = useState<FAQData | null>(null);
     const [loading, setLoading] = useState(true);
     const [activeIndex, setActiveIndex] = useState<number | null>(0);
 
@@ -61,13 +61,23 @@ const DealerFAQ = () => {
 
     return (
         <section className="bg-white  py-16 md:py-24 border-t border-gray-100">
-            <div className="w-11/12 mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+            <div className="w-11/12 mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
                 {/* Left Side: Title and Subtitle */}
                 <div className="lg:col-span-5 lg:sticky lg:top-24">
-                    <h2 className="text-2xl md:text-3xl lg:text-[30px] font-bold text-gray-900 leading-[1.2] mb-6">
-                        {data.title}
+                    <h2 className="text-2xl md:w-7/12 md:text-3xl lg:text-[30px] font-semibold text-gray-900 leading-[1.2] mb-6">
+                        {(() => {
+                            const [firstWord, ...rest] = data.title.split(" ");
+                            return (
+                                <>
+                                    {firstWord}
+                                    <br />
+                                    {rest.join(" ")}
+                                </>
+                            );
+                        })()}
                     </h2>
-                    <p className="text-gray-500 text-sm md:text-base leading-relaxed max-w-sm">
+
+                    <p className="text-gray-500 text-sm md:text-base leading-relaxed">
                         {data.subtitle}
                     </p>
                 </div>
@@ -77,11 +87,15 @@ const DealerFAQ = () => {
                     {data.faqs.map((faq: FAQ, index: number) => (
                         <div
                             key={index}
-                            className="bg-white rounded-md border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)] overflow-hidden"
+                            className="bg-white
+  rounded-md
+  border border-gray-200
+  shadow-[inset_0_0_22px_rgba(0,0,0,0.22),inset_0_2px_6px_rgba(255,255,255,0.6)]
+  overflow-hidden"
                         >
                             <button
                                 onClick={() => setActiveIndex(activeIndex === index ? null : index)}
-                                className="w-full flex items-center justify-between p-5 md:p-6 text-left group"
+                                className="w-full flex items-center justify-between p-5 md:p-5 text-left group"
                             >
                                 <div className="flex items-start gap-4">
                                     <span className="text-gray-900 font-bold text-xl mt-[-2px]">

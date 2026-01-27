@@ -72,12 +72,12 @@ const TopSellBanner = () => {
     return (
         <section className="bg-white py-12">
             <div className="w-11/12 mx-auto">
-                <div className="flex justify-between xl:items-end items-center mb-8">
+                <div className="flex justify-between items-center mb-8">
                     <div>
-                        <h2 className="xl:text-3xl text-xl font-bold text-gray-900">{data.title}</h2>
+                        <h2 className="xl:text-3xl text-xl font-semibold text-gray-900">{data.title}</h2>
                         <p className="text-gray-500 mt-1">{data.subtitle}</p>
                     </div>
-                    <Link href="/products" className="flex items-center text-sm font-medium text-gray-600 hover:text-primary transition-colors">
+                    <Link href="/dealer/top-sell" className="flex items-center text-sm font-medium text-gray-600 hover:text-primary transition-colors">
                         View All Products <FiChevronRight className="w-4 h-4 ml-1" />
                     </Link>
                 </div>
@@ -91,7 +91,7 @@ const TopSellBanner = () => {
                                     src={banner1.image}
                                     alt="Top Sell 1"
                                     fill
-                                    className="object-cover group-hover:scale-105 transition-transform duration-700"
+                                    className="object-contain group-hover:scale-105 transition-transform duration-700"
                                 />
                             </div>
                         )}
@@ -105,7 +105,7 @@ const TopSellBanner = () => {
                                     src={banner2.image}
                                     alt="Top Sell 2"
                                     fill
-                                    className="object-cover group-hover:scale-105 transition-transform duration-700"
+                                    className="object-contain group-hover:scale-105 transition-transform duration-700"
                                 />
                             </div>
                         )}
@@ -115,7 +115,7 @@ const TopSellBanner = () => {
                                     src={banner3.image}
                                     alt="Top Sell 3"
                                     fill
-                                    className="object-cover group-hover:scale-105 transition-transform duration-700"
+                                    className="object-contain group-hover:scale-105 transition-transform duration-700"
                                 />
                             </div>
                         )}
@@ -129,7 +129,7 @@ const TopSellBanner = () => {
                                     src={banner4.image}
                                     alt="Top Sell 4"
                                     fill
-                                    className="object-cover group-hover:scale-105 transition-transform duration-700"
+                                    className="object-contain group-hover:scale-105 transition-transform duration-700"
                                 />
                             </div>
                         )}
