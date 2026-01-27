@@ -131,7 +131,16 @@ const Navbar = () => {
     { name: "Product Activation", href: "/authentication" },
     { name: "Warranty", href: "/productwarranty" },
   ];
+  const dealerPages = [
+    { name: "New Release", href: "/dealer/new-release" },
+    { name: "Best Deals", href: "/dealer/best-deals" },
+    { name: "Top Seller", href: "/dealer/top-seller" },
+    { name: "Todays Offer", href: "/dealer/todays-offer" },
+    { name: "Product Catalog", href: "/dealer/product-catalog" },
+    { name: "Warranty Policy", href: "/dealer/warranty-policy" },
+    { name: "Help Center", href: "/dealer/help-center" },
 
+  ];
   useEffect(() => {
     async function fetchCategories() {
       try {
@@ -393,13 +402,20 @@ const Navbar = () => {
             </div>
 
             {/* CART */}
-            <button onClick={() => setCartOpen(true)} className={`border px-5 py-2 h-[46px] rounded-md flex items-center gap-3 text-sm ${isDealer ? "bg-gray-800 border-gray-700 text-white" : "bg-white border-gray-400 text-black"}`}>
-              <FiShoppingCart className="text-2xl" />
-              <div>
-                <h1 className="text-md font-medium">Cart</h1>
-                <span className="text-xs">*{cart.length.toString().padStart(2, "0")} Items</span>
-              </div>
-            </button>
+            {!isDealer && (
+              <button
+                onClick={() => setCartOpen(true)}
+                className="border px-5 py-2 h-[46px] rounded-md flex items-center gap-3 text-sm bg-white border-gray-400 text-black"
+              >
+                <FiShoppingCart className="text-2xl" />
+                <div>
+                  <h1 className="text-md font-medium">Cart</h1>
+                  <span className="text-xs">
+                    *{cart.length.toString().padStart(2, "0")} Items
+                  </span>
+                </div>
+              </button>
+            )}
 
             {/* PROFILE / AUTH */}
             {user ? (
@@ -432,45 +448,57 @@ const Navbar = () => {
 
         {/* ========= DESKTOP NAV ========= */}
         <div className={`${isDealer ? "bg-gray-900" : "bg-orange-500"} hidden lg:block`}>
-          <div className="w-11/12 mx-auto flex  justify-between items-center min-h-[40px] py-2">
+          <div className="w-11/12 mx-auto flex justify-between items-center min-h-[40px] py-2">
             <ul className="flex flex-wrap gap-x-6 gap-y-2 text-white text-sm">
-              {categories.map((category, i) => (
-                <li
-                  key={i}
-                  className="relative group cursor-pointer"
-                  onMouseEnter={() => setHoveredCategory(category.name)}
-                  onMouseLeave={() => { setHoveredCategory(null); setHoveredSubcategory(null); }}
-                >
-                  <div className="flex items-center gap-1 hover:text-gray-300" onClick={() => router.push(`/products/${category.slug}`)}>
-                    {category.name}
-                    {category.subcategories.length > 0 && <FiChevronDown className="text-white text-sm" />}
-                  </div>
-                  {category.subcategories.length > 0 && (
-                    <div className={`absolute left-0 top-full mt-2 bg-white text-black rounded-md shadow-lg transition-all ${hoveredCategory === category.name ? "opacity-100 visible" : "opacity-0 invisible"}`}>
-                      <ul className="min-w-[180px] py-2 relative">
-                        {category.subcategories.map((sub) => (
-                          <li key={sub.id} className="px-4 py-2 hover:bg-gray-100 text-sm flex justify-between items-center" onMouseEnter={() => setHoveredSubcategory(sub.name)} onMouseLeave={() => setHoveredSubcategory(null)}>
-                            <span onClick={() => router.push(`/products/${sub.slug}`)} className="flex-1 cursor-pointer">{sub.name}</span>
-                            {sub.children?.length > 0 && <FiChevronRight className="text-gray-500 text-xs" />}
-                            {sub.children?.length > 0 && (
-                              <div className={`absolute left-full top-3 ml-1 bg-white rounded-md shadow-lg transition-all ${hoveredSubcategory === sub.name ? "opacity-100 visible" : "opacity-0 invisible"}`}>
-                                <ul className="min-w-[160px] py-2">
-                                  {sub.children?.map((child) => (
-                                    <li key={child.id} className="px-4 py-2 hover:bg-gray-100 text-sm cursor-pointer" onClick={() => router.push(`/products/${child.slug}`)}>{child.name}</li>
-                                  ))}
-                                </ul>
-                              </div>
-                            )}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </li>
-              ))}
-              {simplePages.map((page, i) => (
-                <li key={i}><Link href={page.href} className="hover:text-gray-200">{page.name}</Link></li>
-              ))}
+              {isDealer ? (
+                dealerPages.map((page, i) => (
+                  <li key={i}>
+                    <Link href={page.href} className="hover:text-gray-200   font-medium tracking-wider">
+                      {page.name}
+                    </Link>
+                  </li>
+                ))
+              ) : (
+                <>
+                  {categories.map((category, i) => (
+                    <li
+                      key={i}
+                      className="relative group cursor-pointer"
+                      onMouseEnter={() => setHoveredCategory(category.name)}
+                      onMouseLeave={() => { setHoveredCategory(null); setHoveredSubcategory(null); }}
+                    >
+                      <div className="flex items-center gap-1 hover:text-gray-300" onClick={() => router.push(`/products/${category.slug}`)}>
+                        {category.name}
+                        {category.subcategories.length > 0 && <FiChevronDown className="text-white text-sm" />}
+                      </div>
+                      {category.subcategories.length > 0 && (
+                        <div className={`absolute left-0 top-full mt-2 bg-white text-black rounded-md shadow-lg transition-all ${hoveredCategory === category.name ? "opacity-100 visible" : "opacity-0 invisible"}`}>
+                          <ul className="min-w-[180px] py-2 relative">
+                            {category.subcategories.map((sub) => (
+                              <li key={sub.id} className="px-4 py-2 hover:bg-gray-100 text-sm flex justify-between items-center" onMouseEnter={() => setHoveredSubcategory(sub.name)} onMouseLeave={() => setHoveredSubcategory(null)}>
+                                <span onClick={() => router.push(`/products/${sub.slug}`)} className="flex-1 cursor-pointer">{sub.name}</span>
+                                {sub.children?.length > 0 && <FiChevronRight className="text-gray-500 text-xs" />}
+                                {sub.children?.length > 0 && (
+                                  <div className={`absolute left-full top-3 ml-1 bg-white rounded-md shadow-lg transition-all ${hoveredSubcategory === sub.name ? "opacity-100 visible" : "opacity-0 invisible"}`}>
+                                    <ul className="min-w-[160px] py-2">
+                                      {sub.children?.map((child) => (
+                                        <li key={child.id} className="px-4 py-2 hover:bg-gray-100 text-sm cursor-pointer" onClick={() => router.push(`/products/${child.slug}`)}>{child.name}</li>
+                                      ))}
+                                    </ul>
+                                  </div>
+                                )}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </li>
+                  ))}
+                  {simplePages.map((page, i) => (
+                    <li key={i}><Link href={page.href} className="hover:text-gray-200">{page.name}</Link></li>
+                  ))}
+                </>
+              )}
             </ul>
           </div>
         </div>
@@ -533,24 +561,28 @@ const Navbar = () => {
           <FiHome className="text-2xl mb-1" />
           Home
         </Link>
-        <Link href="/offers" className="flex flex-col items-center text-xs">
-          <FiGift className="text-2xl mb-1" />
-          Offers
-        </Link>
-        <button onClick={() => setCartOpen(true)} className="flex flex-col items-center text-xs">
-          <span className="relative">
-            <FiShoppingCart className="text-2xl mb-1" />
-            {cart.length > 0 && (
-              <span className="absolute -top-1 -right-2 bg-white text-black text-[9px] leading-none px-1 py-1 rounded-full border border-white">
-                {cart.length.toString().padStart(2, "0")}
-              </span>
-            )}
-          </span>
-          Cart
-        </button>
+        {!isDealer && (
+          <Link href="/offers" className="flex flex-col items-center text-xs">
+            <FiGift className="text-2xl mb-1" />
+            Offers
+          </Link>
+        )}
+        {!isDealer && (
+          <button onClick={() => setCartOpen(true)} className="flex flex-col items-center text-xs">
+            <span className="relative">
+              <FiShoppingCart className="text-2xl mb-1" />
+              {cart.length > 0 && (
+                <span className="absolute -top-1 -right-2 bg-white text-black text-[9px] leading-none px-1 py-1 rounded-full border border-white">
+                  {cart.length.toString().padStart(2, "0")}
+                </span>
+              )}
+            </span>
+            Cart
+          </button>
+        )}
         <Link href={user ? "/profile" : "/login"} className="flex flex-col items-center text-xs">
           <FiUser className="text-2xl mb-1" />
-          {user ? "Profile" : "Login"}
+          {user ? "Dashboard" : "Login"}
         </Link>
       </div>
 
@@ -564,43 +596,61 @@ const Navbar = () => {
               <button className="text-2xl text-orange-500" onClick={handleCloseMenu}><FiX /></button>
             </div>
             <ul className="p-4 space-y-3">
-              <button className="w-full py-3 bg-gradient-to-b from-[#FFD522] to-[#FF6B01] text-white rounded-lg text-sm font-semibold shadow-md">Buy Dealer Products</button>
-              {categories.map((cat, index) => (
-                <li key={index} className="border-b border-gray-50 last:border-none">
-                  <div className="flex justify-between items-center py-3">
-                    <span onClick={() => { router.push(`/products/${cat.slug}`); handleCloseMenu(); }} className="flex-1 text-sm font-medium text-gray-700">{cat.name}</span>
-                    {cat.subcategories.length > 0 && (
-                      <FiChevronDown onClick={() => setExpandedCategory(expandedCategory === cat.name ? null : cat.name)} className={`transition-transform duration-200 ${expandedCategory === cat.name ? "rotate-180" : ""}`} />
-                    )}
+              {isDealer ? (
+                <>
+                  {dealerPages.map((page, i) => (
+                    <li key={i} className="border-b border-gray-50 last:border-none">
+                      <Link
+                        href={page.href}
+                        onClick={handleCloseMenu}
+                        className="block py-3 text-sm font-medium text-gray-700 hover:text-orange-500 transition-colors uppercase tracking-wide"
+                      >
+                        {page.name}
+                      </Link>
+                    </li>
+                  ))}
+                </>
+              ) : (
+                <>
+                  <button className="w-full py-3 bg-gradient-to-b from-[#FFD522] to-[#FF6B01] text-white rounded-lg text-sm font-semibold shadow-md">Buy Dealer Products</button>
+                  {categories.map((cat, index) => (
+                    <li key={index} className="border-b border-gray-50 last:border-none">
+                      <div className="flex justify-between items-center py-3">
+                        <span onClick={() => { router.push(`/products/${cat.slug}`); handleCloseMenu(); }} className="flex-1 text-sm font-medium text-gray-700">{cat.name}</span>
+                        {cat.subcategories.length > 0 && (
+                          <FiChevronDown onClick={() => setExpandedCategory(expandedCategory === cat.name ? null : cat.name)} className={`transition-transform duration-200 ${expandedCategory === cat.name ? "rotate-180" : ""}`} />
+                        )}
+                      </div>
+                      {expandedCategory === cat.name && (
+                        <ul className="pl-4 pb-2 space-y-2">
+                          {cat.subcategories.map((sub, subIndex) => (
+                            <li key={subIndex}>
+                              <div className="flex justify-between items-center py-1">
+                                <span onClick={() => { router.push(`/products/${sub.slug}`); handleCloseMenu(); }} className="text-sm text-gray-600">{sub.name}</span>
+                                {sub.children?.length > 0 && (
+                                  <FiChevronDown onClick={() => setExpandedSubcategory(expandedSubcategory === sub.name ? null : sub.name)} className={`text-xs transition-transform duration-200 ${expandedSubcategory === sub.name ? "rotate-180" : ""}`} />
+                                )}
+                              </div>
+                              {expandedSubcategory === sub.name && (
+                                <ul className="pl-4 py-1 space-y-1">
+                                  {sub.children?.map((child, cidx) => (
+                                    <li key={cidx} onClick={() => { router.push(`/products/${child.slug}`); handleCloseMenu(); }} className="text-xs text-gray-500 py-1">{child.name}</li>
+                                  ))}
+                                </ul>
+                              )}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </li>
+                  ))}
+                  <div className="pt-4 border-t border-gray-100">
+                    {simplePages.map((page, i) => (
+                      <Link key={i} href={page.href} onClick={handleCloseMenu} className="block py-2 text-sm text-gray-600 hover:text-orange-500 transition-colors">{page.name}</Link>
+                    ))}
                   </div>
-                  {expandedCategory === cat.name && (
-                    <ul className="pl-4 pb-2 space-y-2">
-                      {cat.subcategories.map((sub, subIndex) => (
-                        <li key={subIndex}>
-                          <div className="flex justify-between items-center py-1">
-                            <span onClick={() => { router.push(`/products/${sub.slug}`); handleCloseMenu(); }} className="text-sm text-gray-600">{sub.name}</span>
-                            {sub.children?.length > 0 && (
-                              <FiChevronDown onClick={() => setExpandedSubcategory(expandedSubcategory === sub.name ? null : sub.name)} className={`text-xs transition-transform duration-200 ${expandedSubcategory === sub.name ? "rotate-180" : ""}`} />
-                            )}
-                          </div>
-                          {expandedSubcategory === sub.name && (
-                            <ul className="pl-4 py-1 space-y-1">
-                              {sub.children?.map((child, cidx) => (
-                                <li key={cidx} onClick={() => { router.push(`/products/${child.slug}`); handleCloseMenu(); }} className="text-xs text-gray-500 py-1">{child.name}</li>
-                              ))}
-                            </ul>
-                          )}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </li>
-              ))}
-              <div className="pt-4 border-t border-gray-100">
-                {simplePages.map((page, i) => (
-                  <Link key={i} href={page.href} onClick={handleCloseMenu} className="block py-2 text-sm text-gray-600 hover:text-orange-500 transition-colors">{page.name}</Link>
-                ))}
-              </div>
+                </>
+              )}
             </ul>
           </div>
         </>

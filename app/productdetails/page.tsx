@@ -1,5 +1,6 @@
 "use client";
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
+import { useAuth } from "@/app/context/AuthContext";
 import { RefObject } from "react";
 import Image from "next/image";
 import {
@@ -32,6 +33,33 @@ const Page = () => {
   const [selectedVariant, setSelectedVariant] = useState("Type-C");
   const [selectedColor, setSelectedColor] = useState("gray");
   const [quantity, setQuantity] = useState(1);
+  const { user } = useAuth();
+  const isDealer = user?.type?.toLowerCase() === "dealer";
+  const [whatsappNumber, setWhatsappNumber] = useState<string | null>(null);
+
+  // Fetch WhatsApp number from business-settings
+  useEffect(() => {
+    const fetchWhatsappNumber = async () => {
+      try {
+        const res = await fetch("/api/business-settings", { cache: "no-store" });
+        const json = await res.json();
+
+        if (json.success && json.data) {
+          const whatsappSetting = json.data.find(
+            (setting: { type: string; value: string }) => setting.type === "whatsapp_number"
+          );
+          if (whatsappSetting?.value) {
+            setWhatsappNumber(whatsappSetting.value);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch WhatsApp number:", error);
+      }
+    };
+
+    fetchWhatsappNumber();
+  }, []);
+
   const increase = () => setQuantity((prev) => prev + 1);
   const decrease = () => setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
   const variants = ["Type-C", "Type-B"];
@@ -160,11 +188,10 @@ const Page = () => {
               <div
                 key={index}
                 onClick={() => setSelectedImage(index)}
-                className={`relative cursor-pointer border-2 rounded-xl overflow-hidden transition-all duration-200 aspect-square flex items-center justify-center ${
-                  selectedImage === index
+                className={`relative cursor-pointer border-2 rounded-xl overflow-hidden transition-all duration-200 aspect-square flex items-center justify-center ${selectedImage === index
                     ? "border-orange-500"
                     : "border-transparent hover:border-orange-400"
-                }`}
+                  }`}
               >
                 <Image
                   src={img}
@@ -216,27 +243,28 @@ const Page = () => {
 
           <div className="flex items-center justify-between w-full mb-3">
             {/* -------- Left: Price Section -------- */}
-            <div className="flex items-center justify-center gap-3 ">
-              {/* New Price */}
-              <span className="2xl:text-[32px] xl:text-[26px] text-[20px] font-semibold text-orange-500">
-                ৳2600
-              </span>
+            {!isDealer && (
+              <div className="flex items-center justify-center gap-3 ">
+                {/* New Price */}
+                <span className="2xl:text-[32px] xl:text-[26px] text-[20px] font-semibold text-orange-500">
+                  ৳2600
+                </span>
 
-              {/* Discount Badge */}
-              <span className="bg-green-100 text-green-600 2xl:text-[16px] xl:text-[13px] font-semibold text-xs px-2 py-[2px] rounded-full">
-                10% OFF
-              </span>
+                {/* Discount Badge */}
+                <span className="bg-green-100 text-green-600 2xl:text-[16px] xl:text-[13px] font-semibold text-xs px-2 py-[2px] rounded-full">
+                  10% OFF
+                </span>
 
-              {/* Old Price */}
-              <span className="text-gray-400 line-through  2xl:text-[16px] xl:text-[13px]">
-                ৳2800
-              </span>
-            </div>
+                {/* Old Price */}
+                <span className="text-gray-400 line-through  2xl:text-[16px] xl:text-[13px]">
+                  ৳2800
+                </span>
+              </div>
+            )}
 
             {/* -------- Right: Compare & Wishlist -------- */}
             {/* -------- Right: Compare & Wishlist -------- */}
             <div className="flex items-center gap-4 text-gray-500">
-              {/* --- Mobile Icons Only --- */}
               <div className="flex md:hidden items-center gap-3">
                 {/* Compare Icon Button */}
                 <button className="p-2 rounded-full bg-gray-100 hover:bg-gray-200">
@@ -428,11 +456,10 @@ const Page = () => {
                   <button
                     key={variant}
                     onClick={() => setSelectedVariant(variant)}
-                    className={`px-3 py-[4px] rounded-full text-[13px] font-medium border transition-all duration-200 ${
-                      selectedVariant === variant
+                    className={`px-3 py-[4px] rounded-full text-[13px] font-medium border transition-all duration-200 ${selectedVariant === variant
                         ? "bg-gray-200 text-orange-500 border-orange-400"
                         : "bg-gray-100 text-gray-700 border-transparent hover:border-gray-300"
-                    }`}
+                      }`}
                   >
                     {variant}
                   </button>
@@ -450,11 +477,10 @@ const Page = () => {
                   <button
                     key={color}
                     onClick={() => setSelectedColor(color)}
-                    className={`w-6 h-6 rounded-full border-[2px] transition-all duration-200 ${
-                      selectedColor === color
+                    className={`w-6 h-6 rounded-full border-[2px] transition-all duration-200 ${selectedColor === color
                         ? "border-orange-500 scale-110"
                         : "border-gray-300 hover:scale-105"
-                    }`}
+                      }`}
                     style={{ backgroundColor: color }}
                   ></button>
                 ))}
@@ -499,37 +525,58 @@ const Page = () => {
             </div>
 
             {/* Action Buttons */}
-            <div className="flex items-center gap-3 md:gap-4">
-              {/* Buy Now */}
-              <button
-                className="
-      flex items-center justify-center w-1/2
-      bg-orange-500 hover:bg-orange-600 text-white font-medium
-      gap-2 rounded-full transition-all
+            {isDealer ? (
+              <div className="flex items-center w-full">
+                <a
+                  href={
+                    whatsappNumber
+                      ? `https://wa.me/${whatsappNumber.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(
+                        `Hello, I'm interested in the product: Samsung Special Fast Charger. Link: ${typeof window !== "undefined" ? window.location.href : ""
+                        }`
+                      )}`
+                      : "#"
+                  }
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center w-full bg-[#E8F8EF] hover:bg-[#D5F2E1] text-[#27AE60] font-semibold gap-3 rounded-full transition-all py-3 md:py-4 px-6 border border-[#27AE60]/20"
+                >
+                  <FaWhatsapp className="text-xl md:text-2xl" />
+                  <span className="text-base md:text-lg">Contact For Price</span>
+                </a>
+              </div>
+            ) : (
+              <div className="flex items-center gap-3 md:gap-4">
+                {/* Buy Now */}
+                <button
+                  className="
+                    flex items-center justify-center w-1/2
+                    bg-orange-500 hover:bg-orange-600 text-white font-medium
+                    gap-2 rounded-full transition-all
 
-      px-4 py-2 text-[13px]        /* mobile */
-      md:px-10 md:py-4 md:text-[15px] /* md+ */
-    "
-              >
-                <FiShoppingBag className="text-sm md:text-lg" />
-                Buy Now
-              </button>
+                    px-4 py-2 text-[13px]        /* mobile */
+                    md:px-10 md:py-4 md:text-[15px] /* md+ */
+                  "
+                >
+                  <FiShoppingBag className="text-sm md:text-lg" />
+                  Buy Now
+                </button>
 
-              {/* Add to Cart */}
-              <button
-                className="
-      flex items-center justify-center w-1/2
-      border border-gray-400 hover:border-gray-600 text-gray-800 font-medium
-      gap-2 rounded-full transition-all
+                {/* Add to Cart */}
+                <button
+                  className="
+                    flex items-center justify-center w-1/2
+                    border border-gray-400 hover:border-gray-600 text-gray-800 font-medium
+                    gap-2 rounded-full transition-all
 
-      px-4 py-2 text-[13px]        /* mobile */
-      md:px-10 md:py-4 md:text-[15px] /* md+ */
-    "
-              >
-                <FiPlus className="text-sm md:text-lg" />
-                Add to Cart
-              </button>
-            </div>
+                    px-4 py-2 text-[13px]        /* mobile */
+                    md:px-10 md:py-4 md:text-[15px] /* md+ */
+                  "
+                >
+                  <FiPlus className="text-sm md:text-lg" />
+                  Add to Cart
+                </button>
+              </div>
+            )}
 
             <div className="mt-8 space-y-6">
               {/* --- Share + WhatsApp Row --- */}
@@ -620,11 +667,10 @@ const Page = () => {
                       scrollToSection(faqRef);
                     }
                   }}
-                  className={`md:py-4 py-3 text-[12px] md:text-base font-semibold rounded-md transition-all duration-200 ${
-                    activeTab === tab.id
+                  className={`md:py-4 py-3 text-[12px] md:text-base font-semibold rounded-md transition-all duration-200 ${activeTab === tab.id
                       ? "bg-black text-white shadow-sm"
                       : "bg-white text-gray-800 hover:bg-gray-200"
-                  }`}
+                    }`}
                 >
                   {tab.label}
                 </button>

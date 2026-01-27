@@ -4,6 +4,10 @@ import React from "react";
 import DealerHero from "./DealerHero";
 import PopularCategories from "../Pages/Home/PopularCategories";
 import CampingOffer from "./CampingOffer";
+import TopSellBanner from "./TopSellBanner";
+import UpcomingProducts from "./UpcomingProducts";
+// import DealerReviews from "./DealerReviews";
+import DealerFAQ from "./DealerFAQ";
 
 const DealerHome = () => {
 
@@ -12,6 +16,10 @@ const DealerHome = () => {
             <DealerHero />
             <PopularCategories />
             <CampingOffer />
+            <TopSellBanner />
+            <UpcomingProducts />
+            {/* <DealerReviews /> */}
+            <DealerFAQ />
         </div>
     );
 };

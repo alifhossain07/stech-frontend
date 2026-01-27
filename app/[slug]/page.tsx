@@ -3,6 +3,7 @@ import React, { useRef, useState, useEffect } from "react";
 import { RefObject } from "react";
 import { useCart } from "@/app/context/CartContext";
 import { useParams, useRouter } from "next/navigation";
+import { useAuth } from "@/app/context/AuthContext";
 import Image from "next/image";
 import { useCompare } from "@/app/context/CompareContext";
 import {
@@ -128,6 +129,32 @@ const Page = () => {
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
   const [isInWishlist, setIsInWishlist] = useState(false);
   const [wishlistLoading, setWishlistLoading] = useState(false);
+  const { user } = useAuth();
+  const isDealer = user?.type?.toLowerCase() === "dealer";
+  const [whatsappNumber, setWhatsappNumber] = useState<string | null>(null);
+
+  // Fetch WhatsApp number from business-settings
+  useEffect(() => {
+    const fetchWhatsappNumber = async () => {
+      try {
+        const res = await fetch("/api/business-settings", { cache: "no-store" });
+        const json = await res.json();
+
+        if (json.success && json.data) {
+          const whatsappSetting = json.data.find(
+            (setting: { type: string; value: string }) => setting.type === "whatsapp_number"
+          );
+          if (whatsappSetting?.value) {
+            setWhatsappNumber(whatsappSetting.value);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch WhatsApp number:", error);
+      }
+    };
+
+    fetchWhatsappNumber();
+  }, []);
 
   const getEffectiveVariant = () => {
     if (!product || !product.variants || product.variants.length === 0) return null;
@@ -367,8 +394,6 @@ const Page = () => {
       setCartOpen(true);
       setCartLoading(false);
     }, 1500);
-
-
   };
 
   const handleBuyNow = () => {
@@ -431,7 +456,6 @@ const Page = () => {
 
     router.push("/checkout");
   };
-
 
   const tabs = [
     { id: "spec", label: "Specification" },
@@ -587,34 +611,36 @@ const Page = () => {
 
           <div className="flex items-center justify-between w-full mb-3">
             {/* -------- Left: Price Section -------- */}
-            <div className="flex items-center justify-center gap-3 ">
-              {/* New Price */}
-              <span className="2xl:text-[32px] xl:text-[26px] text-[20px] font-semibold text-orange-500">
-                ৳{displayPrice}
-              </span>
+            {!isDealer && (
+              <div className="flex items-center justify-center gap-3 ">
+                {/* New Price */}
+                <span className="2xl:text-[32px] xl:text-[26px] text-[20px] font-semibold text-orange-500">
+                  ৳{displayPrice}
+                </span>
 
-              {(() => {
-                // Parse discount to check if it's 0 or empty
-                const discountValue = parseFloat(String(product.discount || '0').replace(/[^\d.]/g, ''));
-                const hasDiscount = discountValue > 0 && parsePrice(product.stroked_price) !== parsePrice(product.main_price);
+                {(() => {
+                  // Parse discount to check if it's 0 or empty
+                  const discountValue = parseFloat(String(product.discount || '0').replace(/[^\d.]/g, ''));
+                  const hasDiscount = discountValue > 0 && parsePrice(product.stroked_price) !== parsePrice(product.main_price);
 
-                if (!hasDiscount) return null;
+                  if (!hasDiscount) return null;
 
-                return (
-                  <>
-                    {/* Discount Badge */}
-                    <span className="bg-green-100  text-green-600 2xl:text-[16px] xl:text-[13px] font-semibold text-xs px-2 py-[2px] rounded-full">
-                      {product.discount} OFF
-                    </span>
+                  return (
+                    <>
+                      {/* Discount Badge */}
+                      <span className="bg-green-100  text-green-600 2xl:text-[16px] xl:text-[13px] font-semibold text-xs px-2 py-[2px] rounded-full">
+                        {product.discount} OFF
+                      </span>
 
-                    {/* Old Price */}
-                    <span className="text-gray-400 line-through  2xl:text-[16px] xl:text-[13px]">
-                      {product.stroked_price}
-                    </span>
-                  </>
-                );
-              })()}
-            </div>
+                      {/* Old Price */}
+                      <span className="text-gray-400 line-through  2xl:text-[16px] xl:text-[13px]">
+                        {product.stroked_price}
+                      </span>
+                    </>
+                  );
+                })()}
+              </div>
+            )}
 
             {/* -------- Right: Compare & Wishlist -------- */}
             {/* -------- Right: Compare & Wishlist -------- */}
@@ -914,49 +940,70 @@ const Page = () => {
             </div>
 
             {/* Action Buttons */}
-            <div className="flex items-center gap-3 md:gap-4">
-              {/* Buy Now */}
-              <button
-                onClick={handleBuyNow}
-                className="
-      flex items-center justify-center w-1/2
-      bg-orange-500 hover:bg-orange-600 text-white font-medium
-      gap-2 rounded-full transition-all
+            {isDealer ? (
+              <div className="flex items-center w-full">
+                <a
+                  href={
+                    whatsappNumber
+                      ? `https://wa.me/${whatsappNumber.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(
+                        `Hello, I'm interested in the product: ${product.name}. Link: ${typeof window !== "undefined" ? window.location.href : ""
+                        }`
+                      )}`
+                      : "#"
+                  }
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center w-full bg-[#E8F8EF] hover:bg-[#D5F2E1] text-[#27AE60] font-semibold gap-3 rounded-full transition-all py-3 md:py-4 px-6 border border-[#27AE60]/20"
+                >
+                  <FaWhatsapp className="text-xl md:text-2xl" />
+                  <span className="text-base md:text-lg">Contact For Price</span>
+                </a>
+              </div>
+            ) : (
+              <div className="flex items-center gap-3 md:gap-4">
+                {/* Buy Now */}
+                <button
+                  onClick={handleBuyNow}
+                  className="
+                    flex items-center justify-center w-1/2
+                    bg-orange-500 hover:bg-orange-600 text-white font-medium
+                    gap-2 rounded-full transition-all
 
-      px-4 py-2 text-[13px]        /* mobile */
-      md:px-10 md:py-4 md:text-[15px] /* md+ */
-    "
-              >
-                <FiShoppingBag className="text-sm md:text-lg" />
-                Buy Now
-              </button>
+                    px-4 py-2 text-[13px]        /* mobile */
+                    md:px-10 md:py-4 md:text-[15px] /* md+ */
+                  "
+                >
+                  <FiShoppingBag className="text-sm md:text-lg" />
+                  Buy Now
+                </button>
 
-              {/* Add to Cart */}
-              <button
-                onClick={handleAdd}
-                disabled={cartLoading}
-                className={`
-    flex items-center justify-center w-1/2
-    border border-gray-400 hover:border-gray-600 text-gray-800 font-medium
-    gap-2 rounded-full transition-all
-    px-4 py-2 text-[13px]
-    md:px-10 md:py-4 md:text-[15px]
-    ${cartLoading ? "opacity-70 cursor-not-allowed" : ""}
-  `}
-              >
-                {cartLoading ? (
-                  <>
-                    <span className="w-4 h-4 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
-                    <span>Adding...</span>
-                  </>
-                ) : (
-                  <>
-                    <FiPlus className="text-sm md:text-lg" />
-                    <span>Add to Cart</span>
-                  </>
-                )}
-              </button>
-            </div>
+                {/* Add to Cart */}
+                <button
+                  onClick={handleAdd}
+                  disabled={cartLoading}
+                  className={`
+                    flex items-center justify-center w-1/2
+                    border border-gray-400 hover:border-gray-600 text-gray-800 font-medium
+                    gap-2 rounded-full transition-all
+                    px-4 py-2 text-[13px]
+                    md:px-10 md:py-4 md:text-[15px]
+                    ${cartLoading ? "opacity-70 cursor-not-allowed" : ""}
+                  `}
+                >
+                  {cartLoading ? (
+                    <>
+                      <span className="w-4 h-4 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
+                      <span>Adding...</span>
+                    </>
+                  ) : (
+                    <>
+                      <FiPlus className="text-sm md:text-lg" />
+                      <span>Add to Cart</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            )}
 
             <div className="mt-8 space-y-6">
               {/* --- Share + WhatsApp Row --- */}

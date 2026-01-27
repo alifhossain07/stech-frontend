@@ -6,7 +6,7 @@ import { Poppins } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import { Toaster } from "react-hot-toast";
+import Providers from "@/components/layout/Providers";
 import ClientLayoutWrapper from "@/components/layout/ClientLayoutWrapper";
 import { CartProvider } from "./context/CartContext";
 import { AuthProvider } from "./context/AuthContext";
@@ -78,7 +78,7 @@ export default async function RootLayout({
             id="dynamic-header-script"
             strategy="afterInteractive"
             dangerouslySetInnerHTML={{
-              __html: scripts.header_script.trim(),
+              __html: (scripts.header_script || "").trim(),
             }}
           />
         )}
@@ -95,9 +95,11 @@ export default async function RootLayout({
           <CartProvider>
             <CompareProvider>
               <Navbar />
-              <ClientLayoutWrapper>{children}</ClientLayoutWrapper>
+              <Providers>
+                <ClientLayoutWrapper>{children}</ClientLayoutWrapper>
+              </Providers>
               <Footer />
-              <Toaster position="top-right" />
+
               <Script id="tawk-script" strategy="afterInteractive">
                 {`
     var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();

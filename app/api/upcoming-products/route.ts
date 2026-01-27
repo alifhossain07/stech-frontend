@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
       Authorization: `Bearer ${bearerToken}`,
     };
 
-    const response = await fetch(`${API_BASE}/dealer/home/camping-offers`, {
+    const response = await fetch(`${API_BASE}/dealer/home/upcoming-products`, {
       method: "GET",
       headers,
       cache: "no-store",
@@ -35,7 +35,7 @@ export async function GET(req: NextRequest) {
       { status: response.status }
     );
   } catch (err) {
-    console.error("Camping Offers Proxy Error:", err);
+    console.error("Upcoming Products Proxy Error:", err);
     return NextResponse.json(
       {
         success: false,

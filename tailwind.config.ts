@@ -20,9 +20,14 @@ const config: Config = {
           "0%, 100%": { transform: "scale(1)", color: "#000000" }, // small & black
           "50%": { transform: "scale(1.25)", color: "#ffffff" },   // larger & white
         },
+        marquee: {
+          "0%": { transform: "translateX(0)" },
+          "100%": { transform: "translateX(-50%)" },
+        },
       },
       animation: {
         pulseScaleColor: "pulseScaleColor 1.5s ease-in-out infinite",
+        marquee: "marquee 30s linear infinite",
       },
     },
   },
