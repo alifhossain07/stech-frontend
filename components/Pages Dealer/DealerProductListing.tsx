@@ -31,6 +31,8 @@ interface DealerProductListingProps {
     bannerKey: string;
     pageTitle?: string;
     pageSubtitle?: string;
+    badgeText?: string;
+    badgeType?: "new-arrival" | "top-sell" | "special-offer" | "upcoming";
 }
 
 interface DealerBanners {
@@ -41,7 +43,9 @@ const DealerProductListing: React.FC<DealerProductListingProps> = ({
     apiEndpoint,
     bannerKey,
     pageTitle,
-    pageSubtitle
+    pageSubtitle,
+    badgeText,
+    badgeType
 }) => {
     const [productsData, setProductsData] = useState<Category[]>([]);
     const [banners, setBanners] = useState<DealerBanners | null>(null);
@@ -139,7 +143,7 @@ const DealerProductListing: React.FC<DealerProductListingProps> = ({
 
             {/* Header Section */}
             <div className="text-center mt-6 md:mt-12 mb-8">
-                <h1 className="text-xl md:text-3xl   font-bold text-gray-900">{pageTitle || "Products"}</h1>
+                <h1 className="text-xl md:text-3xl   font-medium text-gray-900">{pageTitle || "Products"}</h1>
                 <p className="text-gray-500 mt-2">{pageSubtitle || "Grab the best deals before they're gone"}</p>
             </div>
 
@@ -179,7 +183,9 @@ const DealerProductListing: React.FC<DealerProductListingProps> = ({
                                     discount: product.discount,
                                     rating: product.rating,
                                     reviews: `(${product.rating_count})`,
-                                    featured_specs: product.featured_specs
+                                    featured_specs: product.featured_specs,
+                                    badgeText: badgeText,
+                                    badgeType: badgeType
                                 }}
                             />
                         ))}

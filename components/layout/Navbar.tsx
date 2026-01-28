@@ -132,9 +132,9 @@ const Navbar = () => {
     { name: "Warranty", href: "/productwarranty" },
   ];
   const dealerPages = [
-    { name: "New Release", href: "/dealer/new-release" },
+    { name: "New Release", href: "/dealer/new-releases" },
     { name: "Best Deals", href: "/dealer/best-deals" },
-    { name: "Top Seller", href: "/dealer/top-seller" },
+    { name: "Top Seller", href: "/dealer/top-sellers" },
     { name: "Todays Offer", href: "/dealer/todays-offer" },
     { name: "Product Catalog", href: "/dealer/product-catalog" },
     { name: "Warranty Policy", href: "/dealer/warranty-policy" },

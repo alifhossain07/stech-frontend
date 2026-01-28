@@ -130,7 +130,7 @@ const CampingOffer = () => {
                         <div className="w-full lg:w-[25%] bg-white  rounded-2xl   flex flex-col">
                             <div className="relative aspect-square mb-2 rounded-xl overflow-hidden bg-gray-50 group">
                                 <span className="absolute top-4 left-4 z-10 bg-[#FFDED2] text-[#F16522] text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
-                                    Special offer
+                                    special offer
                                 </span>
                                 <Image
                                     src={highlightProduct.thumbnail_image}
@@ -201,7 +201,7 @@ const CampingOffer = () => {
                             >
                                 <div className="relative aspect-[4/3] bg-gray-50 overflow-hidden">
                                     <span className="absolute top-2 left-2 z-10 bg-orange-100 text-orange-600 text-[8px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
-                                        Special offer
+                                        special offer
                                     </span>
                                     <Image
                                         src={product.thumbnail_image}

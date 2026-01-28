@@ -10,6 +10,7 @@ export default function DealerTopSellPage() {
             bannerKey="topsell_banner"
             pageTitle="Top Sell Products"
             pageSubtitle="Grab the top tech deals before they're gone"
+            badgeType="top-sell"
         />
     );
 }

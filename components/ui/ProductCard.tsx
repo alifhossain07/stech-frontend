@@ -6,7 +6,7 @@ import { useAuth } from "@/app/context/AuthContext";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import { FaCartPlus } from "react-icons/fa";
+import { FaCartPlus, FaStar } from "react-icons/fa";
 import { LuShoppingBag } from "react-icons/lu";
 import Link from "next/link";
 import ProductOptionsModal from "./ProductOptionsModal";
@@ -26,6 +26,8 @@ type Product = {
   rating: number | string;
   reviews: number | string;
   featured_specs?: Spec[];
+  badgeText?: string;
+  badgeType?: "new-arrival" | "top-sell" | "special-offer" | "upcoming";
 };
 
 export default function ProductCard({ product }: { product: Product }) {
@@ -160,9 +162,17 @@ export default function ProductCard({ product }: { product: Product }) {
           onClick={handleProductClick}
           className="relative bg-gray-50 h-[180px] md:h-[220px] rounded-md flex items-center justify-center overflow-hidden"
         >
-          <span className="absolute top-1.5 left-1.5 bg-[#FF6B01] text-white text-[10px] z-20 font-semibold px-1.5 py-0.5 rounded-full">
-            New Arrival
-          </span>
+          {product.badgeText || (product.badgeType === "top-sell" ? "top sell" : "New Arrival") ? (
+            <span
+              className={`absolute top-1.5 left-1.5 z-20 text-[10px] font-semibold px-2 py-0.5 rounded-full flex items-center gap-1 uppercase tracking-wider ${product.badgeType === "top-sell"
+                ? "bg-green-600 text-white"
+                : "bg-[#FF6B01] text-white"
+                }`}
+            >
+              {product.badgeType === "top-sell" && <FaStar className="w-2.5 h-2.5" />}
+              {product.badgeText || (product.badgeType === "top-sell" ? "top sell" : "New Arrival")}
+            </span>
+          ) : null}
 
           <div className="relative w-full h-full">
             <Image

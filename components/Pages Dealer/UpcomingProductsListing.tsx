@@ -142,7 +142,7 @@ const UpcomingProductsListing = () => {
 
             {/* Header Section */}
             <div className="text-center mt-6 md:mt-12 mb-8">
-                <h1 className="text-xl md:text-3xl font-bold text-gray-900">Upcoming products</h1>
+                <h1 className="text-xl md:text-3xl font-medium text-gray-900">Upcoming products</h1>
                 <p className="text-gray-500 mt-2">Grab the top tech deals before they&apos;re gone</p>
             </div>
 
@@ -193,17 +193,17 @@ const CategorySection: React.FC<CategorySectionProps> = ({ category, whatsappNum
 
     const scroll = (direction: 'left' | 'right') => {
         if (scrollContainerRef.current) {
-            // Determine scroll amount based on product card width + gap
-            const isMobile = window.innerWidth < 768;
-            const cardWidth = isMobile ? 200 : 250;
-            const gap = 16; // gap-4 is 16px
+            const container = scrollContainerRef.current;
+            const firstCard = container.firstElementChild as HTMLElement;
+            const cardWidth = firstCard ? firstCard.offsetWidth : 250;
+            const gap = 16;
             const scrollAmount = cardWidth + gap;
 
             const newScrollLeft = direction === 'left'
-                ? scrollContainerRef.current.scrollLeft - scrollAmount
-                : scrollContainerRef.current.scrollLeft + scrollAmount;
+                ? container.scrollLeft - scrollAmount
+                : container.scrollLeft + scrollAmount;
 
-            scrollContainerRef.current.scrollTo({
+            container.scrollTo({
                 left: newScrollLeft,
                 behavior: 'smooth'
             });
@@ -215,9 +215,9 @@ const CategorySection: React.FC<CategorySectionProps> = ({ category, whatsappNum
     if (products.length === 0) return null;
 
     return (
-        <div className="mb-12">
+        <div className="mb-8">
             {/* Category Header */}
-            <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-1">{category.name}</h2>
+            <h2 className="text-xl md:text-2xl font-medium text-gray-900 mb-1">{category.name}</h2>
             <p className="text-gray-500 text-sm mb-6">Grab the top tech deals before they&apos;re gone</p>
 
             {/* Products Slider Container */}
@@ -274,10 +274,10 @@ interface ProductCardProps {
 
 const ProductCard: React.FC<ProductCardProps> = ({ product, whatsappNumber }) => {
     return (
-        <div className="flex-shrink-0 w-[200px] md:w-[250px] bg-white rounded-xl border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col">
+        <div className="flex-shrink-0 w-[220px] sm:w-[250px] lg:w-[calc((100%-48px)/4)] 2xl:w-[calc((100%-64px)/5)] bg-white rounded-xl border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col">
             {/* Product Image */}
             <div className="relative aspect-square bg-gray-50 overflow-hidden group">
-                <span className="absolute top-2 left-2 z-10 bg-black/80 backdrop-blur-sm text-white text-[9px] font-bold px-2 py-0.5 rounded-sm uppercase tracking-wider">
+                <span className="absolute top-2 left-2 z-10 bg-black/80 backdrop-blur-sm text-white text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
                     Upcoming
                 </span>
                 <Image
@@ -333,7 +333,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, whatsappNumber }) =>
                 <div className="mt-auto flex gap-2 pt-2 border-t border-gray-50">
                     <Link
                         href={`/${product.slug}`}
-                        className="flex-1 text-center py-2 px-2 rounded-md border border-gray-200 text-[10px] font-bold text-gray-600 hover:bg-gray-50 transition-colors whitespace-nowrap"
+                        className="flex-1 text-center py-2 px-2 rounded-md border border-gray-200 text-[10px] font-medium text-gray-600 hover:bg-gray-50 transition-colors whitespace-nowrap"
                     >
                         More Details
                     </Link>
@@ -348,7 +348,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, whatsappNumber }) =>
                         }
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex-1 bg-[#F16522] hover:bg-[#d85619] text-white py-2 px-2 rounded-md text-[10px] font-bold transition-all text-center whitespace-nowrap"
+                        className="flex-1 bg-[#F16522] hover:bg-[#d85619] text-white py-2 px-2 rounded-md text-[10px] font-medium transition-all text-center whitespace-nowrap"
                     >
                         Get a best price
                     </a>
