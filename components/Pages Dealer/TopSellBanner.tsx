@@ -74,7 +74,7 @@ const TopSellBanner = () => {
             <div className="w-11/12 mx-auto">
                 <div className="flex justify-between items-center mb-8">
                     <div>
-                        <h2 className="xl:text-3xl text-xl font-semibold text-gray-900">{data.title}</h2>
+                        <h2 className="xl:text-3xl text-xl font-medium text-gray-900">{data.title}</h2>
                         <p className="text-gray-500 mt-1">{data.subtitle}</p>
                     </div>
                     <Link href="/dealer/top-sell" className="flex items-center text-sm font-medium text-gray-600 hover:text-primary transition-colors">

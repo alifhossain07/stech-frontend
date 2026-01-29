@@ -64,7 +64,7 @@ const DealerFAQ = () => {
             <div className="w-11/12 mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
                 {/* Left Side: Title and Subtitle */}
                 <div className="lg:col-span-5 lg:sticky lg:top-24">
-                    <h2 className="text-2xl md:w-7/12 md:text-3xl lg:text-[30px] font-semibold text-gray-900 leading-[1.2] mb-6">
+                    <h2 className="text-2xl md:w-7/12 md:text-3xl lg:text-[30px] font-medium text-gray-900 leading-[1.2] mb-6">
                         {(() => {
                             const [firstWord, ...rest] = data.title.split(" ");
                             return (
@@ -101,7 +101,7 @@ const DealerFAQ = () => {
                                     <span className="text-gray-900 font-bold text-xl mt-[-2px]">
                                         &bull;
                                     </span>
-                                    <h3 className="text-gray-800 font-semibold text-lg  leading-snug">
+                                    <h3 className="text-gray-800 font-medium text-lg  leading-snug">
                                         {faq.question}
                                     </h3>
                                 </div>

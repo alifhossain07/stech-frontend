@@ -5,35 +5,34 @@ import Image from "next/image";
 import Link from "next/link";
 import { FiChevronRight } from "react-icons/fi";
 import { FaStar } from "react-icons/fa";
-
 import apiClient from "@/app/lib/api-client";
 
 interface Review {
-    name: string;
-    shop_name: string;
-    profile_pic: string;
-    rating: string;
-    description: string;
-    images?: string[];
-}
-
-interface ReviewData {
+    id: number;
+    dealer_name: string;
+    dealer_business_name: string;
+    review_type: string;
+    product_name: string | null;
+    rating: number;
     title: string;
-    subtitle: string;
-    reviews: Review[];
+    description: string;
+    images: string[];
+    status: string;
+    is_admin_created: boolean;
+    date: string;
+    created_at: string;
 }
 
 const DealerReviews = () => {
-    const [data, setData] = useState<ReviewData | null>(null);
+    const [reviews, setReviews] = useState<Review[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchReviews = async () => {
             try {
-                const response = await apiClient.get("/api/dealer-reviews");
-                const json = response.data;
-                if (json.success) {
-                    setData(json.data);
+                const response = await apiClient.get("/api/dealer/all-reviews");
+                if (response.data.success && response.data.data) {
+                    setReviews(response.data.data.reviews?.slice(0, 5) || []);
                 }
             } catch (error) {
                 console.error("Error fetching dealer reviews:", error);
@@ -63,23 +62,23 @@ const DealerReviews = () => {
         );
     }
 
-    if (!data || !data.reviews || data.reviews.length === 0) return null;
+    if (reviews.length === 0) return null;
 
     // Double the reviews for seamless loop
-    const doubledReviews = [...data.reviews, ...data.reviews, ...data.reviews];
+    const doubledReviews = [...reviews, ...reviews, ...reviews, ...reviews];
 
     return (
-        <section className="bg-gray-50 py-16 overflow-hidden">
-            <div className="w-11/12 mx-auto">
+        <section className="bg-gray-50 w-11/12 mx-auto py-16 overflow-hidden">
+            <div className="">
                 <div className="flex justify-between items-center xl:items-end mb-10">
                     <div>
-                        <h2 className="xl:text-3xl text-xl font-bold text-gray-900">
-                            {data.title}
+                        <h2 className="xl:text-3xl text-xl font-medium text-gray-900">
+                            Our Trusted Dealer Customer Review
                         </h2>
-                        <p className="text-gray-500 mt-1 text-sm">{data.subtitle}</p>
+                        <p className="text-gray-500 mt-1 text-sm">Genuine feedback from our verified dealer partners.</p>
                     </div>
                     <Link
-                        href="/reviews"
+                        href="/dealer/all-reviews"
                         className="flex items-center text-sm font-medium text-gray-600 hover:text-primary transition-colors mb-1"
                     >
                         View All Reviews <FiChevronRight className="w-4 h-4 ml-1" />
@@ -87,34 +86,43 @@ const DealerReviews = () => {
                 </div>
             </div>
 
-            <div className="relative w-11/12 mx-auto">
-                <div className="flex animate-marquee items-stretch">
+            <div className="relative">
+                <div className="flex w-max animate-marquee items-stretch">
                     {doubledReviews.map((review, index) => (
                         <div
                             key={index}
-                            className="flex-shrink-0 w-[350px] md:w-[450px] mx-4 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow group flex flex-col"
+                            className="flex-shrink-0 border border-black w-[350px] md:w-[450px] mx-4 bg-white p-5 rounded-[20px] shadow-sm  flex flex-col gap-3"
                         >
-                            <div className="flex justify-between items-start mb-6">
+                            {/* User Info */}
+                            <div className="flex items-start justify-between">
                                 <div className="flex items-center gap-3">
-                                    <div className="relative w-14 h-14 rounded-full overflow-hidden border border-gray-50 bg-gray-50">
+                                    <div className="relative w-12 h-12 rounded-full overflow-hidden bg-gray-100">
                                         <Image
-                                            src={review.profile_pic}
-                                            alt={review.name}
+                                            src={`https://ui-avatars.com/api/?name=${encodeURIComponent(
+                                                review.dealer_name
+                                            )}&background=random`}
+                                            alt={review.dealer_name}
                                             fill
                                             className="object-cover"
                                         />
                                     </div>
                                     <div>
-                                        <h4 className="font-bold text-gray-900 text-lg">{review.name}</h4>
-                                        <p className="text-sm text-gray-500">{review.shop_name}</p>
+                                        <h3 className="font-medium text-[#111111] text-[15px] leading-tight mb-0.5">
+                                            {review.dealer_name}
+                                        </h3>
+                                        <p className="text-[#666666] text-[12px] leading-none mb-1">
+                                            {review.dealer_business_name}
+                                        </p>
+                                        <p className="text-[#999999] text-[11px] leading-none font-normal">{review.date}</p>
                                     </div>
                                 </div>
-                                <div className="flex gap-0.5 mt-1">
+                                <div className="flex items-center gap-0.5 pt-1">
                                     {[...Array(5)].map((_, i) => (
                                         <FaStar
                                             key={i}
-                                            className={`w-4 h-4 ${i < parseInt(review.rating)
-                                                ? "text-orange-400"
+                                            size={14}
+                                            className={`${i < review.rating
+                                                ? "text-[#FF9900]"
                                                 : "text-gray-200"
                                                 }`}
                                         />
@@ -122,22 +130,32 @@ const DealerReviews = () => {
                                 </div>
                             </div>
 
-                            <p className="text-gray-700 text-sm leading-relaxed mb-6 italic">
-                                &quot;{review.description}&quot;
-                            </p>
-
-                            <div className="mt-auto">
-                                {review.images && review.images.length > 0 && (
-                                    <div className="relative w-16 h-16 rounded-lg overflow-hidden border border-gray-100">
-                                        <Image
-                                            src={review.images[0]}
-                                            alt="Review product"
-                                            fill
-                                            className="object-cover group-hover:scale-110 transition-transform duration-500"
-                                        />
-                                    </div>
-                                )}
+                            {/* Review Title & Content */}
+                            <div className="flex flex-col gap-1.5 mt-1">
+                                <h4 className="font-semibold text-[#111111] text-[15px]">{review.title}</h4>
+                                <p className="text-gray-900 text-[12px] leading-[1.6] line-clamp-3">
+                                    {review.description}
+                                </p>
                             </div>
+
+                            {/* Review Images */}
+                            {review.images && review.images.length > 0 && (
+                                <div className="flex gap-2.5 mt-2">
+                                    {review.images.slice(0, 2).map((img, idx) => (
+                                        <div
+                                            key={idx}
+                                            className="relative w-[70px] h-[70px] rounded-lg overflow-hidden border border-gray-100"
+                                        >
+                                            <Image
+                                                src={img}
+                                                alt={`Review image ${idx + 1}`}
+                                                fill
+                                                className="object-cover"
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
                     ))}
                 </div>

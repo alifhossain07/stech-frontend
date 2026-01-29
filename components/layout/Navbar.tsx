@@ -136,9 +136,11 @@ const Navbar = () => {
     { name: "Best Deals", href: "/dealer/best-deals" },
     { name: "Top Seller", href: "/dealer/top-sellers" },
     { name: "Todays Offer", href: "/dealer/todays-offer" },
+    { name: "All Products", href: "/dealer/all-products" },
+    { name: "Reviews", href: "/dealer/all-reviews" },
     { name: "Product Catalog", href: "/dealer/product-catalog" },
     { name: "Warranty Policy", href: "/dealer/warranty-policy" },
-    { name: "Help Center", href: "/dealer/help-center" },
+    { name: "Help Center", href: "/dealer/help" },
 
   ];
   useEffect(() => {

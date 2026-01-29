@@ -6,7 +6,8 @@
 @import "@glidejs/glide/dist/css/glide.core.min.css";
 
 /* Use Poppins globally */
-html, body {
+html,
+body {
   font-family: var(--font-poppins), sans-serif;
 }
 
@@ -41,7 +42,8 @@ body {
 }
 
 @keyframes pulseScaleColor {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
     color: white;
   }
@@ -53,22 +55,6 @@ body {
 
 .animate-pulseScaleColor {
   animation: pulseScaleColor 1.5s infinite ease-in-out;
-}
-
-/* GLOBAL MARQUEE ANIMATION */
-@keyframes marquee {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(-50%);
-  }
-}
-
-.animate-marquee {
-  display: flex;
-  width: max-content;
-  animation: marquee 28s linear infinite;
 }
 
 /* FADE EFFECT ON LEFT + RIGHT */
@@ -88,8 +74,14 @@ body {
 }
 
 @keyframes fadeDown {
-  0% { opacity: 0; transform: translateY(-10px); }
-  100% { opacity: 1; transform: translateY(0); }
+  0% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .highlight-banner-text {
@@ -110,7 +102,7 @@ body {
     opacity: 1;
   }
 }
-.prose img:nth-of-type(n+2) {
+.prose img:nth-of-type(n + 2) {
   width: 100% !important;
   height: 300px !important; /* Fixed height */
   object-fit: cover !important; /* Ensure the image covers the area */
@@ -119,64 +111,91 @@ body {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes fadeInDown {
-  from { opacity: 0; transform: translateY(-4px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes scaleIn {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 @keyframes slideDown {
-  from { opacity: 0; transform: translateY(-6px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Button Press Effect - Visually Appealing */
 .btn-press {
   position: relative;
-  transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1),
-              box-shadow 0.15s cubic-bezier(0.4, 0, 0.2, 1),
-              filter 0.15s ease;
+  transition:
+    transform 0.15s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.15s cubic-bezier(0.4, 0, 0.2, 1),
+    filter 0.15s ease;
   transform-origin: center;
   will-change: transform;
 }
 
 .btn-press:active {
   transform: translateY(4px) scale(0.97);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2),
-              inset 0 1px 2px rgba(0, 0, 0, 0.1);
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.2),
+    inset 0 1px 2px rgba(0, 0, 0, 0.1);
   filter: brightness(0.95);
 }
 
 /* Strong press effect with more depth */
 .btn-press-strong {
   position: relative;
-  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
-              box-shadow 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
-              filter 0.2s ease;
+  transition:
+    transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+    filter 0.2s ease;
   transform-origin: center;
   will-change: transform;
 }
 
 .btn-press-strong:active {
   transform: translateY(6px) scale(0.95);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25),
-              inset 0 2px 4px rgba(0, 0, 0, 0.15);
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.25),
+    inset 0 2px 4px rgba(0, 0, 0, 0.15);
   filter: brightness(0.9);
 }
 
 /* Realistic 3D press effect */
 .btn-press-3d {
   position: relative;
-  transition: transform 0.12s cubic-bezier(0.4, 0, 0.2, 1),
-              box-shadow 0.12s cubic-bezier(0.4, 0, 0.2, 1);
+  transition:
+    transform 0.12s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.12s cubic-bezier(0.4, 0, 0.2, 1);
   transform-origin: center;
   transform-style: preserve-3d;
   will-change: transform;
@@ -184,24 +203,27 @@ body {
 
 .btn-press-3d:active {
   transform: translateY(5px) scale(0.96);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3),
-              inset 0 3px 6px rgba(0, 0, 0, 0.2),
-              0 0 0 1px rgba(0, 0, 0, 0.1) inset;
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.3),
+    inset 0 3px 6px rgba(0, 0, 0, 0.2),
+    0 0 0 1px rgba(0, 0, 0, 0.1) inset;
 }
 
 /* Smooth bounce-back press effect */
 .btn-press-bounce {
   position: relative;
-  transition: transform 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55),
-              box-shadow 0.2s ease;
+  transition:
+    transform 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55),
+    box-shadow 0.2s ease;
   transform-origin: center;
   will-change: transform;
 }
 
 .btn-press-bounce:active {
   transform: translateY(5px) scale(0.94);
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2),
-              inset 0 2px 5px rgba(0, 0, 0, 0.15);
+  box-shadow:
+    0 3px 10px rgba(0, 0, 0, 0.2),
+    inset 0 2px 5px rgba(0, 0, 0, 0.15);
 }
 
 /* Target tables inside your blog content */

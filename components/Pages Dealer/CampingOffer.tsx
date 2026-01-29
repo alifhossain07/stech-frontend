@@ -116,7 +116,7 @@ const CampingOffer = () => {
             <div className="w-11/12 mx-auto">
                 <div className="flex justify-between  items-center mb-8">
                     <div>
-                        <h2 className="xl:text-3xl text-xl font-semibold text-gray-900">{data.title}</h2>
+                        <h2 className="xl:text-3xl text-xl font-medium text-gray-900">{data.title}</h2>
                         <p className="text-gray-500 text-md mt-1">{data.subtitle}</p>
                     </div>
                     <Link href="/dealer/camping-offers" className="flex items-center text-sm font-medium text-gray-600 hover:text-primary transition-colors">
@@ -124,11 +124,11 @@ const CampingOffer = () => {
                     </Link>
                 </div>
 
-                <div className="flex flex-col lg:flex-row gap-6">
+                <div className="flex flex-col lg:flex-row gap-4">
                     {/* Highlight Product */}
                     {highlightProduct && (
-                        <div className="w-full lg:w-[25%] bg-white  rounded-2xl   flex flex-col">
-                            <div className="relative aspect-square mb-2 rounded-xl overflow-hidden bg-gray-50 group">
+                        <div className="w-full lg:w-[28%] bg-white  rounded-2xl   flex flex-col">
+                            <div className="relative aspect-square mb-2 h-[250px] rounded-xl overflow-hidden bg-gray-50 group">
                                 <span className="absolute top-4 left-4 z-10 bg-[#FFDED2] text-[#F16522] text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
                                     special offer
                                 </span>

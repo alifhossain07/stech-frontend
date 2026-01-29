@@ -27,7 +27,7 @@ const config: Config = {
       },
       animation: {
         pulseScaleColor: "pulseScaleColor 1.5s ease-in-out infinite",
-        marquee: "marquee 30s linear infinite",
+        marquee: "marquee 50s linear infinite",
       },
     },
   },

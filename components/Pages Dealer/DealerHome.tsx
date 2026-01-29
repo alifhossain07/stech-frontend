@@ -6,7 +6,7 @@ import PopularCategories from "../Pages/Home/PopularCategories";
 import CampingOffer from "./CampingOffer";
 import TopSellBanner from "./TopSellBanner";
 import UpcomingProducts from "./UpcomingProducts";
-// import DealerReviews from "./DealerReviews";
+import DealerReviews from "./DealerReviews";
 import DealerFAQ from "./DealerFAQ";
 
 const DealerHome = () => {
@@ -18,7 +18,7 @@ const DealerHome = () => {
             <CampingOffer />
             <TopSellBanner />
             <UpcomingProducts />
-            {/* <DealerReviews /> */}
+            <DealerReviews />
             <DealerFAQ />
         </div>
     );
