@@ -4,6 +4,8 @@ import { getBearerToken } from "@/app/lib/auth-utils";
 const API_BASE = process.env.API_BASE!;
 const SYSTEM_KEY = process.env.SYSTEM_KEY!;
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(
   req: NextRequest,
   { params }: { params: { slug: string } }
