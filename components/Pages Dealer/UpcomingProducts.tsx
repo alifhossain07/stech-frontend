@@ -11,6 +11,7 @@ interface Banner {
     position: number;
     type: "large" | "small";
     image: string;
+    link: string;
 }
 
 interface UpcomingProductsData {
@@ -84,38 +85,44 @@ const UpcomingProducts = () => {
                     {/* Large Banner (Left) */}
                     <div className="md:col-span-6">
                         {banner1 && (
-                            <div className="relative aspect-[498/412] w-full h-full rounded-md overflow-hidden group shadow-sm hover:shadow-md transition-shadow">
-                                <Image
-                                    src={banner1.image}
-                                    alt="Upcoming Product 1"
-                                    fill
-                                    className="object-contain group-hover:scale-105 transition-transform duration-700"
-                                />
-                            </div>
+                            <a href={banner1.link || "#"} target="_blank" rel="noopener noreferrer" className="block w-full h-full">
+                                <div className="relative aspect-[498/412] w-full h-full rounded-md overflow-hidden group shadow-sm hover:shadow-md transition-shadow">
+                                    <Image
+                                        src={banner1.image}
+                                        alt="Upcoming Product 1"
+                                        fill
+                                        className="object-contain group-hover:scale-105 transition-transform duration-700"
+                                    />
+                                </div>
+                            </a>
                         )}
                     </div>
 
                     {/* Small Banners (Right) */}
                     <div className="md:col-span-4 flex flex-col gap-4">
                         {banner2 && (
-                            <div className="relative aspect-[334/200] w-full flex-1 rounded-md overflow-hidden group shadow-sm hover:shadow-md transition-shadow">
-                                <Image
-                                    src={banner2.image}
-                                    alt="Upcoming Product 2"
-                                    fill
-                                    className="object-contain group-hover:scale-105 transition-transform duration-700"
-                                />
-                            </div>
+                            <a href={banner2.link || "#"} target="_blank" rel="noopener noreferrer" className="flex-1 block">
+                                <div className="relative aspect-[334/200] w-full h-full rounded-md overflow-hidden group shadow-sm hover:shadow-md transition-shadow">
+                                    <Image
+                                        src={banner2.image}
+                                        alt="Upcoming Product 2"
+                                        fill
+                                        className="object-contain group-hover:scale-105 transition-transform duration-700"
+                                    />
+                                </div>
+                            </a>
                         )}
                         {banner3 && (
-                            <div className="relative aspect-[334/200] w-full flex-1 rounded-md overflow-hidden group shadow-sm hover:shadow-md transition-shadow">
-                                <Image
-                                    src={banner3.image}
-                                    alt="Upcoming Product 3"
-                                    fill
-                                    className="object-contain group-hover:scale-105 transition-transform duration-700"
-                                />
-                            </div>
+                            <a href={banner3.link || "#"} target="_blank" rel="noopener noreferrer" className="flex-1 block">
+                                <div className="relative aspect-[334/200] w-full h-full rounded-md overflow-hidden group shadow-sm hover:shadow-md transition-shadow">
+                                    <Image
+                                        src={banner3.image}
+                                        alt="Upcoming Product 3"
+                                        fill
+                                        className="object-contain group-hover:scale-105 transition-transform duration-700"
+                                    />
+                                </div>
+                            </a>
                         )}
                     </div>
                 </div>

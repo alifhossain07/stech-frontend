@@ -656,27 +656,11 @@ export async function GET(req: Request) {
           console.log(`✅ Enhanced ${matchedCount} from suggestions + ${directMatches.length} direct matches = ${enhancedSuggestions.length} total unique products (sorted by relevance)`);
 
           // Update the response with enhanced suggestions (only matched products)
-          const enhancedData = { data: enhancedSuggestions };
           console.log(`✅ Returning ${enhancedSuggestions.length} matched products only`);
-          
-          // Verify enhancement worked
-          if (enhancedSuggestions.length > 0) {
-            const firstEnhanced = enhancedSuggestions[0];
-            console.log("✅ Verification - First enhanced product:", {
-              name: firstEnhanced.name,
-              hasImage: !!firstEnhanced.image,
-              hasPrice: !!firstEnhanced.price,
-              hasSlug: !!firstEnhanced.slug,
-              image: firstEnhanced.image?.substring(0, 50) || 'null',
-              price: firstEnhanced.price || 'null'
-            });
-          }
-          
-          console.log("✅ Enhanced suggestions with product data");
           
           return NextResponse.json({
             success: true,
-            data: enhancedData,
+            data: enhancedSuggestions,
           });
         }
       } catch (error) {

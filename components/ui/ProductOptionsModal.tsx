@@ -43,7 +43,8 @@ type ProductType = {
   thumbnail_image?: string;
   featured_specs: FeaturedSpec[];
   current_stock: number;
-  est_shipping_time: number;
+  est_shipping_time: string;
+  dealer_est_shipping_time: string;
   model_number?: string;
   connection_type?: string;
   weight: number;

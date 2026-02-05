@@ -8,18 +8,26 @@ import TopSellBanner from "./TopSellBanner";
 import UpcomingProducts from "./UpcomingProducts";
 import DealerReviews from "./DealerReviews";
 import DealerFAQ from "./DealerFAQ";
+import DealerFooterInfo from "./DealerFooterInfo";
 
 const DealerHome = () => {
 
     return (
-        <div className="bg-gray-50 min-h-screen">
+        <div className=" min-h-screen">
             <DealerHero />
-            <PopularCategories />
+            <div className="bg-gray-50">
+                <PopularCategories />
+            </div>
             <CampingOffer />
-            <TopSellBanner />
+            <div className="bg-gray-50">
+                <TopSellBanner />
+            </div>
             <UpcomingProducts />
-            <DealerReviews />
+            <div className="bg-gray-50">
+                <DealerReviews />
+            </div>
             <DealerFAQ />
+            <DealerFooterInfo />
         </div>
     );
 };

@@ -3,8 +3,8 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import apiClient from "@/app/lib/api-client";
-import { FiChevronDown, FiMail, FiPhone, FiMessageSquare } from "react-icons/fi";
-import { FaWhatsapp, FaFacebookMessenger } from "react-icons/fa";
+import { FiChevronDown } from "react-icons/fi";
+import { } from "react-icons/fa";
 
 interface ContactCard {
     label: string;

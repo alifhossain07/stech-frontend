@@ -65,7 +65,8 @@ interface ProductType {
   colors: string[];
   featured_specs: FeaturedSpec[];
   current_stock: number;
-  est_shipping_time: number;
+  est_shipping_time: string;
+  dealer_est_shipping_time: string;
 
   model_number?: string;
   connection_type?: string;
@@ -911,7 +912,11 @@ const Page = () => {
               <FiTruck className="text-gray-700 text-lg" />
               <span className="text-[15px] text-black">
                 Delivery Timescale :{" "}
-                <span className="font-semibold">{product.est_shipping_time} Days</span>
+                <span className="font-semibold">
+                  {isDealer
+                    ? product.dealer_est_shipping_time || product.est_shipping_time
+                    : product.est_shipping_time}
+                </span>
               </span>
             </div>
 

@@ -185,9 +185,9 @@ export default function ProductCard({ product }: { product: Product }) {
           </div>
 
           <div className="absolute bottom-1.5 left-1.5 bg-white px-1.5 py-0.5 rounded-md flex items-center text-[10px] shadow-sm">
-            <span className="text-yellow-500 mr-0.5">★</span>
-            <span>{product.rating}</span>
-            <span className="text-gray-500 ml-0.5">{product.reviews}</span>
+            <span className="font-semibold text-gray-900 mr-1">{product.rating}</span>
+            <span className="text-yellow-500 mr-1">★</span>
+            <span className="text-gray-500">{product.reviews}</span>
           </div>
         </Link>
 
@@ -271,7 +271,7 @@ export default function ProductCard({ product }: { product: Product }) {
                 className="flex items-center justify-center w-1/2 rounded-md text-white md:text-sm text-[10px] bg-orange-500 hover:bg-orange-400 transition-colors gap-1"
               >
                 <span className="block md:hidden">Get Price</span>
-                <span className="hidden md:block">Get The Best Price</span>
+                <span className="hidden md:block">Get a best price</span>
               </a>
             </div>
 

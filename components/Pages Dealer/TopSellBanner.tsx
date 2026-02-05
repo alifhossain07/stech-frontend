@@ -11,6 +11,7 @@ interface Banner {
     position: number;
     type: "vertical" | "horizontal";
     image: string;
+    link: string;
 }
 
 interface TopSellProductsData {
@@ -70,7 +71,7 @@ const TopSellBanner = () => {
     const banner4 = data.banners.find(b => b.position === 4);
 
     return (
-        <section className="bg-white py-12">
+        <section className=" py-12">
             <div className="w-11/12 mx-auto">
                 <div className="flex justify-between items-center mb-8">
                     <div>
@@ -86,52 +87,60 @@ const TopSellBanner = () => {
                     {/* Left Banner */}
                     <div className="md:col-span-3">
                         {banner1 && (
-                            <div className="relative aspect-[334/412] w-full h-full rounded-md overflow-hidden group shadow-sm hover:shadow-md transition-shadow">
-                                <Image
-                                    src={banner1.image}
-                                    alt="Top Sell 1"
-                                    fill
-                                    className="object-contain group-hover:scale-105 transition-transform duration-700"
-                                />
-                            </div>
+                            <a href={banner1.link || "#"} target="_blank" rel="noopener noreferrer" className="block w-full h-full">
+                                <div className="relative aspect-[334/412] w-full h-full rounded-md overflow-hidden group shadow-sm hover:shadow-md transition-shadow">
+                                    <Image
+                                        src={banner1.image}
+                                        alt="Top Sell 1"
+                                        fill
+                                        className="object-contain group-hover:scale-105 transition-transform duration-700"
+                                    />
+                                </div>
+                            </a>
                         )}
                     </div>
 
                     {/* Middle Banners */}
                     <div className="md:col-span-4 flex flex-col gap-4">
                         {banner2 && (
-                            <div className="relative aspect-[454/200] w-full flex-1 rounded-md overflow-hidden group shadow-sm hover:shadow-md transition-shadow">
-                                <Image
-                                    src={banner2.image}
-                                    alt="Top Sell 2"
-                                    fill
-                                    className="object-contain group-hover:scale-105 transition-transform duration-700"
-                                />
-                            </div>
+                            <a href={banner2.link || "#"} target="_blank" rel="noopener noreferrer" className="flex-1 block">
+                                <div className="relative aspect-[454/200] w-full h-full rounded-md overflow-hidden group shadow-sm hover:shadow-md transition-shadow">
+                                    <Image
+                                        src={banner2.image}
+                                        alt="Top Sell 2"
+                                        fill
+                                        className="object-contain group-hover:scale-105 transition-transform duration-700"
+                                    />
+                                </div>
+                            </a>
                         )}
                         {banner3 && (
-                            <div className="relative aspect-[454/200] w-full flex-1 rounded-md overflow-hidden group shadow-sm hover:shadow-md transition-shadow">
-                                <Image
-                                    src={banner3.image}
-                                    alt="Top Sell 3"
-                                    fill
-                                    className="object-contain group-hover:scale-105 transition-transform duration-700"
-                                />
-                            </div>
+                            <a href={banner3.link || "#"} target="_blank" rel="noopener noreferrer" className="flex-1 block">
+                                <div className="relative aspect-[454/200] w-full h-full rounded-md overflow-hidden group shadow-sm hover:shadow-md transition-shadow">
+                                    <Image
+                                        src={banner3.image}
+                                        alt="Top Sell 3"
+                                        fill
+                                        className="object-contain group-hover:scale-105 transition-transform duration-700"
+                                    />
+                                </div>
+                            </a>
                         )}
                     </div>
 
                     {/* Right Banner */}
                     <div className="md:col-span-3">
                         {banner4 && (
-                            <div className="relative aspect-[334/412] w-full h-full rounded-md overflow-hidden group shadow-sm hover:shadow-md transition-shadow">
-                                <Image
-                                    src={banner4.image}
-                                    alt="Top Sell 4"
-                                    fill
-                                    className="object-contain group-hover:scale-105 transition-transform duration-700"
-                                />
-                            </div>
+                            <a href={banner4.link || "#"} target="_blank" rel="noopener noreferrer" className="block w-full h-full">
+                                <div className="relative aspect-[334/412] w-full h-full rounded-md overflow-hidden group shadow-sm hover:shadow-md transition-shadow">
+                                    <Image
+                                        src={banner4.image}
+                                        alt="Top Sell 4"
+                                        fill
+                                        className="object-contain group-hover:scale-105 transition-transform duration-700"
+                                    />
+                                </div>
+                            </a>
                         )}
                     </div>
                 </div>

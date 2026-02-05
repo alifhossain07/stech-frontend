@@ -209,12 +209,15 @@ const CategorySection: React.FC<CategorySectionProps> = ({ initialCategory, what
     // Handle filter change
     useEffect(() => {
         const fetchFilteredProducts = async () => {
-            if (currentFilter === "all" && products === initialCategory.products?.data) return;
+            // If filter is "all", just revert to initial products from props
+            if (currentFilter === "all") {
+                setProducts(initialCategory.products?.data || []);
+                return;
+            }
 
             setIsUpdating(true);
             try {
-                const queryParam = currentFilter !== "all" ? `?date_filter=${currentFilter}` : "";
-                const response = await apiClient.get(`/api/dealer/new-released-products${queryParam}`);
+                const response = await apiClient.get(`/api/dealer/new-released-products?date_filter=${currentFilter}`);
 
                 if (response.data.success && response.data.data) {
                     const allCategories = response.data.data.categories;
@@ -233,10 +236,8 @@ const CategorySection: React.FC<CategorySectionProps> = ({ initialCategory, what
             }
         };
 
-        if (currentFilter !== "all" || products !== initialCategory.products?.data) {
-            fetchFilteredProducts();
-        }
-    }, [currentFilter]);
+        fetchFilteredProducts();
+    }, [currentFilter, initialCategory.name, initialCategory.products]); // Only watch filter and category name
 
     const scroll = (direction: 'left' | 'right') => {
         if (scrollContainerRef.current) {
@@ -259,7 +260,7 @@ const CategorySection: React.FC<CategorySectionProps> = ({ initialCategory, what
     };
 
     return (
-        <div className={`mb-12 transition-opacity duration-300 ${isUpdating ? "opacity-50" : "opacity-100"}`}>
+        <div className={`mb-12 transition-opacity duration-300 ${isUpdating ? "opacity-70" : "opacity-100"}`}>
             {/* Category Header */}
             <div className="flex flex-col md:flex-row md:items-end justify-between mb-4 gap-4">
                 <div>
@@ -356,15 +357,15 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, whatsappNumber }) =>
     return (
         <div className="flex-shrink-0 w-[220px] sm:w-[250px] lg:w-[calc((100%-48px)/4)] 2xl:w-[calc((100%-64px)/5)] bg-white rounded-xl border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col">
             {/* Product Image */}
-            <div className="relative aspect-square bg-gray-50 overflow-hidden group">
-                <span className="absolute top-2 left-2 z-10 bg-black/80 backdrop-blur-sm text-white text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+            <div className="relative aspect-square bg-white overflow-hidden group">
+                <span className="absolute top-2 left-2 z-10 bg-orange-600/90 backdrop-blur-sm text-white text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
                     {relativeDateBadge}
                 </span>
                 <Image
                     src={product.thumbnail_image}
                     alt={product.name}
                     fill
-                    className="object-contain  group-hover:scale-105 transition-transform duration-500"
+                    className="object-contain group-hover:scale-105 transition-transform duration-500"
                 />
             </div>
 
@@ -398,11 +399,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, whatsappNumber }) =>
                             { icon: "/images/fastcharge.png", text: "Super Fast Charging" }
                         ]
                     ).slice(0, 2).map((spec, index) => (
-                        <div key={index} className="flex items-center gap-2 bg-gray-50 p-1.5 rounded-md">
-                            <div className="w-3.5 h-3.5 relative flex-shrink-0 grayscale opacity-70">
+                        <div key={index} className="flex items-center gap-2 bg-slate-50/80 p-1.5 rounded-md border border-slate-100/50">
+                            <div className="w-3.5 h-3.5 relative flex-shrink-0">
                                 <Image src={spec.icon} alt="" fill className="object-contain" />
                             </div>
-                            <span className="text-[10px] font-medium text-gray-600 line-clamp-1">
+                            <span className="text-[10px] font-medium text-gray-700 line-clamp-1">
                                 {spec.text}
                             </span>
                         </div>

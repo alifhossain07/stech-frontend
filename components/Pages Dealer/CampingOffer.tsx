@@ -127,8 +127,8 @@ const CampingOffer = () => {
                 <div className="flex flex-col lg:flex-row gap-4">
                     {/* Highlight Product */}
                     {highlightProduct && (
-                        <div className="w-full lg:w-[28%] bg-white  rounded-2xl   flex flex-col">
-                            <div className="relative aspect-square mb-2 h-[250px] rounded-xl overflow-hidden bg-gray-50 group">
+                        <div className="w-full lg:w-[28%] 2xl:w-[25%] bg-white  rounded-2xl   flex flex-col">
+                            <div className="relative aspect-square mb-2 lg:h-[250px] 2xl:h-auto rounded-xl overflow-hidden bg-gray-50 group">
                                 <span className="absolute top-4 left-4 z-10 bg-[#FFDED2] text-[#F16522] text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
                                     special offer
                                 </span>

@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useEffect, useState, useCallback, useRef } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import Image from "next/image";
 import apiClient from "@/app/lib/api-client";
 import ProductCard from "../ui/ProductCard";
-import { FiFilter, FiChevronLeft, FiChevronRight, FiChevronDown } from "react-icons/fi";
+import { FiFilter } from "react-icons/fi";
 import { Range } from "react-range";
 
 interface Product {
@@ -19,7 +19,7 @@ interface Product {
     reviews: string | number;
     featured_specs: { icon: string; text: string }[];
     current_stock: number;
-    variants: any[];
+    variants: { id: number; variant: string }[];
 }
 
 interface Category {
@@ -43,7 +43,7 @@ const DealerAllProductsListing = () => {
     const [loading, setLoading] = useState(true);
     const [isFilterLoading, setIsFilterLoading] = useState(false);
     const [filteringAttributes, setFilteringAttributes] = useState<FilterAttribute[]>([]);
-    const [totalProducts, setTotalProducts] = useState(0);
+    // const [totalProducts, setTotalProducts] = useState(0); // Removed as it was unused
     const [totalPages, setTotalPages] = useState(0);
     const [currentPage, setCurrentPage] = useState(1);
 
@@ -72,7 +72,7 @@ const DealerAllProductsListing = () => {
                 }
 
                 if (categoriesRes.data.data) {
-                    const cats = categoriesRes.data.data.map((c: any) => ({
+                    const cats = categoriesRes.data.data.map((c: Category) => ({
                         id: c.id,
                         name: c.name,
                         slug: c.slug,
@@ -108,7 +108,7 @@ const DealerAllProductsListing = () => {
             if (res.data.success) {
                 setProducts(res.data.products || []);
                 setFilteringAttributes(res.data.filtering_attributes || []);
-                setTotalProducts(res.data.total || 0);
+                // setTotalProducts(res.data.total || 0); // Removed as it was unused
                 setTotalPages(res.data.meta?.last_page || 1);
             }
         } catch (error) {

@@ -6,10 +6,26 @@ import DealerAllReviews from "@/components/Pages Dealer/DealerAllReviews";
 import apiClient from "@/app/lib/api-client";
 import { useAuth } from "@/app/context/AuthContext";
 
+interface Review {
+    id: number;
+    dealer_name: string;
+    dealer_business_name: string;
+    review_type: string;
+    product_name: string | null;
+    rating: number;
+    title: string;
+    description: string;
+    images: string[];
+    status: string;
+    is_admin_created: boolean;
+    date: string;
+    created_at: string;
+}
+
 export default function AllReviewsPage() {
     const { user, loading: authLoading } = useAuth();
     const router = useRouter();
-    const [reviews, setReviews] = useState<any[]>([]);
+    const [reviews, setReviews] = useState<Review[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {

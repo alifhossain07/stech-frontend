@@ -52,7 +52,7 @@ const DealerTopSellerPage = () => {
     const [setup, setSetup] = useState<SetupData | null>(null);
     const [rankings, setRankings] = useState<RankingsData | null>(null);
     const [loading, setLoading] = useState(true);
-    const [selectedMonth, setSelectedMonth] = useState<{ month: number; year: number } | null>(null);
+    // const [selectedMonth, setSelectedMonth] = useState<{ month: number; year: number } | null>(null); // Removed as unused
     const [isYearOpen, setIsYearOpen] = useState(false);
     const dropdownRef = React.useRef<HTMLDivElement>(null);
 
@@ -79,10 +79,12 @@ const DealerTopSellerPage = () => {
                 }
                 if (rankingsRes.data.success) {
                     setRankings(rankingsRes.data.data.data);
+                    /* 
                     setSelectedMonth({
                         month: rankingsRes.data.data.data.month.numeric,
                         year: rankingsRes.data.data.data.month.year
-                    });
+                    }); 
+                    */
                 }
             } catch (error) {
                 console.error("Error fetching top sellers data:", error);
@@ -100,7 +102,7 @@ const DealerTopSellerPage = () => {
             const res = await apiClient.get(`/api/dealer/top-sellers/rankings?month=${month}&year=${year}`);
             if (res.data.success) {
                 setRankings(res.data.data.data);
-                setSelectedMonth({ month, year });
+                // setSelectedMonth({ month, year });
             }
         } catch (error) {
             console.error("Error fetching filtered rankings:", error);

@@ -19,7 +19,7 @@ import { IoSearch, IoCartOutline } from "react-icons/io5";
 import CartSidebar from "./CartSidebar";
 import { useCart } from "@/app/context/CartContext";
 import { useAuth } from "@/app/context/AuthContext";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 
 // ------------------ TYPES ------------------
 type APICategory = {
@@ -86,6 +86,8 @@ const Navbar = () => {
   const [closing, setClosing] = useState(false);
   const { cart, cartOpen, setCartOpen } = useCart();
   const { user, logout } = useAuth();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   // Debug log for dealer state
   useEffect(() => {
@@ -93,6 +95,13 @@ const Navbar = () => {
       console.log("Full User Object:", user);
     }
   }, [user]);
+
+  // Reset searching state and clear suggestions when route change is complete
+  useEffect(() => {
+    setIsSearching(false);
+    setShowSuggestions(false);
+    setSuggestions([]);
+  }, [pathname, searchParams]);
 
   const isDealer = user?.type?.toLowerCase() === "dealer";
   const [searchTerm, setSearchTerm] = useState("");
@@ -103,6 +112,7 @@ const Navbar = () => {
   const [suggestions, setSuggestions] = useState<SuggestionItem[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isSuggestLoading, setIsSuggestLoading] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
   const suggestTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [showDesktopLogout, setShowDesktopLogout] = useState(false);
   const desktopSearchRef = useRef<HTMLDivElement>(null);
@@ -139,7 +149,7 @@ const Navbar = () => {
     { name: "All Products", href: "/dealer/all-products" },
     { name: "Reviews", href: "/dealer/all-reviews" },
     { name: "Product Catalog", href: "/dealer/product-catalog" },
-    { name: "Warranty Policy", href: "/dealer/warranty-policy" },
+    { name: "Warranty Policy", href: "/footer/footerwarranty" },
     { name: "Help Center", href: "/dealer/help" },
 
   ];
@@ -193,6 +203,11 @@ const Navbar = () => {
   const handleSearchSubmit = (query: string) => {
     const trimmed = query.trim();
     if (!trimmed) return;
+
+    // Clear any pending suggestion fetch
+    if (suggestTimeoutRef.current) clearTimeout(suggestTimeoutRef.current);
+
+    setIsSearching(true);
     setShowSuggestions(false);
     setSuggestions([]);
     setShowMobileSearch(false);
@@ -319,16 +334,30 @@ const Navbar = () => {
                     try {
                       const res = await fetch(`/api/products/search?suggest=1&query_key=${encodeURIComponent(value)}&type=product`);
                       const json = await res.json();
-                      let items = json.data || [];
-                      if (!Array.isArray(items) && json.data.items) items = json.data.items;
-                      items = items.map((item: SuggestionItem) => ({
+
+                      // Safety check: Don't show suggestions if we already started searching/navigating
+                      // or if the input has been cleared since the fetch started
+                      if (isSearching) return;
+
+                      let items: SuggestionItem[] = [];
+                      if (json.success && json.data) {
+                        if (Array.isArray(json.data)) {
+                          items = json.data;
+                        } else if (json.data.data && Array.isArray(json.data.data)) {
+                          items = json.data.data;
+                        } else if (json.data.items && Array.isArray(json.data.items)) {
+                          items = json.data.items;
+                        }
+                      }
+
+                      const processedItems = items.map((item: SuggestionItem) => ({
                         ...item,
                         name: item.name || item.title || item.query || "",
                         image: item.image || item.thumbnail || item.cover_image || item.thumbnail_image || item.photo || (item.photos?.[0]?.path) || null,
                         price: item.price || item.sale_price || item.offer_price || item.main_price || item.stroked_price || (item.meta?.price) || null,
                       }));
-                      setSuggestions(items);
-                      setShowSuggestions(items.length > 0);
+                      setSuggestions(processedItems);
+                      setShowSuggestions(processedItems.length > 0);
                     } catch (err) {
                       console.error("Desktop suggestion fetch error:", err);
                     } finally {
@@ -356,6 +385,7 @@ const Navbar = () => {
                       type="button"
                       onClick={() => {
                         if (item.slug) {
+                          setIsSearching(true);
                           setShowSuggestions(false);
                           setSuggestions([]);
                           setSearchTerm("");
@@ -375,7 +405,7 @@ const Navbar = () => {
                       <div className="flex-1 flex flex-col items-start min-w-0">
                         <span className="text-gray-800 line-clamp-1 font-medium">{item.name}</span>
                         {item.price && (
-                          <span className="text-xs text-orange-600 font-semibold mt-0.5">৳{item.price}</span>
+                          <span className="text-xs text-orange-600 font-semibold mt-0.5">{item.price}</span>
                         )}
                       </div>
                     </button>
@@ -522,16 +552,29 @@ const Navbar = () => {
                   try {
                     const res = await fetch(`/api/products/search?suggest=1&query_key=${encodeURIComponent(value)}&type=product`);
                     const json = await res.json();
-                    let items = json.data || [];
-                    if (!Array.isArray(items) && json.data.items) items = json.data.items;
-                    items = items.map((item: SuggestionItem) => ({
+
+                    // Safety check
+                    if (isSearching) return;
+
+                    let items: SuggestionItem[] = [];
+                    if (json.success && json.data) {
+                      if (Array.isArray(json.data)) {
+                        items = json.data;
+                      } else if (json.data.data && Array.isArray(json.data.data)) {
+                        items = json.data.data;
+                      } else if (json.data.items && Array.isArray(json.data.items)) {
+                        items = json.data.items;
+                      }
+                    }
+
+                    const processedItems = items.map((item: SuggestionItem) => ({
                       ...item,
                       name: item.name || item.title || item.query || "",
                       image: item.image || item.thumbnail || item.cover_image || item.thumbnail_image || item.photo || (item.photos?.[0]?.path) || null,
                       price: item.price || item.sale_price || item.offer_price || item.main_price || item.stroked_price || (item.meta?.price) || null,
                     }));
-                    setSuggestions(items);
-                    setShowSuggestions(items.length > 0);
+                    setSuggestions(processedItems);
+                    setShowSuggestions(processedItems.length > 0);
                   } catch (err) { console.error("Mobile suggestion fetch error:", err); } finally { setIsSuggestLoading(false); }
                 }, 300);
               }}
@@ -543,7 +586,16 @@ const Navbar = () => {
             {showSuggestions && suggestions.length > 0 && (
               <div className="absolute left-0 right-0 bg-white border border-gray-200 rounded-md shadow-lg max-h-64 overflow-y-auto z-50">
                 {suggestions.map((item, idx) => (
-                  <button key={idx} type="button" onClick={() => { if (item.slug) router.push(`/${item.slug}`); else if (item.name) handleSearchSubmit(item.name); setShowSuggestions(false); setShowMobileSearch(false); }} className={`w-full flex items-center gap-3 px-3 py-2 text-sm hover:bg-gray-100 ${idx < suggestions.length - 1 ? 'border-b border-gray-200' : ''}`}>
+                  <button key={idx} type="button" onClick={() => {
+                    if (item.slug) {
+                      setIsSearching(true);
+                      router.push(`/${item.slug}`);
+                    } else if (item.name) {
+                      handleSearchSubmit(item.name);
+                    }
+                    setShowSuggestions(false);
+                    setShowMobileSearch(false);
+                  }} className={`w-full flex items-center gap-3 px-3 py-2 text-sm hover:bg-gray-100 ${idx < suggestions.length - 1 ? 'border-b border-gray-200' : ''}`}>
                     {item.image && <div className="relative w-12 h-12 flex-shrink-0 bg-gray-50 rounded overflow-hidden"><Image src={item.image} alt={item.name || ""} fill sizes="48px" className="object-contain" /></div>}
                     <div className="flex-1 flex flex-col items-start min-w-0"><span className="text-gray-800 line-clamp-1 font-medium">{item.name}</span>{item.price && <span className="text-xs text-orange-600 font-semibold mt-0.5">৳{item.price}</span>}</div>
                   </button>
@@ -556,6 +608,16 @@ const Navbar = () => {
 
       {/* Prevent overlap */}
       <div className="pt-[70px] xl:pt-[120px]"></div>
+
+      {/* Global Search Loading Overlay */}
+      {isSearching && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/30 backdrop-blur-sm animate-[fadeIn_0.2s_ease-out]">
+          <div className="flex flex-col items-center gap-4 text-center px-6">
+            <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin shadow-lg"></div>
+            <p className="text-white font-medium tracking-wide drop-shadow-md">Searching for your favorite items...</p>
+          </div>
+        </div>
+      )}
 
       {/* ========= MOBILE BOTTOM NAV ========= */}
       <div className={`${isDealer ? "bg-black" : "bg-orange-500"} fixed bottom-0 left-0 w-full flex justify-around items-center py-3 text-white lg:hidden z-50 shadow-[0_-2px_10px_rgba(0,0,0,0.1)]`}>

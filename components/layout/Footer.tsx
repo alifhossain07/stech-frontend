@@ -224,7 +224,7 @@ const Footer = async () => {
                   );
                 })}
               </ul>
-              <Link href="/dealer/registration" className="mt-12 px-4 py-2 bg-gradient-to-b from-[#FFD522] to-[#FF6B01] text-white rounded-lg hover:opacity-90 transition text-sm">
+              <Link href="/dealer/registration" className="inline-block mt-5 px-4 py-3 bg-gradient-to-b from-[#FFD522] to-[#FF6B01] text-white rounded-lg hover:opacity-90 transition text-sm">
                 Become a Dealer
               </Link>
             </div>
