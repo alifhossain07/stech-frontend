@@ -563,7 +563,7 @@ const CategoryPage = () => {
   }
 
   return (
-    <div className="w-11/12 pt-6 md:pt-10 pb-[56px] mx-auto">
+    <div className="w-11/12 pt-6 md:pt-14 pb-[56px] mx-auto">
       {/* Display search query if in search mode */}
       {isSearchMode && searchQuery && (
         <h1 className="text-xl md:text-2xl font-semibold mb-2">

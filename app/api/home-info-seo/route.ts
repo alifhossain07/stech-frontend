@@ -18,27 +18,28 @@ export async function GET() {
 
     const seoJson = await res.json();
 
-    if (seoJson?.data?.[0]?.info_rows) {
-      const infoRows = seoJson.data[0].info_rows.map((item: InfoRow) => {
-        const titleKey = Object.keys(item).find((key): key is string =>
-          key.startsWith("title_")
-        );
+   if (seoJson?.data?.[0]?.info_rows) {
+  const infoRows = seoJson.data[0].info_rows.map((item: InfoRow) => {
+    const titleKey = Object.keys(item).find(key =>
+      key.startsWith("title_")
+    );
 
-        const paragraphKey = Object.keys(item).find((key): key is string =>
-          key.startsWith("paragraph_")
-        );
+    const paragraphKey = Object.keys(item).find(key =>
+      key.startsWith("paragraph_")
+    );
 
-        return {
-          title: titleKey ? item[titleKey] : "",
-          paragraph: paragraphKey ? item[paragraphKey] : "",
-        };
-      });
+    return {
+      title: titleKey ? item[titleKey] : "",
+      paragraph: paragraphKey ? item[paragraphKey] : "",
+    };
+  });
 
-      return NextResponse.json({
-        success: true,
-        rows: infoRows,
-      });
-    }
+  return NextResponse.json({
+    success: true,
+    banner: seoJson.data[0].banner ?? "",
+    rows: infoRows,
+  });
+}
 
     return NextResponse.json(
       { success: false, error: "Failed to load home bottom info data" },

@@ -1,14 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import Image from "next/image";
 import { useAuth } from "@/app/context/AuthContext";
 import { FiCheck, FiX, FiChevronDown, } from "react-icons/fi";
 import { toast } from "react-hot-toast";
 import WarrantyClaimModal from "@/components/ui/WarrantyClaimModal";
 import ProductInfoModal from "@/components/ui/ProductInfoModal";
-
-
 
 interface ActivatedProduct {
     product_serial_id: number;
@@ -46,7 +44,7 @@ interface SuccessData {
 
 export default function AuthenticationPage() {
     const { loading } = useAuth();
-    const [step, setStep] = useState<"activation_status" | "mobile_input" | "success_validation">("mobile_input");
+    const [step, setStep] = useState<"code_input" | "mobile_input" | "success_validation" | "activation_status" | "history_mobile_input">("code_input");
 
     // Form States
     const [mobileNumber, setMobileNumber] = useState("");
@@ -64,15 +62,68 @@ export default function AuthenticationPage() {
     const [activationError, setActivationError] = useState<string | null>(null);
     const [mobileError, setMobileError] = useState<string | null>(null);
 
-    const handleMobileNext = async (e: React.FormEvent) => {
-        e.preventDefault();
+    // Refs for scrolling
+    const codeSectionRef = useRef<HTMLDivElement>(null);
+    const mobileSectionRef = useRef<HTMLDivElement>(null);
+    const resultSectionRef = useRef<HTMLDivElement>(null);
+
+    const scrollToSection = (ref: React.RefObject<HTMLDivElement>) => {
+        setTimeout(() => {
+            if (ref.current) {
+                ref.current.scrollIntoView({ behavior: "smooth", block: "center" });
+            }
+        }, 150);
+    };
+
+    const handleCodeNext = (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
+        if (!activationCode) {
+            setActivationError("Please enter activation code");
+            return;
+        }
+        setActivationError(null);
+        setStep("mobile_input");
+        scrollToSection(mobileSectionRef);
+    };
+
+    const handleActivate = async (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
         setMobileError(null);
 
         if (mobileNumber.length !== 11) {
-            setMobileError("Phone number must be  11 digits");
+            setMobileError("Phone number must be 11 digits");
             return;
         }
 
+        setIsActivating(true);
+        try {
+            const res = await fetch("/api/warranty/activate", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ phone: mobileNumber, code: activationCode }),
+            });
+            const data = await res.json();
+
+            if (data.result) {
+                toast.success(data.message || "Product activated successfully");
+                setSuccessData(data.data);
+                setStep("success_validation");
+                scrollToSection(resultSectionRef);
+            } else {
+                setActivationError(data.message || "Invalid or already activated code");
+                await fetchHistory();
+                setStep("activation_status");
+                scrollToSection(resultSectionRef);
+            }
+        } catch (error) {
+            console.error(error);
+            setActivationError("Activation failed. Please try again.");
+        } finally {
+            setIsActivating(false);
+        }
+    };
+
+    const fetchHistory = async () => {
         setIsLoading(true);
         try {
             const res = await fetch("/api/warranty/activated-products", {
@@ -89,7 +140,6 @@ export default function AuthenticationPage() {
             } else {
                 setActivatedProducts([]);
             }
-            setStep("activation_status");
         } catch (error) {
             console.error(error);
             toast.error("Failed to fetch products");
@@ -98,56 +148,15 @@ export default function AuthenticationPage() {
         }
     };
 
-    const handleVerify = async () => {
-        if (!activationCode) {
-            toast.error("Please enter activation code");
-            return;
-        }
-        setActivationError(null);
-
-        // 1. Check if code matches an existing product for this user (phone)
-        const normalizedInput = activationCode.trim().toLowerCase();
-        const foundProduct = activatedProducts.find(p => p.serial.trim().toLowerCase() === normalizedInput);
-        if (foundProduct) {
-            setSelectedProduct(foundProduct);
-            setIsInfoModalOpen(true);
-            return;
-        }
-
-        // 2. If not found locally, try to activate via API
-        setIsActivating(true);
-        try {
-            const res = await fetch("/api/warranty/activate", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ phone: mobileNumber, code: activationCode }),
-            });
-            const data = await res.json();
-            if (data.result) {
-                toast.success(data.message || "Product activated successfully");
-                setSuccessData(data.data);
-                setStep("success_validation");
-            } else {
-                // Determine if it's an "already activated" or "invalid" error
-                // The API message usually clarifies. We will show it inline.
-                setActivationError(data.message || "Invalid or already activated code");
-                // Optional: still toast if it's a server error, but for validation we show inline
-                // toast.error(data.message || "Invalid or already activated code");
-            }
-        } catch (error) {
-            console.error(error);
-            setActivationError("Activation failed due to a detailed network error");
-        } finally {
-            setIsActivating(false);
-        }
-    };
-
     const handleReset = () => {
         setMobileNumber("");
         setActivationCode("");
         setActivatedProducts([]);
-        setStep("mobile_input");
+        setStep("code_input");
         setSuccessData(null);
+        setActivationError(null);
+        setMobileError(null);
+        window.scrollTo({ top: 0, behavior: "smooth" });
     };
 
     const openClaimModal = (product: ActivatedProduct) => {
@@ -173,271 +182,273 @@ export default function AuthenticationPage() {
     }
 
     return (
-        <div className="min-h-screen bg-[#FDFDFD] pb-20 xl:pt-28 pt-12">
+        <div className="min-h-screen bg-[#FDFDFD] pb-[20vh] xl:pt-16 pt-8">
             <div className="max-w-7xl mx-auto px-4">
 
-                {/* TITLE */}
-                <h1 className="text-2xl md:text-4xl font-bold text-center text-orange-500 xl:mb-16 mb-6">
+                <h1 className="text-xl md:text-2xl xl:text-3xl 2xl:text-4xl font-bold text-center text-orange-500 xl:mt-8  xl:mb-8 mb-4">
                     Sannai Technology Product Activation
                 </h1>
 
-                <div className="max-w-6xl mx-auto">
+                <div className="max-w-4xl mx-auto">
 
-                    {/* MOBILE INPUT SECTION */}
-                    <div className="bg-white rounded-[2.5rem] shadow-[0_10px_50px_rgba(0,0,0,0.04)] p-8 md:p-14 flex flex-col items-center mb-12 animate-fadeIn transition-all">
-                        <form onSubmit={handleMobileNext} className="w-full max-w-2xl">
-                            <div className="mb-10">
-                                <label className="block text-lg xl:text-xl font-medium text-gray-800 mb-4">
-                                    Enter Mobile Number <span className="text-sm text-gray-400 font-normal">( product purchase number )</span>
-                                </label>
+                    {/* STEP 1: ACTIVATION CODE INPUT */}
+                    {step === "code_input" && (
+                        <div ref={codeSectionRef} className="bg-white rounded-[1.5rem] shadow-[0_5px_25px_rgba(0,0,0,0.03)] p-4 md:p-8 flex flex-col items-center mb-6 animate-fadeIn transition-all">
+                            <div className="bg-[#F5F5F5] w-full max-w-md h-32 rounded-xl flex flex-col items-center justify-center mb-6 relative overflow-hidden group">
+                                <div className="relative w-40 h-16 mb-1">
+                                    <div className="flex gap-0.5 h-full items-end justify-center">
+                                        {[...Array(30)].map((_, i) => (
+                                            <div key={i} className={`w-0.5 bg-black ${i % 3 === 0 ? 'h-full' : i % 2 === 0 ? 'h-3/4' : 'h-1/2'}`}></div>
+                                        ))}
+                                    </div>
+                                    <div className="text-center text-[8px] font-medium mt-1 uppercase tracking-widest text-gray-600">Sannai Technology</div>
+                                </div>
+                            </div>
+
+                            <h3 className="text-lg md:text-xl font-medium text-gray-800 mb-6 text-center px-4">
+                                Please scratch the coating and provide the code below
+                            </h3>
+
+                            <form onSubmit={handleCodeNext} className="w-full max-w-2xl space-y-6">
                                 <input
                                     type="text"
-                                    value={mobileNumber}
+                                    value={activationCode}
                                     onChange={(e) => {
-                                        setMobileNumber(e.target.value);
-                                        if (mobileError) setMobileError(null);
+                                        setActivationCode(e.target.value);
+                                        if (activationError) setActivationError(null);
                                     }}
-                                    placeholder="Enter number"
-                                    className={`w-full h-12 bg-white border border-gray-200 rounded-xl px-6 text-xl focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all placeholder:text-gray-300 ${mobileError ? "ring-2 ring-red-500 bg-red-50 text-red-600 border-red-500" : ""}`}
+                                    placeholder="Enter activation code"
+                                    className={`w-full h-11 bg-[#F5F5F5] border-none rounded-lg px-6 text-center text-lg font-semibold focus:ring-2 focus:ring-orange-500 transition-all placeholder:font-normal placeholder:text-gray-400 ${activationError ? "ring-2 ring-red-500 bg-red-50 text-red-600" : ""}`}
                                 />
-                                {mobileError && (
-                                    <p className="text-red-500 mt-2 text-sm font-medium animate-fadeIn">
-                                        {mobileError}
+                                {activationError && (
+                                    <p className="text-red-500 text-center text-sm font-medium -mt-4 animate-fadeIn">
+                                        {activationError}
                                     </p>
                                 )}
 
-                            </div>
-
-                            <div className="flex gap-4 justify-center">
-                                <button
-                                    type="button"
-                                    onClick={handleReset}
-                                    className="xl:px-12 xl:py-3 px-6 py-2 rounded-full bg-gray-100 text-gray-600 font-semibold text-lg hover:bg-gray-200 transition-all min-w-[140px]"
-                                >
-                                    Reset
-                                </button>
-                                <button
-                                    type="submit"
-                                    disabled={isLoading}
-                                    className="xl:px-12 xl:py-3 px-6 py-2 rounded-full bg-orange-500 text-white font-semibold text-lg hover:bg-orange-600 transition-all shadow-lg shadow-orange-200 min-w-[140px] disabled:opacity-70"
-                                >
-                                    {isLoading ? "Loading..." : "Enter"}
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-
-                    {/* STEP 2: ACTIVATION CODE INPUT & PREVIOUS HISTORY */}
-                    {step === "activation_status" && (
-                        <div className="space-y-12 animate-fadeIn">
-                            <div className="bg-white rounded-[2.5rem] shadow-[0_10px_50px_rgba(0,0,0,0.04)] p-3 md:p-16 flex flex-col items-center">
-                                <div className="bg-[#F5F5F5] w-full max-w-lg h-48 rounded-2xl flex flex-col items-center justify-center mb-10 relative overflow-hidden group">
-                                    <div className="relative w-48 h-20 mb-2">
-                                        <div className="flex gap-0.5 h-full items-end justify-center">
-                                            {[...Array(40)].map((_, i) => (
-                                                <div key={i} className={`w-0.5 bg-black ${i % 3 === 0 ? 'h-full' : i % 2 === 0 ? 'h-3/4' : 'h-1/2'}`}></div>
-                                            ))}
-                                        </div>
-                                        <div className="text-center text-[10px] font-medium mt-1 uppercase tracking-widest text-gray-600">Sannai Technology</div>
+                                <div className="flex flex-col items-center gap-4">
+                                    <div className="flex gap-3 justify-center">
+                                        <button
+                                            type="button"
+                                            onClick={handleReset}
+                                            className="px-6 py-2 rounded-full bg-gray-100 text-gray-600 font-bold text-base hover:bg-gray-200 transition-all min-w-[120px]"
+                                        >
+                                            Reset
+                                        </button>
+                                        <button
+                                            type="submit"
+                                            className="px-6 py-2 rounded-full bg-orange-500 text-white font-bold text-base hover:bg-orange-600 transition-all shadow-md shadow-orange-100 min-w-[120px]"
+                                        >
+                                            Next
+                                        </button>
                                     </div>
+                                    <p
+                                        onClick={() => {
+                                            setStep("history_mobile_input");
+                                            setActivationError(null);
+                                            scrollToSection(mobileSectionRef);
+                                        }}
+                                        className="text-gray-500 text-sm font-medium cursor-pointer hover:text-orange-500 transition-colors"
+                                    >
+                                        Already activated? <span className="text-orange-500 underline">Check Your Products</span>
+                                    </p>
                                 </div>
+                            </form>
+                        </div>
+                    )}
 
-                                <h3 className="xl:text-2xl text-xl font-base text-gray-800 mb-8 text-center px-4">
-                                    Please scratch the coating of the sticker on your product and provide the code below
-                                </h3>
-
-                                <div className="w-full max-w-3xl space-y-8">
+                    {/* STEP 2: MOBILE INPUT SECTION */}
+                    {(step === "mobile_input" || step === "success_validation" || step === "activation_status" || step === "history_mobile_input") && (
+                        <div ref={mobileSectionRef} className="bg-white rounded-[1.5rem] shadow-[0_5px_25px_rgba(0,0,0,0.03)] p-6 md:p-8 flex flex-col items-center mb-6 animate-fadeIn transition-all">
+                            <form
+                                onSubmit={(e) => {
+                                    if (step === "history_mobile_input") {
+                                        e.preventDefault();
+                                        if (mobileNumber.length !== 11) {
+                                            setMobileError("Phone number must be 11 digits");
+                                            return;
+                                        }
+                                        fetchHistory().then(() => {
+                                            setStep("activation_status");
+                                            scrollToSection(resultSectionRef);
+                                        });
+                                    } else {
+                                        handleActivate(e);
+                                    }
+                                }}
+                                className="w-full max-w-xl"
+                            >
+                                <div className="mb-6">
+                                    <label className="block text-base md:text-lg font-medium text-gray-800 mb-3">
+                                        {step === "history_mobile_input" ? "Enter Registered Mobile Number" : "Enter Mobile Number"} <span className="text-xs text-gray-400 font-normal">{step === "history_mobile_input" ? "( to see your activated products )" : "( product purchase number )"}</span>
+                                    </label>
                                     <input
                                         type="text"
-                                        value={activationCode}
-                                        onChange={(e) => setActivationCode(e.target.value)}
-                                        placeholder="Enter activation code"
-                                        className={`w-full h-12 bg-[#F5F5F5] border-none rounded-xl px-6 text-center text-xl font-semibold focus:ring-2 focus:ring-orange-500 transition-all placeholder:font-normal placeholder:text-gray-400 ${activationError ? "ring-2 ring-red-500 bg-red-50 text-red-600" : ""}`}
+                                        value={mobileNumber}
+                                        onChange={(e) => {
+                                            setMobileNumber(e.target.value);
+                                            if (mobileError) setMobileError(null);
+                                        }}
+                                        placeholder="Enter number"
+                                        className={`w-full h-11 bg-white border border-gray-200 rounded-lg px-6 text-lg focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all placeholder:text-gray-300 ${mobileError ? "ring-2 ring-red-500 bg-red-50 text-red-600 border-red-500" : ""}`}
                                     />
-                                    {activationError && (
-                                        <p className="text-red-500 text-center font-medium -mt-4 animate-fadeIn">
-                                            {activationError}
+                                    {mobileError && (
+                                        <p className="text-red-500 mt-2 text-sm font-medium animate-fadeIn">
+                                            {mobileError}
                                         </p>
                                     )}
-
-                                    <div className="flex gap-4 justify-center">
-                                        <button
-                                            onClick={() => setStep("mobile_input")}
-                                            className="xl:px-12 xl:py-3 px-6 py-2 rounded-full bg-gray-100 text-gray-600 font-bold text-lg hover:bg-gray-200 transition-all min-w-[140px]"
-                                        >
-                                            Back
-                                        </button>
-                                        <button
-                                            onClick={handleVerify}
-                                            disabled={isActivating}
-                                            className="xl:px-12 xl:py-3 px-6 py-2 rounded-full bg-orange-500 text-white font-bold text-lg hover:bg-orange-600 transition-all shadow-lg shadow-orange-200 min-w-[140px] disabled:opacity-70"
-                                        >
-                                            {isActivating ? "Verifying..." : "Verify"}
-                                        </button>
-                                    </div>
                                 </div>
-                            </div>
 
-                            {/* Product Details List - Shown if items exist for this number */}
-                            {activatedProducts.length > 0 && (
-                                <div className="space-y-6">
-                                    <div className="bg-[#F5F5F5] py-4 rounded-xl text-center">
-                                        <h2 className="md:text-2xl   text-md font-bold text-gray-800 uppercase tracking-wide">Your Product Activation Details</h2>
-                                    </div>
-
-                                    <div className="bg-white rounded-[2.5rem] shadow-[0_10px_50px_rgba(0,0,0,0.04)] overflow-hidden">
-                                        {activatedProducts.map((prod) => (
-                                            <div key={prod.product_serial_id} className="border-b border-gray-100 last:border-none">
-                                                {/* Header Row */}
-                                                <div className="p-4 md:p-6 flex flex-col md:flex-row items-center justify-between gap-4">
-                                                    <div className="flex items-center gap-4 flex-1">
-                                                        <div className="w-16 h-16 bg-white border border-gray-100 rounded-lg flex items-center justify-center p-1 flex-shrink-0 relative overflow-hidden">
-                                                            <Image
-                                                                src={prod.product.thumbnail || "/images/placeholder.jpg"}
-                                                                alt={prod.product.name}
-                                                                width={50}
-                                                                height={50}
-                                                                className="object-contain"
-                                                            />
-                                                        </div>
-                                                        <div className="flex-1">
-                                                            <div className="flex items-center gap-2 cursor-pointer" onClick={() => setExpandedId(expandedId === prod.product_serial_id ? null : prod.product_serial_id)}>
-                                                                <h4 className="font-semibold text-gray-800 text-sm md:text-base line-clamp-1">
-                                                                    {prod.product.name}
-                                                                </h4>
-                                                                <FiChevronDown className={`transition-transform duration-300 ${expandedId === prod.product_serial_id ? 'rotate-180' : ''}`} />
-                                                            </div>
-                                                            {/* <div className="flex items-center gap-2 mt-1">
-                                                                <span className="text-orange-500 font-bold text-base md:text-lg">৳{prod.product.unit_price || 0}</span>
-                                                                {prod.product.discount && (
-                                                                    <span className="bg-green-100 text-green-600 px-2 py-0.5 rounded text-[10px] font-bold">
-                                                                        {prod.product.discount}% OFF
-                                                                    </span>
-                                                                )}
-                                                                <span className="text-gray-300 line-through text-xs">
-                                                                    ৳{prod.product.unit_price ? Math.round(prod.product.unit_price * 1.1) : 0}
-                                                                </span>
-                                                            </div> */}
-                                                        </div>
-                                                    </div>
-                                                    <button
-                                                        onClick={() => openClaimModal(prod)}
-                                                        className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-6 rounded-lg transition-all shadow-sm text-sm whitespace-nowrap"
-                                                    >
-                                                        Warranty Claim
-                                                    </button>
-                                                </div>
-
-                                                {/* Dropdown Content */}
-                                                {expandedId === prod.product_serial_id && (
-                                                    <div className="px-2 pb-6 md:px-10 md:pb-10 space-y-3 animate-fadeIn">
-                                                        <div className="flex justify-between items-center py-2 border-b border-gray-50">
-                                                            <span className="text-gray-500 font-medium">Product warranty :</span>
-                                                            <span className="text-gray-800 font-bold">{prod.product.warranty_days} Days</span>
-                                                        </div>
-                                                        <div className="flex justify-between items-center py-2 border-b border-gray-50">
-                                                            <span className="text-gray-500 font-medium">Your warranty start from :</span>
-                                                            <span className="text-gray-800 font-bold">{formatDate(prod.activation.activated_at)}</span>
-                                                        </div>
-                                                        <div className="flex justify-between items-center bg-[#FFE8E8] px-4 py-3 rounded-md">
-                                                            <span className="text-red-500 font-semibold">Your warranty Expire :</span>
-                                                            <span className="text-red-500 font-bold">{formatDate(prod.activation.expires_at)}</span>
-                                                        </div>
-                                                        <div className="flex justify-between items-center py-2 border-b border-gray-50">
-                                                            <span className="text-gray-500 font-medium">Service taken :</span>
-                                                            <span className="text-gray-800 font-bold">{prod.activation.claim_count.toString().padStart(2, '0')} Times</span>
-                                                        </div>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        ))}
-                                    </div>
+                                <div className="flex gap-3 justify-center">
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setStep("code_input");
+                                            setMobileNumber("");
+                                            setMobileError(null);
+                                            window.scrollTo({ top: 0, behavior: "smooth" });
+                                        }}
+                                        className="px-6 py-2 rounded-full bg-gray-100 text-gray-600 font-semibold text-base hover:bg-gray-200 transition-all min-w-[120px]"
+                                    >
+                                        Back
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        disabled={isActivating || isLoading}
+                                        className="px-6 py-2 rounded-full bg-orange-500 text-white font-semibold text-base hover:bg-orange-600 transition-all shadow-md shadow-orange-100 min-w-[120px] disabled:opacity-70"
+                                    >
+                                        {isActivating || isLoading ? "Verifying..." : (step === "history_mobile_input" ? "Check Products" : "Activate")}
+                                    </button>
                                 </div>
-                            )}
+                            </form>
                         </div>
                     )}
 
-                    {/* STEP 3: SUCCESS VALIDATION */}
-                    {step === "success_validation" && successData && (
-                        <div className="animate-fadeIn">
+                    {/* RESULTS SECTION */}
+                    <div ref={resultSectionRef}>
+                        {/* STEP 3: SUCCESS VALIDATION */}
+                        {step === "success_validation" && successData && (
+                            <div className="animate-fadeIn">
+                                <div className="bg-white rounded-[2rem] shadow-[0_5px_30px_rgba(0,0,0,0.04)] p-6 md:p-2relative max-w-4xl mx-auto border border-gray-50">
+                                    <button onClick={handleReset} className="absolute top-6 right-6 text-gray-300 hover:text-gray-500 transition-colors">
+                                        <FiX size={24} />
+                                    </button>
 
-
-                            <div className="bg-white rounded-[3rem] shadow-[0_10px_60px_rgba(0,0,0,0.06)] p-4 md:p-20 relative max-w-5xl mx-auto border border-gray-50">
-                                <button onClick={handleReset} className="absolute top-10 right-10 text-gray-300 hover:text-gray-500 transition-colors">
-                                    <FiX size={32} />
-                                </button>
-
-                                <div className="flex flex-col items-center text-center">
-                                    <div className="relative mb-12">
-                                        {/* Successful Illustration */}
-                                        <div className="w-48 h-48 relative flex items-center justify-center">
-                                            <div className="absolute inset-0 bg-orange-50 rounded-full animate-pulse"></div>
-                                            <div className="relative z-10">
-                                                <div className="w-40 h-32 bg-orange-500 rounded-2xl flex items-center justify-center text-white text-6xl shadow-xl transform -rotate-3">
-                                                    📦
-                                                </div>
-                                                <div className="absolute -bottom-4 -right-4 w-20 h-20 bg-green-500 rounded-full border-[6px] border-white shadow-lg flex items-center justify-center text-white">
-                                                    <FiCheck size={40} strokeWidth={4} />
+                                    <div className="flex flex-col items-center text-center">
+                                        <div className="relative mb-1">
+                                            <div className="w-32 h-32 relative flex items-center justify-center">
+                                                <div className="absolute inset-0 bg-orange-50 rounded-full animate-pulse"></div>
+                                                <div className="relative z-10">
+                                                    <div className="w-24 h-20 bg-orange-500 rounded-xl flex items-center justify-center text-white text-4xl shadow-lg transform -rotate-2">
+                                                        📦
+                                                    </div>
+                                                    <div className="absolute -bottom-2 -right-2 w-12 h-12 bg-green-500 rounded-full border-4 border-white shadow-md flex items-center justify-center text-white">
+                                                        <FiCheck size={24} strokeWidth={4} />
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
 
-                                    <h3 className="xl:text-2xl text-xl font-bold text-gray-800 mb-4">Code : {successData.serial.serial}</h3>
-                                    <h2 className="text-2xl md:text-4xl font-black text-[#26B95C] mb-8 tracking-wide uppercase">Successfully Activated</h2>
+                                        <h3 className="text-lg md:text-xl font-bold text-gray-800 mb-2">Code : {successData.serial.serial}</h3>
+                                        <h2 className="text-xl md:text-2xl font-black text-[#26B95C] mb-2 tracking-wide uppercase">Successfully Activated</h2>
 
-                                    <p className="text-gray-500 md:text-xl text-lg font-medium mb-16 leading-relaxed">
-                                        This Is A Genuine Sannai Product.
-                                        Thank You For Choosing Quality And Originality.
-                                    </p>
+                                        <p className="text-gray-500 text-base md:text-lg font-medium mb-5 leading-relaxed ">
+                                            Genuine Sannai Product. Thank You For Choosing Quality.
+                                        </p>
 
-                                    <div className="w-full space-y-4 max-w-2xl">
-                                        <div className="bg-[#F5F5F5] p-3 rounded-2xl flex justify-between items-center px-8 border border-gray-100">
-                                            <span className="text-gray-600 font-semibold md:text-lg text-md">Product Name :</span>
-                                            <span className="text-gray-800 font-bold md:text-lg text-md">{successData.serial.product.name}</span>
-                                        </div>
-                                        <div className="bg-[#F5F5F5] p-3 rounded-2xl flex justify-between items-center px-8 border border-gray-100">
-                                            <span className="text-gray-600 font-semibold md:text-lg text-md">Warranty :</span>
-                                            <span className="text-gray-800 font-bold md:text-lg text-md">{successData.serial.product.warranty_days} Days</span>
-                                        </div>
-                                        <div className="bg-[#F5F5F5] p-3 rounded-2xl flex justify-between items-center px-8 border border-gray-100">
-                                            <span className="text-gray-600 font-semibold md:text-lg text-md">Expires At :</span>
-                                            <span className="text-gray-800 font-bold md:text-lg text-md">{formatDate(successData.serial.warranty_expires_at)}</span>
+                                        <div className="w-full space-y-3 max-w-xl">
+                                            <div className="bg-[#F5F5F5] p-2.5 rounded-xl flex justify-between items-center px-6 border border-gray-100">
+                                                <span className="text-gray-600 font-semibold text-sm md:text-base">Product Name:</span>
+                                                <span className="text-gray-800 font-bold text-sm md:text-base">{successData.serial.product.name}</span>
+                                            </div>
+                                            <div className="bg-[#F5F5F5] p-2.5 rounded-xl flex justify-between items-center px-6 border border-gray-100">
+                                                <span className="text-gray-600 font-semibold text-sm md:text-base">Warranty:</span>
+                                                <span className="text-gray-800 font-bold text-sm md:text-base">{successData.serial.product.warranty_days} Days</span>
+                                            </div>
+                                            <div className="bg-[#F5F5F5] p-2.5 rounded-xl flex justify-between items-center px-6 border border-gray-100">
+                                                <span className="text-gray-600 font-semibold text-sm md:text-base">Expires At:</span>
+                                                <span className="text-gray-800 font-bold text-sm md:text-base">{formatDate(successData.serial.warranty_expires_at)}</span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    )}
+                        )}
+
+                        {/* HISTORY SECTION */}
+                        {step === "activation_status" && activatedProducts.length > 0 && (
+                            <div className="space-y-4 animate-fadeIn">
+                                <div className="bg-[#F5F5F5] py-2.5 rounded-lg text-center">
+                                    <h2 className="text-base md:text-lg font-bold text-gray-800 uppercase tracking-wide">Product Activation Details</h2>
+                                </div>
+
+                                <div className="bg-white rounded-[1.5rem] shadow-[0_5px_25px_rgba(0,0,0,0.03)] overflow-hidden">
+                                    {activatedProducts.map((prod) => (
+                                        <div key={prod.product_serial_id} className="border-b border-gray-50 last:border-none">
+                                            <div className="p-3 md:p-5 flex flex-col md:flex-row items-center justify-between gap-3">
+                                                <div className="flex items-center gap-3 flex-1">
+                                                    <div className="w-12 h-12 bg-white border border-gray-100 rounded-lg flex items-center justify-center p-1 flex-shrink-0 relative overflow-hidden">
+                                                        <Image
+                                                            src={prod.product.thumbnail || "/images/placeholder.jpg"}
+                                                            alt={prod.product.name}
+                                                            width={40}
+                                                            height={40}
+                                                            className="object-contain"
+                                                        />
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <div className="flex items-center gap-2 cursor-pointer" onClick={() => setExpandedId(expandedId === prod.product_serial_id ? null : prod.product_serial_id)}>
+                                                            <h4 className="font-semibold text-gray-800 text-xs md:text-sm line-clamp-1">
+                                                                {prod.product.name}
+                                                            </h4>
+                                                            <FiChevronDown className={`transition-transform duration-300 ${expandedId === prod.product_serial_id ? 'rotate-180' : ''}`} />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <button
+                                                    onClick={() => openClaimModal(prod)}
+                                                    className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-1.5 px-4 rounded-lg transition-all shadow-sm text-xs whitespace-nowrap"
+                                                >
+                                                    Warranty Claim
+                                                </button>
+                                            </div>
+
+                                            {expandedId === prod.product_serial_id && (
+                                                <div className="px-4 pb-4 md:px-8 md:pb-6 space-y-2 animate-fadeIn text-xs md:text-sm">
+                                                    <div className="flex justify-between items-center py-1.5 border-b border-gray-50">
+                                                        <span className="text-gray-500 font-medium">Warranty :</span>
+                                                        <span className="text-gray-800 font-bold">{prod.product.warranty_days} Days</span>
+                                                    </div>
+                                                    <div className="flex justify-between items-center py-1.5 border-b border-gray-50">
+                                                        <span className="text-gray-500 font-medium">Activated :</span>
+                                                        <span className="text-gray-800 font-bold">{formatDate(prod.activation.activated_at)}</span>
+                                                    </div>
+                                                    <div className="flex justify-between items-center bg-[#FFE8E8] px-3 py-2 rounded-md">
+                                                        <span className="text-red-500 font-semibold">Expires :</span>
+                                                        <span className="text-red-500 font-bold">{formatDate(prod.activation.expires_at)}</span>
+                                                    </div>
+                                                    <div className="flex justify-between items-center py-1.5 border-b border-gray-50">
+                                                        <span className="text-gray-500 font-medium">Claims :</span>
+                                                        <span className="text-gray-800 font-bold">{prod.activation.claim_count.toString().padStart(2, '0')} Times</span>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
 
                 </div>
             </div>
 
-            {/* Application Store App Banner */}
-            {/* <div className="max-w-6xl mx-auto px-4 mt-20">
-                <div className="bg-black rounded-3xl p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-8">
-                    <div className="text-center md:text-left">
-                        <h2 className="text-4xl md:text-5xl font-black text-orange-500 italic mb-4 tracking-tighter">Sannai</h2>
-                        <p className="text-white text-xl font-semibold">Get the Sannai Technology Store App</p>
-                    </div>
-                    <div className="flex flex-wrap justify-center gap-4">
-                        <div className="flex flex-col gap-4">
-                            <Image src="/images/app-store.png" alt="App Store" width={140} height={42} className="cursor-pointer" />
-                            <Image src="/images/google-play.png" alt="Google Play" width={140} height={42} className="cursor-pointer" />
-                        </div>
-                        <Image src="/images/galaxy-store.png" alt="Galaxy Store" width={140} height={42} className="cursor-pointer self-end" />
-                    </div>
-                </div>
-            </div> */}
-
-            {/* Product Info Modal (Already Activated by Me) */}
             <ProductInfoModal
                 isOpen={isInfoModalOpen}
                 onClose={() => setIsInfoModalOpen(false)}
                 product={selectedProduct}
             />
 
-            {/* Warranty Claim Modal */}
             <WarrantyClaimModal
                 isOpen={isClaimModalOpen}
                 onClose={() => setIsClaimModalOpen(false)}
@@ -447,21 +458,21 @@ export default function AuthenticationPage() {
             />
 
             <style jsx global>{`
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fadeIn {
-          animation: fadeIn 0.5s ease-out forwards;
-        }
-        @keyframes scaleIn {
-          from { opacity: 0; transform: scale(0.95); }
-          to { opacity: 1; transform: scale(1); }
-        }
-        .animate-scaleIn {
-          animation: scaleIn 0.3s ease-out forwards;
-        }
-      `}</style>
+                @keyframes fadeIn {
+                    from { opacity: 0; transform: translateY(10px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                .animate-fadeIn {
+                    animation: fadeIn 0.5s ease-out forwards;
+                }
+                @keyframes scaleIn {
+                    from { opacity: 0; transform: scale(0.95); }
+                    to { opacity: 1; transform: scale(1); }
+                }
+                .animate-scaleIn {
+                    animation: scaleIn 0.3s ease-out forwards;
+                }
+            `}</style>
         </div>
     );
 }

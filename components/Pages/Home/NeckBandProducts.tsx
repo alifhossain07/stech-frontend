@@ -13,7 +13,7 @@ const BannerSkeleton = () => (
 
 const ProductCardSkeleton = () => (
   <div className="relative w-full max-w-[300px] h-full flex flex-col justify-between rounded-lg shadow-md border border-gray-200 animate-pulse">
-    <div className="relative flex items-center justify-center bg-gray-100 md:p-10 p-6 rounded-md h-[150px]" />
+    <div className="relative flex items-center justify-center bg-gray-100 md:p-10 p-6 rounded-md aspect-square" />
 
     <div className="p-3 w-full">
       <div className="w-full h-4 bg-gray-200 rounded mb-3" />
@@ -54,12 +54,14 @@ type NeckbandResponse = {
   subtitle: string;
   link: string;
   banner: string;
+  cover_image: string;
   products: ProductType[];
 };
 
 const NeckBandProducts = () => {
   const [products, setProducts] = useState<ProductType[]>([]);
   const [banner, setBanner] = useState<string>("");
+  const [coverImage, setCoverImage] = useState<string>("");
   const [title, setTitle] = useState<string>("Neckband Products"); // NEW
   const [subtitle, setSubtitle] = useState<string>(
     "Discover Our Latest Arrivals Designed to Inspire and Impress"
@@ -80,6 +82,7 @@ const NeckBandProducts = () => {
 
         setProducts(neckbandData.products);
         setBanner(neckbandData.banner);
+        setCoverImage(neckbandData.cover_image);
         setTitle(neckbandData.title || "Neckband Products");
         setSubtitle(
           neckbandData.subtitle ||
@@ -142,26 +145,42 @@ const NeckBandProducts = () => {
                 <Image
                   src={banner || "/images/earbudsimage.png"}
                   alt="Earbuds Banner"
+                  width={433}
+                  height={928}
+                  className="rounded-xl object-contain w-full h-full hidden xl:block"
+                />
+                <Image
+                  src={coverImage || banner || "/images/earbudsimage.png"}
+                  alt="Earbuds Banner"
                   width={400}
                   height={600}
-                  className="rounded-xl object-center md:object-fill w-full h-auto xl:h-full"
+                  className="rounded-xl object-contain w-full h-auto block xl:hidden"
                 />
               </Link>
             ) : (
-              <Image
-                src={banner || "/images/earbudsimage.png"}
-                alt="Earbuds Banner"
-                width={400}
-                height={600}
-                className="rounded-xl object-center md:object-fill w-full h-auto xl:h-full"
-              />
+              <>
+                <Image
+                  src={banner || "/images/earbudsimage.png"}
+                  alt="Earbuds Banner"
+                  width={433}
+                  height={928}
+                  className="rounded-xl object-contain w-full h-full hidden xl:block"
+                />
+                <Image
+                  src={coverImage || banner || "/images/earbudsimage.png"}
+                  alt="Earbuds Banner"
+                  width={400}
+                  height={600}
+                  className="rounded-xl object-contain w-full h-auto block xl:hidden"
+                />
+              </>
             )}
 
           </div>
         </div>
 
         {/* RIGHT: Product Grid */}
-        <div className="xl:w-9/12 2xl:w-9/12 w-full flex justify-center items-center min-h-[300px]">
+        <div className="xl:w-9/12 2xl:w-9/12 w-full flex justify-center items-start min-h-[300px]">
 
           {loading ? (
             <>

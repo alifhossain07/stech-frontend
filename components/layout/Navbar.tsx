@@ -121,6 +121,17 @@ const Navbar = () => {
   const searchRef = useRef<HTMLDivElement>(null);
   const profileRef = useRef<HTMLDivElement | null>(null);
 
+  const [windowWidth, setWindowWidth] = useState(0);
+  const [showMoreDropdown, setShowMoreDropdown] = useState(false);
+  const moreRef = useRef<HTMLLIElement>(null);
+
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    handleResize(); // Set initial width
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   const handleCloseMenu = () => {
     setClosing(true);
     setTimeout(() => {
@@ -246,6 +257,9 @@ const Navbar = () => {
       }
       if (desktopSearchRef.current && !desktopSearchRef.current.contains(event.target as Node)) {
         setShowSuggestions(false);
+      }
+      if (moreRef.current && !moreRef.current.contains(event.target as Node)) {
+        setShowMoreDropdown(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -427,9 +441,9 @@ const Navbar = () => {
                 <span className="underline">English</span>
                 <FiChevronDown className={`${isDealer ? "text-white" : "text-black"} text-2xl`} />
               </button>
-              <div className={`absolute left-0 top-full mt-2 text-md bg-white text-black border border-gray-300 rounded-md shadow-md w-32 z-50 transition-all ${open ? "opacity-100 visible" : "opacity-0 invisible"}`}>
-                <button className="block w-full text-md text-left px-4 py-2 hover:bg-gray-100">English</button>
-                <button className="block w-full text-md text-left px-4 py-2 hover:bg-gray-100">Bangla</button>
+              <div className={`absolute left-0 top-full mt-2 text-md bg-white text-black border border-gray-300 rounded-md shadow-md w-32 z-50 transition-all ${open ? "opacity-100 visible translate-y-0" : "opacity-0 invisible -translate-y-2"}`}>
+                <button className="block w-full text-md text-left px-4 py-2 hover:bg-gray-50 transition-colors duration-200">English</button>
+                <button className="block w-full text-md text-left px-4 py-2 hover:bg-gray-50 transition-colors duration-200">Bangla</button>
               </div>
             </div>
 
@@ -463,9 +477,9 @@ const Navbar = () => {
                   </div>
                 </button>
                 {showDesktopLogout && (
-                  <div className="absolute right-0 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg overflow-hidden text-black">
-                    <Link href="/profile" onClick={() => setShowDesktopLogout(false)} className="block w-full text-sm px-3 py-2 hover:bg-gray-100 transition">Dashboard</Link>
-                    <button onClick={() => setShowLogoutConfirm(true)} className="block text-left w-full text-sm text-red-500 px-3 py-2 hover:bg-red-50 transition border-t border-gray-200">Logout</button>
+                  <div className={`absolute right-0 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg overflow-hidden text-black transition-all ${showDesktopLogout ? "opacity-100 visible translate-y-0" : "opacity-0 invisible -translate-y-1"}`}>
+                    <Link href="/profile" onClick={() => setShowDesktopLogout(false)} className="block w-full text-sm px-3 py-2 hover:bg-gray-50 transition-colors duration-200">Dashboard</Link>
+                    <button onClick={() => setShowLogoutConfirm(true)} className="block text-left w-full text-sm text-red-500 px-3 py-2 hover:bg-red-50 transition-colors duration-200 border-t border-gray-200">Logout</button>
                   </div>
                 )}
               </div>
@@ -507,14 +521,14 @@ const Navbar = () => {
                         <div className={`absolute left-0 top-full mt-2 bg-white text-black rounded-md shadow-lg transition-all ${hoveredCategory === category.name ? "opacity-100 visible" : "opacity-0 invisible"}`}>
                           <ul className="min-w-[180px] py-2 relative">
                             {category.subcategories.map((sub) => (
-                              <li key={sub.id} className="px-4 py-2 hover:bg-gray-100 text-sm flex justify-between items-center" onMouseEnter={() => setHoveredSubcategory(sub.name)} onMouseLeave={() => setHoveredSubcategory(null)}>
+                              <li key={sub.id} className="px-4 py-2 hover:bg-gray-50 transition-colors duration-200 text-sm flex justify-between items-center" onMouseEnter={() => setHoveredSubcategory(sub.name)} onMouseLeave={() => setHoveredSubcategory(null)}>
                                 <span onClick={() => router.push(`/products/${sub.slug}`)} className="flex-1 cursor-pointer">{sub.name}</span>
-                                {sub.children?.length > 0 && <FiChevronRight className="text-gray-500 text-xs" />}
+                                {sub.children?.length > 0 && <FiChevronRight className="text-gray-400 text-xs" />}
                                 {sub.children?.length > 0 && (
-                                  <div className={`absolute left-full top-3 ml-1 bg-white rounded-md shadow-lg transition-all ${hoveredSubcategory === sub.name ? "opacity-100 visible" : "opacity-0 invisible"}`}>
+                                  <div className={`absolute left-full top-3 ml-1 bg-white rounded-md shadow-lg transition-all ${hoveredSubcategory === sub.name ? "opacity-100 visible translate-x-0" : "opacity-0 invisible -translate-x-1"}`}>
                                     <ul className="min-w-[160px] py-2">
                                       {sub.children?.map((child) => (
-                                        <li key={child.id} className="px-4 py-2 hover:bg-gray-100 text-sm cursor-pointer" onClick={() => router.push(`/products/${child.slug}`)}>{child.name}</li>
+                                        <li key={child.id} className="px-4 py-2 hover:bg-gray-50 transition-colors duration-200 text-sm cursor-pointer" onClick={() => router.push(`/products/${child.slug}`)}>{child.name}</li>
                                       ))}
                                     </ul>
                                   </div>
@@ -526,9 +540,38 @@ const Navbar = () => {
                       )}
                     </li>
                   ))}
-                  {simplePages.map((page, i) => (
-                    <li key={i}><Link href={page.href} className="hover:text-gray-200">{page.name}</Link></li>
-                  ))}
+
+                  {/* PROPORTIONAL NAV: Show individual links only on PC (>1580px) */}
+                  {windowWidth >= 1580 ? (
+                    simplePages.map((page, i) => (
+                      <li key={i}>
+                        <Link href={page.href} className="hover:text-gray-200 hover:bg-gray-50 whitespace-nowrap text-[13px] 2xl:text-sm">
+                          {page.name}
+                        </Link>
+                      </li>
+                    ))
+                  ) : (
+                    <li className="relative" ref={moreRef}>
+                      <button
+                        onClick={() => setShowMoreDropdown(!showMoreDropdown)}
+                        className="flex items-center gap-1 hover:text-gray-300 whitespace-nowrap text-[13px]"
+                      >
+                        More <FiChevronDown className="text-white text-sm" />
+                      </button>
+                      <div className={`absolute left-0 top-full mt-2 bg-white text-black rounded-md shadow-lg z-50 min-w-[200px] py-2 transition-all ${showMoreDropdown ? "opacity-100 visible translate-y-0" : "opacity-0 invisible -translate-y-2"}`}>
+                        {simplePages.map((page, i) => (
+                          <Link
+                            key={i}
+                            href={page.href}
+                            className="block px-4 py-2 hover:bg-gray-50 transition-colors duration-200 text-sm whitespace-nowrap"
+                            onClick={() => setShowMoreDropdown(false)}
+                          >
+                            {page.name}
+                          </Link>
+                        ))}
+                      </div>
+                    </li>
+                  )}
                 </>
               )}
             </ul>
@@ -604,20 +647,23 @@ const Navbar = () => {
             )}
           </div>
         </div>
-      )}
+      )
+      }
 
       {/* Prevent overlap */}
       <div className="pt-[70px] xl:pt-[120px]"></div>
 
       {/* Global Search Loading Overlay */}
-      {isSearching && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/30 backdrop-blur-sm animate-[fadeIn_0.2s_ease-out]">
-          <div className="flex flex-col items-center gap-4 text-center px-6">
-            <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin shadow-lg"></div>
-            <p className="text-white font-medium tracking-wide drop-shadow-md">Searching for your favorite items...</p>
+      {
+        isSearching && (
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/30 backdrop-blur-sm animate-[fadeIn_0.2s_ease-out]">
+            <div className="flex flex-col items-center gap-4 text-center px-6">
+              <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin shadow-lg"></div>
+              <p className="text-white font-medium tracking-wide drop-shadow-md">Searching for your favorite items...</p>
+            </div>
           </div>
-        </div>
-      )}
+        )
+      }
 
       {/* ========= MOBILE BOTTOM NAV ========= */}
       <div className={`${isDealer ? "bg-black" : "bg-orange-500"} fixed bottom-0 left-0 w-full flex justify-around items-center py-3 text-white lg:hidden z-50 shadow-[0_-2px_10px_rgba(0,0,0,0.1)]`}>
@@ -651,87 +697,91 @@ const Navbar = () => {
       </div>
 
       {/* ========= MOBILE SIDEBAR ========= */}
-      {menuOpen && (
-        <>
-          <div className={`fixed inset-0 bg-black bg-opacity-40 z-40 ${closing ? "opacity-0" : "opacity-100"} transition-opacity duration-300`} onClick={handleCloseMenu}></div>
-          <div className={`fixed left-0 top-0 w-72 sm:w-80 h-full bg-white shadow-lg z-50 overflow-y-auto transition-transform duration-300 ${closing ? "-translate-x-full" : "translate-x-0"}`}>
-            <div className="flex justify-between items-center px-5 py-4 border-b">
-              <Image src="/images/sannailogo.png" width={100} height={100} alt="Logo" />
-              <button className="text-2xl text-orange-500" onClick={handleCloseMenu}><FiX /></button>
-            </div>
-            <ul className="p-4 space-y-3">
-              {isDealer ? (
-                <>
-                  {dealerPages.map((page, i) => (
-                    <li key={i} className="border-b border-gray-50 last:border-none">
-                      <Link
-                        href={page.href}
-                        onClick={handleCloseMenu}
-                        className="block py-3 text-sm font-medium text-gray-700 hover:text-orange-500 transition-colors uppercase tracking-wide"
-                      >
-                        {page.name}
-                      </Link>
-                    </li>
-                  ))}
-                </>
-              ) : (
-                <>
-                  <button className="w-full py-3 bg-gradient-to-b from-[#FFD522] to-[#FF6B01] text-white rounded-lg text-sm font-semibold shadow-md">Buy Dealer Products</button>
-                  {categories.map((cat, index) => (
-                    <li key={index} className="border-b border-gray-50 last:border-none">
-                      <div className="flex justify-between items-center py-3">
-                        <span onClick={() => { router.push(`/products/${cat.slug}`); handleCloseMenu(); }} className="flex-1 text-sm font-medium text-gray-700">{cat.name}</span>
-                        {cat.subcategories.length > 0 && (
-                          <FiChevronDown onClick={() => setExpandedCategory(expandedCategory === cat.name ? null : cat.name)} className={`transition-transform duration-200 ${expandedCategory === cat.name ? "rotate-180" : ""}`} />
-                        )}
-                      </div>
-                      {expandedCategory === cat.name && (
-                        <ul className="pl-4 pb-2 space-y-2">
-                          {cat.subcategories.map((sub, subIndex) => (
-                            <li key={subIndex}>
-                              <div className="flex justify-between items-center py-1">
-                                <span onClick={() => { router.push(`/products/${sub.slug}`); handleCloseMenu(); }} className="text-sm text-gray-600">{sub.name}</span>
-                                {sub.children?.length > 0 && (
-                                  <FiChevronDown onClick={() => setExpandedSubcategory(expandedSubcategory === sub.name ? null : sub.name)} className={`text-xs transition-transform duration-200 ${expandedSubcategory === sub.name ? "rotate-180" : ""}`} />
-                                )}
-                              </div>
-                              {expandedSubcategory === sub.name && (
-                                <ul className="pl-4 py-1 space-y-1">
-                                  {sub.children?.map((child, cidx) => (
-                                    <li key={cidx} onClick={() => { router.push(`/products/${child.slug}`); handleCloseMenu(); }} className="text-xs text-gray-500 py-1">{child.name}</li>
-                                  ))}
-                                </ul>
-                              )}
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </li>
-                  ))}
-                  <div className="pt-4 border-t border-gray-100">
-                    {simplePages.map((page, i) => (
-                      <Link key={i} href={page.href} onClick={handleCloseMenu} className="block py-2 text-sm text-gray-600 hover:text-orange-500 transition-colors">{page.name}</Link>
+      {
+        menuOpen && (
+          <>
+            <div className={`fixed inset-0 bg-black bg-opacity-40 z-40 ${closing ? "opacity-0" : "opacity-100"} transition-opacity duration-300`} onClick={handleCloseMenu}></div>
+            <div className={`fixed left-0 top-0 w-72 sm:w-80 h-full bg-white shadow-lg z-50 overflow-y-auto transition-transform duration-300 ${closing ? "-translate-x-full" : "translate-x-0"}`}>
+              <div className="flex justify-between items-center px-5 py-4 border-b">
+                <Image src="/images/sannailogo.png" width={100} height={100} alt="Logo" />
+                <button className="text-2xl text-orange-500" onClick={handleCloseMenu}><FiX /></button>
+              </div>
+              <ul className="p-4 space-y-3">
+                {isDealer ? (
+                  <>
+                    {dealerPages.map((page, i) => (
+                      <li key={i} className="border-b border-gray-50 last:border-none">
+                        <Link
+                          href={page.href}
+                          onClick={handleCloseMenu}
+                          className="block py-3 text-sm font-medium text-gray-700 hover:text-orange-500 transition-colors uppercase tracking-wide"
+                        >
+                          {page.name}
+                        </Link>
+                      </li>
                     ))}
-                  </div>
-                </>
-              )}
-            </ul>
-          </div>
-        </>
-      )}
+                  </>
+                ) : (
+                  <>
+                    <button className="w-full py-3 bg-gradient-to-b from-[#FFD522] to-[#FF6B01] text-white rounded-lg text-sm font-semibold shadow-md">Buy Dealer Products</button>
+                    {categories.map((cat, index) => (
+                      <li key={index} className="border-b border-gray-50 last:border-none">
+                        <div className="flex justify-between items-center py-3">
+                          <span onClick={() => { router.push(`/products/${cat.slug}`); handleCloseMenu(); }} className="flex-1 text-sm font-medium text-gray-700">{cat.name}</span>
+                          {cat.subcategories.length > 0 && (
+                            <FiChevronDown onClick={() => setExpandedCategory(expandedCategory === cat.name ? null : cat.name)} className={`transition-transform duration-200 ${expandedCategory === cat.name ? "rotate-180" : ""}`} />
+                          )}
+                        </div>
+                        {expandedCategory === cat.name && (
+                          <ul className="pl-4 pb-2 space-y-2">
+                            {cat.subcategories.map((sub, subIndex) => (
+                              <li key={subIndex}>
+                                <div className="flex justify-between items-center py-1">
+                                  <span onClick={() => { router.push(`/products/${sub.slug}`); handleCloseMenu(); }} className="text-sm text-gray-600">{sub.name}</span>
+                                  {sub.children?.length > 0 && (
+                                    <FiChevronDown onClick={() => setExpandedSubcategory(expandedSubcategory === sub.name ? null : sub.name)} className={`text-xs transition-transform duration-200 ${expandedSubcategory === sub.name ? "rotate-180" : ""}`} />
+                                  )}
+                                </div>
+                                {expandedSubcategory === sub.name && (
+                                  <ul className="pl-4 py-1 space-y-1">
+                                    {sub.children?.map((child, cidx) => (
+                                      <li key={cidx} onClick={() => { router.push(`/products/${child.slug}`); handleCloseMenu(); }} className="text-xs text-gray-500 py-1">{child.name}</li>
+                                    ))}
+                                  </ul>
+                                )}
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </li>
+                    ))}
+                    <div className="pt-4 border-t border-gray-100">
+                      {simplePages.map((page, i) => (
+                        <Link key={i} href={page.href} onClick={handleCloseMenu} className="block py-2 text-sm text-gray-600 hover:text-orange-500 transition-colors">{page.name}</Link>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </ul>
+            </div>
+          </>
+        )
+      }
       <CartSidebar externalOpen={cartOpen} setExternalOpen={setCartOpen} />
-      {showLogoutConfirm && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 backdrop-blur-[1px]">
-          <div className="bg-white rounded-lg shadow-xl px-6 py-5 w-80 max-w-[90%] text-center">
-            <h2 className="text-lg font-semibold mb-2">Are you sure you want to log out?</h2>
-            <p className="text-sm text-gray-600 mb-4">You will need to log in again to access your account.</p>
-            <div className="flex items-center justify-center gap-3">
-              <button onClick={() => setShowLogoutConfirm(false)} className="px-4 py-2 rounded-md border border-gray-300 text-sm text-gray-700 hover:bg-gray-100">Cancel</button>
-              <button onClick={handleConfirmLogout} className="px-4 py-2 rounded-md bg-red-500 text-white text-sm hover:bg-red-600">Yes, log out</button>
+      {
+        showLogoutConfirm && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 backdrop-blur-[1px]">
+            <div className="bg-white rounded-lg shadow-xl px-6 py-5 w-80 max-w-[90%] text-center">
+              <h2 className="text-lg font-semibold mb-2">Are you sure you want to log out?</h2>
+              <p className="text-sm text-gray-600 mb-4">You will need to log in again to access your account.</p>
+              <div className="flex items-center justify-center gap-3">
+                <button onClick={() => setShowLogoutConfirm(false)} className="px-4 py-2 rounded-md border border-gray-300 text-sm text-gray-700 hover:bg-gray-100">Cancel</button>
+                <button onClick={handleConfirmLogout} className="px-4 py-2 rounded-md bg-red-500 text-white text-sm hover:bg-red-600">Yes, log out</button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )
+      }
     </>
   );
 };

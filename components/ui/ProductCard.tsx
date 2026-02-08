@@ -160,7 +160,7 @@ export default function ProductCard({ product }: { product: Product }) {
         <Link
           href={`/${product.slug}`}
           onClick={handleProductClick}
-          className="relative bg-gray-50 h-[180px] md:h-[220px] rounded-md flex items-center justify-center overflow-hidden"
+          className="relative bg-gray-50 aspect-[4/3] rounded-md flex items-center justify-center overflow-hidden"
         >
           {product.badgeText || (product.badgeType === "top-sell" ? "top sell" : "New Arrival") ? (
             <span
@@ -191,16 +191,16 @@ export default function ProductCard({ product }: { product: Product }) {
           </div>
         </Link>
 
-        <div className="p-3 flex flex-col flex-grow">
+        <div className="p-2 flex flex-col flex-grow">
           {/* FIXED HEIGHT TITLE (2 LINES ALWAYS) */}
           <Link href={`/${product.slug}`} onClick={handleProductClick}>
-            <h1 className="md:text-base text-sm mb-3 hover:text-orange-600 cursor-pointer hover:underline duration-300 font-semibold line-clamp-2 h-[45px]">
+            <h1 className=" 2xl:text-base text-sm mb-2 2xl:mb-4 hover:text-orange-600 cursor-pointer hover:underline duration-300 font-semibold line-clamp-2 h-[45px]">
               {product.name}
             </h1>
           </Link>
 
           {/* FIXED HEIGHT SPECS */}
-          <div className="space-y-1 h-[55px]">
+          <div className="space-y-1 h-[55px] 2xl:mb-2">
             {(product.featured_specs?.length ? product.featured_specs : fallbackSpecs)
               .slice(0, 2)
               .map((spec, i) => (
@@ -216,7 +216,7 @@ export default function ProductCard({ product }: { product: Product }) {
 
           {/* FIXED HEIGHT PRICING */}
           {!isDealer && (
-            <div className="flex items-center gap-2 mt-4 mb-2 h-[32px]">
+            <div className="flex items-center gap-2 mt-2 mb-1 h-[32px]">
               <h1 className="font-semibold text-sm md:text-lg">৳{product.price}</h1>
               {(() => {
                 // Parse discount to check if it's 0 or empty
@@ -276,9 +276,9 @@ export default function ProductCard({ product }: { product: Product }) {
             </div>
 
           ) : (
-            <div className="flex gap-2 h-[30px] md:h-[42px]">
+            <div className="flex gap-2 h-[30px] md:h-[28px]">
               {/* Buy Now */}
-              <button onClick={handleBuyNow} className="flex items-center justify-center w-1/2 rounded-md text-white md:text-sm text-xs bg-[#FF6B01] md:py-1 hover:opacity-90 transition hover:bg-white hover:text-orange-500 hover:border hover:border-orange-500">
+              <button onClick={handleBuyNow} className="flex items-center justify-center w-1/2 rounded-md text-white md:text-sm text-xs bg-[#FF6B01] md:py-0 hover:opacity-90 transition hover:bg-white hover:text-orange-500 hover:border hover:border-orange-500">
                 <span className="block xl:hidden text-xs">
                   <LuShoppingBag />
                 </span>
@@ -290,7 +290,7 @@ export default function ProductCard({ product }: { product: Product }) {
               {/* Add to Cart opens modal */}
               <button
                 onClick={() => setOptionsOpen(true)}
-                className="flex items-center justify-center w-1/2 rounded-md py-1 border text-black border-black duration-300 xl:text-[13px] md:text-sm text-xs hover:bg-black hover:text-white"
+                className="flex items-center justify-center w-1/2 rounded-md py-0 border text-black border-black duration-300 xl:text-[13px] md:text-sm text-xs hover:bg-black hover:text-white"
               >
                 <span className="block xl:hidden text-xs">
                   <FaCartPlus />

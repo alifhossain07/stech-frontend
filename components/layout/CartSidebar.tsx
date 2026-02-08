@@ -6,8 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { RiDeleteBin6Line } from "react-icons/ri";
-import { FaWhatsapp } from "react-icons/fa";
-import { SiMessenger } from "react-icons/si";
+import { FaWhatsapp, FaFacebookMessenger, FaTimes } from "react-icons/fa";
 
 interface CartSidebarProps {
   externalOpen: boolean;
@@ -32,6 +31,9 @@ export default function CartSidebar({ externalOpen, setExternalOpen }: CartSideb
   const [mounted, setMounted] = useState(false);
   const [whatsappNumber, setWhatsappNumber] = useState<string | null>(null);
   const [messengerNumber, setMessengerNumber] = useState<string | null>(null);
+  const [chatOpen, setChatOpen] = useState(false);
+  const [showChatBubble, setShowChatBubble] = useState(true);
+
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -58,7 +60,7 @@ export default function CartSidebar({ externalOpen, setExternalOpen }: CartSideb
 
     fetchWhatsappNumber();
   }, []);
-  // Fetch WhatsApp number from business-settings
+  // Fetch Messenger ID from business-settings
   useEffect(() => {
     const fetchMessengerNumber = async () => {
       try {
@@ -74,7 +76,7 @@ export default function CartSidebar({ externalOpen, setExternalOpen }: CartSideb
           }
         }
       } catch (error) {
-        console.error("Failed to fetch WhatsApp number:", error);
+        console.error("Failed to fetch Messenger ID:", error);
       }
     };
 
@@ -161,40 +163,113 @@ export default function CartSidebar({ externalOpen, setExternalOpen }: CartSideb
               </div>
             </div>
           </button>
-
-          {/* Messenger and WhatsApp Buttons */}
-
         </div>
       )}
-      <div className="fixed z-[10001] gap-3 flex flex-col
-    right-0 bottom-20
-    lg:right-0 lg:top-[62%] lg:-translate-y-1/2
-    lg:bottom-auto">
 
+      {/* Floating Chat Widget */}
+      <div className="fixed bottom-20 md:bottom-6 right-3 z-[10001] flex flex-col items-end gap-3">
+        {/* OLD STATIC BUTTONS (Commented Out) */}
+        {/* 
+        <div className="fixed z-[10001] gap-3 flex flex-col
+          right-0 bottom-20
+          lg:right-0 lg:top-[62%] lg:-translate-y-1/2
+          lg:bottom-auto">
+          <div className="flex bg-orange-500 p-1 rounded-l-xl flex-row gap-1">
+            <a
+              href={messengerNumber ? `https://m.me/${messengerNumber}` : "#"}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-[40px] h-[40px] bg-white border-4 border-orange-500 rounded-full flex items-center justify-center shadow-lg hover:border-orange-400 transition-colors"
+              aria-label="Facebook Messenger"
+            >
+              <SiMessenger className="text-black text-[24px]" />
+            </a>
 
-        {/* Messenger and WhatsApp Buttons */}
-        <div className="flex bg-orange-500 p-1 rounded-l-xl flex-row gap-1">
-          {/* Messenger Button */}
+            <a
+              href={whatsappNumber ? `https://wa.me/${whatsappNumber.replace(/[^0-9]/g, "")}` : "#"}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-[40px] h-[40px] bg-white border-4 border-orange-500 rounded-full flex items-center justify-center shadow-lg hover:border-orange-600 transition-colors"
+              aria-label="WhatsApp"
+            >
+              <FaWhatsapp className="text-black text-[24px]" />
+            </a>
+          </div>
+        </div>
+        */}
+
+        {/* Expanded Buttons (Messenger, WhatsApp) */}
+        <div className={`flex flex-col gap-3 transition-all duration-300 transform ${chatOpen ? "opacity-100 translate-y-0 scale-100" : "opacity-0 translate-y-10 scale-0 pointer-events-none h-0"
+          }`}>
+          {/* Messenger */}
           <a
             href={messengerNumber ? `https://m.me/${messengerNumber}` : "#"}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-[40px] h-[40px] bg-white border-4 border-orange-500 rounded-full flex items-center justify-center shadow-lg hover:border-orange-400 transition-colors"
-            aria-label="Facebook Messenger"
+            className="w-12 h-12 rounded-full bg-blue-500 hover:bg-blue-600 text-white flex items-center justify-center shadow-lg transition-transform hover:scale-110"
           >
-            <SiMessenger className="text-black text-[24px]" />
+            <FaFacebookMessenger className="text-2xl" />
           </a>
 
-          {/* WhatsApp Button */}
+          {/* WhatsApp */}
           <a
             href={whatsappNumber ? `https://wa.me/${whatsappNumber.replace(/[^0-9]/g, "")}` : "#"}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-[40px] h-[40px] bg-white border-4 border-orange-500 rounded-full flex items-center justify-center shadow-lg hover:border-orange-600 transition-colors"
-            aria-label="WhatsApp"
+            className="w-12 h-12 rounded-full bg-green-500 hover:bg-green-600 text-white flex items-center justify-center shadow-lg transition-transform hover:scale-110"
           >
-            <FaWhatsapp className="text-black text-[24px]" />
+            <FaWhatsapp className="text-2xl" />
           </a>
+        </div>
+
+        {/* Main Avatar / Close Button */}
+        <div className="relative group flex items-center gap-3">
+          {/* Text Bubble */}
+          <div className={`bg-white shadow-xl text-gray-700 px-4 py-2 rounded-xl rounded-tr-none border border-gray-100 transition-all duration-300 origin-right ${!chatOpen && showChatBubble ? "opacity-100 scale-100 translate-x-0" : "opacity-0 scale-95 translate-x-4 pointer-events-none"
+            }`}>
+            <div className="flex items-center gap-2 relative">
+              <span className="text-sm font-medium">Sir, How can I help?</span>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowChatBubble(false);
+                }}
+                className="w-4 h-4 flex items-center justify-center rounded-full bg-gray-200 text-gray-500 hover:bg-gray-300 text-[10px]"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+
+          {/* Toggle Button */}
+          <button
+            onClick={() => setChatOpen(!chatOpen)}
+            className={`w-14 h-14 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 z-50 relative ${chatOpen ? "bg-blue-600 rotate-90" : "bg-white hover:scale-105 border-2 border-orange-500"
+              }`}
+          >
+            {/* Collapsed State: Avatar Image */}
+            <div className={`absolute inset-0 transition-opacity duration-300 ${chatOpen ? "opacity-0" : "opacity-100"}`}>
+              <div className="w-full h-full relative">
+                <div className="w-full h-full rounded-full overflow-hidden relative">
+                  <Image
+                    src="https://img.freepik.com/free-vector/smiling-young-man-illustration_1308-174669.jpg"
+                    alt="Support"
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+                <span className="absolute top-0 right-0 flex h-3.5 w-3.5 z-10">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-green-500 border-2 border-white"></span>
+                </span>
+              </div>
+            </div>
+
+            {/* Expanded State: Close Icon */}
+            <div className={`absolute inset-0 flex items-center justify-center text-white transition-opacity duration-300 rounded-full overflow-hidden ${chatOpen ? "opacity-100" : "opacity-0 invisible"}`}>
+              <FaTimes className="text-2xl" />
+            </div>
+          </button>
         </div>
       </div>
 

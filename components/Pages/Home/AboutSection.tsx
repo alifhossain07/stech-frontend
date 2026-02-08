@@ -2,31 +2,19 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import axios from "axios";
+import { FiChevronDown } from "react-icons/fi";
 
 // Define a type for the SEO data
-interface SeoData {
+interface InfoRow {
   title: string;
-  description: string;
-  // Add other properties if your API response includes more fields
+  paragraph: string;
 }
 
 const Shimmer = () => {
   return (
     <div className="w-11/12 mx-auto pb-[56px]">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {/* Shimmer Card 1 */}
-        <div className="bg-white shadow-md rounded-xl border border-gray-200 p-4 animate-pulse">
-          <div className="bg-gray-300 h-6 mb-4 w-3/4 rounded-md"></div>
-          <div className="bg-gray-200 h-24 rounded-md"></div>
-        </div>
-
-        {/* Shimmer Card 2 (Image) */}
-        <div className="bg-white hidden md:block shadow-md rounded-xl border border-gray-200 relative overflow-hidden animate-pulse">
-          <div className="bg-gray-300 w-full h-full rounded-xl"></div>
-        </div>
-
-        {/* Shimmer Other Cards */}
-        {[...Array(4)].map((_, index) => (
+        {[...Array(6)].map((_, index) => (
           <div key={index} className="bg-white shadow-md rounded-xl border border-gray-200 p-4 animate-pulse">
             <div className="bg-gray-300 h-6 mb-4 w-3/4 rounded-md"></div>
             <div className="bg-gray-200 h-24 rounded-md"></div>
@@ -38,21 +26,24 @@ const Shimmer = () => {
 };
 
 const AboutSection = () => {
-  const [seoData, setSeoData] = useState<SeoData>({
-    title: "",
-    description: "",
-  });
+  const [infoRows, setInfoRows] = useState<InfoRow[]>([]);
+  const [banner, setBanner] = useState<string>("");
   const [loading, setLoading] = useState(true);
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+
+  const toggleAccordion = (index: number) => {
+    setOpenIndex(openIndex === index ? null : index);
+  };
 
   useEffect(() => {
     const fetchSeoData = async () => {
       try {
-        const res = await axios.get("/api/home-bottom-seo"); // Adjust the endpoint based on your route
-        console.log(res.data); // Log to check the response
+        const res = await axios.get("/api/home-info-seo");
         if (res.data.success) {
-          setSeoData(res.data); // Save the data to state
+          setInfoRows(res.data.rows);
+          setBanner(res.data.banner);
         } else {
-          console.error("API error:", res.data.error); // Log error if not successful
+          console.error("API error:", res.data.error);
         }
       } catch (error) {
         console.error("Error fetching SEO data:", error);
@@ -64,42 +55,62 @@ const AboutSection = () => {
   }, []);
 
   if (loading) {
-    return <Shimmer />; // Show shimmer loader when loading
+    return <Shimmer />;
   }
+
+  const renderCard = (row: InfoRow, index: number) => {
+    const isOpen = openIndex === index;
+    return (
+      <div key={index} className="bg-white shadow-md rounded-xl border border-gray-200 overflow-hidden">
+        {/* Mobile Header (Accordion Style) */}
+        <div
+          onClick={() => toggleAccordion(index)}
+          className="md:hidden flex items-center justify-between p-4 cursor-pointer select-none bg-black text-white rounded-md m-2"
+        >
+          <span className="text-sm font-semibold">{row.title}</span>
+          <FiChevronDown
+            className={`text-xl transition-transform duration-300 ${isOpen ? "rotate-180" : "rotate-0"
+              }`}
+          />
+        </div>
+
+        {/* Desktop Header */}
+        <h3 className="hidden md:inline-block bg-black text-white text-sm md:text-base font-semibold px-4 py-5 rounded-md mb-2  ">
+          {row.title}
+        </h3>
+
+        {/* Paragraph Content */}
+        <div
+          className={`overflow-hidden transition-all duration-300 ${isOpen ? "max-h-[1000px] opacity-100" : "max-h-0 opacity-0 md:max-h-none md:opacity-100"
+            }`}
+        >
+          <p className="text-gray-600 text-justify p-4 text-sm md:text-base leading-loose">
+            {row.paragraph}
+          </p>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="w-11/12 mx-auto pb-[56px]">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {/* Card 1 - Text */}
-        <div className="bg-white shadow-md rounded-xl border border-gray-200">
-          <h3 className="bg-black text-white text-sm md:text-base font-semibold px-4 py-5 rounded-md inline-block mb-4">
-            {seoData.title}
-          </h3>
-          {/* Render the description as HTML */}
-          <p
-            className="text-gray-600 text-justify p-4 text-sm md:text-base leading-loose"
-            dangerouslySetInnerHTML={{ __html: seoData.description }}
-          ></p>
+        {/* Render the first row */}
+        {infoRows[0] && renderCard(infoRows[0], 0)}
+
+        {/* Card 2 - Dynamic Image */}
+        <div className="bg-white hidden md:block shadow-md rounded-xl border border-gray-200 relative overflow-hidden h-[300px] md:h-auto">
+          {banner ? (
+            <Image src={banner} alt="Gadget Showcase" fill className="object-contain rounded-xl" />
+          ) : (
+            <div className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-400">
+              <Image src="/images/aboutimage2.jpg" alt="Gadget Showcase" fill className="object-contain rounded-xl" />
+            </div>
+          )}
         </div>
 
-        {/* Card 2 - Image only */}
-        <div className="bg-white hidden md:block shadow-md rounded-xl border border-gray-200 relative overflow-hidden">
-          <Image src="/images/aboutimage2.jpg" alt="Gadget Showcase" fill className="object-contain rounded-xl" />
-        </div>
-
-        {/* Other cards */}
-        {[...Array(4)].map((_, index) => (
-          <div key={index} className="bg-white shadow-md rounded-xl border border-gray-200">
-            <h3 className="bg-black text-white text-sm md:text-base font-semibold px-4 py-5 rounded-md inline-block mb-4">
-              {seoData.title}
-            </h3>
-            {/* Render the description as HTML */}
-            <p
-              className="text-gray-600 text-justify p-4 text-sm md:text-base leading-loose"
-              dangerouslySetInnerHTML={{ __html: seoData.description }}
-            ></p>
-          </div>
-        ))}
+        {/* Render the rest of the rows (1 to 4) */}
+        {infoRows.slice(1, 5).map((row, index) => renderCard(row, index + 1))}
       </div>
     </div>
   );

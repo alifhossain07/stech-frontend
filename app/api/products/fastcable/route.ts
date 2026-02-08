@@ -24,6 +24,7 @@ interface ApiProduct {
 // Response type for the category
 interface ApiCategory {
   banner: string;
+  cover_image: string;
   title: string;
   subtitle: string;
   link: string;
@@ -52,7 +53,7 @@ export async function GET() {
     // Get the category (here first item)
     const category: ApiCategory = json.data[0];
 
-    const { banner, title, subtitle, link } = category;
+    const { banner, cover_image, title, subtitle, link } = category;
     const apiProducts: ApiProduct[] = category.products?.data || [];
 
     // Map products to frontend format
@@ -76,6 +77,7 @@ export async function GET() {
       subtitle,   // Category subtitle
       link,       // Category link
       banner,
+      cover_image,
       products,
     });
   } catch (error) {
