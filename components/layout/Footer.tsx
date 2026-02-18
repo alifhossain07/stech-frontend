@@ -224,9 +224,15 @@ const Footer = async () => {
                   );
                 })}
               </ul>
-              <Link href="/dealer/registration" className="inline-block mt-5 px-4 py-3 bg-gradient-to-b from-[#FFD522] to-[#FF6B01] text-white rounded-lg hover:opacity-90 transition text-sm">
-                Become a Dealer
-              </Link>
+              <div className="flex flex-col w-8/12 ">
+                <Link href="/dealer/registration" className="inline-block mt-5 px-4 py-3 bg-gradient-to-b from-[#FFD522] to-[#FF6B01] text-white rounded-lg hover:opacity-90 transition text-sm">
+                  Become a Dealer
+                </Link>
+                <Link href="/dealer" className="inline-block mt-3 px-4 py-3 bg-gradient-to-b from-[#FFD522] to-[#FF6B01] text-white rounded-lg hover:opacity-90 transition text-sm">
+                  Buy Dealer Products
+                </Link>
+              </div>
+
             </div>
 
             {/* Column 2 - Terms */}

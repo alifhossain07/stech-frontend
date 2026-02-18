@@ -723,7 +723,9 @@ const Navbar = () => {
                   </>
                 ) : (
                   <>
-                    <button className="w-full py-3 bg-gradient-to-b from-[#FFD522] to-[#FF6B01] text-white rounded-lg text-sm font-semibold shadow-md">Buy Dealer Products</button>
+                    <Link href="/dealer" onClick={handleCloseMenu}>
+                      <button className="w-full py-3 bg-gradient-to-b from-[#FFD522] to-[#FF6B01] text-white rounded-lg text-sm font-semibold shadow-md inline-block">Buy Dealer Products</button>
+                    </Link>
                     {categories.map((cat, index) => (
                       <li key={index} className="border-b border-gray-50 last:border-none">
                         <div className="flex justify-between items-center py-3">
