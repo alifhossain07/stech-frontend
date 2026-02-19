@@ -8,19 +8,9 @@ const SYSTEM_KEY = process.env.SYSTEM_KEY!;
 
 export async function GET(req: NextRequest) {
   try {
-    const bearerToken = getBearerToken(req);
-
-    if (!bearerToken) {
-      return NextResponse.json(
-        { success: false, message: "Unauthorized" },
-        { status: 401 }
-      );
-    }
-
     const headers: Record<string, string> = {
       Accept: "application/json",
       "System-Key": SYSTEM_KEY,
-      Authorization: `Bearer ${bearerToken}`,
     };
 
     const response = await fetch(`${API_BASE}/dealer/home/hero`, {

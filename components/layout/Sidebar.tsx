@@ -21,12 +21,15 @@ const menuItems = [
 export default function Sidebar() {
   const pathname = usePathname();
   const { user } = useAuth();
+  const isDealer = user?.type?.toLowerCase() === "dealer" || user?.user_type?.toLowerCase() === "dealer" || user?.is_dealer == 1;
 
-
+  const filteredMenuItems = isDealer
+    ? menuItems.filter(item => item.name === "Profile")
+    : menuItems;
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-      {/* User Info Header - Hidden or simplified on mobile to save space */}
+      {/* User Info Header */}
       <div className="flex flex-row lg:flex-col items-center p-4 lg:py-8 border-b lg:border-none border-gray-50">
         <div className="relative">
           <Image
@@ -44,13 +47,12 @@ export default function Sidebar() {
           <h2 className="font-bold lg:mt-4 text-base lg:text-lg text-gray-800 leading-tight">
             {user?.name || "User"}
           </h2>
-
         </div>
       </div>
 
-      {/* Navigation - Wrapped on mobile, vertical list on desktop */}
+      {/* Navigation */}
       <nav className="flex flex-wrap lg:flex-col border-t border-gray-50 lg:border-t">
-        {menuItems.map((item) => {
+        {filteredMenuItems.map((item) => {
           const isActive = pathname === item.href;
           return (
             <Link
@@ -66,7 +68,7 @@ export default function Sidebar() {
                 <span className="text-[10px] sm:text-xs lg:text-base font-medium text-center">{item.name}</span>
               </div>
 
-              {/* Arrow Icon - Hidden on mobile, visible on desktop */}
+              {/* Arrow Icon */}
               <span className={`hidden lg:block text-gray-400 transition-transform ${isActive ? 'translate-x-1' : ''}`}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6" /></svg>
               </span>

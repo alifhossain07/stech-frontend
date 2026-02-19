@@ -65,6 +65,7 @@ interface ProductType {
   colors: string[];
   featured_specs: FeaturedSpec[];
   current_stock: number;
+  unit: string;
   est_shipping_time: string;
   dealer_est_shipping_time: string;
 
@@ -77,6 +78,10 @@ interface ProductType {
   thumbnail_image?: string;
   compare_specifications?: string;
   choice_options?: { name: string; title: string; options: string[] }[];
+  dealer_min_order_qty?: number;
+  dealer_display_price?: number;
+  dealer_short_description?: string;
+  dealer_featured_specs?: FeaturedSpec[];
 }
 
 
@@ -131,6 +136,13 @@ const Page = () => {
   const [isInWishlist, setIsInWishlist] = useState(false);
   const [wishlistLoading, setWishlistLoading] = useState(false);
   const { user } = useAuth();
+  const [dealerMode, setDealerMode] = useState(false);
+  useEffect(() => {
+    setDealerMode(
+      user?.type?.toLowerCase() === "dealer" ||
+      (typeof window !== "undefined" && sessionStorage.getItem("dealerMode") === "true")
+    );
+  }, [user]);
   const isDealer = user?.type?.toLowerCase() === "dealer";
   const [whatsappNumber, setWhatsappNumber] = useState<string | null>(null);
 
@@ -481,89 +493,140 @@ const Page = () => {
 
   const colors = product.colors || [];
   return (
-    <div className="md:mt-10 mt-5 w-11/12 mx-auto">
+    <div className="md:mt-14 mt-5 w-11/12 mx-auto">
       {/* Product Details Container */}
       <div className="xl:h-[1038px] flex flex-col xl:flex-row gap-6">
         {/* ---------- Left: Images ---------- */}
         <div className="2xl:w-[55%] xl:w-[50%] flex flex-col justify-between">
-          {/* Main Image Container */}
-          <div className="h-[84%] w-full flex items-center justify-center bg-[#f6f6f6] rounded-xl relative overflow-hidden">
-            {/* 🔥 Logo Overlay */}
-            <div className="absolute top-7 left-10 z-20">
-              <Image
-                src="/images/sannailogo.png" // your logo file
-                alt="Logo"
-                width={50}
-                height={50}
-                className="object-contain xl:w-32 w-14 md:w-20 opacity-95"
-              />
-            </div>
-
-            {/* Main Product Image (Slightly Smaller) */}
-            <Image
-              src={images[selectedImage]}
-              alt={`Product Image ${selectedImage + 1}`}
-              width={800} // 🔥 smaller image width
-              height={800} // 🔥 smaller image height
-              className="
-  object-contain 
-  w-64 h-80
-  md:w-80 md:h-96
-  xl:w-[600px] xl:h-[600px]
-  2xl:w-[600px] 2xl:h-[600px]
-" // 🔥 ensures the container stays same, image smaller
-            />
-
-            {/* Left Arrow */}
-            <button
-              className="absolute left-3 top-1/2 -translate-y-1/2 bg-white shadow p-2 rounded-full z-20"
-              onClick={() =>
-                setSelectedImage((prev) =>
-                  prev === 0 ? images.length - 1 : prev - 1
-                )
-              }
-            >
-              <FiChevronLeft className="text-gray-700" size={20} />
-            </button>
-
-            {/* Right Arrow */}
-            <button
-              className="absolute right-3 top-1/2 -translate-y-1/2 bg-white shadow p-2 rounded-full z-20"
-              onClick={() =>
-                setSelectedImage((prev) =>
-                  prev === images.length - 1 ? 0 : prev + 1
-                )
-              }
-            >
-              <FiChevronRight className="text-gray-700" size={20} />
-            </button>
-          </div>
-
-          {/* Thumbnail Row */}
-          <div className="h-[16%] w-full grid grid-cols-6 gap-4 mt-4">
-            {images.slice(0, 6).map((img: string, index: number) => (
-              <div
-                key={index}
-                onClick={() => setSelectedImage(index)}
-                className={`relative cursor-pointer border-2 rounded-xl overflow-hidden transition-all duration-200 aspect-square flex items-center justify-center ${selectedImage === index
-                  ? "border-orange-500"
-                  : "border-transparent hover:border-orange-400"
-                  }`}
-              >
-                <Image
-                  src={img}
-                  alt={`Thumb ${index + 1}`}
-                  width={100}
-                  height={100}
-                  className="object-contain w-full h-full p-1"
-                />
-
-                {selectedImage === index && (
-                  <div className="absolute inset-0 border-[3px] border-orange-500 rounded-xl pointer-events-none"></div>
-                )}
+          {dealerMode ? (
+            /* ===== DEALER LAYOUT: thumbnails on left, main image on right ===== */
+            <div className="h-[84%] flex flex-row gap-3">
+              {/* Vertical thumbnail strip */}
+              <div className="flex flex-col gap-2 overflow-y-auto pr-1" style={{ width: '120px', height: '600px' }}>
+                {images.slice(0, 6).map((img: string, index: number) => (
+                  <div
+                    key={index}
+                    onClick={() => setSelectedImage(index)}
+                    className={`relative cursor-pointer border-2 rounded-xl overflow-hidden transition-all duration-200 aspect-square flex items-center justify-center shrink-0 ${selectedImage === index
+                      ? "border-black"
+                      : "border-transparent hover:border-orange-400"
+                      }`}
+                    style={{ height: '110px' }}
+                  >
+                    <Image
+                      src={img}
+                      alt={`Thumb ${index + 1}`}
+                      width={100}
+                      height={100}
+                      className="object-contain w-full h-full p-1"
+                    />
+                    {selectedImage === index && (
+                      <div className="absolute inset-0 border-[3px] border-black rounded-xl pointer-events-none" />
+                    )}
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+
+              {/* Main image */}
+              <div className="flex-1 flex items-center justify-center bg-[#f6f6f6] rounded-xl relative overflow-hidden">
+                {/* Logo Overlay */}
+                <div className="absolute top-7 left-10 z-20">
+                  <Image
+                    src="/images/sannailogo.png"
+                    alt="Logo"
+                    width={50}
+                    height={50}
+                    className="object-contain xl:w-32 w-14 md:w-20 opacity-95"
+                  />
+                </div>
+                <Image
+                  src={images[selectedImage]}
+                  alt={`Product Image ${selectedImage + 1}`}
+                  width={800}
+                  height={800}
+                  className="object-contain w-64 h-80 md:w-80 md:h-96 xl:w-[500px] xl:h-[500px] 2xl:w-[560px] 2xl:h-[560px]"
+                />
+                {/* Left Arrow */}
+                <button
+                  className="absolute left-3 top-1/2 -translate-y-1/2 bg-white shadow p-2 rounded-full z-20"
+                  onClick={() => setSelectedImage((prev) => (prev === 0 ? images.length - 1 : prev - 1))}
+                >
+                  <FiChevronLeft className="text-gray-700" size={20} />
+                </button>
+                {/* Right Arrow */}
+                <button
+                  className="absolute right-3 top-1/2 -translate-y-1/2 bg-white shadow p-2 rounded-full z-20"
+                  onClick={() => setSelectedImage((prev) => (prev === images.length - 1 ? 0 : prev + 1))}
+                >
+                  <FiChevronRight className="text-gray-700" size={20} />
+                </button>
+              </div>
+            </div>
+          ) : (
+            /* ===== USER LAYOUT: main image top, thumbnails bottom row ===== */
+            <>
+              {/* Main Image Container */}
+              <div className="h-[84%] w-full flex items-center justify-center bg-[#f6f6f6] rounded-xl relative overflow-hidden">
+                {/* Logo Overlay */}
+                <div className="absolute top-7 left-10 z-20">
+                  <Image
+                    src="/images/sannailogo.png"
+                    alt="Logo"
+                    width={50}
+                    height={50}
+                    className="object-contain xl:w-32 w-14 md:w-20 opacity-95"
+                  />
+                </div>
+                {/* Main Product Image */}
+                <Image
+                  src={images[selectedImage]}
+                  alt={`Product Image ${selectedImage + 1}`}
+                  width={800}
+                  height={800}
+                  className="object-contain w-64 h-80 md:w-80 md:h-96 xl:w-[600px] xl:h-[600px] 2xl:w-[600px] 2xl:h-[600px]"
+                />
+                {/* Left Arrow */}
+                <button
+                  className="absolute left-3 top-1/2 -translate-y-1/2 bg-white shadow p-2 rounded-full z-20"
+                  onClick={() => setSelectedImage((prev) => (prev === 0 ? images.length - 1 : prev - 1))}
+                >
+                  <FiChevronLeft className="text-gray-700" size={20} />
+                </button>
+                {/* Right Arrow */}
+                <button
+                  className="absolute right-3 top-1/2 -translate-y-1/2 bg-white shadow p-2 rounded-full z-20"
+                  onClick={() => setSelectedImage((prev) => (prev === images.length - 1 ? 0 : prev + 1))}
+                >
+                  <FiChevronRight className="text-gray-700" size={20} />
+                </button>
+              </div>
+
+              {/* Thumbnail Row */}
+              <div className="h-[16%] w-full grid grid-cols-6 gap-4 mt-4">
+                {images.slice(0, 6).map((img: string, index: number) => (
+                  <div
+                    key={index}
+                    onClick={() => setSelectedImage(index)}
+                    className={`relative cursor-pointer border-2 rounded-xl overflow-hidden transition-all duration-200 aspect-square flex items-center justify-center ${selectedImage === index
+                      ? "border-orange-500"
+                      : "border-transparent hover:border-orange-400"
+                      }`}
+                  >
+                    <Image
+                      src={img}
+                      alt={`Thumb ${index + 1}`}
+                      width={100}
+                      height={100}
+                      className="object-contain w-full h-full p-1"
+                    />
+                    {selectedImage === index && (
+                      <div className="absolute inset-0 border-[3px] border-orange-500 rounded-xl pointer-events-none" />
+                    )}
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
         </div>
 
         {/* ---------- Right: Product Details ---------- */}
@@ -609,6 +672,17 @@ const Page = () => {
           <p className="text-orange-500 text-[8px] 2xl:text-[10px] mb-2">
             ★ Most Viewed Products ★
           </p>
+
+          {/* -------- Dealer Price Section -------- */}
+          {isDealer && product.dealer_display_price && (
+            <div className="bg-[#FFF3EB] p-4 rounded-xl border border-[#FFE4D3] mb-4">
+
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-gray-700">Min. Order Qty</span>
+                <span className="text-lg font-semibold text-gray-900">{product.dealer_min_order_qty} {product.unit || 'pcs'}</span>
+              </div>
+            </div>
+          )}
 
           <div className="flex items-center justify-between w-full mb-3">
             {/* -------- Left: Price Section -------- */}
@@ -799,7 +873,10 @@ const Page = () => {
             </p>
             <div className="space-y-2">
               {/* Item 1 */}
-              {(product.featured_specs || []).slice(0, 5).map((item, index) => {
+              {((product.dealer_featured_specs && product.dealer_featured_specs.length > 0)
+                ? product.dealer_featured_specs
+                : product.featured_specs || []
+              ).slice(0, 5).map((item, index) => {
                 const iconSrc = item.icon || "/images/placeholder.png"; // or any default icon
 
                 return (
@@ -944,6 +1021,15 @@ const Page = () => {
               </div>
             </div>
 
+            {isDealer && product.dealer_display_price && (
+              <div className=" p-4 rounded-xl border border-[#FFE4D3] mb-4">
+
+
+
+                <span className="text-2xl font-medium text-[#FF6B01]">Dealer Price : ৳{product.dealer_display_price}</span>
+              </div>
+
+            )}
             {/* Action Buttons */}
             {isDealer ? (
               <div className="flex items-center w-full">
@@ -1009,6 +1095,8 @@ const Page = () => {
                 </button>
               </div>
             )}
+
+
 
             <div className="mt-8 space-y-6">
               {/* --- Share + WhatsApp Row --- */}

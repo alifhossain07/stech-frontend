@@ -3,21 +3,29 @@
 import React, { useEffect, useState, useCallback } from "react";
 import Image from "next/image";
 import apiClient from "@/app/lib/api-client";
-import ProductCard from "../ui/ProductCard";
+import DealerProductCard from "../ui/DealerProductCard";
 import { FiFilter } from "react-icons/fi";
 import { Range } from "react-range";
 
+interface FeaturedSpec {
+    icon: string;
+    text: string;
+}
+
 interface Product {
     id: number;
-    slug: string;
     name: string;
-    image: string;
+    slug: string;
+    thumbnail_image: string;
     price: number;
     oldPrice: number;
     discount: string;
-    rating: string | number;
-    reviews: string | number;
-    featured_specs: { icon: string; text: string }[];
+    rating: number;
+    rating_count: number;
+    reviews: string | number; // Keeping this as it was in the original, but rating_count is new
+    featured_specs?: FeaturedSpec[];
+    dealer_short_description?: string;
+    dealer_featured_specs?: FeaturedSpec[];
     current_stock: number;
     variants: { id: number; variant: string }[];
 }
@@ -452,9 +460,17 @@ const DealerAllProductsListing = () => {
                             {filteredProducts.length > 0 ? (
                                 <div className="grid w-full grid-cols-2 md:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-4 md:gap-6 xl:gap-7">
                                     {filteredProducts.map((product) => (
-                                        <ProductCard
+                                        <DealerProductCard
                                             key={product.id}
-                                            product={product}
+                                            product={{
+                                                ...product,
+                                                image: product.thumbnail_image,
+                                                rating: product.rating,
+                                                reviews: `(${product.rating_count})`,
+                                                featured_spec: product.featured_specs?.[0],
+                                                dealer_short_description: product.dealer_short_description,
+                                                dealer_featured_specs: product.dealer_featured_specs
+                                            }}
                                         />
                                     ))}
                                 </div>

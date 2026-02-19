@@ -2,14 +2,15 @@
 import { useAuth } from '@/app/context/AuthContext';
 import { updateProfile } from "@/app/context/authApi";
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 
 // Extend User type locally to include optional fields for profile display
 type UserProfile = import("@/app/context/authApi").User & {
-  address?: string;
-  city?: string;
-  state?: string;
-  country?: string;
-  postal_code?: string;
+  address?: string | null;
+  city?: string | null;
+  state?: string | null;
+  country?: string | null;
+  postal_code?: string | null;
   created_at?: string;
 };
 
@@ -158,9 +159,39 @@ export default function ProfilePage() {
           />
         </div>
 
+        {/* Dealer Information Section */}
+        {(user.is_dealer == 1 || user.type?.toLowerCase() === "dealer" || user.user_type?.toLowerCase() === "dealer") && (
+          <div className="mt-8 space-y-6">
+            <h3 className="text-lg font-semibold text-orange-600 border-b pb-2">Dealer Information</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium mb-2">Dealer Code</label>
+                <input
+                  type="text"
+                  value={user.dealer_code || "N/A"}
+                  className="w-full p-3 bg-gray-50 border border-transparent rounded-lg outline-none cursor-default"
+                  readOnly
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Dealer NID</label>
+                <input
+                  type="text"
+                  value={user.dealer_nid || "N/A"}
+                  className="w-full p-3 bg-gray-50 border border-transparent rounded-lg outline-none cursor-default"
+                  readOnly
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Location Details - Read Only */}
         {(user.city || user.state || user.country || user.postal_code) && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 opacity-75">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 opacity-75 mt-8">
+            <div className="md:col-span-2">
+              <h3 className="text-lg font-semibold text-gray-800 border-b pb-2 mb-4">Location Details</h3>
+            </div>
             {user.country && (
               <div>
                 <label className="block text-sm font-medium mb-2">Country</label>

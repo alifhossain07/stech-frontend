@@ -8,19 +8,9 @@ export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
   try {
-    const bearerToken = getBearerToken(req);
-
-    if (!bearerToken) {
-      return NextResponse.json(
-        { success: false, message: "Unauthorized" },
-        { status: 401 }
-      );
-    }
-
     const headers: Record<string, string> = {
       "System-Key": SYSTEM_KEY,
       Accept: "application/json",
-      Authorization: `Bearer ${bearerToken}`,
     };
 
     const response = await fetch(`${API_BASE}/dealer/camping-offers`, {

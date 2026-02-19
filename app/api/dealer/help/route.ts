@@ -8,12 +8,9 @@ export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
     try {
-        const bearerToken = getBearerToken(req);
-
         const headers: Record<string, string> = {
             "System-Key": SYSTEM_KEY,
             Accept: "application/json",
-            ...(bearerToken && { Authorization: `Bearer ${bearerToken}` }),
         };
 
         const response = await fetch(`${API_BASE}/pages/dealer-help`, {

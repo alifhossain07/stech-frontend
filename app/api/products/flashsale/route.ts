@@ -8,12 +8,19 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const slug = searchParams.get("slug");
+    const all = searchParams.get("all");
 
     const res = await axios.get(`${API_BASE}/flash-deals`, {
       headers: { Accept: "application/json", "System-Key": SYSTEM_KEY },
     });
 
     const flashDeals = res.data.data;
+
+    // Return all deals (used by camping offer section)
+    if (all === "true") {
+      return NextResponse.json({ success: true, data: flashDeals });
+    }
+
     let flashSaleData;
 
     if (slug) {
@@ -37,3 +44,4 @@ export async function GET(request: Request) {
     return NextResponse.json({ success: false, error: "Failed to fetch flash sale data" }, { status: 500 });
   }
 }
+

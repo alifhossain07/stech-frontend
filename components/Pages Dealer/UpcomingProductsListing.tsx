@@ -5,24 +5,30 @@ import Image from "next/image";
 import Link from "next/link";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import apiClient from "@/app/lib/api-client";
+import DealerProductCard from "../ui/DealerProductCard";
 
 interface Spec {
     text: string;
     icon: string;
 }
 
+interface FeaturedSpec {
+    icon: string;
+    text: string;
+}
+
 interface Product {
     id: number;
-    slug: string;
     name: string;
+    slug: string;
     thumbnail_image: string;
-    main_price: string;
-    stroked_price: string;
-    has_discount: boolean;
     rating: number;
     rating_count: number;
     model_number?: string;
-    featured_specs?: Spec[];
+    featured_specs?: FeaturedSpec[];
+    badgeText?: string;
+    dealer_short_description?: string;
+    dealer_featured_specs?: FeaturedSpec[];
 }
 
 interface Category {
@@ -229,10 +235,22 @@ const CategorySection: React.FC<CategorySectionProps> = ({ category, whatsappNum
                     style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                 >
                     {products.map((product) => (
-                        <ProductCard
+                        <DealerProductCard
                             key={product.id}
-                            product={product}
-                            whatsappNumber={whatsappNumber}
+                            product={{
+                                id: product.id,
+                                slug: product.slug,
+                                name: product.name,
+                                image: product.thumbnail_image,
+                                rating: product.rating,
+                                reviews: `(${product.rating_count})`,
+                                model_number: product.model_number,
+                                featured_spec: product.featured_specs?.[0],
+                                badgeText: product.badgeText || "Upcoming",
+                                badgeType: "upcoming",
+                                dealer_short_description: product.dealer_short_description,
+                                dealer_featured_specs: product.dealer_featured_specs
+                            }}
                         />
                     ))}
                 </div>
@@ -267,95 +285,6 @@ const CategorySection: React.FC<CategorySectionProps> = ({ category, whatsappNum
     );
 };
 
-interface ProductCardProps {
-    product: Product;
-    whatsappNumber: string | null;
-}
 
-const ProductCard: React.FC<ProductCardProps> = ({ product, whatsappNumber }) => {
-    return (
-        <div className="flex-shrink-0 w-[220px] sm:w-[250px] lg:w-[calc((100%-48px)/4)] 2xl:w-[calc((100%-64px)/5)] bg-white rounded-xl border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col">
-            {/* Product Image */}
-            <div className="relative aspect-square bg-gray-50 overflow-hidden group">
-                <span className="absolute top-2 left-2 z-10 bg-black/80 backdrop-blur-sm text-white text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
-                    Upcoming
-                </span>
-                <Image
-                    src={product.thumbnail_image}
-                    alt={product.name}
-                    fill
-                    className="object-contain p-4 group-hover:scale-105 transition-transform duration-500"
-                />
-            </div>
-
-            {/* Product Details */}
-            <div className="p-3 flex flex-col flex-grow">
-                {/* Rating - Moved above title */}
-                <div className="flex items-center gap-1 mb-1.5">
-                    <span className="text-xs font-bold text-gray-900">
-                        {(product.rating || 0).toFixed(1)}
-                    </span>
-                    <span className="text-yellow-400 text-xs">★</span>
-                    <span className="text-[10px] text-gray-400">
-                        ({product.rating_count || 0})
-                    </span>
-                </div>
-
-                <h3 className="text-xs md:text-sm font-bold text-gray-900 mb-1 line-clamp-2 leading-tight min-h-[32px]">
-                    {product.name}
-                </h3>
-
-                <p className="text-[10px] text-gray-500 mb-3">
-                    Model : {product.model_number || "N/A"}
-                </p>
-
-                {/* Featured Specs */}
-                <div className="space-y-1.5 mb-4 h-[55px]">
-                    {((product.featured_specs && product.featured_specs.length > 0)
-                        ? product.featured_specs
-                        : [
-                            { icon: "/images/watt.png", text: "25 Watts of Power " },
-                            { icon: "/images/fastcharge.png", text: "Super Fast Charging" }
-                        ]
-                    ).slice(0, 2).map((spec, index) => (
-                        <div key={index} className="flex items-center gap-2 bg-gray-50 p-1.5 rounded-md">
-                            <div className="w-3.5 h-3.5 relative flex-shrink-0 grayscale opacity-70">
-                                <Image src={spec.icon} alt="" fill className="object-contain" />
-                            </div>
-                            <span className="text-[10px] font-medium text-gray-600 line-clamp-1">
-                                {spec.text}
-                            </span>
-                        </div>
-                    ))}
-                </div>
-
-                {/* Action Buttons */}
-                <div className="mt-auto flex gap-2 pt-2 border-t border-gray-50">
-                    <Link
-                        href={`/${product.slug}`}
-                        className="flex-1 text-center py-2 px-2 rounded-md border border-gray-200 text-[10px] font-medium text-gray-600 hover:bg-gray-50 transition-colors whitespace-nowrap"
-                    >
-                        More Details
-                    </Link>
-                    <a
-                        href={
-                            whatsappNumber
-                                ? `https://wa.me/${whatsappNumber.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(
-                                    `Hello, I'm interested in the upcoming product: ${product.name}. Link: ${typeof window !== "undefined" ? window.location.origin + "/" + product.slug : ""
-                                    }`
-                                )}`
-                                : "#"
-                        }
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex-1 bg-[#F16522] hover:bg-[#d85619] text-white py-2 px-2 rounded-md text-[10px] font-medium transition-all text-center whitespace-nowrap"
-                    >
-                        Get a best price
-                    </a>
-                </div>
-            </div>
-        </div>
-    );
-};
 
 export default UpcomingProductsListing;

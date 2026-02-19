@@ -103,7 +103,41 @@ const Navbar = () => {
     setSuggestions([]);
   }, [pathname, searchParams]);
 
-  const isDealer = user?.type?.toLowerCase() === "dealer";
+  const [dealerModeSession, setDealerModeSession] = useState(false);
+
+  // Known top-level non-product routes that should clear dealer mode
+  const nonProductPrefixes = [
+    "/", "/login", "/signup", "/about", "/blog", "/contact",
+    "/compare", "/offers", "/profile", "/products", "/checkout",
+    "/authentication", "/productwarranty", "/dashboard", "/footer",
+    "/cart", "/orders", "/refer", "/points",
+  ];
+
+  // Sync dealer session state from sessionStorage on mount and pathname change
+  useEffect(() => {
+    if (pathname.startsWith("/dealer")) {
+      sessionStorage.setItem("dealerMode", "true");
+      setDealerModeSession(true);
+    } else {
+      const isNonProductRoute = nonProductPrefixes.some(
+        (prefix) => prefix === "/" ? pathname === "/" : pathname.startsWith(prefix)
+      );
+      if (isNonProductRoute) {
+        sessionStorage.removeItem("dealerMode");
+        setDealerModeSession(false);
+      } else {
+        // Could be a product detail page — preserve dealer mode if it was set
+        const stored = sessionStorage.getItem("dealerMode") === "true";
+        setDealerModeSession(stored);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname]);
+
+  const isDealer =
+    user?.type?.toLowerCase() === "dealer" ||
+    pathname.startsWith("/dealer") ||
+    dealerModeSession;
   const [searchTerm, setSearchTerm] = useState("");
   const [mobileSearchTerm, setMobileSearchTerm] = useState("");
   const [showMobileSearch, setShowMobileSearch] = useState(false);

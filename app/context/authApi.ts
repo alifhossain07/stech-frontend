@@ -6,9 +6,18 @@ export interface User {
   avatar: string | null;
   avatar_original: string;
   phone: string;
-  email_verified: boolean;
+  email_verified?: boolean;
   is_dealer?: number | string;
+  user_type?: string;
   dealer_code?: string;
+  dealer_license?: string;
+  dealer_nid?: string;
+  dealer_status?: string;
+  address?: string | null;
+  city?: string | null;
+  state?: string | null;
+  country?: string | null;
+  postal_code?: string | null;
 }
 
 export interface AuthResponse {

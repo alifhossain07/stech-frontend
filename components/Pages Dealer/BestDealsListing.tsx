@@ -3,20 +3,27 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import apiClient from "@/app/lib/api-client";
-import ProductCard from "../ui/ProductCard";
+import DealerProductCard from "../ui/DealerProductCard";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
+
+interface FeaturedSpec {
+    icon: string;
+    text: string;
+}
 
 interface Product {
     id: number;
     slug: string;
     name: string;
     thumbnail_image: string;
-    main_price: string;
-    stroked_price: string;
-    discount: string;
+    main_price: string; // Keeping these for now as the instruction was ambiguous about their removal
+    stroked_price: string; // Keeping these for now as the instruction was ambiguous about their removal
+    discount: string; // Keeping these for now as the instruction was ambiguous about their removal
     rating: number;
     rating_count: number;
-    featured_specs: { icon: string; text: string }[];
+    featured_specs?: FeaturedSpec[];
+    dealer_short_description?: string;
+    dealer_featured_specs?: FeaturedSpec[];
 }
 
 interface BestDealsListingProps {
@@ -127,21 +134,20 @@ const BestDealsListing: React.FC<BestDealsListingProps> = ({
                 {currentProducts.length > 0 ? (
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 justify-items-center">
                         {currentProducts.map((product) => (
-                            <ProductCard
+                            <DealerProductCard
                                 key={product.id}
                                 product={{
                                     id: product.id,
                                     slug: product.slug,
                                     name: product.name,
                                     image: product.thumbnail_image,
-                                    price: parseFloat(product.main_price.replace(/[^\d.]/g, "")),
-                                    oldPrice: parseFloat(product.stroked_price.replace(/[^\d.]/g, "")),
-                                    discount: product.discount,
                                     rating: product.rating,
                                     reviews: `(${product.rating_count})`,
-                                    featured_specs: product.featured_specs,
+                                    featured_spec: product.featured_specs?.[0],
                                     badgeText: badgeText,
-                                    badgeType: badgeType
+                                    badgeType: badgeType,
+                                    dealer_short_description: product.dealer_short_description,
+                                    dealer_featured_specs: product.dealer_featured_specs
                                 }}
                             />
                         ))}

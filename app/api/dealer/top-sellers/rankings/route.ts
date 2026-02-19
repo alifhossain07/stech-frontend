@@ -8,7 +8,6 @@ export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
     try {
-        const bearerToken = getBearerToken(req);
         const { searchParams } = new URL(req.url);
         const month = searchParams.get('month');
         const year = searchParams.get('year');
@@ -16,7 +15,6 @@ export async function GET(req: NextRequest) {
         const headers: Record<string, string> = {
             "System-Key": SYSTEM_KEY,
             Accept: "application/json",
-            ...(bearerToken && { Authorization: `Bearer ${bearerToken}` }),
         };
 
         let apiUrl = `${API_BASE}/dealer/top-sellers/rankings`;

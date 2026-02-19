@@ -2,7 +2,7 @@
 
 import React from "react";
 import DealerHero from "./DealerHero";
-import PopularCategories from "../Pages/Home/PopularCategories";
+import DealerPopularCategories from "./DealerPopularCategories";
 import CampingOffer from "./CampingOffer";
 import TopSellBanner from "./TopSellBanner";
 import UpcomingProducts from "./UpcomingProducts";
@@ -15,8 +15,8 @@ const DealerHome = () => {
     return (
         <div className=" min-h-screen">
             <DealerHero />
-            <div className="bg-gray-50">
-                <PopularCategories />
+            <div className="bg-white">
+                <DealerPopularCategories />
             </div>
             <CampingOffer />
             <div className="bg-gray-50">

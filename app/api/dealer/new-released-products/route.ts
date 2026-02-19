@@ -8,14 +8,12 @@ export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
     try {
-        const bearerToken = getBearerToken(req);
         const { searchParams } = new URL(req.url);
         const dateFilter = searchParams.get("date_filter");
 
         const headers: Record<string, string> = {
             "System-Key": SYSTEM_KEY,
             Accept: "application/json",
-            ...(bearerToken && { Authorization: `Bearer ${bearerToken}` }),
         };
 
         let url = `${API_BASE}/dealer/new-released-products`;
