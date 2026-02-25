@@ -26,17 +26,15 @@ const poppins = Poppins({
 
 
 // --- Metadata ---
+// --- Metadata ---
 export async function generateMetadata(): Promise<Metadata> {
-  const fallbackTitle = "Sannai Technology";
-  const fallbackDescription = "A Project By Techdyno BD LTD";
+  const defaultTitle = "Sannai Technology Limited | Premium Mobile Accessories in Bangladesh";
+  const defaultDescription = "Sannai Technology Limited is a leading mobile accessories brand in Bangladesh offering high-quality chargers, power banks, earbuds, cables, and smart gadgets at affordable prices.";
 
   const settings = await fetchBusinessSettings();
 
-  if (!settings) {
-    return { title: fallbackTitle, description: fallbackDescription };
-  }
-
   const getMetaValue = (key: string): string | undefined => {
+    if (!settings) return undefined;
     interface Setting {
       key?: string;
       type?: string;
@@ -46,17 +44,28 @@ export async function generateMetadata(): Promise<Metadata> {
     return (item && item.value != null) ? item.value : undefined;
   };
 
-  const title = getMetaValue("meta_title") || getMetaValue("website_name") || fallbackTitle;
-  const description = getMetaValue("meta_description") || fallbackDescription;
   const siteIcon = getMetaValue("site_icon") || "/images/sannailogo.png";
+  const headerLogo = getMetaValue("header_logo") || siteIcon;
 
   return {
-    title,
-    description,
+    title: defaultTitle,
+    description: defaultDescription,
     icons: {
       icon: [{ url: siteIcon, sizes: "any" }],
       shortcut: [{ url: siteIcon }],
       apple: [{ url: siteIcon }],
+    },
+    openGraph: {
+      title: defaultTitle,
+      description: defaultDescription,
+      images: [{ url: headerLogo }],
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: defaultTitle,
+      description: defaultDescription,
+      images: [headerLogo],
     },
   };
 }

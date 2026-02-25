@@ -1,7 +1,11 @@
-"use client";
-
 import React from "react";
 import BestDealsListing from "@/components/Pages Dealer/BestDealsListing";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+    title: "Best Product Deals | Sannai Dealer",
+    description: "Discover the best deals and discounts on Sannai products.",
+};
 
 export default function DealerBestDealsPage() {
     return (

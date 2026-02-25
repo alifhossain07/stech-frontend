@@ -1,0 +1,196 @@
+"use client";
+
+import React, { useState } from "react";
+import Image from "next/image";
+import { FcGoogle } from "react-icons/fc";
+import { FaFacebookF } from "react-icons/fa";
+import Link from "next/link";
+import { useAuth } from "../context/AuthContext";
+import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
+
+const LoginContent = () => {
+    const { login, loading, user } = useAuth();
+    const router = useRouter();
+
+    // Redirect if already logged in (optional but good for UX)
+    React.useEffect(() => {
+        if (user) {
+            if (user.type?.toLowerCase() === "dealer") {
+                router.push("/");
+            } else {
+                router.push("/");
+            }
+        }
+    }, [user, router]);
+    const [form, setForm] = useState({
+        phone: "",
+        password: "",
+    });
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setForm((prev) => ({ ...prev, [name]: value }));
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        // Frontend validation
+        if (!form.phone || form.phone.trim() === "") {
+            toast.error("Phone number is required");
+            return;
+        }
+
+        if (!form.password || form.password.trim() === "") {
+            toast.error("Password is required");
+            return;
+        }
+
+        try {
+            await login({
+                login_by: "phone",
+                phone: form.phone.trim(),
+                password: form.password,
+            });
+            toast.success("Logged in successfully");
+
+            // The state might take a tick to update, but we can also use the returned values if needed
+            // but for now, we just redirect to "/" as app/page.tsx handles the switch
+            router.push("/");
+            router.refresh(); // Force refresh components relying on server/layout state
+        } catch (err: unknown) {
+            const message =
+                err instanceof Error ? err.message : "Login failed";
+            toast.error(message);
+        }
+    };
+    return (
+        <div className="flex items-center justify-center py-12 md:py-20  px-4">
+            <div className="w-full sm:w-11/12 xl:w-10/12 md:w-[95%] lg:w-8/12 bg-white shadow-2xl rounded-3xl flex flex-col md:flex-row overflow-hidden border border-gray-200">
+                {/* Left Section */}
+                <div className="w-full md:w-1/2 flex items-center justify-center p-6 sm:p-10">
+                    <div className="w-full md:w-11/12 2xl:w-9/12 sm:w-[80%]">
+                        <h1 className="text-lg sm:text-xl md:text-2xl font-semibold text-gray-800 mb-1 text-center 2xl:text-3xl 2xl:mb-4 md:text-left">
+                            Welcome To{" "}
+                            <span className="text-[#FF6B01]">Sannai Technology!</span>
+                        </h1>
+                        <p className="text-xs sm:text-sm text-gray-500 mb-8 text-center md:text-left">
+                            Signup/login to enjoy the feature of Revolute
+                        </p>
+                        <div className="w-10/12 md:w-full xl:w-9/12  mx-auto md:mx-0">
+                            {/* Form */}
+                            <form className="space-y-5 sm:space-y-6" onSubmit={handleSubmit}>
+                                {/* Phone Field */}
+                                <div className="relative">
+                                    <label
+                                        htmlFor="phone"
+                                        className="absolute -top-2 left-3 bg-white px-1 text-xs text-gray-500"
+                                    >
+                                        Mobile Number
+                                    </label>
+                                    <input
+                                        type="text"
+                                        id="phone"
+                                        name="phone"
+                                        value={form.phone}
+                                        onChange={handleChange}
+                                        placeholder="01645305138"
+                                        className="w-full border border-gray-300 rounded-md px-4 py-3 sm:py-4 text-sm focus:border-[#FF6B01] focus:ring-1 focus:ring-[#FF6B01] outline-none"
+                                    />
+                                </div>
+
+                                {/* Login Field */}
+                                <div className="relative">
+                                    <label
+                                        htmlFor="login"
+                                        className="absolute -top-2 left-3 bg-white px-1 text-xs text-orange-600"
+                                    >
+                                        Password
+                                    </label>
+                                    <input
+                                        type="password"
+                                        id="password"
+                                        name="password"
+                                        value={form.password}
+                                        onChange={handleChange}
+                                        className="w-full border border-orange-600 rounded-md px-4 py-3 sm:py-4 text-sm focus:border-[#FF6B01] focus:ring-1 focus:ring-[#FF6B01] outline-none"
+                                    />
+                                </div>
+
+                                <div className="text-right">
+                                    <a
+                                        href="#"
+                                        className="text-xs text-gray-400 hover:text-[#FF6B01]"
+                                    >
+                                        Forgot Your Password?
+                                    </a>
+                                </div>
+
+                                <button
+                                    type="submit"
+                                    disabled={loading}
+                                    className="btn-press-3d w-full bg-[#FF6B01] text-white py-2 sm:py-3 rounded-md font-semibold hover:bg-orange-600 transition text-sm sm:text-base disabled:opacity-60"
+                                >
+                                    {loading ? "Logging in..." : "Login"}
+                                </button>
+
+                                <p className="mt-3 text-xs sm:text-sm text-center text-gray-500">
+                                    Don&apos;t have an account?{" "}
+                                    <Link href="/registration" className="text-[#FF6B01] font-medium hover:underline">
+                                        Sign In
+                                    </Link>
+                                </p>
+                                <div className="mt-4 pt-4 border-t border-gray-100 text-center">
+                                    <p className="text-sm text-gray-600">
+                                        Are you a Dealer?{" "}
+                                        <Link href="/dealer/login" className="font-bold text-black border-b border-black hover:text-orange-600 hover:border-orange-600 transition ml-1">
+                                            Login as Dealer
+                                        </Link>
+                                    </p>
+                                </div>
+                            </form>
+
+                            {/* Divider */}
+                            <div className="flex items-center gap-2 my-6">
+                                <div className="h-px bg-gray-300 w-full"></div>
+                                <p className="text-gray-400 text-sm">or</p>
+                                <div className="h-px bg-gray-300 w-full"></div>
+                            </div>
+
+                            {/* Social Logins */}
+                            <div className="space-y-3">
+                                <button className="flex items-center justify-center gap-2 border border-gray-300 rounded-md py-2 w-full hover:bg-gray-100 transition text-sm sm:text-base">
+                                    <FcGoogle className="text-lg" />
+                                    <span className="text-gray-700">
+                                        Sign up / Login with Google
+                                    </span>
+                                </button>
+
+                                <button className="flex items-center justify-center gap-2 border border-gray-300 rounded-md py-2 w-full hover:bg-gray-100 transition text-sm sm:text-base">
+                                    <FaFacebookF className="text-[#1877F2]" />
+                                    <span className="text-gray-700">
+                                        Sign up / Login with Facebook
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Right Section - Image */}
+                <div className="hidden md:block w-full md:w-1/2 bg-[#FF6B01]/10">
+                    <Image
+                        src="/images/loginImage.webp"
+                        alt="Login Banner"
+                        width={500}
+                        height={500}
+                        className="object-cover w-full h-full"
+                    />
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default LoginContent;
