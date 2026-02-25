@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getBearerToken } from "@/app/lib/auth-utils";
 
 const API_BASE = process.env.API_BASE!;
 const SYSTEM_KEY = process.env.SYSTEM_KEY!;

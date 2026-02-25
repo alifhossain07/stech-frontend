@@ -2,7 +2,6 @@
 import { useAuth } from '@/app/context/AuthContext';
 import { updateProfile } from "@/app/context/authApi";
 import React, { useState, useEffect } from 'react';
-import Image from 'next/image';
 
 // Extend User type locally to include optional fields for profile display
 type UserProfile = import("@/app/context/authApi").User & {

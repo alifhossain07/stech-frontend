@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState, useRef } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import { FiChevronLeft, FiChevronRight, FiCalendar } from "react-icons/fi";
 import apiClient from "@/app/lib/api-client";
 import DealerProductCard from "../ui/DealerProductCard";
@@ -176,7 +175,7 @@ interface CategorySectionProps {
     whatsappNumber: string | null;
 }
 
-const CategorySection: React.FC<CategorySectionProps> = ({ initialCategory, whatsappNumber }) => {
+const CategorySection: React.FC<CategorySectionProps> = ({ initialCategory }) => {
     const [products, setProducts] = useState<Product[]>(initialCategory.products?.data || []);
     const [currentFilter, setCurrentFilter] = useState<string>("all");
     const [isUpdating, setIsUpdating] = useState(false);

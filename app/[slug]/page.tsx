@@ -674,19 +674,22 @@ const Page = () => {
           </p>
 
           {/* -------- Dealer Price Section -------- */}
-          {isDealer && product.dealer_display_price && (
+          {/* {isDealer && product.dealer_display_price && (
             <div className="bg-[#FFF3EB] p-4 rounded-xl border border-[#FFE4D3] mb-4">
-
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium text-gray-700">Dealer Price</span>
+                <span className="text-2xl font-bold text-[#FF6B01]">৳{product.dealer_display_price}</span>
+              </div>
+              <div className="flex items-center justify-between border-t border-[#FFE4D3] pt-2">
                 <span className="text-sm font-medium text-gray-700">Min. Order Qty</span>
                 <span className="text-lg font-semibold text-gray-900">{product.dealer_min_order_qty} {product.unit || 'pcs'}</span>
               </div>
             </div>
-          )}
+          )} */}
 
           <div className="flex items-center justify-between w-full mb-3">
             {/* -------- Left: Price Section -------- */}
-            {!isDealer && (
+            {!dealerMode && (
               <div className="flex items-center justify-center gap-3 ">
                 {/* New Price */}
                 <span className="2xl:text-[32px] xl:text-[26px] text-[20px] font-semibold text-orange-500">

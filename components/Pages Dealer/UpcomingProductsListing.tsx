@@ -2,15 +2,9 @@
 
 import React, { useEffect, useState, useRef } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import apiClient from "@/app/lib/api-client";
 import DealerProductCard from "../ui/DealerProductCard";
-
-interface Spec {
-    text: string;
-    icon: string;
-}
 
 interface FeaturedSpec {
     icon: string;
@@ -171,7 +165,7 @@ interface CategorySectionProps {
     whatsappNumber: string | null;
 }
 
-const CategorySection: React.FC<CategorySectionProps> = ({ category, whatsappNumber }) => {
+const CategorySection: React.FC<CategorySectionProps> = ({ category }) => {
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const [canScrollLeft, setCanScrollLeft] = useState(false);
     const [canScrollRight, setCanScrollRight] = useState(true);

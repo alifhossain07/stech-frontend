@@ -1,9 +1,6 @@
 "use client";
 
 import React from "react";
-import { useAuth } from "@/app/context/AuthContext";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 
 export default function DealerLayout({
     children,

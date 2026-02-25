@@ -1,12 +1,11 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getBearerToken } from "@/app/lib/auth-utils";
+import { NextResponse } from "next/server";
+
+export const dynamic = "force-dynamic";
 
 const API_BASE = process.env.API_BASE!;
 const SYSTEM_KEY = process.env.SYSTEM_KEY!;
 
-export const dynamic = "force-dynamic";
-
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     const headers: Record<string, string> = {
       "System-Key": SYSTEM_KEY,

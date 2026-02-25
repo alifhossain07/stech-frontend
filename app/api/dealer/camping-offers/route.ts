@@ -1,38 +1,39 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getBearerToken } from "@/app/lib/auth-utils";
+import { NextResponse } from "next/server";
+import axios from "axios";
 
 const API_BASE = process.env.API_BASE!;
 const SYSTEM_KEY = process.env.SYSTEM_KEY!;
 
 export const dynamic = "force-dynamic";
 
-export async function GET(req: NextRequest) {
+export async function GET(_req: Request) {
   try {
-    const headers: Record<string, string> = {
-      "System-Key": SYSTEM_KEY,
-      Accept: "application/json",
-    };
+    const { searchParams } = new URL(_req.url);
+    const slug = searchParams.get("slug");
 
-    const response = await fetch(`${API_BASE}/dealer/camping-offers`, {
-      method: "GET",
-      headers,
-      cache: "no-store",
+    const res = await axios.get(`${API_BASE}/dealer/home/camping-offers`, {
+      headers: { 
+        Accept: "application/json", 
+        "System-Key": SYSTEM_KEY 
+      },
     });
 
-    const json = await response.json();
+    if (slug && res.data.success && Array.isArray(res.data.data)) {
+      const offer = res.data.data.find((o: { slug: string }) => o.slug === slug);
+      if (offer) {
+        return NextResponse.json({ success: true, data: offer });
+      } else {
+        return NextResponse.json({ success: false, error: "Offer not found" }, { status: 404 });
+      }
+    }
 
+    return NextResponse.json(res.data);
+  } catch (error: unknown) {
+    const axiosError = error as { response?: { data?: unknown; status?: number }; message?: string };
+    console.error("Error fetching Dealer Camping Offers:", axiosError?.response?.data || axiosError.message);
     return NextResponse.json(
-      { success: true, data: json },
-      { status: response.status }
-    );
-  } catch (err) {
-    console.error("Dealer Camping Offers Proxy Error:", err);
-    return NextResponse.json(
-      {
-        success: false,
-        error: "Internal Server Error",
-      },
-      { status: 500 }
+      { success: false, error: "Failed to fetch camping offers" },
+      { status: axiosError?.response?.status || 500 }
     );
   }
 }

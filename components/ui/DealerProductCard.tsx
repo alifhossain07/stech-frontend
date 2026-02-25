@@ -1,8 +1,5 @@
 "use client";
 
-import { useCart } from "@/app/context/CartContext";
-import { useAuth } from "@/app/context/AuthContext";
-import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { FaStar } from "react-icons/fa";
@@ -33,10 +30,6 @@ interface Product {
 }
 
 export default function DealerProductCard({ product }: { product: Product }) {
-    const { setSelectedItems } = useCart();
-    const { user } = useAuth();
-    const isDealer = user?.type?.toLowerCase() === "dealer";
-    const router = useRouter();
     const [whatsappNumber, setWhatsappNumber] = useState<string | null>(null);
 
     useEffect(() => {

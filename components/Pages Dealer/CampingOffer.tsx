@@ -13,6 +13,7 @@ interface FlashDeal {
     subtitle: string;
     banner: string;
     date: number; // Unix timestamp (seconds)
+    countdown_timer: string;
 }
 
 interface TimeLeft {
@@ -77,7 +78,7 @@ const CampingOffer = () => {
 
     const fetchData = useCallback(async () => {
         try {
-            const res = await apiClient.get("/api/products/flashdealsall");
+            const res = await apiClient.get("/api/dealer/camping-offers");
             const json = res.data;
             if (json.success && Array.isArray(json.data)) {
                 setDeals(json.data);
@@ -154,9 +155,11 @@ const CampingOffer = () => {
                             </div>
 
                             {/* Countdown timer pinned to bottom */}
-                            <div className="absolute bottom-0 left-0 right-0 px-5 py-5">
-                                <CountdownTimer endTimestamp={deal.date} />
-                            </div>
+                            {deal.countdown_timer !== "0" && (
+                                <div className="absolute bottom-0 left-0 right-0 px-5 py-5">
+                                    <CountdownTimer endTimestamp={deal.date} />
+                                </div>
+                            )}
                         </Link>
                     ))}
                 </div>

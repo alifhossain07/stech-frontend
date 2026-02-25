@@ -47,6 +47,7 @@ const DealerHero = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [data, setData] = useState<DealerHeroData | null>(null);
     const [loading, setLoading] = useState(true);
+    const [isCatalogueLoading, setIsCatalogueLoading] = useState(false);
     const [suggestions, setSuggestions] = useState<SuggestionItem[]>([]);
     const [showSuggestions, setShowSuggestions] = useState(false);
     const [isSuggestLoading, setIsSuggestLoading] = useState(false);
@@ -250,14 +251,34 @@ const DealerHero = () => {
                 {/* Action Buttons */}
                 <div className="flex flex-wrap justify-center gap-4 mt-4">
                     <button
-                        onClick={() => window.open(data.button_links[0], "_blank")}
-                        className="flex items-center gap-2 px-4 md:px-6 py-2 md:py-2 border border-white/30 rounded-full text-white bg-white/5 hover:bg-white/10 hover:border-white transition-all duration-300 group"
+                        disabled={isCatalogueLoading}
+                        onClick={async () => {
+                            setIsCatalogueLoading(true);
+                            try {
+                                const res = await fetch("/api/dealer/product-catalogue");
+                                const json = await res.json();
+                                if (json.success && json.data.catalogue_url) {
+                                    window.open(json.data.catalogue_url, "_blank");
+                                }
+                            } catch (err) {
+                                console.error("Error fetching catalogue:", err);
+                            } finally {
+                                setIsCatalogueLoading(false);
+                            }
+                        }}
+                        className="flex items-center gap-2 px-4 md:px-6 py-2 md:py-2 border border-orange-500 rounded-full text-white bg-orange-500 hover:bg-orange-600 transition-all duration-300 group disabled:opacity-50"
                     >
-                        <span className="text-sm font-medium">{data.button_texts[0]}</span>
-
-                        <span className="flex items-center justify-center w-5 h-5 rounded-full border border-white group-hover:translate-x-0.5 transition-transform">
-                            <FiArrowRight className="text-white text-xs" />
+                        <span className="text-sm font-medium">
+                            {isCatalogueLoading ? "Opening Catalogue..." : "Product Catalogue"}
                         </span>
+                        {!isCatalogueLoading && (
+                            <span className="flex items-center justify-center w-5 h-5 rounded-full border border-white group-hover:translate-x-0.5 transition-transform">
+                                <FiArrowRight className="text-white text-xs" />
+                            </span>
+                        )}
+                        {isCatalogueLoading && (
+                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        )}
                     </button>
 
                     <button

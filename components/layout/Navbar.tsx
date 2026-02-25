@@ -146,6 +146,7 @@ const Navbar = () => {
   const [suggestions, setSuggestions] = useState<SuggestionItem[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isSuggestLoading, setIsSuggestLoading] = useState(false);
+  const [isCatalogueLoading, setIsCatalogueLoading] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const suggestTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [showDesktopLogout, setShowDesktopLogout] = useState(false);
@@ -172,6 +173,28 @@ const Navbar = () => {
       setClosing(false);
       setMenuOpen(false);
     }, 300);
+  };
+
+  const handleCatalogueDownload = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (isCatalogueLoading) return;
+
+    setIsCatalogueLoading(true);
+    try {
+      const res = await fetch("/api/dealer/product-catalogue");
+      const json = await res.json();
+      if (json.success && json.data.catalogue_url) {
+        window.open(json.data.catalogue_url, "_blank");
+      } else {
+        toast.error("Catalogue not found");
+      }
+    } catch (err) {
+      console.error("Error fetching catalogue:", err);
+      toast.error("Failed to load catalogue");
+    } finally {
+      setIsCatalogueLoading(false);
+      handleCloseMenu(); // Close mobile menu if open
+    }
   };
 
   // ✅ REAL CATEGORIES (ONLY THOSE WITH DROPDOWNS)
@@ -533,9 +556,26 @@ const Navbar = () => {
               {isDealer ? (
                 dealerPages.map((page, i) => (
                   <li key={i}>
-                    <Link href={page.href} className="hover:text-gray-200   font-medium tracking-wider">
-                      {page.name}
-                    </Link>
+                    {page.name === "Product Catalog" ? (
+                      <button
+                        onClick={handleCatalogueDownload}
+                        disabled={isCatalogueLoading}
+                        className="hover:text-gray-200 font-medium tracking-wider flex items-center gap-2 disabled:opacity-50"
+                      >
+                        {isCatalogueLoading ? (
+                          <>
+                            <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                            Opening...
+                          </>
+                        ) : (
+                          page.name
+                        )}
+                      </button>
+                    ) : (
+                      <Link href={page.href} className="hover:text-gray-200 font-medium tracking-wider">
+                        {page.name}
+                      </Link>
+                    )}
                   </li>
                 ))
               ) : (
@@ -745,13 +785,26 @@ const Navbar = () => {
                   <>
                     {dealerPages.map((page, i) => (
                       <li key={i} className="border-b border-gray-50 last:border-none">
-                        <Link
-                          href={page.href}
-                          onClick={handleCloseMenu}
-                          className="block py-3 text-sm font-medium text-gray-700 hover:text-orange-500 transition-colors uppercase tracking-wide"
-                        >
-                          {page.name}
-                        </Link>
+                        {page.name === "Product Catalog" ? (
+                          <button
+                            onClick={handleCatalogueDownload}
+                            disabled={isCatalogueLoading}
+                            className="w-full text-left py-3 text-sm font-medium text-gray-700 hover:text-orange-500 transition-colors uppercase tracking-wide flex items-center justify-between"
+                          >
+                            <span>{isCatalogueLoading ? "Opening Catalogue..." : page.name}</span>
+                            {isCatalogueLoading && (
+                              <div className="w-4 h-4 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+                            )}
+                          </button>
+                        ) : (
+                          <Link
+                            href={page.href}
+                            onClick={handleCloseMenu}
+                            className="block py-3 text-sm font-medium text-gray-700 hover:text-orange-500 transition-colors uppercase tracking-wide"
+                          >
+                            {page.name}
+                          </Link>
+                        )}
                       </li>
                     ))}
                   </>

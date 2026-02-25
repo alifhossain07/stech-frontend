@@ -27,7 +27,12 @@ export async function GET(request: Request) {
       flashSaleData = flashDeals.find((deal: { slug: string, [key: string]: unknown }) => deal.slug === slug);
     }
 
-    // Default to the first one if no slug provided or slug not found
+    // If no slug or slug not found, look for home_page: "1"
+    if (!flashSaleData) {
+      flashSaleData = flashDeals.find((deal: { home_page: string, [key: string]: unknown }) => deal.home_page === "1");
+    }
+
+    // Default to the first one if still nothing found
     if (!flashSaleData) {
       flashSaleData = flashDeals[0];
     }

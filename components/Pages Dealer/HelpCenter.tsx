@@ -33,6 +33,7 @@ interface HelpData {
     form_description: string;
     form_button_text: string;
     faq_title: string;
+    faq_image: string;
     faq_subtitle: string;
     faqs: FAQ[];
 }
@@ -285,7 +286,7 @@ const HelpCenter = () => {
                         {/* Static Image */}
                         <div className="lg:col-span-5 relative aspect-[4/5] rounded-md overflow-hidden shadow-xl">
                             <Image
-                                src="/images/herofaq.webp" // Placeholder, user will add this
+                                src={data.faq_image} // Placeholder, user will add this
                                 alt="Support"
                                 fill
                                 className="object-contain"

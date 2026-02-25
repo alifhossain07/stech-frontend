@@ -23,15 +23,22 @@ const DealerRegistrationPage = () => {
         business_address: "",
     });
     const [licenseFile, setLicenseFile] = useState<File | null>(null);
+    const [avatarFile, setAvatarFile] = useState<File | null>(null);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setForm((prev) => ({ ...prev, [name]: value }));
     };
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleLicenseChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
             setLicenseFile(e.target.files[0]);
+        }
+    };
+
+    const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            setAvatarFile(e.target.files[0]);
         }
     };
 
@@ -63,6 +70,9 @@ const DealerRegistrationPage = () => {
             formData.append("business_address", form.business_address);
             if (licenseFile) {
                 formData.append("dealer_license", licenseFile);
+            }
+            if (avatarFile) {
+                formData.append("avatar", avatarFile);
             }
 
             const res = await fetch("/api/auth/dealer-signup", {
@@ -96,6 +106,23 @@ const DealerRegistrationPage = () => {
 
                 <form className="mt-12 space-y-6" onSubmit={handleSubmit}>
                     <div className="space-y-6">
+                        {/* Avatar Upload */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Avatar / Profile Picture</label>
+                            <div className="relative flex items-center border border-gray-200 rounded-lg overflow-hidden">
+                                <label className="bg-gray-50 p-4 border-r border-gray-200 cursor-pointer hover:bg-gray-100 transition">
+                                    <FiImage className="text-gray-600 text-xl" />
+                                    <input type="file" onChange={handleAvatarChange} className="hidden" accept="image/*" />
+                                </label>
+                                <span className="px-4 text-gray-400 text-sm">
+                                    {avatarFile ? avatarFile.name : "Choose profile picture"}
+                                </span>
+                            </div>
+                            <p className="mt-2 text-xs text-gray-400 font-medium">
+                                Upload your profile picture (jpeg, png, etc.)
+                            </p>
+                        </div>
+
                         {/* Full Name */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
@@ -182,7 +209,7 @@ const DealerRegistrationPage = () => {
                             <div className="relative flex items-center border border-gray-200 rounded-lg overflow-hidden">
                                 <label className="bg-gray-50 p-4 border-r border-gray-200 cursor-pointer hover:bg-gray-100 transition">
                                     <FiImage className="text-gray-600 text-xl" />
-                                    <input type="file" onChange={handleFileChange} className="hidden" accept="image/*,application/pdf" />
+                                    <input type="file" onChange={handleLicenseChange} className="hidden" accept="image/*,application/pdf" />
                                 </label>
                                 <span className="px-4 text-gray-400 text-sm">
                                     {licenseFile ? licenseFile.name : "Choose file"}
