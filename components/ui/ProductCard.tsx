@@ -35,7 +35,18 @@ export default function ProductCard({ product }: { product: Product }) {
   // const [loading, setLoading] = useState(false);
   const { addToCart, setSelectedItems } = useCart();
   const { user } = useAuth();
-  const isDealer = user?.type?.toLowerCase() === "dealer";
+  const [isDealer, setIsDealer] = useState(false);
+
+  useEffect(() => {
+    const checkDealerStatus = () => {
+      const isUserDealer = user?.type?.toLowerCase() === "dealer";
+      const isSessionDealer = typeof window !== "undefined" && sessionStorage.getItem("dealerMode") === "true";
+      setIsDealer(isUserDealer || isSessionDealer);
+    };
+
+    checkDealerStatus();
+  }, [user]);
+
   const router = useRouter();
   const [optionsOpen, setOptionsOpen] = useState(false);
   const [whatsappNumber, setWhatsappNumber] = useState<string | null>(null);

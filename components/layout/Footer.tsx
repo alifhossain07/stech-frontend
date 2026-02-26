@@ -240,19 +240,19 @@ const Footer = async () => {
               <h3 className="text-md font-semibold mb-3">Terms</h3>
               <ul className="space-y-2 text-gray-400 text-sm">
                 <li className="hover:text-orange-500 cursor-pointer duration-300">
-                  <Link href="/footer/footerwarranty">Warranty</Link>
+                  <Link href="/pages/footerwarranty">Warranty</Link>
                 </li>
                 <li className="hover:text-orange-500 cursor-pointer duration-300">
-                  <Link href="/footer/shipping">Shipping & Delivery</Link>
+                  <Link href="/pages/shipping">Shipping & Delivery</Link>
                 </li>
                 <li className="hover:text-orange-500 cursor-pointer duration-300">
-                  <Link href="/footer/privacy-policy">Privacy Policy</Link>
+                  <Link href="/pages/privacy-policy">Privacy Policy</Link>
                 </li>
                 <li className="hover:text-orange-500 cursor-pointer duration-300">
-                  <Link href="/footer/terms">Terms & Conditions</Link>
+                  <Link href="/pages/terms">Terms & Conditions</Link>
                 </li>
                 <li className="hover:text-orange-500 cursor-pointer duration-300">
-                  <Link href="/footer/return-policy">Return & Refund Policy</Link>
+                  <Link href="/pages/return-policy">Return & Refund Policy</Link>
                 </li>
                 <li className="hover:text-orange-500 cursor-pointer duration-300">
                   <Link href="/trackorder">Track Order</Link>

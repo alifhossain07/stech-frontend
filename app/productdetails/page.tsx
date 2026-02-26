@@ -34,7 +34,14 @@ const Page = () => {
   const [selectedColor, setSelectedColor] = useState("gray");
   const [quantity, setQuantity] = useState(1);
   const { user } = useAuth();
-  const isDealer = user?.type?.toLowerCase() === "dealer";
+  const [isDealer, setIsDealer] = useState(false);
+
+  useEffect(() => {
+    const isUserDealer = user?.type?.toLowerCase() === "dealer";
+    const isSessionDealer = typeof window !== "undefined" && sessionStorage.getItem("dealerMode") === "true";
+    setIsDealer(isUserDealer || isSessionDealer);
+  }, [user]);
+
   const [whatsappNumber, setWhatsappNumber] = useState<string | null>(null);
 
   // Fetch WhatsApp number from business-settings
@@ -189,8 +196,8 @@ const Page = () => {
                 key={index}
                 onClick={() => setSelectedImage(index)}
                 className={`relative cursor-pointer border-2 rounded-xl overflow-hidden transition-all duration-200 aspect-square flex items-center justify-center ${selectedImage === index
-                    ? "border-orange-500"
-                    : "border-transparent hover:border-orange-400"
+                  ? "border-orange-500"
+                  : "border-transparent hover:border-orange-400"
                   }`}
               >
                 <Image
@@ -457,8 +464,8 @@ const Page = () => {
                     key={variant}
                     onClick={() => setSelectedVariant(variant)}
                     className={`px-3 py-[4px] rounded-full text-[13px] font-medium border transition-all duration-200 ${selectedVariant === variant
-                        ? "bg-gray-200 text-orange-500 border-orange-400"
-                        : "bg-gray-100 text-gray-700 border-transparent hover:border-gray-300"
+                      ? "bg-gray-200 text-orange-500 border-orange-400"
+                      : "bg-gray-100 text-gray-700 border-transparent hover:border-gray-300"
                       }`}
                   >
                     {variant}
@@ -478,8 +485,8 @@ const Page = () => {
                     key={color}
                     onClick={() => setSelectedColor(color)}
                     className={`w-6 h-6 rounded-full border-[2px] transition-all duration-200 ${selectedColor === color
-                        ? "border-orange-500 scale-110"
-                        : "border-gray-300 hover:scale-105"
+                      ? "border-orange-500 scale-110"
+                      : "border-gray-300 hover:scale-105"
                       }`}
                     style={{ backgroundColor: color }}
                   ></button>
@@ -668,8 +675,8 @@ const Page = () => {
                     }
                   }}
                   className={`md:py-4 py-3 text-[12px] md:text-base font-semibold rounded-md transition-all duration-200 ${activeTab === tab.id
-                      ? "bg-black text-white shadow-sm"
-                      : "bg-white text-gray-800 hover:bg-gray-200"
+                    ? "bg-black text-white shadow-sm"
+                    : "bg-white text-gray-800 hover:bg-gray-200"
                     }`}
                 >
                   {tab.label}

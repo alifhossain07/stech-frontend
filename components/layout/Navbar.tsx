@@ -108,7 +108,7 @@ const Navbar = () => {
   // Known top-level non-product routes that should clear dealer mode
   const nonProductPrefixes = [
     "/", "/login", "/signup", "/about", "/blog", "/contact",
-    "/compare", "/offers", "/profile", "/products", "/checkout",
+    "/compare", "/offers", "/profile", "/checkout",
     "/authentication", "/productwarranty", "/dashboard", "/footer",
     "/cart", "/orders", "/refer", "/points",
   ];
@@ -126,7 +126,7 @@ const Navbar = () => {
         sessionStorage.removeItem("dealerMode");
         setDealerModeSession(false);
       } else {
-        // Could be a product detail page — preserve dealer mode if it was set
+        // Could be a product detail page or product category page — preserve dealer mode if it was set
         const stored = sessionStorage.getItem("dealerMode") === "true";
         setDealerModeSession(stored);
       }
@@ -475,7 +475,7 @@ const Navbar = () => {
                       )}
                       <div className="flex-1 flex flex-col items-start min-w-0">
                         <span className="text-gray-800 line-clamp-1 font-medium">{item.name}</span>
-                        {item.price && (
+                        {!isDealer && item.price && (
                           <span className="text-xs text-orange-600 font-semibold mt-0.5">{item.price}</span>
                         )}
                       </div>
@@ -714,7 +714,7 @@ const Navbar = () => {
                     setShowMobileSearch(false);
                   }} className={`w-full flex items-center gap-3 px-3 py-2 text-sm hover:bg-gray-100 ${idx < suggestions.length - 1 ? 'border-b border-gray-200' : ''}`}>
                     {item.image && <div className="relative w-12 h-12 flex-shrink-0 bg-gray-50 rounded overflow-hidden"><Image src={item.image} alt={item.name || ""} fill sizes="48px" className="object-contain" /></div>}
-                    <div className="flex-1 flex flex-col items-start min-w-0"><span className="text-gray-800 line-clamp-1 font-medium">{item.name}</span>{item.price && <span className="text-xs text-orange-600 font-semibold mt-0.5">৳{item.price}</span>}</div>
+                    <div className="flex-1 flex flex-col items-start min-w-0"><span className="text-gray-800 line-clamp-1 font-medium">{item.name}</span>{!isDealer && item.price && <span className="text-xs text-orange-600 font-semibold mt-0.5">৳{item.price}</span>}</div>
                   </button>
                 ))}
               </div>

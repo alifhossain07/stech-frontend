@@ -7,6 +7,7 @@ import ProductCard from "@/components/ui/ProductCard";
 import { Range } from "react-range";
 import { FiFilter } from "react-icons/fi";
 import CategoryPageSkeleton from "@/components/Skeletons/CategoryPageSkeleton";
+import { useAuth } from "@/app/context/AuthContext";
 
 type Variant = {
   variant: string;
@@ -98,6 +99,15 @@ const CategoryPage = () => {
   const [sortOption, setSortOption] = useState(() => {
     return searchParams.get("sort") || "default";
   });
+
+  const { user } = useAuth();
+  const [isDealer, setIsDealer] = useState(false);
+
+  useEffect(() => {
+    const isUserDealer = user?.type?.toLowerCase() === "dealer";
+    const isSessionDealer = typeof window !== "undefined" && sessionStorage.getItem("dealerMode") === "true";
+    setIsDealer(isUserDealer || isSessionDealer);
+  }, [user]);
   const [currentPage, setCurrentPage] = useState(() => {
     const page = searchParams.get("page");
     return page ? Number(page) : 1;
@@ -425,79 +435,81 @@ const CategoryPage = () => {
       </div>
 
       {/* Price Range */}
-      <div className="border-t py-3">
-        <h3 className="font-medium text-base md:text-[18px] mb-2">
-          Price Range
-        </h3>
+      {!isDealer && (
+        <div className="border-t py-3">
+          <h3 className="font-medium text-base md:text-[18px] mb-2">
+            Price Range
+          </h3>
 
-        <p className="text-2xl md:text-[24px] my-4 text-center font-medium">
-          ৳{minPrice} — ৳{maxPrice}
-        </p>
+          <p className="text-2xl md:text-[24px] my-4 text-center font-medium">
+            ৳{minPrice} — ৳{maxPrice}
+          </p>
 
-        <Range
-          step={1}
-          min={MIN}
-          max={Math.max(MAX, maxPrice)}
-          values={[minPrice, maxPrice]}
-          onChange={(vals) => {
-            setMinPrice(vals[0]);
-            setMaxPrice(vals[1]);
-          }}
-          renderTrack={({ props, children }) => {
-            const rangeMax = Math.max(MAX, maxPrice);
-            return (
+          <Range
+            step={1}
+            min={MIN}
+            max={Math.max(MAX, maxPrice)}
+            values={[minPrice, maxPrice]}
+            onChange={(vals) => {
+              setMinPrice(vals[0]);
+              setMaxPrice(vals[1]);
+            }}
+            renderTrack={({ props, children }) => {
+              const rangeMax = Math.max(MAX, maxPrice);
+              return (
+                <div
+                  {...props}
+                  className="w-full h-2 rounded-full bg-gray-200 relative"
+                >
+                  <div
+                    className="absolute h-2 bg-orange-500 rounded-full"
+                    style={{
+                      left: `${(minPrice / rangeMax) * 100}%`,
+                      width: `${((maxPrice - minPrice) / rangeMax) * 100}%`,
+                    }}
+                  />
+                  {children}
+                </div>
+              );
+            }}
+            renderThumb={({ props }) => (
               <div
                 {...props}
-                className="w-full h-2 rounded-full bg-gray-200 relative"
-              >
-                <div
-                  className="absolute h-2 bg-orange-500 rounded-full"
-                  style={{
-                    left: `${(minPrice / rangeMax) * 100}%`,
-                    width: `${((maxPrice - minPrice) / rangeMax) * 100}%`,
-                  }}
-                />
-                {children}
-              </div>
-            );
-          }}
-          renderThumb={({ props }) => (
-            <div
-              {...props}
-              className="w-4 h-4 bg-white border border-gray-400 rounded-full shadow cursor-pointer"
-            />
-          )}
-        />
+                className="w-4 h-4 bg-white border border-gray-400 rounded-full shadow cursor-pointer"
+              />
+            )}
+          />
 
-        <div className="flex justify-between gap-3 text-xs md:text-sm mt-4">
-          <div className="w-1/2 flex flex-col">
-            <label className="text-[10px] text-gray-500 mb-0.5">Min Price</label>
-            <input
-              type="number"
-              value={minPrice}
-              onChange={handleMinPriceInput}
-              className="w-full py-2 text-center bg-white border border-gray-300 rounded focus:border-orange-500 outline-none"
-            />
+          <div className="flex justify-between gap-3 text-xs md:text-sm mt-4">
+            <div className="w-1/2 flex flex-col">
+              <label className="text-[10px] text-gray-500 mb-0.5">Min Price</label>
+              <input
+                type="number"
+                value={minPrice}
+                onChange={handleMinPriceInput}
+                className="w-full py-2 text-center bg-white border border-gray-300 rounded focus:border-orange-500 outline-none"
+              />
+            </div>
+            <div className="w-1/2 flex flex-col">
+              <label className="text-[10px] text-gray-500 mb-0.5">Max Price</label>
+              <input
+                type="number"
+                value={maxPrice}
+                onChange={handleMaxPriceInput}
+                className="w-full py-2 text-center bg-white border border-gray-300 rounded focus:border-orange-500 outline-none"
+              />
+            </div>
           </div>
-          <div className="w-1/2 flex flex-col">
-            <label className="text-[10px] text-gray-500 mb-0.5">Max Price</label>
-            <input
-              type="number"
-              value={maxPrice}
-              onChange={handleMaxPriceInput}
-              className="w-full py-2 text-center bg-white border border-gray-300 rounded focus:border-orange-500 outline-none"
-            />
-          </div>
+
+          <button
+            onClick={applyPriceFilter}
+            disabled={isFilterLoading}
+            className="w-full mt-3 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isFilterLoading ? "Applying..." : "Apply Price Filter"}
+          </button>
         </div>
-
-        <button
-          onClick={applyPriceFilter}
-          disabled={isFilterLoading}
-          className="w-full mt-3 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {isFilterLoading ? "Applying..." : "Apply Price Filter"}
-        </button>
-      </div>
+      )}
 
       {/* Dynamic Attribute filters */}
       {filteringAttributes.map((attr) => (
