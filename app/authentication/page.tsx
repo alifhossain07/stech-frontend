@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import { useAuth } from "@/app/context/AuthContext";
 import { FiCheck, FiX, FiChevronDown, } from "react-icons/fi";
 import { toast } from "react-hot-toast";
 import WarrantyClaimModal from "@/components/ui/WarrantyClaimModal";
 import ProductInfoModal from "@/components/ui/ProductInfoModal";
+import { useSearchParams } from "next/navigation";
 
 interface ActivatedProduct {
     product_serial_id: number;
@@ -42,8 +43,27 @@ interface SuccessData {
     };
 }
 
+interface WarrantyClaim {
+    id: number;
+    claim_id?: number;
+    status: string;
+    claimed_at: string;
+    issue_description: string;
+    serial: string;
+    product: {
+        id?: number;
+        name: string;
+        thumbnail?: string | { file_name: string };
+        thumbnail_image?: string;
+        image?: string;
+        photos?: { path: string }[] | string;
+    };
+    admin_note?: string;
+}
+
 export default function AuthenticationPage() {
     const { loading } = useAuth();
+    const searchParams = useSearchParams();
     const [step, setStep] = useState<"code_input" | "mobile_input" | "success_validation" | "activation_status" | "history_mobile_input">("code_input");
 
     // Form States
@@ -52,11 +72,14 @@ export default function AuthenticationPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [isActivating, setIsActivating] = useState(false);
     const [activatedProducts, setActivatedProducts] = useState<ActivatedProduct[]>([]);
+    const [warrantyClaims, setWarrantyClaims] = useState<WarrantyClaim[]>([]);
     const [successData, setSuccessData] = useState<SuccessData | null>(null);
+    const [historyTab, setHistoryTab] = useState<"activated" | "warranty">("activated");
 
     // Modal States
     const [isClaimModalOpen, setIsClaimModalOpen] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState<ActivatedProduct | undefined>(undefined);
+    const [selectedClaimData, setSelectedClaimData] = useState<{ productName?: string; serial?: string }>({});
     const [expandedId, setExpandedId] = useState<number | null>(null);
     const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
     const [activationError, setActivationError] = useState<string | null>(null);
@@ -66,6 +89,14 @@ export default function AuthenticationPage() {
     const codeSectionRef = useRef<HTMLDivElement>(null);
     const mobileSectionRef = useRef<HTMLDivElement>(null);
     const resultSectionRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const tabMode = searchParams.get("tab");
+        if (tabMode === "warranty") {
+            setHistoryTab("warranty");
+            setStep((prev) => (prev === "code_input" ? "history_mobile_input" : prev));
+        }
+    }, [searchParams]);
 
     const scrollToSection = (ref: React.RefObject<HTMLDivElement>) => {
         setTimeout(() => {
@@ -126,23 +157,48 @@ export default function AuthenticationPage() {
     const fetchHistory = async () => {
         setIsLoading(true);
         try {
-            const res = await fetch("/api/warranty/activated-products", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ phone: mobileNumber }),
-            });
-            const data = await res.json();
-            if (data.result) {
-                setActivatedProducts(data.data || []);
-                if (data.data && data.data.length > 0) {
-                    setExpandedId(data.data[0].product_serial_id);
-                }
+            const [activatedRes, claimsRes] = await Promise.all([
+                fetch("/api/warranty/activated-products", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ phone: mobileNumber }),
+                }),
+                fetch("/api/warranty/my-claims", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ phone: mobileNumber }),
+                }),
+            ]);
+
+            const activatedData = await activatedRes.json();
+            const claimsData = await claimsRes.json();
+
+            const activatedList: ActivatedProduct[] = activatedData.result ? (activatedData.data || []) : [];
+            const claimList: WarrantyClaim[] = claimsData.result ? (claimsData.data || []) : [];
+
+            setActivatedProducts(activatedList);
+            setWarrantyClaims(claimList);
+
+            if (activatedList.length > 0) {
+                setExpandedId(activatedList[0].product_serial_id);
+            } else if (claimList.length > 0) {
+                setExpandedId(claimList[0].id);
+                setHistoryTab("warranty");
             } else {
+                setExpandedId(null);
+                toast.error("No activation or warranty history found for this number");
+            }
+
+            if (!activatedData.result && !claimsData.result) {
+                toast.error("Failed to fetch records");
+            } else if (!activatedData.result) {
                 setActivatedProducts([]);
+            } else if (!claimsData.result) {
+                setWarrantyClaims([]);
             }
         } catch (error) {
             console.error(error);
-            toast.error("Failed to fetch products");
+            toast.error("Failed to fetch records");
         } finally {
             setIsLoading(false);
         }
@@ -152,7 +208,11 @@ export default function AuthenticationPage() {
         setMobileNumber("");
         setActivationCode("");
         setActivatedProducts([]);
+        setWarrantyClaims([]);
         setStep("code_input");
+        setHistoryTab("activated");
+        setExpandedId(null);
+        setSelectedClaimData({});
         setSuccessData(null);
         setActivationError(null);
         setMobileError(null);
@@ -160,7 +220,14 @@ export default function AuthenticationPage() {
     };
 
     const openClaimModal = (product: ActivatedProduct) => {
+        setSelectedClaimData({});
         setSelectedProduct(product);
+        setIsClaimModalOpen(true);
+    };
+
+    const openClaimModalFromHistory = (claim: WarrantyClaim) => {
+        setSelectedProduct(undefined);
+        setSelectedClaimData({ productName: claim.product.name, serial: claim.serial });
         setIsClaimModalOpen(true);
     };
 
@@ -171,6 +238,17 @@ export default function AuthenticationPage() {
             month: 'long',
             year: 'numeric'
         });
+    };
+
+    const getProductImage = (product: WarrantyClaim["product"]) => {
+        if (typeof product.thumbnail === "string" && product.thumbnail.startsWith("http")) return product.thumbnail;
+        if (product.thumbnail && typeof product.thumbnail === "object" && "file_name" in product.thumbnail) {
+            return `https://sannaiadmin.techdynobdltd.com/public/${product.thumbnail.file_name}`;
+        }
+        if (product.image) return product.image;
+        if (product.thumbnail_image) return product.thumbnail_image;
+        if (Array.isArray(product.photos) && product.photos.length > 0) return product.photos[0].path;
+        return "/images/placeholder.jpg";
     };
 
     if (loading) {
@@ -269,6 +347,8 @@ export default function AuthenticationPage() {
                                             return;
                                         }
                                         fetchHistory().then(() => {
+                                            const preferredTab = searchParams.get("tab") === "warranty" ? "warranty" : "activated";
+                                            setHistoryTab(preferredTab);
                                             setStep("activation_status");
                                             scrollToSection(resultSectionRef);
                                         });
@@ -305,6 +385,10 @@ export default function AuthenticationPage() {
                                         onClick={() => {
                                             setStep("code_input");
                                             setMobileNumber("");
+                                            setActivatedProducts([]);
+                                            setWarrantyClaims([]);
+                                            setHistoryTab("activated");
+                                            setExpandedId(null);
                                             setMobileError(null);
                                             window.scrollTo({ top: 0, behavior: "smooth" });
                                         }}
@@ -376,66 +460,160 @@ export default function AuthenticationPage() {
                         )}
 
                         {/* HISTORY SECTION */}
-                        {step === "activation_status" && activatedProducts.length > 0 && (
+                        {step === "activation_status" && (activatedProducts.length > 0 || warrantyClaims.length > 0) && (
                             <div className="space-y-4 animate-fadeIn">
                                 <div className="bg-[#F5F5F5] py-2.5 rounded-lg text-center">
-                                    <h2 className="text-base md:text-lg font-bold text-gray-800 uppercase tracking-wide">Product Activation Details</h2>
+                                    <h2 className="text-base md:text-lg font-bold text-gray-800 uppercase tracking-wide">Product Records</h2>
                                 </div>
 
-                                <div className="bg-white rounded-[1.5rem] shadow-[0_5px_25px_rgba(0,0,0,0.03)] overflow-hidden">
-                                    {activatedProducts.map((prod) => (
-                                        <div key={prod.product_serial_id} className="border-b border-gray-50 last:border-none">
-                                            <div className="p-3 md:p-5 flex flex-col md:flex-row items-center justify-between gap-3">
-                                                <div className="flex items-center gap-3 flex-1">
-                                                    <div className="w-12 h-12 bg-white border border-gray-100 rounded-lg flex items-center justify-center p-1 flex-shrink-0 relative overflow-hidden">
-                                                        <Image
-                                                            src={prod.product.thumbnail || "/images/placeholder.jpg"}
-                                                            alt={prod.product.name}
-                                                            width={40}
-                                                            height={40}
-                                                            className="object-contain"
-                                                        />
-                                                    </div>
-                                                    <div className="flex-1">
-                                                        <div className="flex items-center gap-2 cursor-pointer" onClick={() => setExpandedId(expandedId === prod.product_serial_id ? null : prod.product_serial_id)}>
-                                                            <h4 className="font-semibold text-gray-800 text-xs md:text-sm line-clamp-1">
-                                                                {prod.product.name}
-                                                            </h4>
-                                                            <FiChevronDown className={`transition-transform duration-300 ${expandedId === prod.product_serial_id ? 'rotate-180' : ''}`} />
+                                <div className="bg-white rounded-xl border border-gray-100 p-2 flex items-center gap-2 w-fit mx-auto">
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setHistoryTab("activated");
+                                            if (activatedProducts.length > 0) setExpandedId(activatedProducts[0].product_serial_id);
+                                        }}
+                                        className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${historyTab === "activated" ? "bg-orange-500 text-white shadow-sm" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`}
+                                    >
+                                        Activated Products
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setHistoryTab("warranty");
+                                            if (warrantyClaims.length > 0) setExpandedId(warrantyClaims[0].id);
+                                        }}
+                                        className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${historyTab === "warranty" ? "bg-orange-500 text-white shadow-sm" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`}
+                                    >
+                                        Warranty History
+                                    </button>
+                                </div>
+
+                                {historyTab === "activated" ? (
+                                    <div className="bg-white rounded-[1.5rem] shadow-[0_5px_25px_rgba(0,0,0,0.03)] overflow-hidden">
+                                        {activatedProducts.length === 0 ? (
+                                            <p className="py-10 text-center text-sm text-gray-500">No activated products found for this number.</p>
+                                        ) : (
+                                            activatedProducts.map((prod) => (
+                                                <div key={prod.product_serial_id} className="border-b border-gray-50 last:border-none">
+                                                    <div className="p-3 md:p-5 flex flex-col md:flex-row items-center justify-between gap-3">
+                                                        <div className="flex items-center gap-3 flex-1">
+                                                            <div className="w-12 h-12 bg-white border border-gray-100 rounded-lg flex items-center justify-center p-1 flex-shrink-0 relative overflow-hidden">
+                                                                <Image
+                                                                    src={prod.product.thumbnail || "/images/placeholder.jpg"}
+                                                                    alt={prod.product.name}
+                                                                    width={40}
+                                                                    height={40}
+                                                                    className="object-contain"
+                                                                />
+                                                            </div>
+                                                            <div className="flex-1">
+                                                                <div className="flex items-center gap-2 cursor-pointer" onClick={() => setExpandedId(expandedId === prod.product_serial_id ? null : prod.product_serial_id)}>
+                                                                    <h4 className="font-semibold text-gray-800 text-xs md:text-sm line-clamp-1">{prod.product.name}</h4>
+                                                                    <FiChevronDown className={`transition-transform duration-300 ${expandedId === prod.product_serial_id ? "rotate-180" : ""}`} />
+                                                                </div>
+                                                            </div>
                                                         </div>
+                                                        <button
+                                                            onClick={() => openClaimModal(prod)}
+                                                            className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-1.5 px-4 rounded-lg transition-all shadow-sm text-xs whitespace-nowrap"
+                                                        >
+                                                            Warranty Claim
+                                                        </button>
                                                     </div>
-                                                </div>
-                                                <button
-                                                    onClick={() => openClaimModal(prod)}
-                                                    className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-1.5 px-4 rounded-lg transition-all shadow-sm text-xs whitespace-nowrap"
-                                                >
-                                                    Warranty Claim
-                                                </button>
-                                            </div>
 
-                                            {expandedId === prod.product_serial_id && (
-                                                <div className="px-4 pb-4 md:px-8 md:pb-6 space-y-2 animate-fadeIn text-xs md:text-sm">
-                                                    <div className="flex justify-between items-center py-1.5 border-b border-gray-50">
-                                                        <span className="text-gray-500 font-medium">Warranty :</span>
-                                                        <span className="text-gray-800 font-bold">{prod.product.warranty_days} Days</span>
-                                                    </div>
-                                                    <div className="flex justify-between items-center py-1.5 border-b border-gray-50">
-                                                        <span className="text-gray-500 font-medium">Activated :</span>
-                                                        <span className="text-gray-800 font-bold">{formatDate(prod.activation.activated_at)}</span>
-                                                    </div>
-                                                    <div className="flex justify-between items-center bg-[#FFE8E8] px-3 py-2 rounded-md">
-                                                        <span className="text-red-500 font-semibold">Expires :</span>
-                                                        <span className="text-red-500 font-bold">{formatDate(prod.activation.expires_at)}</span>
-                                                    </div>
-                                                    <div className="flex justify-between items-center py-1.5 border-b border-gray-50">
-                                                        <span className="text-gray-500 font-medium">Claims :</span>
-                                                        <span className="text-gray-800 font-bold">{prod.activation.claim_count.toString().padStart(2, '0')} Times</span>
-                                                    </div>
+                                                    {expandedId === prod.product_serial_id && (
+                                                        <div className="px-4 pb-4 md:px-8 md:pb-6 space-y-2 animate-fadeIn text-xs md:text-sm">
+                                                            <div className="flex justify-between items-center py-1.5 border-b border-gray-50">
+                                                                <span className="text-gray-500 font-medium">Warranty :</span>
+                                                                <span className="text-gray-800 font-bold">{prod.product.warranty_days} Days</span>
+                                                            </div>
+                                                            <div className="flex justify-between items-center py-1.5 border-b border-gray-50">
+                                                                <span className="text-gray-500 font-medium">Activated :</span>
+                                                                <span className="text-gray-800 font-bold">{formatDate(prod.activation.activated_at)}</span>
+                                                            </div>
+                                                            <div className="flex justify-between items-center bg-[#FFE8E8] px-3 py-2 rounded-md">
+                                                                <span className="text-red-500 font-semibold">Expires :</span>
+                                                                <span className="text-red-500 font-bold">{formatDate(prod.activation.expires_at)}</span>
+                                                            </div>
+                                                            <div className="flex justify-between items-center py-1.5 border-b border-gray-50">
+                                                                <span className="text-gray-500 font-medium">Claims :</span>
+                                                                <span className="text-gray-800 font-bold">{prod.activation.claim_count.toString().padStart(2, "0")} Times</span>
+                                                            </div>
+                                                        </div>
+                                                    )}
                                                 </div>
-                                            )}
-                                        </div>
-                                    ))}
-                                </div>
+                                            ))
+                                        )}
+                                    </div>
+                                ) : (
+                                    <div className="bg-white rounded-[1.5rem] shadow-[0_5px_25px_rgba(0,0,0,0.03)] overflow-hidden">
+                                        {warrantyClaims.length === 0 ? (
+                                            <p className="py-10 text-center text-sm text-gray-500">No warranty claim history found for this number.</p>
+                                        ) : (
+                                            warrantyClaims.map((claim) => (
+                                                <div key={claim.id} className="border-b border-gray-100 last:border-none">
+                                                    <div className="p-3 md:p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                                                        <div className="flex items-center gap-3 flex-1">
+                                                            <div className="w-12 h-12 bg-white border border-gray-100 rounded-lg flex items-center justify-center p-1 flex-shrink-0 relative overflow-hidden">
+                                                                <Image
+                                                                    src={getProductImage(claim.product)}
+                                                                    alt={claim.product.name}
+                                                                    width={40}
+                                                                    height={40}
+                                                                    className="object-contain"
+                                                                />
+                                                            </div>
+                                                            <div className="flex-1">
+                                                                <div className="flex items-center gap-2 cursor-pointer" onClick={() => setExpandedId(expandedId === claim.id ? null : claim.id)}>
+                                                                    <h4 className="font-semibold text-gray-800 text-xs md:text-sm line-clamp-1">{claim.product.name}</h4>
+                                                                    <FiChevronDown className={`transition-transform duration-300 ${expandedId === claim.id ? "rotate-180" : ""}`} />
+                                                                </div>
+                                                                <div className="flex items-center gap-2 mt-1">
+                                                                    <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full border ${claim.status.toLowerCase() === "approved" ? "text-green-600 bg-green-50 border-green-200" : claim.status.toLowerCase() === "pending" ? "text-orange-500 bg-orange-50 border-orange-200" : "text-gray-600 bg-gray-50 border-gray-200"}`}>
+                                                                        {claim.status}
+                                                                    </span>
+                                                                    <span className="text-gray-400 text-[10px] md:text-xs">Claimed on: {formatDate(claim.claimed_at)}</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <button
+                                                            onClick={() => openClaimModalFromHistory(claim)}
+                                                            className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-1.5 px-4 rounded-lg transition-all shadow-sm text-xs whitespace-nowrap"
+                                                        >
+                                                            New Claim
+                                                        </button>
+                                                    </div>
+
+                                                    {expandedId === claim.id && (
+                                                        <div className="px-4 pb-4 md:px-8 md:pb-6 space-y-3 animate-fadeIn text-xs md:text-sm">
+                                                            <div className="bg-gray-50 p-3 rounded-lg space-y-2">
+                                                                <div>
+                                                                    <span className="text-gray-500 text-[10px] font-semibold uppercase tracking-wider">Issue Description</span>
+                                                                    <p className="text-gray-800 mt-1">{claim.issue_description}</p>
+                                                                </div>
+                                                                {claim.admin_note && (
+                                                                    <div className="pt-2 border-t border-gray-200">
+                                                                        <span className="text-orange-500 text-[10px] font-semibold uppercase tracking-wider">Admin Response</span>
+                                                                        <p className="text-gray-800 mt-1 italic">&quot;{claim.admin_note}&quot;</p>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                            <div className="flex justify-between items-center py-1.5 border-b border-gray-50">
+                                                                <span className="text-gray-500 font-medium">Product Serial :</span>
+                                                                <span className="text-gray-800 font-bold font-mono">{claim.serial}</span>
+                                                            </div>
+                                                            <div className="flex justify-between items-center py-1.5 border-b border-gray-50">
+                                                                <span className="text-gray-500 font-medium">Claim ID :</span>
+                                                                <span className="text-gray-800 font-bold">#{claim.claim_id || claim.id}</span>
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            ))
+                                        )}
+                                    </div>
+                                )}
                             </div>
                         )}
                     </div>
@@ -452,8 +630,8 @@ export default function AuthenticationPage() {
             <WarrantyClaimModal
                 isOpen={isClaimModalOpen}
                 onClose={() => setIsClaimModalOpen(false)}
-                productName={selectedProduct?.product.name}
-                productSerial={selectedProduct?.serial}
+                productName={selectedProduct?.product.name || selectedClaimData.productName}
+                productSerial={selectedProduct?.serial || selectedClaimData.serial}
                 userPhone={mobileNumber}
             />
 

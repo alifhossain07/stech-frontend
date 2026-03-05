@@ -208,8 +208,8 @@ const Navbar = () => {
     { name: "Our Blog", href: "/blog" },
     { name: "Contact Us", href: "/contact" },
     { name: "Compare Products", href: "/compare" },
-    { name: "Product Activation", href: "/authentication" },
-    { name: "Warranty", href: "/productwarranty" },
+    { name: "Authentication", href: "/authentication" },
+    
   ];
   const dealerPages = [
     { name: "New Release", href: "/dealer/new-releases" },
@@ -607,7 +607,7 @@ const Navbar = () => {
                       onMouseEnter={() => setHoveredCategory(category.name)}
                       onMouseLeave={() => { setHoveredCategory(null); setHoveredSubcategory(null); }}
                     >
-                      <div className="flex items-center gap-1 hover:text-gray-300" onClick={() => router.push(`/products/${category.slug}`)}>
+                      <div className="flex items-center gap-1 hover:text-black" onClick={() => router.push(`/products/${category.slug}`)}>
                         {category.name}
                         {category.subcategories.length > 0 && <FiChevronDown className="text-white text-sm" />}
                       </div>
@@ -639,7 +639,7 @@ const Navbar = () => {
                   {windowWidth >= 1580 ? (
                     simplePages.map((page, i) => (
                       <li key={i}>
-                        <Link href={page.href} className="hover:text-gray-200 hover:bg-gray-50 whitespace-nowrap text-[13px] 2xl:text-sm">
+                        <Link href={page.href} className="hover:text-black whitespace-nowrap text-[13px] 2xl:text-sm">
                           {page.name}
                         </Link>
                       </li>
@@ -648,7 +648,7 @@ const Navbar = () => {
                     <li className="relative" ref={moreRef}>
                       <button
                         onClick={() => setShowMoreDropdown(!showMoreDropdown)}
-                        className="flex items-center gap-1 hover:text-gray-300 whitespace-nowrap text-[13px]"
+                        className="flex items-center gap-1 hover:text-black whitespace-nowrap text-[13px]"
                       >
                         More <FiChevronDown className="text-white text-sm" />
                       </button>
