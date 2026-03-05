@@ -21,7 +21,7 @@ import {
   FaYoutube,
   FaWhatsapp,
 } from "react-icons/fa";
-
+import { IoBagAddOutline } from "react-icons/io5";
 import YouMayLike from "./YouMayLike";
 import FAQ from "./FAQ";
 import Reviews from "./Reviews";
@@ -128,6 +128,7 @@ const Page = () => {
   const detailsRef = useRef<HTMLDivElement | null>(null);
   const reviewRef = useRef<HTMLDivElement | null>(null);
   const faqRef = useRef<HTMLDivElement | null>(null);
+  const buyNowSectionRef = useRef<HTMLDivElement | null>(null);
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedVariant, setSelectedVariant] = useState("");
   const [selectedColor, setSelectedColor] = useState("gray");
@@ -135,6 +136,7 @@ const Page = () => {
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
   const [isInWishlist, setIsInWishlist] = useState(false);
   const [wishlistLoading, setWishlistLoading] = useState(false);
+  const [showBuyNowJump, setShowBuyNowJump] = useState(false);
   const { user } = useAuth();
   const [dealerMode, setDealerMode] = useState(false);
   useEffect(() => {
@@ -476,6 +478,26 @@ const Page = () => {
     { id: "review", label: "Review" },
     { id: "faq", label: "Faq" },
   ];
+
+  useEffect(() => {
+    if (isDealer) {
+      setShowBuyNowJump(false);
+      return;
+    }
+    if (!buyNowSectionRef.current) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setShowBuyNowJump(!entry.isIntersecting);
+      },
+      {
+        threshold: 0.25,
+      }
+    );
+
+    observer.observe(buyNowSectionRef.current);
+    return () => observer.disconnect();
+  }, [isDealer, product]);
 
 
 
@@ -1034,8 +1056,9 @@ const Page = () => {
 
             )}
             {/* Action Buttons */}
-            {isDealer ? (
-              <div className="flex items-center w-full">
+            <div ref={buyNowSectionRef}>
+              {isDealer ? (
+                <div className="flex items-center w-full">
                 <a
                   href={
                     whatsappNumber
@@ -1052,9 +1075,9 @@ const Page = () => {
                   <FaWhatsapp className="text-xl md:text-2xl" />
                   <span className="text-base md:text-lg">Contact For Price</span>
                 </a>
-              </div>
-            ) : (
-              <div className="flex items-center gap-3 md:gap-4">
+                </div>
+              ) : (
+                <div className="flex items-center gap-3 md:gap-4">
                 {/* Buy Now */}
                 <button
                   onClick={handleBuyNow}
@@ -1096,8 +1119,9 @@ const Page = () => {
                     </>
                   )}
                 </button>
-              </div>
-            )}
+                </div>
+              )}
+            </div>
 
 
 
@@ -1181,6 +1205,21 @@ const Page = () => {
           </div>
         </div>
       </div>
+
+      {!isDealer && showBuyNowJump && (
+        <button
+          type="button"
+          onClick={() => {
+            setShowBuyNowJump(false);
+            buyNowSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+          }}
+          className="md:hidden fixed right-3 top-1/2 -translate-y-1/2 z-40 bg-orange-500 hover:bg-orange-600 text-white rounded-full px-3 py-3 shadow-lg flex items-center gap-2"
+          aria-label="Go to Buy Now section"
+        >
+          <IoBagAddOutline className="text-2xl" />
+        
+        </button>
+      )}
 
       {/* Specs Container */}
       <div className=" mt-24 flex flex-col xl:flex-row gap-6 w-full ">
