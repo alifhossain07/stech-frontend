@@ -599,11 +599,11 @@ export default function AuthenticationPage() {
                                                                     </div>
                                                                 )}
                                                             </div>
-                                                            <div className="flex justify-between items-center py-1.5 border-b border-gray-50">
+                                                            <div className="flex lg:justify-start gap-4 justify-between items-center py-1.5 border-b border-gray-50">
                                                                 <span className="text-gray-500 font-medium">Product Serial :</span>
                                                                 <span className="text-gray-800 font-bold font-mono">{claim.serial}</span>
                                                             </div>
-                                                            <div className="flex justify-between items-center py-1.5 border-b border-gray-50">
+                                                            <div className="flex lg:justify-start gap-4 justify-between items-center py-1.5 border-b border-gray-50">
                                                                 <span className="text-gray-500 font-medium">Claim ID :</span>
                                                                 <span className="text-gray-800 font-bold">#{claim.claim_id || claim.id}</span>
                                                             </div>
