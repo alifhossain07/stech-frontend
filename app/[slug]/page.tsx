@@ -1208,17 +1208,17 @@ const Page = () => {
 
       {!isDealer && showBuyNowJump && (
         <button
-          type="button"
-          onClick={() => {
-            setShowBuyNowJump(false);
-            buyNowSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
-          }}
-          className="md:hidden fixed right-3 top-1/2 -translate-y-1/2 z-40 bg-orange-500 hover:bg-orange-600 text-white rounded-full px-3 py-3 shadow-lg flex items-center gap-2"
-          aria-label="Go to Buy Now section"
-        >
-          <IoBagAddOutline className="text-2xl" />
-        
-        </button>
+  type="button"
+  onClick={() => {
+    setShowBuyNowJump(false);
+    buyNowSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }}
+  className="md:hidden fixed right-3 top-1/2 -translate-y-1/2 z-40 bg-orange-400 hover:bg-orange-600 text-white rounded-full px-3 py-2 flex items-center gap-2 animate-pulse shadow-[0_0_20px_#f97316] hover:animate-none"
+  aria-label="Go to Buy Now section"
+>
+  <IoBagAddOutline className="text-xl" />
+  <span className="text-sm font-medium">Buy Now</span>
+</button>
       )}
 
       {/* Specs Container */}
