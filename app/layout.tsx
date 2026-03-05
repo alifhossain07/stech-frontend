@@ -15,6 +15,7 @@ import Script from "next/script";
 // Import your new consolidated library functions
 import { fetchBusinessSettings, fetchScriptsInternal } from "@/app/lib/get-scripts";
 import { CompareProvider } from "./context/CompareContext";
+import { LanguageProvider } from "./context/LanguageContext";
 
 
 const poppins = Poppins({
@@ -103,11 +104,13 @@ export default async function RootLayout({
         <AuthProvider>
           <CartProvider>
             <CompareProvider>
-              <Navbar />
-              <Providers>
-                <ClientLayoutWrapper>{children}</ClientLayoutWrapper>
-              </Providers>
-              <Footer />
+              <LanguageProvider>
+                <Navbar />
+                <Providers>
+                  <ClientLayoutWrapper>{children}</ClientLayoutWrapper>
+                </Providers>
+                <Footer />
+              </LanguageProvider>
 
               {/* <Script id="tawk-script" strategy="afterInteractive">
                 {`

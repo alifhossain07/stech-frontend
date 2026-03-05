@@ -11,6 +11,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import React from "react";
 import { useRouter } from "next/navigation";
+import { useLanguage } from "@/app/context/LanguageContext";
 
 // ------------------------- Types -------------------------
 
@@ -23,9 +24,9 @@ interface CheckoutFormData {
   payment: "online" | "cod";
   agreeTerms: boolean;
   promoCode?: string;
-  pathao_city_id?: number | null;
-  pathao_zone_id?: number | null;
-  pathao_area_id?: number | null;
+  // pathao_city_id?: number | null;
+  // pathao_zone_id?: number | null;
+  // pathao_area_id?: number | null;
 }
 interface CouponData {
   id?: string;
@@ -40,35 +41,51 @@ interface CouponData {
 
 
 // ------------------------- Yup Schema -------------------------
-const schema: yup.ObjectSchema<CheckoutFormData> = yup.object({
-  name: yup.string().required("Name is required"),
-  mobile: yup
-    .string()
-    .matches(/^\d{11}$/, "Mobile must be 11 digits")
-    .required("Mobile number is required"),
-  email: yup.string().email("Invalid email").optional(),
-  address: yup.string().required("Address is required"),
-  pathao_city_id: yup.number().typeError("City is required").required("City is required"),
-  pathao_zone_id: yup.number().typeError("Zone is required").required("Zone is required"),
-  pathao_area_id: yup.number().nullable().optional(),
-  shipping: yup
-    .mixed<CheckoutFormData["shipping"]>()
-    .required("Shipping method is required"),
-  payment: yup
-    .mixed<CheckoutFormData["payment"]>()
-    .required("Payment method is required"),
-  agreeTerms: yup
-    .boolean()
-    .oneOf([true], "You must accept terms")
-    .required("You must accept terms"),
-  promoCode: yup.string().optional(),
-});
+const createCheckoutSchema = (
+  t: (key: string, params?: Record<string, string | number>) => string
+): yup.ObjectSchema<CheckoutFormData> =>
+  yup.object({
+    name: yup.string().required(t("checkout.validation.nameRequired")),
+    mobile: yup
+      .string()
+      .matches(/^\d{11}$/, t("checkout.validation.mobileDigits"))
+      .required(t("checkout.validation.mobileRequired")),
+    email: yup.string().email(t("checkout.validation.invalidEmail")).optional(),
+    address: yup.string().required(t("checkout.validation.addressRequired")),
+    // pathao_city_id: yup
+    //   .number()
+    //   .typeError(t("checkout.validation.cityRequired"))
+    //   .required(t("checkout.validation.cityRequired")),
+    // pathao_zone_id: yup
+    //   .number()
+    //   .typeError(t("checkout.validation.zoneRequired"))
+    //   .required(t("checkout.validation.zoneRequired")),
+    // pathao_area_id: yup.number().nullable().optional(),
+    shipping: yup
+      .mixed<CheckoutFormData["shipping"]>()
+      .required(t("checkout.validation.shippingRequired")),
+    payment: yup
+      .mixed<CheckoutFormData["payment"]>()
+      .required(t("checkout.validation.paymentRequired")),
+    agreeTerms: yup
+      .boolean()
+      .oneOf([true], t("checkout.validation.agreeTermsRequired"))
+      .required(t("checkout.validation.agreeTermsRequired")),
+    promoCode: yup.string().optional(),
+  });
 
 // ------------------------- Checkout Content -------------------------
 const CheckoutContent: React.FC = () => {
   const { cart, selectedItems, increaseQty, decreaseQty, removeFromCart, clearCart } =
     useCart();
   const router = useRouter();
+  const { t, setLocale } = useLanguage();
+  const schema = React.useMemo(() => createCheckoutSchema(t), [t]);
+
+  // Set Bengali as default language for checkout page
+  React.useEffect(() => {
+    setLocale("bn");
+  }, [setLocale]);
 
   // Filter selected items
   const selectedCart = React.useMemo(() =>
@@ -99,7 +116,6 @@ const CheckoutContent: React.FC = () => {
     handleSubmit,
     control,
     watch,
-    setValue,
     formState: { errors, isValid },
   } = useForm<CheckoutFormData>({
     resolver: yupResolver(schema),
@@ -113,239 +129,44 @@ const CheckoutContent: React.FC = () => {
       payment: "cod",
       agreeTerms: true,
       promoCode: "",
-      pathao_city_id: null,
-      pathao_zone_id: null,
-      pathao_area_id: null,
+      // pathao_city_id: null,
+      // pathao_zone_id: null,
+      // pathao_area_id: null,
     },
   });
 
-  // ------------------------- Pathao Cities, Zones, Areas -------------------------
-  type PathaoCity = { id: number; name: string };
-  type PathaoZone = { id: number; city_id: number; name: string };
-  type PathaoArea = { id: number; zone_id: number; name: string };
-
-  const [cities, setCities] = React.useState<PathaoCity[]>([]);
-  const [zones, setZones] = React.useState<PathaoZone[]>([]);
-  const [areas, setAreas] = React.useState<PathaoArea[]>([]);
-
-  const [cityQuery, setCityQuery] = React.useState<string>("");
-  const [zoneQuery, setZoneQuery] = React.useState<string>("");
-  const [areaQuery, setAreaQuery] = React.useState<string>("");
-
-  const [citiesLoading, setCitiesLoading] = React.useState<boolean>(false);
-  const [zonesLoading, setZonesLoading] = React.useState<boolean>(false);
-  const [areasLoading, setAreasLoading] = React.useState<boolean>(false);
-
-  const [cityOpen, setCityOpen] = React.useState<boolean>(false);
-  const [zoneOpen, setZoneOpen] = React.useState<boolean>(false);
-  const [areaOpen, setAreaOpen] = React.useState<boolean>(false);
-
-  const [citySelected, setCitySelected] = React.useState<boolean>(false);
-  const [zoneSelected, setZoneSelected] = React.useState<boolean>(false);
-  const [areaSelected, setAreaSelected] = React.useState<boolean>(false);
-
-  const selectedCityId = watch("pathao_city_id");
-  const selectedZoneId = watch("pathao_zone_id");
-  const selectedAreaId = watch("pathao_area_id");
-
-  // Load cities on mount
-  React.useEffect(() => {
-    let cancelled = false;
-    const loadCities = async () => {
-      try {
-        setCitiesLoading(true);
-        const res = await fetchWithAuth("/api/pathao-cities", { cache: "no-store" });
-        if (!res.ok) return;
-        const json = await res.json();
-        const list: PathaoCity[] = Array.isArray(json?.data) ? json.data : [];
-        if (!cancelled) setCities(list);
-      } catch {
-        // ignore
-      } finally {
-        setCitiesLoading(false);
-      }
-    };
-    loadCities();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  // Auto-set shipping based on selected city
-  React.useEffect(() => {
-    if (!selectedCityId || cities.length === 0) return;
-
-    const selectedCity = cities.find(c => c.id === selectedCityId);
-    if (selectedCity) {
-      // If city_id is 1 or city name is "Dhaka" (case-insensitive), set to "inside", else "outside"
-      const isDhaka = selectedCity.id === 1 || selectedCity.name.toLowerCase().trim() === "dhaka";
-      setValue("shipping", isDhaka ? "inside" : "outside", { shouldValidate: true });
-    }
-  }, [selectedCityId, cities, setValue]);
-
-  // Load zones when city is selected
-  React.useEffect(() => {
-    if (!selectedCityId) {
-      setZones([]);
-      setAreas([]);
-      setValue("pathao_zone_id", null);
-      setValue("pathao_area_id", null);
-      setZoneQuery("");
-      setAreaQuery("");
-      return;
-    }
-
-    let cancelled = false;
-    const loadZones = async () => {
-      try {
-        setZonesLoading(true);
-        const res = await fetchWithAuth(`/api/pathao-zones/${selectedCityId}`, { cache: "no-store" });
-        if (!res.ok) return;
-        const json = await res.json();
-        const list: PathaoZone[] = Array.isArray(json?.data) ? json.data : [];
-        if (!cancelled) {
-          setZones(list);
-          // Reset zone and area when city changes
-          setValue("pathao_zone_id", null);
-          setValue("pathao_area_id", null);
-          setZoneQuery("");
-          setAreaQuery("");
-          setAreas([]);
-        }
-      } catch {
-        // ignore
-      } finally {
-        setZonesLoading(false);
-      }
-    };
-    loadZones();
-    return () => {
-      cancelled = true;
-    };
-  }, [selectedCityId, setValue]);
-
-  // Load areas when zone is selected
-  React.useEffect(() => {
-    if (!selectedZoneId) {
-      setAreas([]);
-      setValue("pathao_area_id", null);
-      setAreaQuery("");
-      return;
-    }
-
-    let cancelled = false;
-    const loadAreas = async () => {
-      try {
-        setAreasLoading(true);
-        const res = await fetchWithAuth(`/api/pathao-areas/${selectedZoneId}`, { cache: "no-store" });
-        if (!res.ok) return;
-        const json = await res.json();
-        const list: PathaoArea[] = Array.isArray(json?.data) ? json.data : [];
-        if (!cancelled) {
-          setAreas(list);
-          // Reset area when zone changes
-          setValue("pathao_area_id", null);
-          setAreaQuery("");
-        }
-      } catch {
-        // ignore
-      } finally {
-        setAreasLoading(false);
-      }
-    };
-    loadAreas();
-    return () => {
-      cancelled = true;
-    };
-  }, [selectedZoneId, setValue]);
-
-  // Filter cities based on query
-  const filteredCities = React.useMemo(() => {
-    const q = cityQuery.trim().toLowerCase();
-    if (!q) return cities;
-    return cities.filter((c) => c.name.toLowerCase().includes(q));
-  }, [cityQuery, cities]);
-
-  // Filter zones based on query
-  const filteredZones = React.useMemo(() => {
-    const q = zoneQuery.trim().toLowerCase();
-    if (!q) return zones;
-    return zones.filter((z) => z.name.toLowerCase().includes(q));
-  }, [zoneQuery, zones]);
-
-  // Filter areas based on query
-  const filteredAreas = React.useMemo(() => {
-    const q = areaQuery.trim().toLowerCase();
-    if (!q) return areas;
-    return areas.filter((a) => a.name.toLowerCase().includes(q));
-  }, [areaQuery, areas]);
-
-  const handleSelectCity = (city: PathaoCity) => {
-    setCityQuery(city.name);
-    setValue("pathao_city_id", city.id, { shouldValidate: true });
-    setCityOpen(false);
-    setCitySelected(true);
-
-    const isDhaka = city.id === 1 || city.name.toLowerCase().trim() === "dhaka";
-    setValue("shipping", isDhaka ? "inside" : "outside", { shouldValidate: true });
-  };
-
-  const handleClearCity = () => {
-    setCityQuery("");
-    setValue("pathao_city_id", null, { shouldValidate: true });
-    setCitySelected(false);
-    setValue("pathao_zone_id", null);
-    setValue("pathao_area_id", null);
-    setZoneQuery("");
-    setAreaQuery("");
-    setZoneSelected(false);
-    setAreaSelected(false);
-    setZones([]);
-    setAreas([]);
-  };
-
-  const handleSelectZone = (zone: PathaoZone) => {
-    setZoneQuery(zone.name);
-    setValue("pathao_zone_id", zone.id, { shouldValidate: true });
-    setZoneOpen(false);
-    setZoneSelected(true);
-  };
-
-  const handleClearZone = () => {
-    setZoneQuery("");
-    setValue("pathao_zone_id", null, { shouldValidate: true });
-    setZoneSelected(false);
-    setValue("pathao_area_id", null);
-    setAreaQuery("");
-    setAreaSelected(false);
-    setAreas([]);
-  };
-
-  const handleSelectArea = (area: PathaoArea) => {
-    setAreaQuery(area.name);
-    setValue("pathao_area_id", area.id, { shouldValidate: true });
-    setAreaOpen(false);
-    setAreaSelected(true);
-  };
-
-  const handleClearArea = () => {
-    setAreaQuery("");
-    setValue("pathao_area_id", null, { shouldValidate: true });
-    setAreaSelected(false);
-  };
-
-  // Update selected states when values change
-  React.useEffect(() => {
-    setCitySelected(!!selectedCityId);
-  }, [selectedCityId]);
-
-  React.useEffect(() => {
-    setZoneSelected(!!selectedZoneId);
-  }, [selectedZoneId]);
-
-  React.useEffect(() => {
-    setAreaSelected(!!selectedAreaId);
-  }, [selectedAreaId]);
+  // ------------------------- Pathao City/Zone/Area (ARCHIVED - COMMENTED OUT) -------------------------
+  // type PathaoCity = { id: number; name: string };
+  // type PathaoZone = { id: number; city_id: number; name: string };
+  // type PathaoArea = { id: number; zone_id: number; name: string };
+  //
+  // const [cities, setCities] = React.useState<PathaoCity[]>([]);
+  // const [zones, setZones] = React.useState<PathaoZone[]>([]);
+  // const [areas, setAreas] = React.useState<PathaoArea[]>([]);
+  //
+  // const [cityQuery, setCityQuery] = React.useState<string>("");
+  // const [zoneQuery, setZoneQuery] = React.useState<string>("");
+  // const [areaQuery, setAreaQuery] = React.useState<string>("");
+  //
+  // const [citiesLoading, setCitiesLoading] = React.useState<boolean>(false);
+  // const [zonesLoading, setZonesLoading] = React.useState<boolean>(false);
+  // const [areasLoading, setAreasLoading] = React.useState<boolean>(false);
+  //
+  // const [cityOpen, setCityOpen] = React.useState<boolean>(false);
+  // const [zoneOpen, setZoneOpen] = React.useState<boolean>(false);
+  // const [areaOpen, setAreaOpen] = React.useState<boolean>(false);
+  //
+  // const [citySelected, setCitySelected] = React.useState<boolean>(false);
+  // const [zoneSelected, setZoneSelected] = React.useState<boolean>(false);
+  // const [areaSelected, setAreaSelected] = React.useState<boolean>(false);
+  //
+  // const selectedCityId = watch("pathao_city_id");
+  // const selectedZoneId = watch("pathao_zone_id");
+  // const selectedAreaId = watch("pathao_area_id");
+  //
+  // NOTE: The full city/zone/area fetch, filter, select, clear and auto-shipping effects were intentionally
+  // commented out for now per requirement. Re-enable by restoring the original handlers/effects and adding
+  // `setValue` back from `useForm` destructuring.
 
   const shippingMethod = watch("shipping");
   // Dynamic shipping config
@@ -430,7 +251,7 @@ const CheckoutContent: React.FC = () => {
       if (response.data.result) {
         setCouponData(response.data.data!);
         setAppliedPromo(code.toUpperCase());
-        toast.success(`Promo code "${code.toUpperCase()}" applied! 🎉`, {
+        toast.success(t("checkout.toast.promoApplied", { code: code.toUpperCase() }), {
           style: {
             background: "#22c55e",
             color: "#ffffff",
@@ -439,7 +260,7 @@ const CheckoutContent: React.FC = () => {
         });
         return true;
       } else {
-        throw new Error(response.data.message || "Invalid coupon");
+        throw new Error(response.data.message || t("checkout.toast.invalidCoupon"));
       }
     } catch (error: unknown) {
       setAppliedPromo(null);
@@ -447,7 +268,7 @@ const CheckoutContent: React.FC = () => {
       setPromoDiscount(0);
 
       if (axios.isAxiosError(error)) {
-        toast.error(error.response?.data?.message || "Invalid promo code ❌", {
+        toast.error(error.response?.data?.message || t("checkout.toast.invalidPromo"), {
           style: {
             background: "#ef4444",
             color: "#ffffff",
@@ -455,7 +276,7 @@ const CheckoutContent: React.FC = () => {
           },
         });
       } else if (error instanceof Error) {
-        toast.error(error.message || "Invalid promo code ❌", {
+        toast.error(error.message || t("checkout.toast.invalidPromo"), {
           style: {
             background: "#ef4444",
             color: "#ffffff",
@@ -463,7 +284,7 @@ const CheckoutContent: React.FC = () => {
           },
         });
       } else {
-        toast.error("Invalid promo code ❌", {
+        toast.error(t("checkout.toast.invalidPromo"), {
           style: {
             background: "#ef4444",
             color: "#ffffff",
@@ -481,7 +302,7 @@ const CheckoutContent: React.FC = () => {
   const handleApplyPromo = async () => {
     const code = watch("promoCode")?.toUpperCase().trim();
     if (!code) {
-      toast.error("Please enter a promo code ❌");
+      toast.error(t("checkout.toast.enterPromo"));
       return;
     }
 
@@ -613,7 +434,7 @@ const CheckoutContent: React.FC = () => {
 
   const submitOrder = async (data: CheckoutFormData) => {
     if (selectedCart.length === 0) {
-      toast.error("Your cart is empty ❌");
+      toast.error(t("checkout.toast.emptyCart"));
       return;
     }
 
@@ -629,9 +450,9 @@ const CheckoutContent: React.FC = () => {
         state_id: null,
         city_id: null,
         area_id: null,
-        pathao_city_id: data.pathao_city_id ?? null,
-        pathao_zone_id: data.pathao_zone_id ?? null,
-        pathao_area_id: data.pathao_area_id ?? null,
+        pathao_city_id: null,
+        pathao_zone_id: null,
+        pathao_area_id: null,
       },
       items: selectedCart.map((item) => ({
         id: Number(item.id),
@@ -659,7 +480,7 @@ const CheckoutContent: React.FC = () => {
       const response = await apiClient.post("/api/orders", payload);
 
       if (response.data.success && response.data.data?.result) {
-        toast.success(response.data.data.message || "Order placed successfully! 🎉");
+        toast.success(response.data.data.message || t("checkout.toast.orderPlaced"));
         try {
           if (typeof window !== "undefined") {
             const backendData = response.data.data;
@@ -701,9 +522,9 @@ const CheckoutContent: React.FC = () => {
                 email: data.email || "",
                 phone: data.mobile,
                 address: data.address,
-                city_id: data.pathao_city_id,
-                zone_id: data.pathao_zone_id,
-                area_id: data.pathao_area_id,
+                city_id: null,
+                zone_id: null,
+                area_id: null,
               },
             });
 
@@ -760,17 +581,17 @@ const CheckoutContent: React.FC = () => {
         setShowPaymentModal(false);
         router.push("/checkout/ordercomplete");
       } else {
-        toast.error(response.data.message || "Failed to place order ❌");
+        toast.error(response.data.message || t("checkout.toast.orderFailed"));
       }
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
         console.error("Order submit error:", error.response || error);
         toast.error(
-          error.response?.data?.message || "Something went wrong while placing the order ❌"
+          error.response?.data?.message || t("checkout.toast.orderError")
         );
       } else {
         console.error("Unexpected error:", error);
-        toast.error("Something went wrong while placing the order ❌");
+        toast.error(t("checkout.toast.orderError"));
       }
     } finally {
       setIsLoading(false);
@@ -789,7 +610,7 @@ const CheckoutContent: React.FC = () => {
     } catch (error) {
       console.error(error);
       setIsLoading(false);
-      toast.error("Something went wrong ❌");
+      toast.error(t("checkout.toast.genericError"));
     }
   };
 
@@ -799,15 +620,15 @@ const CheckoutContent: React.FC = () => {
   };
 
   return (
-    <div className="w-11/12 mx-auto mt-9 min-h-[50vh]">
-      <h1 className="text-2xl md:text-3xl font-bold mb-6">Shipping Information</h1>
+    <div className="w-11/12 mx-auto mt-6 lg:mt-16 min-h-[50vh]">
+      <h1 className="text-2xl md:text-3xl font-medium mb-6">{t("checkout.title")}</h1>
       <form onSubmit={handleSubmit(handleConfirmOrder)} className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         <div className="border rounded-md p-4 bg-white shadow-sm w-full">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="md:text-2xl text-xl font-semibold">In Your Cart</h2>
+            <h2 className="md:text-2xl text-xl font-semibold">{t("checkout.inCart")}</h2>
           </div>
           {selectedCart.length === 0 ? (
-            <p className="text-gray-500 text-sm">No items selected.</p>
+            <p className="text-gray-500 text-sm">{t("checkout.noItems")}</p>
           ) : (
             selectedCart.map((item) => (
               <div key={item.id} className="flex gap-3 p-3 mb-3 w-11/12 rounded-lg relative">
@@ -832,7 +653,7 @@ const CheckoutContent: React.FC = () => {
                     <span className="line-through text-gray-400 ml-2 text-xs">৳{item.oldPrice}</span>
                   </div>
                   <div className="flex items-center gap-4 mt-1 text-sm md:text-sm">
-                    <span className="font-medium">QTY :</span>
+                    <span className="font-medium">{t("checkout.qty")}</span>
                     <div className="flex items-center bg-gray-200 rounded-full px-3 py-1 gap-3">
                       <button
                         type="button"
@@ -866,17 +687,17 @@ const CheckoutContent: React.FC = () => {
 
         <div className="flex flex-col gap-6">
           <div className="border rounded-md p-4 bg-white shadow-sm">
-            <h2 className="md:text-2xl text-xl font-semibold mb-4">Customer Information</h2>
+            <h2 className="md:text-2xl text-xl font-semibold mb-4">{t("checkout.customerInfo")}</h2>
             <div className="flex flex-col gap-3">
-              <label>Your Name*</label>
+              <label>{t("checkout.name")}</label>
               <input
                 type="text"
-                placeholder="Enter your name"
+                placeholder={t("checkout.namePlaceholder")}
                 className="border p-2 mb-1 rounded"
                 {...register("name")}
               />
               {errors.name && <p className="text-red-500 text-sm">{errors.name.message}</p>}
-              <label>Mobile*</label>
+              <label>{t("checkout.mobile")}</label>
               <input
                 type="text"
                 placeholder="019*******"
@@ -884,7 +705,7 @@ const CheckoutContent: React.FC = () => {
                 {...register("mobile")}
               />
               {errors.mobile && <p className="text-red-500 text-sm">{errors.mobile.message}</p>}
-              <label>E-mail (optional)</label>
+              <label>{t("checkout.emailOptional")}</label>
               <input
                 type="email"
                 placeholder="@email"
@@ -892,11 +713,15 @@ const CheckoutContent: React.FC = () => {
                 {...register("email")}
               />
               {errors.email && <p className="text-red-500 text-sm">{errors.email.message}</p>}
-              <label>City*</label>
+
+              {/*
+              ARCHIVED: City/Zone/Area fields (commented out intentionally)
+
+              <label>{t("checkout.city")}</label>
               <div className="relative">
                 <input
                   type="text"
-                  placeholder="Select or search city"
+                  placeholder={t("checkout.cityPlaceholder")}
                   className={`border p-2 mb-1 rounded w-full pr-8 ${citySelected ? "bg-gray-50 cursor-default" : ""}`}
                   value={cityQuery}
                   onChange={(e) => {
@@ -904,180 +729,47 @@ const CheckoutContent: React.FC = () => {
                     setCityQuery(e.target.value);
                     setCityOpen(true);
                   }}
-                  onKeyDown={(e) => {
-                    if (citySelected && e.key !== "Escape") {
-                      e.preventDefault();
-                    }
-                  }}
-                  onFocus={() => {
-                    if (!citySelected) {
-                      setCityOpen(true);
-                    }
-                  }}
-                  onBlur={() => setTimeout(() => setCityOpen(false), 150)}
-                  readOnly={citySelected}
                 />
-                {citySelected && (
-                  <button
-                    type="button"
-                    onClick={handleClearCity}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 text-xl font-bold"
-                  >
-                    ×
-                  </button>
-                )}
                 <input type="hidden" {...register("pathao_city_id")} />
-                {cityOpen && !citySelected && (
-                  <div className="absolute z-30 w-full max-h-56 overflow-auto bg-white border rounded shadow mt-1">
-                    {citiesLoading && (
-                      <div className="p-2 text-sm text-gray-500">Loading...</div>
-                    )}
-                    {!citiesLoading && filteredCities.length === 0 && (
-                      <div className="p-2 text-sm text-gray-500">No cities found</div>
-                    )}
-                    {!citiesLoading && filteredCities.map((city) => (
-                      <button
-                        type="button"
-                        key={city.id}
-                        className="w-full text-left px-3 py-2 hover:bg-orange-50"
-                        onMouseDown={(e) => e.preventDefault()}
-                        onClick={() => handleSelectCity(city)}
-                      >
-                        <span className="font-medium text-gray-800">{city.name}</span>
-                      </button>
-                    ))}
-                  </div>
-                )}
               </div>
-              {errors.pathao_city_id && (
-                <p className="text-red-500 text-sm">{String(errors.pathao_city_id.message)}</p>
-              )}
 
-              <label>Zone*</label>
+              <label>{t("checkout.zone")}</label>
               <div className="relative">
                 <input
                   type="text"
-                  placeholder={selectedCityId ? "Select or search zone" : "Select city first"}
-                  className={`border p-2 mb-1 rounded w-full pr-8 ${!selectedCityId ? "bg-gray-100 cursor-not-allowed" : zoneSelected ? "bg-gray-50 cursor-default" : ""}`}
+                  placeholder={selectedCityId ? t("checkout.zonePlaceholder") : t("checkout.selectCityFirst")}
+                  className={`border p-2 mb-1 rounded w-full pr-8 ${!selectedCityId ? "bg-gray-100 cursor-not-allowed" : ""}`}
                   value={zoneQuery}
                   onChange={(e) => {
                     if (!selectedCityId || zoneSelected) return;
                     setZoneQuery(e.target.value);
                     setZoneOpen(true);
                   }}
-                  onKeyDown={(e) => {
-                    if (zoneSelected && e.key !== "Escape") {
-                      e.preventDefault();
-                    }
-                  }}
-                  onFocus={() => {
-                    if (selectedCityId && !zoneSelected) {
-                      setZoneOpen(true);
-                    }
-                  }}
-                  onBlur={() => setTimeout(() => setZoneOpen(false), 150)}
-                  disabled={!selectedCityId}
-                  readOnly={!selectedCityId || zoneSelected}
                 />
-                {zoneSelected && (
-                  <button
-                    type="button"
-                    onClick={handleClearZone}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 text-xl font-bold"
-                  >
-                    ×
-                  </button>
-                )}
                 <input type="hidden" {...register("pathao_zone_id")} />
-                {zoneOpen && selectedCityId && !zoneSelected && zones.length > 0 && (
-                  <div className="absolute z-30 w-full max-h-56 overflow-auto bg-white border rounded shadow mt-1">
-                    {zonesLoading && (
-                      <div className="p-2 text-sm text-gray-500">Loading...</div>
-                    )}
-                    {!zonesLoading && filteredZones.length === 0 && (
-                      <div className="p-2 text-sm text-gray-500">No zones found</div>
-                    )}
-                    {!zonesLoading && filteredZones.map((zone) => (
-                      <button
-                        type="button"
-                        key={zone.id}
-                        className="w-full text-left px-3 py-2 hover:bg-orange-50"
-                        onMouseDown={(e) => e.preventDefault()}
-                        onClick={() => handleSelectZone(zone)}
-                      >
-                        <span className="font-medium text-gray-800">{zone.name}</span>
-                      </button>
-                    ))}
-                  </div>
-                )}
               </div>
-              {errors.pathao_zone_id && (
-                <p className="text-red-500 text-sm">{String(errors.pathao_zone_id.message)}</p>
-              )}
 
-              <label>Area (optional)</label>
+              <label>{t("checkout.areaOptional")}</label>
               <div className="relative">
                 <input
                   type="text"
-                  placeholder={selectedZoneId ? "Select or search area (optional)" : "Select zone first"}
-                  className={`border p-2 mb-1 rounded w-full pr-8 ${!selectedZoneId ? "bg-gray-100 cursor-not-allowed" : areaSelected ? "bg-gray-50 cursor-default" : ""}`}
+                  placeholder={selectedZoneId ? t("checkout.areaPlaceholder") : t("checkout.selectZoneFirst")}
+                  className={`border p-2 mb-1 rounded w-full pr-8 ${!selectedZoneId ? "bg-gray-100 cursor-not-allowed" : ""}`}
                   value={areaQuery}
                   onChange={(e) => {
                     if (!selectedZoneId || areaSelected) return;
                     setAreaQuery(e.target.value);
                     setAreaOpen(true);
                   }}
-                  onKeyDown={(e) => {
-                    if (areaSelected && e.key !== "Escape") {
-                      e.preventDefault();
-                    }
-                  }}
-                  onFocus={() => {
-                    if (selectedZoneId && !areaSelected) {
-                      setAreaOpen(true);
-                    }
-                  }}
-                  onBlur={() => setTimeout(() => setAreaOpen(false), 150)}
-                  disabled={!selectedZoneId}
-                  readOnly={!selectedZoneId || areaSelected}
                 />
-                {areaSelected && (
-                  <button
-                    type="button"
-                    onClick={handleClearArea}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 text-xl font-bold"
-                  >
-                    ×
-                  </button>
-                )}
                 <input type="hidden" {...register("pathao_area_id")} />
-                {areaOpen && selectedZoneId && !areaSelected && (
-                  <div className="absolute z-30 w-full max-h-56 overflow-auto bg-white border rounded shadow mt-1">
-                    {areasLoading && (
-                      <div className="p-2 text-sm text-gray-500">Loading...</div>
-                    )}
-                    {!areasLoading && areas.length === 0 && (
-                      <div className="p-2 text-sm text-gray-500">No areas available</div>
-                    )}
-                    {!areasLoading && filteredAreas.map((area) => (
-                      <button
-                        type="button"
-                        key={area.id}
-                        className="w-full text-left px-3 py-2 hover:bg-orange-50"
-                        onMouseDown={(e) => e.preventDefault()}
-                        onClick={() => handleSelectArea(area)}
-                      >
-                        <span className="font-medium text-gray-800">{area.name}</span>
-                      </button>
-                    ))}
-                  </div>
-                )}
               </div>
+              */}
 
-              <label>Address*</label>
+              <label>{t("checkout.address")}</label>
               <input
                 type="text"
-                placeholder="Delivery address"
+                placeholder={t("checkout.addressPlaceholder")}
                 className="border p-2 mb-1 rounded"
                 {...register("address")}
               />
@@ -1086,7 +778,7 @@ const CheckoutContent: React.FC = () => {
           </div>
 
           <div className="border rounded-xl p-4 bg-white shadow-sm">
-            <h2 className="md:text-2xl text-xl font-semibold mb-4">Shipping Method</h2>
+            <h2 className="md:text-2xl text-xl font-semibold mb-4">{t("checkout.shippingMethod")}</h2>
             <Controller
               name="shipping"
               control={control}
@@ -1098,9 +790,8 @@ const CheckoutContent: React.FC = () => {
                       value="inside"
                       checked={field.value === "inside"}
                       onChange={() => field.onChange("inside")}
-                      disabled
                     />
-                    {`Inside Dhaka - 2/4 Days ${currencySymbol} ${insideDhaka.toLocaleString()}`}
+                      {t("checkout.insideDhaka", { currencySymbol, amount: insideDhaka.toLocaleString() })}
                   </label>
                   <label className="flex items-center gap-2">
                     <input
@@ -1108,9 +799,8 @@ const CheckoutContent: React.FC = () => {
                       value="outside"
                       checked={field.value === "outside"}
                       onChange={() => field.onChange("outside")}
-                      disabled
                     />
-                    {`Outside Dhaka - 4/6 Days ( Advanced First ) ${currencySymbol} ${outsideDhaka.toLocaleString()}`}
+                      {t("checkout.outsideDhaka", { currencySymbol, amount: outsideDhaka.toLocaleString() })}
                   </label>
                 </div>
               )}
@@ -1120,7 +810,7 @@ const CheckoutContent: React.FC = () => {
 
         <div className="flex flex-col gap-6">
           <div className="border rounded-md p-4 bg-white shadow-sm">
-            <h2 className="text-lg font-semibold mb-4">Payment Method</h2>
+            <h2 className="text-lg font-semibold mb-4">{t("checkout.paymentMethod")}</h2>
             <Controller
               name="payment"
               control={control}
@@ -1133,7 +823,7 @@ const CheckoutContent: React.FC = () => {
                       checked={field.value === "cod"}
                       onChange={() => field.onChange("cod")}
                     />
-                    Cash On Delivery*
+                    {t("checkout.cashOnDelivery")}
                   </label>
 
                   {errors.payment && (
@@ -1146,9 +836,9 @@ const CheckoutContent: React.FC = () => {
             <label className="flex items-center gap-2 text-xs sm:text-sm flex-wrap">
               <input type="checkbox" {...register("agreeTerms")} className="shrink-0" />
               <span className="flex-1">
-                I have read & agree to the{" "}
-                <span className="text-orange-500">Terms & Conditions, Privacy Policy</span> and{" "}
-                <span className="text-orange-500">Return Policy</span>.
+                {t("checkout.termsText")} {" "}
+                <span className="text-orange-500">{t("checkout.termsLink")}</span> {t("checkout.and")}{" "}
+                <span className="text-orange-500">{t("checkout.returnPolicy")}</span>.
               </span>
             </label>
             {errors.agreeTerms && (
@@ -1157,12 +847,12 @@ const CheckoutContent: React.FC = () => {
           </div>
 
           <div className="border rounded-xl p-4 bg-white shadow-sm">
-            <h2 className="md:text-2xl text-xl font-semibold mb-3">Promo Code</h2>
+            <h2 className="md:text-2xl text-xl font-semibold mb-3">{t("checkout.promoCode")}</h2>
             <input
               type="text"
               className="border p-2 rounded w-full flex-1"
               {...register("promoCode")}
-              placeholder="Enter promo code"
+              placeholder={t("checkout.promoPlaceholder")}
             />
             <div className="cursor-pointer flex justify-end items-center">
               <button
@@ -1171,24 +861,27 @@ const CheckoutContent: React.FC = () => {
                 disabled={isValidatingPromo}
                 className="bg-orange-500 text-white px-4 py-2 rounded-full hover:bg-orange-300 duration-300 mt-2 disabled:opacity-50"
               >
-                {isValidatingPromo ? "Applying..." : "Apply"}
+                {isValidatingPromo ? t("checkout.applying") : t("checkout.apply")}
               </button>
             </div>
             {appliedPromo && (
               <div className="mt-2 p-2 bg-green-50 rounded text-green-700 text-sm">
-                ✅ {appliedPromo} applied! {couponData?.type === "percentage" ? `${couponData.value}%` : `৳${couponData?.value}`} off
+                {t("checkout.promoAppliedBadge", {
+                  code: appliedPromo,
+                  off: couponData?.type === "percentage" ? `${couponData.value}%` : `৳${couponData?.value}`,
+                })}
               </div>
             )}
           </div>
 
           <div className="border rounded-xl p-4 bg-white shadow-sm">
-            <h2 className="md:text-2xl text-xl font-semibold mb-4">In Your Order Summary</h2>
+            <h2 className="md:text-2xl text-xl font-semibold mb-4">{t("checkout.orderSummary")}</h2>
             <div className="flex justify-between md:text-lg text-base mb-2">
-              <span>Sub Total :</span>
+              <span>{t("checkout.subTotal")}</span>
               <span>৳ {subtotal.toLocaleString()}</span>
             </div>
             <div className="flex justify-between md:text-lg text-base mb-2">
-              <span>Delivery Charge :</span>
+              <span>{t("checkout.deliveryCharge")}</span>
               <span className="flex items-center gap-2">
                 {strokedDeliveryCharge && strokedDeliveryCharge > deliveryCharge && deliveryCharge > 0 && (
                   <span className="line-through text-gray-400 text-md tracking-wide">
@@ -1199,17 +892,17 @@ const CheckoutContent: React.FC = () => {
               </span>
             </div>
             <div className="flex justify-between md:text-lg text-base mb-2">
-              <span>Discount :</span>
+              <span>{t("checkout.discount")}</span>
               <span>৳ {discount.toLocaleString()}</span>
             </div>
             {appliedPromo && promoDiscount > 0 && (
               <div className="flex justify-between md:text-lg text-base mb-2 text-green-600 font-medium">
-                <span>Promo Discount ({appliedPromo}) :</span>
+                <span>{t("checkout.promoDiscount", { code: appliedPromo })}</span>
                 <span>-৳ {promoDiscount.toLocaleString()}</span>
               </div>
             )}
             <div className="flex bg-[#f4f4f4] py-4 px-2 justify-between font-semibold text-orange-600 text-lg md:text-xl mt-4">
-              <span>Total Amount :</span>
+              <span>{t("checkout.totalAmount")}</span>
               <span>৳ {total.toLocaleString()}</span>
             </div>
             <button
@@ -1218,7 +911,7 @@ const CheckoutContent: React.FC = () => {
                 }`}
               disabled={!isValid || isLoading}
             >
-              {isLoading ? "Processing..." : "Confirm Order"}
+              {isLoading ? t("checkout.processing") : t("checkout.confirmOrder")}
             </button>
           </div>
         </div>
@@ -1227,9 +920,9 @@ const CheckoutContent: React.FC = () => {
       {showPaymentModal && paymentData && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-[650px] relative shadow-lg">
-            <h2 className="text-xl font-semibold mb-4">Demo Payment</h2>
+            <h2 className="text-xl font-semibold mb-4">{t("checkout.demoPayment")}</h2>
             <p className="mb-4">
-              Amount: <span className="font-bold">৳ {total.toLocaleString()}</span>
+              {t("checkout.amount")} <span className="font-bold">৳ {total.toLocaleString()}</span>
             </p>
             <div className="flex gap-3">
               {(["visa", "mastercard", "bkash", "nagad"] as const).map((method) => (
@@ -1254,13 +947,13 @@ const CheckoutContent: React.FC = () => {
               ))}
             </div>
             <div className="mb-4 mt-4">
-              <label className="block mb-1 font-medium">Enter Number</label>
+              <label className="block mb-1 font-medium">{t("checkout.enterNumber")}</label>
               <input
                 type="text"
                 placeholder={
                   selectedPaymentMethod === "bkash" || selectedPaymentMethod === "nagad"
-                    ? "e.g. 01XXXXXXXXX"
-                    : "Card Number"
+                    ? t("checkout.mobileNumberExample")
+                    : t("checkout.cardNumber")
                 }
                 className="w-full border p-2 rounded"
                 value={paymentNumber}
@@ -1273,14 +966,14 @@ const CheckoutContent: React.FC = () => {
                 className="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400"
                 disabled={isLoading}
               >
-                Cancel
+                {t("checkout.cancel")}
               </button>
               <button
                 onClick={handleModalPaymentConfirm}
                 className="px-4 py-2 rounded bg-orange-500 text-white hover:bg-orange-600"
                 disabled={!paymentNumber || !selectedPaymentMethod || isLoading}
               >
-                {isLoading ? "Processing..." : "Confirm"}
+                {isLoading ? t("checkout.processing") : t("checkout.confirm")}
               </button>
             </div>
           </div>

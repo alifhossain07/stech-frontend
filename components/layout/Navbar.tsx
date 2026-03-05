@@ -19,6 +19,7 @@ import { IoSearch, IoCartOutline } from "react-icons/io5";
 import CartSidebar from "./CartSidebar";
 import { useCart } from "@/app/context/CartContext";
 import { useAuth } from "@/app/context/AuthContext";
+import { useLanguage } from "@/app/context/LanguageContext";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 
 // ------------------ TYPES ------------------
@@ -86,6 +87,7 @@ const Navbar = () => {
   const [closing, setClosing] = useState(false);
   const { cart, cartOpen, setCartOpen } = useCart();
   const { user, logout } = useAuth();
+  const { locale, setLocale, t } = useLanguage();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
@@ -495,12 +497,30 @@ const Navbar = () => {
                 onClick={() => setOpen(!open)}
                 className={`border px-5 py-2 h-[46px] flex items-center gap-2 rounded-md ${isDealer ? "bg-gray-800 border-gray-700 text-white" : "bg-white border-gray-400 text-black"}`}
               >
-                <span className="underline">English</span>
+                <span className="underline">{locale === "bn" ? t("navbar.language.bangla") : t("navbar.language.english")}</span>
                 <FiChevronDown className={`${isDealer ? "text-white" : "text-black"} text-2xl`} />
               </button>
               <div className={`absolute left-0 top-full mt-2 text-md bg-white text-black border border-gray-300 rounded-md shadow-md w-32 z-50 transition-all ${open ? "opacity-100 visible translate-y-0" : "opacity-0 invisible -translate-y-2"}`}>
-                <button className="block w-full text-md text-left px-4 py-2 hover:bg-gray-50 transition-colors duration-200">English</button>
-                <button className="block w-full text-md text-left px-4 py-2 hover:bg-gray-50 transition-colors duration-200">Bangla</button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setLocale("en");
+                    setOpen(false);
+                  }}
+                  className={`block w-full text-md text-left px-4 py-2 hover:bg-gray-50 transition-colors duration-200 ${locale === "en" ? "font-semibold bg-gray-50" : ""}`}
+                >
+                  {t("navbar.language.english")}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setLocale("bn");
+                    setOpen(false);
+                  }}
+                  className={`block w-full text-md text-left px-4 py-2 hover:bg-gray-50 transition-colors duration-200 ${locale === "bn" ? "font-semibold bg-gray-50" : ""}`}
+                >
+                  {t("navbar.language.bangla")}
+                </button>
               </div>
             </div>
 
