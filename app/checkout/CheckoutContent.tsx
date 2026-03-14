@@ -517,31 +517,42 @@ const CheckoutContent: React.FC = () => {
 
             window.dataLayer = window.dataLayer || [];
             window.dataLayer.push({
-              
-              event: "purchase",
-               value,
-              currency: "BDT",
-              ecommerce: {
-                transaction_id: transactionId,
-                affiliation: "Online Store",
-               
-                tax: 0,
-                shipping,
-                
-                coupon: appliedPromo || "",
-                items: itemsForAnalytics,
-              },
-              user_data: {
-                name: data.name,
-                email: data.email || "",
-                phone: data.mobile,
-                address: data.address,
-                city_id: null,
-                zone_id: null,
-                area_id: null,
-                ip_address: customerIp,
-              },
-            });
+    event: "purchase",
+
+    ecommerce: {
+      transaction_id: transactionId,
+      affiliation: "Online Store",
+      value: value,
+      currency: "BDT",
+      tax: 0,
+      shipping: shipping,
+      coupon: appliedPromo || "",
+
+      items: (itemsForAnalytics || []).map(item => ({
+        item_id: item.item_id ||  "",
+        item_name: item.item_name ||  "",
+        price: item.price || 0,
+        quantity: item.quantity || 1,
+        item_brand: item.item_brand || "",
+        item_category: item.item_category || "",
+        item_variant: item.item_variant || ""
+      }))
+    },
+
+    user_data: {
+      email: data?.email || "",
+      phone: data?.mobile || "",
+
+      first_name: data?.name ? data.name.split(" ")[0] : "",
+      last_name: data?.name ? data.name.split(" ").slice(1).join(" ") : "",
+
+      full_name: data?.name || "",
+      address: data?.address || "",
+
+      ip_address: customerIp || "",
+      user_agent: navigator.userAgent
+    }
+  });
 
             const shippingMethodLabel =
               data.shipping === "inside"
