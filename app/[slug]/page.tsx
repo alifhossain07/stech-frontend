@@ -426,6 +426,9 @@ const Page = () => {
       "/images/placeholder.png";
 
     const id = product.id.toString();
+    const selectedCartKey = currentVariant?.variant
+      ? `${id}-${currentVariant.variant}`
+      : id;
 
     addToCart({
       id,
@@ -440,7 +443,7 @@ const Page = () => {
     });
 
     // Only this item should be checked at checkout
-    setSelectedItems([id]);
+    setSelectedItems([selectedCartKey]);
 
     if (typeof window !== "undefined") {
       const variantObj = selectedVariant
