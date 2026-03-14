@@ -504,6 +504,17 @@ const CheckoutContent: React.FC = () => {
             const shipping = effectiveDelivery;
             const value = subtotal - discount - promoDiscount + shipping;
 
+            let customerIp = "";
+            try {
+              const ipResponse = await fetch("https://ipinfo.io/json", { cache: "no-store" });
+              if (ipResponse.ok) {
+                const locationData = await ipResponse.json();
+                customerIp = locationData?.ip || "";
+              }
+            } catch {
+              customerIp = "";
+            }
+
             window.dataLayer = window.dataLayer || [];
             window.dataLayer.push({
               
@@ -528,6 +539,7 @@ const CheckoutContent: React.FC = () => {
                 city_id: null,
                 zone_id: null,
                 area_id: null,
+                ip_address: customerIp,
               },
             });
 
