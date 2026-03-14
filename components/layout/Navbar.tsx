@@ -253,7 +253,7 @@ const Navbar = () => {
       }
     }
     fetchCategories();
-  }, []);
+}, []);
 
   useEffect(() => {
     async function fetchHelpline() {

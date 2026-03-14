@@ -506,18 +506,21 @@ const CheckoutContent: React.FC = () => {
 
             window.dataLayer = window.dataLayer || [];
             window.dataLayer.push({
+              
               event: "purchase",
+               value,
+              currency: "BDT",
               ecommerce: {
                 transaction_id: transactionId,
                 affiliation: "Online Store",
-                value,
+               
                 tax: 0,
                 shipping,
-                currency: "BDT",
+                
                 coupon: appliedPromo || "",
                 items: itemsForAnalytics,
               },
-              customer: {
+              user_data: {
                 name: data.name,
                 email: data.email || "",
                 phone: data.mobile,
