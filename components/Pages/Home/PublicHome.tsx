@@ -16,6 +16,7 @@ import NewsLetter from "@/components/Pages/Home/NewsLetter";
 import PopularCategories from "@/components/Pages/Home/PopularCategories";
 import PowerBankProducts from "@/components/Pages/Home/PowerBankProducts";
 import PowerBankProducts2 from "@/components/Pages/Home/PowerBankProducts2";
+import YoutubeVideoGallery from "@/components/Pages/Home/YoutubeVideoGallery";
 import HeroSlider from "@/components/ui/HeroSlider";
 
 const PublicHome = () => {
@@ -33,6 +34,7 @@ const PublicHome = () => {
             </Script>
             <HeroSlider />
             <PopularCategories />
+            <YoutubeVideoGallery />
             <NewArrival />
             <EarbudsProducts />
             <FlashSale />

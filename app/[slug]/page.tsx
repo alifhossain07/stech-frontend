@@ -553,7 +553,7 @@ const Page = () => {
               </div>
 
               {/* Main image */}
-              <div className="flex-1 flex items-center justify-center bg-[#f6f6f6] rounded-xl relative overflow-hidden">
+              <div className="flex-1 flex items-center justify-center  rounded-xl relative overflow-hidden">
                 {/* Logo Overlay */}
                 <div className="absolute top-7 left-10 z-20">
                   <Image
@@ -569,7 +569,7 @@ const Page = () => {
                   alt={`Product Image ${selectedImage + 1}`}
                   width={800}
                   height={800}
-                  className="object-contain w-64 h-80 md:w-80 md:h-96 xl:w-[500px] xl:h-[500px] 2xl:w-[560px] 2xl:h-[560px]"
+                  className="w-full h-full object-contain"
                 />
                 {/* Left Arrow */}
                 <button
@@ -608,7 +608,7 @@ const Page = () => {
                   alt={`Product Image ${selectedImage + 1}`}
                   width={800}
                   height={800}
-                  className="object-contain w-64 h-80 md:w-80 md:h-96 xl:w-[600px] xl:h-[600px] 2xl:w-[600px] 2xl:h-[600px]"
+                  className="w-full h-full object-contain"
                 />
                 {/* Left Arrow */}
                 <button
@@ -1002,7 +1002,7 @@ const Page = () => {
             )}
 
             {/* Derived Variant (Optional Info) */}
-            {currentVariant && product.variants && product.variants.length > 0 && (
+            {currentVariant && currentVariant.sku && product.variants && product.variants.length > 0 && (
               <div className="flex items-center gap-3 text-xs text-gray-500 border-t pt-2">
                 <span>Selected SKU: {currentVariant.sku}</span>
               </div>
@@ -1062,29 +1062,29 @@ const Page = () => {
             <div ref={buyNowSectionRef}>
               {isDealer ? (
                 <div className="flex items-center w-full">
-                <a
-                  href={
-                    whatsappNumber
-                      ? `https://wa.me/${whatsappNumber.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(
-                        `Hello, I'm interested in the product: ${product.name}. Link: ${typeof window !== "undefined" ? window.location.href : ""
-                        }`
-                      )}`
-                      : "#"
-                  }
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center w-full bg-[#E8F8EF] hover:bg-[#D5F2E1] text-[#27AE60] font-semibold gap-3 rounded-full transition-all py-3 md:py-4 px-6 border border-[#27AE60]/20"
-                >
-                  <FaWhatsapp className="text-xl md:text-2xl" />
-                  <span className="text-base md:text-lg">Contact For Price</span>
-                </a>
+                  <a
+                    href={
+                      whatsappNumber
+                        ? `https://wa.me/${whatsappNumber.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(
+                          `Hello, I'm interested in the product: ${product.name}. Link: ${typeof window !== "undefined" ? window.location.href : ""
+                          }`
+                        )}`
+                        : "#"
+                    }
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center w-full bg-[#E8F8EF] hover:bg-[#D5F2E1] text-[#27AE60] font-semibold gap-3 rounded-full transition-all py-3 md:py-4 px-6 border border-[#27AE60]/20"
+                  >
+                    <FaWhatsapp className="text-xl md:text-2xl" />
+                    <span className="text-base md:text-lg">Contact For Price</span>
+                  </a>
                 </div>
               ) : (
                 <div className="flex items-center gap-3 md:gap-4">
-                {/* Buy Now */}
-                <button
-                  onClick={handleBuyNow}
-                  className="
+                  {/* Buy Now */}
+                  <button
+                    onClick={handleBuyNow}
+                    className="
                     flex items-center justify-center w-1/2
                     bg-orange-500 hover:bg-orange-600 text-white font-medium
                     gap-2 rounded-full transition-all
@@ -1092,16 +1092,16 @@ const Page = () => {
                     px-4 py-2 text-[13px]        /* mobile */
                     md:px-10 md:py-4 md:text-[15px] /* md+ */
                   "
-                >
-                  <FiShoppingBag className="text-sm md:text-lg" />
-                  Buy Now
-                </button>
+                  >
+                    <FiShoppingBag className="text-sm md:text-lg" />
+                    Buy Now
+                  </button>
 
-                {/* Add to Cart */}
-                <button
-                  onClick={handleAdd}
-                  disabled={cartLoading}
-                  className={`
+                  {/* Add to Cart */}
+                  <button
+                    onClick={handleAdd}
+                    disabled={cartLoading}
+                    className={`
                     flex items-center justify-center w-1/2
                     border border-gray-400 hover:border-gray-600 text-gray-800 font-medium
                     gap-2 rounded-full transition-all
@@ -1109,19 +1109,19 @@ const Page = () => {
                     md:px-10 md:py-4 md:text-[15px]
                     ${cartLoading ? "opacity-70 cursor-not-allowed" : ""}
                   `}
-                >
-                  {cartLoading ? (
-                    <>
-                      <span className="w-4 h-4 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
-                      <span>Adding...</span>
-                    </>
-                  ) : (
-                    <>
-                      <FiPlus className="text-sm md:text-lg" />
-                      <span>Add to Cart</span>
-                    </>
-                  )}
-                </button>
+                  >
+                    {cartLoading ? (
+                      <>
+                        <span className="w-4 h-4 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
+                        <span>Adding...</span>
+                      </>
+                    ) : (
+                      <>
+                        <FiPlus className="text-sm md:text-lg" />
+                        <span>Add to Cart</span>
+                      </>
+                    )}
+                  </button>
                 </div>
               )}
             </div>
@@ -1211,17 +1211,17 @@ const Page = () => {
 
       {!isDealer && showBuyNowJump && (
         <button
-  type="button"
-  onClick={() => {
-    setShowBuyNowJump(false);
-    buyNowSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
-  }}
-  className="md:hidden fixed right-3 top-1/2 -translate-y-1/2 z-40 bg-orange-400 hover:bg-orange-600 text-white rounded-full px-3 py-2 flex items-center gap-2 animate-pulse shadow-[0_0_20px_#f97316] hover:animate-none"
-  aria-label="Go to Buy Now section"
->
-  <IoBagAddOutline className="text-xl" />
-  <span className="text-sm font-medium">Buy Now</span>
-</button>
+          type="button"
+          onClick={() => {
+            setShowBuyNowJump(false);
+            buyNowSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+          }}
+          className="md:hidden fixed right-3 top-1/2 -translate-y-1/2 z-40 bg-orange-400 hover:bg-orange-600 text-white rounded-full px-3 py-2 flex items-center gap-2 animate-pulse shadow-[0_0_20px_#f97316] hover:animate-none"
+          aria-label="Go to Buy Now section"
+        >
+          <IoBagAddOutline className="text-xl" />
+          <span className="text-sm font-medium">Buy Now</span>
+        </button>
       )}
 
       {/* Specs Container */}

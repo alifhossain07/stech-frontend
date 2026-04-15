@@ -410,6 +410,90 @@ const CheckoutContent: React.FC = () => {
       lastPaymentType.current = paymentMethod;
     }
   }, [paymentMethod, selectedCart, subtotal, discount]);
+  
+  const hasPlacedOrder = React.useRef(false);
+  // Track the last successfully synced data to prevent redundant calls
+  const lastSyncedData = React.useRef<string>("");
+
+  const syncIncompleteOrder = React.useCallback(async (data: CheckoutFormData) => {
+    if (hasPlacedOrder.current || selectedCart.length === 0) return;
+
+    // Create a string representation to check for changes
+    const dataString = JSON.stringify({
+      mobile: data.mobile,
+      name: data.name,
+      email: data.email,
+      address: data.address,
+      shipping: data.shipping,
+      payment: data.payment,
+      items: selectedCart.map(i => i.id)
+    });
+
+    if (dataString === lastSyncedData.current) {
+      return;
+    }
+
+    const shipping_zone =
+      data.shipping === "inside" ? "insideDhaka" : data.shipping === "outside" ? "outsideDhaka" : "insideDhaka";
+
+    const payload = {
+      customer: {
+        name: data.name?.trim() || "null",
+        mobile: data.mobile,
+        email: data.email?.trim() || "null@gmail.com",
+        address: data.address?.trim() || "null",
+        country_id: null,
+        state_id: null,
+        city_id: null,
+        area_id: null,
+        pathao_city_id: null,
+        pathao_zone_id: null,
+        pathao_area_id: null,
+      },
+      items: selectedCart.map((item) => ({
+        id: Number(item.id),
+        qty: Number(item.qty),
+        variant: item.variant || null,
+        referral_code: null,
+      })),
+      shipping_method: "home_delivery",
+      shipping_zone,
+      payment_method: data.payment === "cod" ? "Cash on Delivery" : "Online Payment",
+      payment_number: null,
+      promo_code: appliedPromo || null,
+      note: "",
+      pickup_point_id: null,
+      carrier_id: null,
+      is_incomplete: 1,
+    };
+
+    try {
+      await apiClient.post("/api/order/incomplete", payload);
+      lastSyncedData.current = dataString; // Mark as synced
+    } catch (error) {
+      // Fail silently in production to avoid bothering the user
+      // but keep the error in console for developers if they look
+      console.error("Failed to sync incomplete order:", error);
+    }
+  }, [selectedCart, appliedPromo]);
+
+  const formValues = watch();
+  
+  React.useEffect(() => {
+    const { mobile } = formValues;
+
+    // Trigger only when mobile is exactly 11 digits
+    if (mobile && mobile.length === 11 && !hasPlacedOrder.current) {
+      if (selectedCart.length === 0) return;
+
+      // 2 seconds debounce as requested
+      const timer = setTimeout(() => {
+        syncIncompleteOrder(formValues);
+      }, 2000); 
+
+      return () => clearTimeout(timer);
+    }
+  }, [formValues, syncIncompleteOrder, selectedCart.length]);
 
   // ------------------------- Payment Modal -------------------------
   const [showPaymentModal, setShowPaymentModal] = React.useState(false);
@@ -596,6 +680,7 @@ const CheckoutContent: React.FC = () => {
 
             const nextHref = `/checkout/ordercomplete${transactionId ? `?orderId=${encodeURIComponent(transactionId)}` : ""}`;
             clearCart();
+            hasPlacedOrder.current = true; // Stop incomplete sync
             setShowPaymentModal(false);
             router.push(nextHref);
             return;
@@ -604,6 +689,7 @@ const CheckoutContent: React.FC = () => {
           console.error("Failed to push purchase event", e);
         }
         clearCart();
+        hasPlacedOrder.current = true; // Stop incomplete sync
         setShowPaymentModal(false);
         router.push("/checkout/ordercomplete");
       } else {

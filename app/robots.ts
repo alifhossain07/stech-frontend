@@ -6,5 +6,6 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: '*',
       allow: '/',
     },
+    sitemap: 'https://sannai.com.bd/sitemap.xml',
   }
 }
