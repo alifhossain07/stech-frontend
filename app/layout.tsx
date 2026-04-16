@@ -46,8 +46,8 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 
   const siteIcon = getMetaValue("site_icon") || "/images/sannailogo.png";
-  const headerLogo = getMetaValue("header_logo") || siteIcon;
-
+  const headerLogo = getMetaValue("header_logo") || "/images/sannailogo.png";
+  const facebookShare = getMetaValue("meta_image") || "/images/sannailogo.png";
   return {
     title: defaultTitle,
     description: defaultDescription,
@@ -59,7 +59,7 @@ export async function generateMetadata(): Promise<Metadata> {
     openGraph: {
       title: defaultTitle,
       description: defaultDescription,
-      images: [{ url: headerLogo }],
+      images: [{ url: facebookShare }],
       type: "website",
     },
     twitter: {
