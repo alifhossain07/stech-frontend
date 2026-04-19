@@ -38,33 +38,39 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE_URL}/dealer/help`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.64 },
   ];
 
-  // 2. Fetch All Products to include dynamic slugs
+  // 2. Fetch All Products to include dynamic slugs (with pagination)
   let productRoutes: MetadataRoute.Sitemap = [];
   try {
-    // We try to fetch a large number of products for the sitemap
-    const res = await fetch(`${API_BASE}/products/search?per_page=1000`, {
-      headers: {
-        Accept: 'application/json',
-        'System-Key': SYSTEM_KEY,
-      },
-      cache: 'no-store',
-    });
+    let allProducts: { slug: string }[] = [];
+    let currentPage = 1;
+    let lastPage = 1;
 
-    if (res.ok) {
+    // Loop through all pages to get all products
+    do {
+      const res = await fetch(`${API_BASE}/products/search?page=${currentPage}`, {
+        headers: {
+          Accept: 'application/json',
+          'System-Key': SYSTEM_KEY,
+        },
+        cache: 'no-store',
+      });
+
+      if (!res.ok) break;
+
       const json = await res.json();
-      const products = json.data || [];
+      const pageProducts = json.data || [];
+      allProducts = [...allProducts, ...pageProducts];
 
-      interface Product {
-        slug: string;
-      }
+      lastPage = json.meta?.last_page || 1;
+      currentPage++;
+    } while (currentPage <= lastPage && currentPage <= 20); // Safety limit of 20 pages
 
-      productRoutes = products.map((product: Product) => ({
-        url: `${SITE_URL}/${product.slug}`,
-        lastModified: new Date(), // Ideally we'd have a product.updated_at
-        changeFrequency: 'weekly',
-        priority: 0.7,
-      }));
-    }
+    productRoutes = allProducts.map((product) => ({
+      url: `${SITE_URL}/${product.slug}`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.7,
+    }));
   } catch (error) {
     console.error('Sitemap product fetch error:', error);
   }
