@@ -7,19 +7,23 @@ import { FaFacebookF } from "react-icons/fa";
 import Link from "next/link";
 import { useAuth } from "../context/AuthContext";
 import toast from "react-hot-toast";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 const LoginContent = () => {
     const { login, loading, user } = useAuth();
     const router = useRouter();
+    const searchParams = useSearchParams();
+
+    const redirect = searchParams.get("redirect") || "/";
+    const wishlistSlug = searchParams.get("wishlist");
 
     // Redirect if already logged in (optional but good for UX)
     React.useEffect(() => {
         if (user) {
             if (user.type?.toLowerCase() === "dealer") {
-                router.push("/");
+                router.push(redirect);
             } else {
-                router.push("/");
+                router.push(redirect);
             }
         }
     }, [user, router]);
@@ -57,8 +61,23 @@ const LoginContent = () => {
 
             // The state might take a tick to update, but we can also use the returned values if needed
             // but for now, we just redirect to "/" as app/page.tsx handles the switch
-            router.push("/");
-            router.refresh(); // Force refresh components relying on server/layout state
+            if (wishlistSlug) {
+                try {
+                    const token = localStorage.getItem("sannai_auth_token");
+                    await fetch(`/api/wishlists/add-product/${wishlistSlug}`, {
+                        method: "GET", // Based on previous observation of direct GET calls in [slug]/page.tsx
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    });
+                    toast.success("Product added to wishlist");
+                } catch (err) {
+                    console.error("Failed to auto-add to wishlist", err);
+                }
+            }
+
+            router.push(redirect);
+            router.refresh();
         } catch (err: unknown) {
             const message =
                 err instanceof Error ? err.message : "Login failed";
@@ -137,7 +156,7 @@ const LoginContent = () => {
 
                                 <p className="mt-3 text-xs sm:text-sm text-center text-gray-500">
                                     Don&apos;t have an account?{" "}
-                                    <Link href="/registration" className="text-[#FF6B01] font-medium hover:underline">
+                                    <Link href={`/registration?${searchParams.toString()}`} className="text-[#FF6B01] font-medium hover:underline">
                                         Sign In
                                     </Link>
                                 </p>

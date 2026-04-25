@@ -16,6 +16,7 @@ interface ApiProduct {
   rating: number;
   sales: number;
   featured_specs: { text: string; icon: string }[];
+  current_stock: number;
 }
 
 // Backend response type
@@ -47,6 +48,7 @@ export async function GET() {
       reviews: p.sales,
       image: p.thumbnail_image,
       featured_specs: p.featured_specs || [],
+      current_stock: p.current_stock,
     }));
 
     return NextResponse.json(products);

@@ -18,7 +18,7 @@ interface Product {
   rating: number;
   reviews: number;
   image: string;
-
+  current_stock?: number;
 }
 
 type BackendProduct = {
@@ -30,6 +30,7 @@ type BackendProduct = {
   discount: string;
   rating: string;
   thumbnail_image: string;
+  current_stock?: number;
 };
 
 const FlashSale = () => {
@@ -56,6 +57,7 @@ const FlashSale = () => {
           rating: parseFloat(product.rating),
           reviews: 0,
           image: product.thumbnail_image,
+          current_stock: product.current_stock,
         }));
 
         setProducts(mappedProducts);

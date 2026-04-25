@@ -6,8 +6,9 @@ import { useAuth } from "@/app/context/AuthContext";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import { FaCartPlus, FaStar } from "react-icons/fa";
+import { FaCartPlus, FaStar, FaHeart } from "react-icons/fa";
 import { LuShoppingBag } from "react-icons/lu";
+import toast from "react-hot-toast";
 import Link from "next/link";
 import ProductOptionsModal from "./ProductOptionsModal";
 type Spec = {
@@ -28,6 +29,7 @@ type Product = {
   featured_specs?: Spec[];
   badgeText?: string;
   badgeType?: "new-arrival" | "top-sell" | "special-offer" | "upcoming";
+  current_stock?: number;
 };
 
 export default function ProductCard({ product }: { product: Product }) {
@@ -159,6 +161,32 @@ export default function ProductCard({ product }: { product: Product }) {
     router.push("/checkout");
   };
 
+  const handleWishlist = async () => {
+    if (!user) {
+      const currentPath = window.location.pathname;
+      router.push(`/login?redirect=${encodeURIComponent(currentPath)}&wishlist=${product.slug}`);
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("sannai_auth_token");
+      const res = await fetch(`/api/wishlists/add-product/${product.slug}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const data = await res.json();
+      if (data.is_in_wishlist === true) {
+        toast.success(data.message || "Added to wishlist");
+      } else {
+        toast.error(data.message || "Failed to add to wishlist");
+      }
+    } catch (err) {
+      console.error("Wishlist addition failed", err);
+      toast.error("Something went wrong");
+    }
+  };
+
   const fallbackSpecs = [
     { icon: "/images/watt.png", text: "25 Watts of Power " },
     { icon: "/images/fastcharge.png", text: "Super Fast Charging" },
@@ -190,9 +218,19 @@ export default function ProductCard({ product }: { product: Product }) {
               src={product.image}
               alt={product.name}
               fill
-              className="object-contain transition-transform duration-300 hover:scale-110"
+              className={`object-contain transition-transform duration-300 hover:scale-110 ${product.current_stock === 0 ? "grayscale-[0.5] opacity-80" : ""}`}
               sizes="(max-width: 768px) 100vw, 50vw"
             />
+            
+            {product.current_stock === 0 && (
+              <div className="absolute inset-0 z-30 flex items-center justify-center bg-black/40 backdrop-blur-[1px]">
+                <div className="bg-white/90 px-4 py-2 rounded-lg shadow-xl transform -rotate-12 border-2 border-red-500">
+                  <span className="text-red-600 font-bold uppercase tracking-widest text-sm md:text-base">
+                    Out of Stock
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="absolute bottom-1.5 left-1.5 bg-white px-1.5 py-0.5 rounded-md flex items-center text-[10px] shadow-sm">
@@ -288,26 +326,51 @@ export default function ProductCard({ product }: { product: Product }) {
 
           ) : (
             <div className="flex gap-2 h-[30px] md:h-[28px]">
-              {/* Buy Now */}
-              <button onClick={handleBuyNow} className="flex items-center justify-center w-1/2 rounded-md text-white md:text-sm text-xs bg-[#FF6B01] md:py-0 hover:opacity-90 transition hover:bg-white hover:text-orange-500 hover:border hover:border-orange-500">
-                <span className="block xl:hidden text-xs">
-                  <LuShoppingBag />
-                </span>
-                <span className="hidden xl:flex md:hidden xl:text-[11px] 2xl:text-[12px]  gap-2 items-center">
-                  <LuShoppingBag /> Buy Now
-                </span>
-              </button>
+              {product.current_stock === 0 ? (
+                <>
+                  {/* Stock Out Button (Disabled) */}
+                  <button disabled className="flex items-center justify-center w-1/2 rounded-md text-white md:text-sm text-xs bg-gray-400 cursor-not-allowed">
+                    <span className="block xl:hidden text-xs">
+                      <LuShoppingBag />
+                    </span>
+                    <span className="hidden xl:flex md:hidden xl:text-[11px] 2xl:text-[12px] gap-2 items-center">
+                      <LuShoppingBag /> Stock Out
+                    </span>
+                  </button>
 
-              {/* Add to Cart opens modal */}
-              <button
-                onClick={() => setOptionsOpen(true)}
-                className="flex items-center justify-center w-1/2 rounded-md py-0 border text-black border-black duration-300 xl:text-[13px] md:text-sm text-xs hover:bg-black hover:text-white"
-              >
-                <span className="block xl:hidden text-xs">
-                  <FaCartPlus />
-                </span>
-                <span className="hidden md:hidden text-[11px] 2xl:text-[12px] xl:inline">+ Add to Cart</span>
-              </button>
+                  {/* Add to Wishlist Button */}
+                  <button
+                    onClick={handleWishlist}
+                    className="flex items-center justify-center w-1/2 rounded-md py-0 border text-black border-black duration-300 xl:text-[13px] md:text-sm text-xs hover:bg-black hover:text-white gap-1"
+                  >
+                    <FaHeart className="text-xs" />
+                    <span className="hidden md:hidden text-[11px] 2xl:text-[12px] xl:inline font-semibold">Wishlist</span>
+                  </button>
+                </>
+              ) : (
+                <>
+                  {/* Buy Now */}
+                  <button onClick={handleBuyNow} className="flex items-center justify-center w-1/2 rounded-md text-white md:text-sm text-xs bg-[#FF6B01] md:py-0 hover:opacity-90 transition hover:bg-white hover:text-orange-500 hover:border hover:border-orange-500">
+                    <span className="block xl:hidden text-xs">
+                      <LuShoppingBag />
+                    </span>
+                    <span className="hidden xl:flex md:hidden xl:text-[11px] 2xl:text-[12px]  gap-2 items-center">
+                      <LuShoppingBag /> Buy Now
+                    </span>
+                  </button>
+
+                  {/* Add to Cart opens modal */}
+                  <button
+                    onClick={() => setOptionsOpen(true)}
+                    className="flex items-center justify-center w-1/2 rounded-md py-0 border text-black border-black duration-300 xl:text-[13px] md:text-sm text-xs hover:bg-black hover:text-white"
+                  >
+                    <span className="block xl:hidden text-xs">
+                      <FaCartPlus />
+                    </span>
+                    <span className="hidden md:hidden text-[11px] 2xl:text-[12px] xl:inline">+ Add to Cart</span>
+                  </button>
+                </>
+              )}
             </div>
           )}
         </div>

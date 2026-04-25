@@ -24,9 +24,10 @@ interface ApiReview {
 
 interface ReviewsProps {
   slug: string;
+  onRatingUpdate?: (data: { averageRating: number; totalReviews: number }) => void;
 }
 
-const Reviews = ({ slug }: ReviewsProps) => {
+const Reviews = ({ slug, onRatingUpdate }: ReviewsProps) => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -68,11 +69,11 @@ const Reviews = ({ slug }: ReviewsProps) => {
           return;
         }
 
-        // If data exists but is empty, show empty state without error
         if (!json.data || json.data.length === 0) {
           setError(null);
           setReviews([]);
           setTotalReviews(0);
+          if (onRatingUpdate) onRatingUpdate({ averageRating: 0, totalReviews: 0 });
           return;
         }
 
@@ -86,13 +87,21 @@ const Reviews = ({ slug }: ReviewsProps) => {
           avatar: review.avatar || "",
         }));
 
+        const finalTotalReviews = json.meta?.total || mappedReviews.length;
         setReviews(mappedReviews);
-        setTotalReviews(json.meta?.total || mappedReviews.length);
+        setTotalReviews(finalTotalReviews);
+
+        if (onRatingUpdate) {
+          const totalRating = mappedReviews.reduce((acc, r) => acc + r.rating, 0);
+          const averageRating = mappedReviews.length > 0 ? totalRating / mappedReviews.length : 0;
+          onRatingUpdate({ averageRating, totalReviews: finalTotalReviews });
+        }
       } catch (err) {
         console.error("Error fetching reviews:", err);
         setError("Failed to load reviews");
         setReviews([]);
         setTotalReviews(0);
+        if (onRatingUpdate) onRatingUpdate({ averageRating: 0, totalReviews: 0 });
       } finally {
         setLoading(false);
       }

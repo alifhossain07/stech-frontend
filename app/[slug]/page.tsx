@@ -5,6 +5,7 @@ import { useCart } from "@/app/context/CartContext";
 import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "@/app/context/AuthContext";
 import Image from "next/image";
+import toast from "react-hot-toast";
 import { useCompare } from "@/app/context/CompareContext";
 import {
   FiChevronLeft,
@@ -139,6 +140,8 @@ const Page = () => {
   const [showBuyNowJump, setShowBuyNowJump] = useState(false);
   const { user } = useAuth();
   const [dealerMode, setDealerMode] = useState(false);
+  const [avgRating, setAvgRating] = useState(0);
+  const [revCount, setRevCount] = useState(0);
   useEffect(() => {
     setDealerMode(
       user?.type?.toLowerCase() === "dealer" ||
@@ -522,7 +525,7 @@ const Page = () => {
       {/* Product Details Container */}
       <div className="xl:h-[1038px] flex flex-col xl:flex-row gap-6">
         {/* ---------- Left: Images ---------- */}
-        <div className="2xl:w-[55%] xl:w-[50%] flex flex-col justify-between">
+        <div className=" xl:w-[50%] flex flex-col justify-between">
           {dealerMode ? (
             /* ===== DEALER LAYOUT: thumbnails on left, main image on right ===== */
             <div className="h-[84%] flex flex-row gap-3">
@@ -569,7 +572,7 @@ const Page = () => {
                   alt={`Product Image ${selectedImage + 1}`}
                   width={800}
                   height={800}
-                  className="w-full h-full object-contain"
+                  className="w-full h-full object-fill"
                 />
                 {/* Left Arrow */}
                 <button
@@ -608,7 +611,7 @@ const Page = () => {
                   alt={`Product Image ${selectedImage + 1}`}
                   width={800}
                   height={800}
-                  className="w-full h-full object-contain"
+                  className="w-full h-full object-fill"
                 />
                 {/* Left Arrow */}
                 <button
@@ -661,15 +664,17 @@ const Page = () => {
           </h1>
           <div className="flex mb-4 items-center justify-start gap-3 bg-[#f4f4f4] xl:px-4 py-3 rounded-md 2xl:text-sm  md:text-xs text-[10px] px-1  text-gray-700">
             <div className="flex items-center gap-1">
-              {/* Example 5 stars */}
+              {/* Dynamic stars based on average rating */}
               {Array(5)
                 .fill(0)
                 .map((_, i) => (
-                  <span key={i} className="text-orange-500">
+                  <span key={i} className={i < Math.round(avgRating) ? "text-orange-500" : "text-gray-300"}>
                     ★
                   </span>
                 ))}
-              <span className="text-gray-600 ml-1">(10 reviews)</span>
+              <span className="text-gray-600 ml-1">
+                ({revCount === 0 ? "No reviews" : `${revCount} ${revCount === 1 ? "review" : "reviews"}`})
+              </span>
             </div>
 
             {/* Divider */}
@@ -835,6 +840,13 @@ const Page = () => {
                   onClick={async () => {
                     if (!product || !slug || wishlistLoading) return;
                     setWishlistLoading(true);
+
+                    // If not logged in, redirect to login with callback
+                    if (!user) {
+                      const currentPath = window.location.pathname;
+                      router.push(`/login?redirect=${encodeURIComponent(currentPath)}&wishlist=${slug}`);
+                      return;
+                    }
 
                     try {
                       const token = localStorage.getItem("sannai_auth_token");
@@ -1020,7 +1032,7 @@ const Page = () => {
                 <span className="font-semibold">
                   {isDealer
                     ? product.dealer_est_shipping_time || product.est_shipping_time
-                    : product.est_shipping_time}
+                    : product.est_shipping_time} Days
                 </span>
               </span>
             </div>
@@ -1081,47 +1093,106 @@ const Page = () => {
                 </div>
               ) : (
                 <div className="flex items-center gap-3 md:gap-4">
-                  {/* Buy Now */}
-                  <button
-                    onClick={handleBuyNow}
-                    className="
-                    flex items-center justify-center w-1/2
-                    bg-orange-500 hover:bg-orange-600 text-white font-medium
-                    gap-2 rounded-full transition-all
+                  {product.current_stock === 0 ? (
+                    <>
+                      {/* Stock Out */}
+                      <button
+                        disabled
+                        className="
+                        flex items-center justify-center w-1/2
+                        bg-gray-400 text-white font-medium
+                        gap-2 rounded-full cursor-not-allowed
+                        px-4 py-2 text-[13px]
+                        md:px-10 md:py-4 md:text-[15px]
+                      "
+                      >
+                        <FiShoppingBag className="text-sm md:text-lg" />
+                        Stock Out
+                      </button>
 
-                    px-4 py-2 text-[13px]        /* mobile */
-                    md:px-10 md:py-4 md:text-[15px] /* md+ */
-                  "
-                  >
-                    <FiShoppingBag className="text-sm md:text-lg" />
-                    Buy Now
-                  </button>
-
-                  {/* Add to Cart */}
-                  <button
-                    onClick={handleAdd}
-                    disabled={cartLoading}
-                    className={`
-                    flex items-center justify-center w-1/2
-                    border border-gray-400 hover:border-gray-600 text-gray-800 font-medium
-                    gap-2 rounded-full transition-all
-                    px-4 py-2 text-[13px]
-                    md:px-10 md:py-4 md:text-[15px]
-                    ${cartLoading ? "opacity-70 cursor-not-allowed" : ""}
-                  `}
-                  >
-                    {cartLoading ? (
-                      <>
-                        <span className="w-4 h-4 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
-                        <span>Adding...</span>
-                      </>
-                    ) : (
-                      <>
+                      {/* Add to Wishlist */}
+                      <button
+                        onClick={async () => {
+                          if (!user) {
+                            const currentPath = window.location.pathname;
+                            router.push(`/login?redirect=${encodeURIComponent(currentPath)}&wishlist=${slug}`);
+                            return;
+                          }
+                          if (wishlistLoading) return;
+                          setWishlistLoading(true);
+                          try {
+                            const token = localStorage.getItem("sannai_auth_token");
+                            const res = await fetch(`/api/wishlists/add-product/${slug}`, {
+                              headers: { Authorization: `Bearer ${token}` }
+                            });
+                            const data = await res.json();
+                            if (data.is_in_wishlist) {
+                              setIsInWishlist(true);
+                              toast.success(data.message || "Added to wishlist");
+                            }
+                          } catch {
+                            toast.error("Something went wrong");
+                          } finally {
+                            setWishlistLoading(false);
+                          }
+                        }}
+                        className="
+                        flex items-center justify-center w-1/2
+                        border border-gray-400 hover:border-gray-600 text-gray-800 font-medium
+                        gap-2 rounded-full transition-all
+                        px-4 py-2 text-[13px]
+                        md:px-10 md:py-4 md:text-[15px]
+                      "
+                      >
                         <FiPlus className="text-sm md:text-lg" />
-                        <span>Add to Cart</span>
-                      </>
-                    )}
-                  </button>
+                        <span>Add to Wishlist</span>
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      {/* Buy Now */}
+                      <button
+                        onClick={handleBuyNow}
+                        className="
+                        flex items-center justify-center w-1/2
+                        bg-orange-500 hover:bg-orange-600 text-white font-medium
+                        gap-2 rounded-full transition-all
+
+                        px-4 py-2 text-[13px]        /* mobile */
+                        md:px-10 md:py-4 md:text-[15px] /* md+ */
+                      "
+                      >
+                        <FiShoppingBag className="text-sm md:text-lg" />
+                        Buy Now
+                      </button>
+
+                      {/* Add to Cart */}
+                      <button
+                        onClick={handleAdd}
+                        disabled={cartLoading}
+                        className={`
+                        flex items-center justify-center w-1/2
+                        border border-gray-400 hover:border-gray-600 text-gray-800 font-medium
+                        gap-2 rounded-full transition-all
+                        px-4 py-2 text-[13px]
+                        md:px-10 md:py-4 md:text-[15px]
+                        ${cartLoading ? "opacity-70 cursor-not-allowed" : ""}
+                      `}
+                      >
+                        {cartLoading ? (
+                          <>
+                            <span className="w-4 h-4 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
+                            <span>Adding...</span>
+                          </>
+                        ) : (
+                          <>
+                            <FiPlus className="text-sm md:text-lg" />
+                            <span>Add to Cart</span>
+                          </>
+                        )}
+                      </button>
+                    </>
+                  )}
                 </div>
               )}
             </div>
@@ -1348,7 +1419,13 @@ const Page = () => {
               )}
             </div>
             <div className="scroll-mt-36" ref={reviewRef}>
-              <Reviews slug={Array.isArray(slug) ? slug[0] : slug} />
+              <Reviews
+                slug={Array.isArray(slug) ? slug[0] : slug}
+                onRatingUpdate={({ averageRating, totalReviews }) => {
+                  setAvgRating(averageRating);
+                  setRevCount(totalReviews);
+                }}
+              />
             </div>
           </div>
         </div>

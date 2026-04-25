@@ -19,6 +19,7 @@ interface ApiProduct {
     text: string;
     icon: string;
   }[];
+  current_stock: number;
 }
 
 // Response type for the category
@@ -69,6 +70,7 @@ export async function GET() {
       image: p.thumbnail_image,
       banner,
       featured_specs: p.featured_specs || [],
+      current_stock: p.current_stock,
     }));
 
     // Return category info + products

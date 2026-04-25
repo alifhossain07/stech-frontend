@@ -11,6 +11,7 @@ interface LaravelProduct {
   sales: number;
   thumbnail_image: string | null;
   featured_specs?: { text: string }[];
+  current_stock: number;
 }
 
 export async function GET() {
@@ -36,6 +37,7 @@ export async function GET() {
       reviews: p.sales,
       image: p.thumbnail_image ?? "/images/placeholder.png",
       featured_specs: p.featured_specs ?? [],
+      current_stock: p.current_stock,
     }));
 
     return NextResponse.json(products);
