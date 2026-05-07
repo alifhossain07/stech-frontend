@@ -50,6 +50,7 @@ interface RawFlashDealProduct {
   discount: string;
   rating?: number | string;
   thumbnail_image: string;
+  current_stock?: number;
 }
 
 interface FlashDeal {
@@ -195,7 +196,7 @@ const CategoryPage = () => {
                 rating: String(product.rating ?? "0"),
                 reviews: "0",
                 image: product.thumbnail_image,
-                current_stock: 0,
+                current_stock: product.current_stock ?? 1,
                 variants: [],
               }));
               setProducts(mapped);
@@ -783,7 +784,7 @@ const FlashDealSection = ({ deal }: { deal: FlashDeal }) => {
     rating: String(product.rating ?? "0"),
     reviews: "0",
     image: product.thumbnail_image,
-    current_stock: 0,
+    current_stock: product.current_stock ?? 1,
     variants: [],
   }));
 

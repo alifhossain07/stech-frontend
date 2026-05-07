@@ -24,6 +24,7 @@ interface Product {
     rating: number | string;
     reviews: number | string;
     featured_specs?: Spec[];
+    current_stock?: number;
 }
 
 interface FlashDeal {
@@ -46,6 +47,7 @@ interface FlashDeal {
             sales: number;
             thumbnail_image: string;
             featured_specs: Spec[];
+            current_stock: number;
         }[];
     };
 }
@@ -107,6 +109,7 @@ export default function CampingOfferDetails() {
                     sales: number;
                     thumbnail_image: string;
                     featured_specs: Spec[];
+                    current_stock: number;
                 }) => ({
                     id: p.id,
                     name: p.name,
@@ -118,6 +121,7 @@ export default function CampingOfferDetails() {
                     reviews: p.sales || 0,
                     image: p.thumbnail_image,
                     featured_specs: p.featured_specs || [],
+                    current_stock: p.current_stock ?? 1,
                 }));
                 setProducts(mappedProducts);
                 setTimeLeft(getTimeLeft(dealData.date));

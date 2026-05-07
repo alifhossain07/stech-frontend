@@ -90,13 +90,13 @@ export default function OffersPage() {
               href={`/products/flashsale?slug=${offer.slug}`}
               className="block rounded-md overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-200 bg-white"
             >
-              <div className="relative w-full h-52 sm:h-64 md:h-72">
+              <div className="relative w-full aspect-[564/288]">
                 <Image
                   src={offer.banner || offer.imageSrc}
                   alt={offer.title}
                   fill
                   priority
-                  className="object-cover"
+                  className="object-contain"
                   sizes="(max-width: 768px) 100vw, 50vw"
                 />
               </div>
